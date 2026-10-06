@@ -1,23 +1,27 @@
-import React from 'react';
-import { BrowserRouter as Router, Routes, Route, Link } from 'react-router-dom';
-import Home from './pages/Home';
-import Login from './pages/Login';
-import Register from './pages/Register';
+import React, { useState, useEffect } from "react";
+import { BrowserRouter as Router, Routes, Route, Navigate } from "react-router-dom";
+import Navbar from "./pages/Navbar";
+import Register from "./pages/Register";
+import Login from "./pages/Login";
+import Home from "./pages/Home";
 
 export default function App() {
+  const [user, setUser] = useState(null);
+
+  useEffect(() => {
+    // App එක Load වෙනවිට LocalStorage එකේ User කෙනෙක් ඉන්නවාදැයි පරීක්ෂා කිරීම
+    const savedUser = localStorage.getItem('user');
+    if (savedUser) {
+      setUser(JSON.parse(savedUser));
+    }
+  }, []);
+
   return (
     <Router>
-      <nav style={{ padding: '15px 30px', background: '#222', color: '#fff', display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-        <h2 style={{ margin: 0 }}>
-          <Link to="/" style={{ color: '#fff', textDecoration: 'none' }}>Rent Hub</Link>
-        </h2>
-        <div>
-          <Link to="/" style={{ color: '#fff', marginRight: '20px', textDecoration: 'none', fontWeight: 'bold' }}>Home</Link>
-          <Link to="/login" style={{ color: '#fff', textDecoration: 'none', fontWeight: 'bold' }}>Login</Link>
-        </div>
-      </nav>
-
+      <Navbar user={user} setUser={setUser} />
       <Routes>
+        <Route path="/register" element={<Register />} />
+        <Route path="/login" element={<Login onLoginSuccess={(userData) => setUser(userData)} />} />
         <Route path="/" element={<Home />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
@@ -25,3 +29,5 @@ export default function App() {
     </Router>
   );
 }
+
+      

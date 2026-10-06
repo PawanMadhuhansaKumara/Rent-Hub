@@ -200,3 +200,93 @@ const PORT = process.env.PORT || 5000;
 app.listen(PORT, () => {
   console.log(`🚀 Backend server running on port ${PORT}...`);
 });
+
+const jwt = require('jsonwebtoken');
+const JWT_SECRET = 'your_jwt_secret_key_12345'; // Process env එකකට දා ගැනීම වඩාත් සුදුසුයි
+
+// 1. STANDARD LOGIN ROUTE (Phone Number + Password)
+app.post('/api/login', async (req, res) => {
+  const { phone_no, password } = req.body;
+
+  if (!phone_no || !password) {
+    return res.status(400).json({ success: false, message: 'Phone number and password are required.' });
+  }
+
+  try {
+    // Database එකෙන් User සොයා ගැනීම
+    const [rows] = await db.execute('SELECT * FROM users_details WHERE phone_no = ?', [phone_no]);
+
+    if (rows.length === 0) {
+      return res.status(400).json({ success: false, message: 'Invalid Phone Number or Password!' });
+    }
+
+    const user = rows[0];
+
+    // Password Check කිරීම
+    const isMatch = await bcrypt.compare(password, user.password_hash);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: 'Invalid Phone Number or Password!' });
+    }
+
+    // JWT Token සෑදීම
+    const token = jwt.sign(
+      { userId: user.user_id, role: user.user_role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    // Password Hash එක ඉවත් කර User details යැවීම
+    const { password_hash, ...userData } = user;
+
+    res.status(200).json({
+      success: true,
+      message: 'Login Successful!',
+      token,
+      user: userData
+    });
+
+  } catch (error) {
+    console.error('Login Error:', error);
+    res.status(500).json({ success: false, message: 'Server error occurred during login.' });
+  }
+});
+
+// 2. GOOGLE LOGIN / AUTO-FILL ROUTE
+// Google Identity Services (Client ID) හරහා ලැබෙන ID Token එක verification කිරීම
+app.post('/api/google-login', async (req, res) => {
+  const { email } = req.body; // Google Sign-in එකෙන් ලැබෙන Google Email එක
+
+  try {
+    // Email එකෙන් user කෙනෙක් ඉන්නවාද පරීක්ෂා කිරීම
+    const [rows] = await db.execute('SELECT * FROM users_details WHERE email = ?', [email]);
+
+    if (rows.length === 0) {
+      return res.status(404).json({
+        success: false,
+        message: 'No account found with this Google email. Please register first.'
+      });
+    }
+
+    const user = rows[0];
+
+    // Password එක නොමැතිව Auto-Fill වී Direct Log වීමට Token එක ලබාදීම
+    const token = jwt.sign(
+      { userId: user.user_id, role: user.user_role },
+      JWT_SECRET,
+      { expiresIn: '7d' }
+    );
+
+    const { password_hash, ...userData } = user;
+
+    res.status(200).json({
+      success: true,
+      message: 'Google Login Successful!',
+      token,
+      user: userData
+    });
+
+  } catch (error) {
+    console.error('Google Auth Error:', error);
+    res.status(500).json({ success: false, message: 'Server error during Google Login.' });
+  }
+});
