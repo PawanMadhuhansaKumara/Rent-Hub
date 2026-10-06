@@ -19,13 +19,13 @@ export default function Login() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h2 style={styles.title}>Rent Hub - ලොග් වන්න 👋</h2>
-        <p style={styles.subtitle}>ඔබගේ ගිණුමට ඇතුළු වන්න</p>
+        <h2 style={styles.title}>Rent Hub - Login 👋</h2>
+        <p style={styles.subtitle}>Log in to your account</p>
 
         {/* Form Login */}
         <form onSubmit={handlePhoneLogin} style={styles.form}>
           <div style={styles.inputGroup}>
-            <label style={styles.label}>දුරකථන අංකය (Phone Number)</label>
+            <label style={styles.label}>Phone Number</label>
             <input
               type="tel"
               placeholder="07X XXX XXXX"
@@ -37,7 +37,7 @@ export default function Login() {
           </div>
 
           <div style={styles.inputGroup}>
-            <label style={styles.label}>මුරපදය (Password)</label>
+            <label style={styles.label}>Password</label>
             <input
               type="password"
               placeholder="••••••••"
@@ -49,14 +49,14 @@ export default function Login() {
           </div>
 
           <button type="submit" style={styles.submitBtn}>
-            ලොග් වන්න
+            Login
           </button>
         </form>
 
         {/* Divider */}
         <div style={styles.divider}>
           <span style={styles.dividerLine}></span>
-          <span style={styles.dividerText}>හෝ</span>
+          <span style={styles.dividerText}>or</span>
           <span style={styles.dividerLine}></span>
         </div>
 
@@ -73,7 +73,7 @@ export default function Login() {
 
         {/* Register Redirect */}
         <div style={styles.footerText}>
-          නව ගිණුමක් නැද්ද? <Link to="/register" style={styles.link}>ලියාපදිංචි වන්න (Register)</Link>
+          You Don't have an account? <Link to="/register" style={styles.link}>Register</Link>
         </div>
       </div>
     </div>

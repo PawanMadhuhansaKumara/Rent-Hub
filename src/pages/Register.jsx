@@ -16,7 +16,7 @@ export default function Register() {
   const handleSubmit = (e) => {
     e.preventDefault();
     if (formData.password !== formData.confirmPassword) {
-      alert("මුරපද (Passwords) ගැලපෙන්නේ නැත!");
+      alert("Passwords do not match!");
       return;
     }
     console.log('Register Data:', formData);
@@ -26,16 +26,16 @@ export default function Register() {
   return (
     <div style={styles.container}>
       <div style={styles.card}>
-        <h2 style={styles.title}>Rent Hub - ලියාපදිංචි වන්න 📝</h2>
-        <p style={styles.subtitle}>අලුත් ගිණුමක් සාදා සේවාව ලබාගන්න</p>
+        <h2 style={styles.title}>Rent Hub - Register 📝</h2>
+        <p style={styles.subtitle}>Create a new account</p>
 
         <form onSubmit={handleSubmit} style={styles.form}>
           <div style={styles.inputGroup}>
-            <label style={styles.label}>සම්පූර්ණ නම</label>
+            <label style={styles.label}>Full Name</label>
             <input
               type="text"
               name="fullName"
-              placeholder="උදා: කමල් පෙරේරා"
+              placeholder="Ex : Pawan Madhuhansa"
               value={formData.fullName}
               onChange={handleChange}
               required
@@ -44,7 +44,7 @@ export default function Register() {
           </div>
 
           <div style={styles.inputGroup}>
-            <label style={styles.label}>දුරකථන අංකය (Phone Number)</label>
+            <label style={styles.label}>Phone Number</label>
             <input
               type="tel"
               name="phone"
@@ -57,7 +57,7 @@ export default function Register() {
           </div>
 
           <div style={styles.inputGroup}>
-            <label style={styles.label}>මුරපදය (Password)</label>
+            <label style={styles.label}>Password</label>
             <input
               type="password"
               name="password"
@@ -70,7 +70,7 @@ export default function Register() {
           </div>
 
           <div style={styles.inputGroup}>
-            <label style={styles.label}>මුරපදය තහවුරු කරන්න</label>
+            <label style={styles.label}>Confirm Password</label>
             <input
               type="password"
               name="confirmPassword"
@@ -83,12 +83,12 @@ export default function Register() {
           </div>
 
           <button type="submit" style={styles.submitBtn}>
-            Register වන්න
+            Register Now
           </button>
         </form>
 
         <div style={styles.footerText}>
-          දැනටමත් ගිණුමක් තිබේද? <Link to="/login" style={styles.link}>ලොග් වන්න (Login)</Link>
+          Already have an account? <Link to="/login" style={styles.link}>Login</Link>
         </div>
       </div>
     </div>
