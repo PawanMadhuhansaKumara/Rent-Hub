@@ -38,7 +38,7 @@ export default function Navbar({ user, setUser }) {
         {user ? (
           <div style={styles.profileWrapper}>
             <img
-              src={`http://localhost:5000${user.profile_pic_url}`}
+              src={`http://localhost:5001${user.profile_pic_url}`}
               alt="Profile"
               style={styles.profilePic}
               onError={(e) => { e.target.src = 'https://via.placeholder.com/40'; }}
