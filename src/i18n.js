@@ -8,6 +8,7 @@ const resources = {
         home: "Home",
         login: "Login",
         register: "Register",
+        logout: "Logout",
       },
 
       home: {
@@ -115,6 +116,7 @@ const resources = {
         home: "මුල් පිටුව",
         login: "පිවිසෙන්න",
         register: "ලියාපදිංචි වන්න",
+        logout: "ඉවත් වන්න",
       },
 
       home: {
@@ -219,6 +221,7 @@ const resources = {
         home: "முகப்பு",
         login: "உள்நுழைவு",
         register: "பதிவு செய்க",
+        logout: "வெளியேறு",
       },
 
       home: {

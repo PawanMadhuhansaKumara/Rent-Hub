@@ -24,15 +24,40 @@ export default function Navbar({ user, setUser }) {
 
   return (
     <nav style={styles.nav}>
-      {/* Brand Logo - Left side */}
-      <div style={styles.logo}>
-        <Link to="/" style={styles.brandLink}>
-          <img src="/logo.png" alt="Rent Hub Logo" style={styles.brandLogo} />
-        </Link>
-      </div>
+      {/* User logged in */}
+      {user ? (
+        <div style={styles.profileWrapper}>
+          <img
+            src={`http://localhost:5001${user.profile_pic_url}`}
+            alt="Profile"
+            style={styles.profilePic}
+            onError={(e) => {
+              e.target.src = "https://via.placeholder.com/40";
+            }}
+          />
+
+          <span style={styles.userName}>{user.full_name}</span>
+        </div>
+      ) : (
+        <div style={styles.logo}>
+          <Link to="/" style={styles.brandLink}>
+            <img src="/logo.png" alt="Rent Hub Logo" style={styles.brandLogo} />
+          </Link>
+        </div>
+      )}
 
       {/* Nav Links - Right side */}
       <div style={styles.menu}>
+        {/* Home */}
+        <Link
+          to="/"
+          style={{
+            ...styles.navLink,
+            ...(isActive("/") ? styles.activeNavLink : {}),
+          }}
+        >
+          {t("appbar.home")}
+        </Link>
         {/* Language Selector */}
         <select
           value={i18n.language}
@@ -45,46 +70,23 @@ export default function Navbar({ user, setUser }) {
 
           <option value="ta">தமிழ்</option>
         </select>
-        {/* Home */}
-        <Link
-          to="/"
-          style={{
-            ...styles.navLink,
-            ...(isActive("/") ? styles.activeNavLink : {}),
-          }}
-        >
-          {t("appbar.home")}
-        </Link>
 
-        {/* User logged in */}
         {user ? (
-          <div style={styles.profileWrapper}>
-            <img
-              src={`http://localhost:5001${user.profile_pic_url}`}
-              alt="Profile"
-              style={styles.profilePic}
-              onError={(e) => {
-                e.target.src = "https://via.placeholder.com/40";
-              }}
-            />
-
-            <span style={styles.userName}>{user.full_name}</span>
-
-            <button onClick={handleLogout} style={styles.logoutBtn}>
-              {t("appbar.logout")}
-            </button>
-          </div>
+          <button onClick={handleLogout} style={styles.logoutBtn}>
+            {t("appbar.logout")}
+          </button>
         ) : (
-          /* User not logged in */
-          <Link
-            to="/login"
-            style={{
-              ...styles.navLink,
-              ...(isActive("/login") ? styles.activeNavLink : {}),
-            }}
-          >
-            {t("appbar.login")}
-          </Link>
+          <div>
+            <Link
+              to="/login"
+              style={{
+                ...styles.navLink,
+                ...(isActive("/login") ? styles.activeNavLink : {}),
+              }}
+            >
+              {t("appbar.login")}
+            </Link>
+          </div>
         )}
       </div>
     </nav>
