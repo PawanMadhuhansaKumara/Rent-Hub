@@ -19,7 +19,7 @@ export default function Navbar({ user, setUser }) {
       {/* Brand Logo - Left side */}
       <div style={styles.logo}>
         <Link to="/" style={styles.brandLink}>
-          Rent Hub 🏠
+          <img src="/logo.png" alt="Rent Hub Logo" style={styles.brandLogo} />
         </Link>
       </div>
 
@@ -79,10 +79,15 @@ const styles = {
   },
   brandLink: {
     textDecoration: 'none',
-    color: '#007bff',
-    fontWeight: 'bold',
-    fontSize: '22px',
-    letterSpacing: '0.5px'
+    display: 'flex',
+    alignItems: 'center'
+  },
+  brandLogo: {
+    height: '45px',
+    transform: 'scale(2.1)',
+    transformOrigin: 'left center',
+    mixBlendMode: 'multiply',
+    objectFit: 'contain'
   },
   menu: {
     display: 'flex',
