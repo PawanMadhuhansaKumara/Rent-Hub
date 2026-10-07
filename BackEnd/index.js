@@ -6,6 +6,10 @@ require('dotenv').config();
 
 const app = express();
 
+// Middlewares
+app.use(cors());
+app.use(express.json());
+
 const multer = require('multer');
 const path = require('path');
 
@@ -101,9 +105,7 @@ app.post('/api/register', cpUpload, async (req, res) => {
   }
 });
 
-// Middlewares
-app.use(cors());
-app.use(express.json());
+// Middlewares (Moved to top)
 
 // Aiven Cloud MySQL Database Connection Pool
 const db = mysql.createPool({
