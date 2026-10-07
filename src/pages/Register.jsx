@@ -69,7 +69,7 @@ export default function Register() {
       submitData.append('nic_photo_front', files.nic_photo_front);
       submitData.append('nic_photo_back', files.nic_photo_back);
 
-      const response = await fetch('http://localhost:5000/api/register', {
+      const response = await fetch('http://localhost:5001/api/register', {
         method: 'POST',
         body: submitData
       });
