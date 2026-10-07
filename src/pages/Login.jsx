@@ -36,7 +36,7 @@ export default function Login({ onLoginSuccess }) {
 
         if (onLoginSuccess) onLoginSuccess(data.user);
 
-        alert(t("login.loginSuccess"));
+        //alert(t("login.loginSuccess"));
 
         navigate("/");
       } else {
