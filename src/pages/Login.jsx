@@ -38,7 +38,7 @@ export default function Login({ onLoginSuccess }) {
 
         alert(t("login.loginSuccess"));
 
-        navigate("/dashboard");
+        navigate("/");
       } else {
         setErrorMsg(data.message || t("login.loginFailed"));
       }
