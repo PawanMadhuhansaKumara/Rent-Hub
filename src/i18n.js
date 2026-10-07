@@ -107,6 +107,12 @@ const resources = {
         sinhala: "සිංහල",
         continue: "Continue",
       },
+      navigation: {
+        home: "Home",
+        saved: "Saved",
+        myItems: "My Items",
+        notifications: "Notifications",
+      },
     },
   },
 
@@ -211,6 +217,12 @@ const resources = {
         english: "English",
         sinhala: "සිංහල",
         continue: "ඉදිරියට",
+      },
+      navigation: {
+        home: "මුල් පිටුව",
+        saved: "සුරැකි දෑ",
+        myItems: "මගේ අයිතම",
+        notifications: "දැනුම්දීම්",
       },
     },
   },
@@ -319,6 +331,12 @@ const resources = {
         sinhala: "சிங்களம்",
         tamil: "தமிழ்",
         continue: "தொடரவும்",
+      },
+      navigation: {
+        home: "முகப்பு",
+        saved: "சேமித்தவை",
+        myItems: "எனது பொருட்கள்",
+        notifications: "அறிவிப்புகள்",
       },
     },
   },

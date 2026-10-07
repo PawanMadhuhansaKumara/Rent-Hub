@@ -48,16 +48,20 @@ export default function Navbar({ user, setUser }) {
 
       {/* Nav Links - Right side */}
       <div style={styles.menu}>
-        {/* Home */}
-        <Link
-          to="/"
-          style={{
-            ...styles.navLink,
-            ...(isActive("/") ? styles.activeNavLink : {}),
-          }}
-        >
-          {t("appbar.home")}
-        </Link>
+        {user ? (
+          ""
+        ) : (
+          <Link
+            to="/"
+            style={{
+              ...styles.navLink,
+              ...(isActive("/") ? styles.activeNavLink : {}),
+            }}
+          >
+            {t("appbar.home")}
+          </Link>
+        )}
+
         {/* Language Selector */}
         <select
           value={i18n.language}

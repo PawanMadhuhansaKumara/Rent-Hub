@@ -9,6 +9,7 @@ import Navbar from "./pages/Navbar";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
+import BottomNav from "./components/BottomNav";
 
 export default function App() {
   const [user, setUser] = useState(null);
@@ -30,7 +31,7 @@ export default function App() {
           path="/login"
           element={<Login onLoginSuccess={(userData) => setUser(userData)} />}
         />
-        <Route path="/" element={<Home />} />
+        <Route path="/" element={<Home user={user} setUser={setUser} />} />
         <Route path="/login" element={<Login />} />
         <Route path="/register" element={<Register />} />
       </Routes>
