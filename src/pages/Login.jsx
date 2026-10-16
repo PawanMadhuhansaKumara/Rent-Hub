@@ -44,7 +44,6 @@ export default function Login({ onLoginSuccess }) {
       }
     } catch (err) {
       console.error("Login Fetch Error:", err);
-
       setErrorMsg(t("login.serverError"));
     } finally {
       setLoading(false);
@@ -53,72 +52,75 @@ export default function Login({ onLoginSuccess }) {
 
   return (
     <div style={styles.container}>
-      <div style={styles.card}>
-        <h2 style={styles.title}>{t("login.title")}</h2>
+      <div style={styles.wrapper}>
 
-        <p style={styles.subtitle}>{t("login.subtitle")}</p>
-
-        {errorMsg && <div style={styles.errorAlert}>{errorMsg}</div>}
-
-        <form onSubmit={handleLogin} style={styles.form}>
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>{t("login.phoneNumber")}</label>
-
-            <input
-              type="tel"
-              placeholder={t("login.phonePlaceholder")}
-              value={phoneNo}
-              onChange={(e) => setPhoneNo(e.target.value)}
-              required
-              style={styles.input}
-            />
-          </div>
-
-          <div style={styles.inputGroup}>
-            <label style={styles.label}>{t("login.password")}</label>
-
-            <input
-              type="password"
-              placeholder="••••••••"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              required
-              style={styles.input}
-            />
-          </div>
-
-          <button type="submit" disabled={loading} style={styles.loginBtn}>
-            {loading ? t("login.loggingIn") : t("login.button")}
-          </button>
-        </form>
-
-        <div style={styles.divider}>
-          <span>{t("login.or")}</span>
+        {/* Rent Hub Logo — card box ඉහළින්, පිටතින් */}
+        <div style={styles.logoContainer}>
+          <img src="/logo.png" alt="Rent Hub" style={styles.logoImg} />
         </div>
 
-        {/* Google Connect Button */}
-        <button
-          type="button"
-          style={styles.googleBtn}
-          onClick={() => alert(t("login.googleMessage"))}
-        >
-          <img
-            src="https://www.svgrepo.com/show/475656/google-color.svg"
-            alt="Google"
-            style={{
-              width: "20px",
-              marginRight: "10px",
-            }}
-          />
+        {/* Login Card */}
+        <div style={styles.card}>
+          <h2 style={styles.title}>{t("login.title")}</h2>
 
-          {t("login.googleButton")}
-        </button>
+          <p style={styles.subtitle}>{t("login.subtitle")}</p>
 
-        <div style={styles.footerText}>
-          {t("login.noAccount")}{" "}
-          <Link to="/register" style={styles.link}>
-            {t("login.registerNow")}
-          </Link>
+          {errorMsg && <div style={styles.errorAlert}>{errorMsg}</div>}
+
+          <form onSubmit={handleLogin} style={styles.form}>
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>{t("login.phoneNumber")}</label>
+              <input
+                type="tel"
+                placeholder={t("login.phonePlaceholder")}
+                value={phoneNo}
+                onChange={(e) => setPhoneNo(e.target.value)}
+                required
+                style={styles.input}
+              />
+            </div>
+
+            <div style={styles.inputGroup}>
+              <label style={styles.label}>{t("login.password")}</label>
+              <input
+                type="password"
+                placeholder="••••••••"
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                required
+                style={styles.input}
+              />
+            </div>
+
+            <button type="submit" disabled={loading} style={styles.loginBtn}>
+              {loading ? t("login.loggingIn") : t("login.button")}
+            </button>
+          </form>
+
+          <div style={styles.divider}>
+            <span>{t("login.or")}</span>
+          </div>
+
+          {/* Google Connect Button */}
+          <button
+            type="button"
+            style={styles.googleBtn}
+            onClick={() => alert(t("login.googleMessage"))}
+          >
+            <img
+              src="https://www.svgrepo.com/show/475656/google-color.svg"
+              alt="Google"
+              style={{ width: "20px", marginRight: "10px" }}
+            />
+            {t("login.googleButton")}
+          </button>
+
+          <div style={styles.footerText}>
+            {t("login.noAccount")}{" "}
+            <Link to="/register" style={styles.link}>
+              {t("login.registerNow")}
+            </Link>
+          </div>
         </div>
       </div>
     </div>
@@ -134,9 +136,26 @@ const styles = {
     backgroundColor: "#f4f6f9",
   },
 
-  card: {
+  wrapper: {
+    display: "flex",
+    flexDirection: "column",
+    alignItems: "center",
     width: "100%",
     maxWidth: "400px",
+  },
+
+  logoContainer: {
+    marginBottom: "16px",
+  },
+
+  logoImg: {
+    width: "660px",
+    objectFit: "contain",
+    mixBlendMode: "multiply",
+  },
+
+  card: {
+    width: "100%",
     padding: "35px 30px",
     borderRadius: "16px",
     boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
