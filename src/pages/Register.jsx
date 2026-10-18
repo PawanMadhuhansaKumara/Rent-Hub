@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import "../responsive.css";
 
 export default function Register() {
   const navigate = useNavigate();
@@ -108,8 +109,8 @@ export default function Register() {
   };
 
   return (
-    <div style={styles.container}>
-      <div style={styles.card}>
+    <div className="register-container" style={styles.container}>
+      <div className="register-card" style={styles.card}>
         <h2 style={styles.title}>{t("register.title")}</h2>
 
         <p style={styles.subtitle}>{t("register.subtitle")}</p>
@@ -180,7 +181,7 @@ export default function Register() {
 
           {/* Phone Number & NIC */}
 
-          <div style={styles.row}>
+          <div className="register-row" style={styles.row}>
             <div
               style={{
                 ...styles.inputGroup,
@@ -256,7 +257,7 @@ export default function Register() {
 
           {/* Nearest City & Role */}
 
-          <div style={styles.row}>
+          <div className="register-row" style={styles.row}>
             <div
               style={{
                 ...styles.inputGroup,
@@ -305,7 +306,7 @@ export default function Register() {
             {t("register.verificationDocuments")}
           </div>
 
-          <div style={styles.row}>
+          <div className="register-row" style={styles.row}>
             <div
               style={{
                 ...styles.inputGroup,
@@ -361,7 +362,7 @@ export default function Register() {
 
           {/* Passwords */}
 
-          <div style={styles.row}>
+          <div className="register-row" style={styles.row}>
             <div
               style={{
                 ...styles.inputGroup,
@@ -425,39 +426,43 @@ const styles = {
     justifyContent: "center",
     alignItems: "center",
     minHeight: "100vh",
-    padding: "30px 15px",
-    backgroundColor: "#f4f6f9",
+    padding: "40px 20px",
+    backgroundColor: "#f0f4f8",
+    background: "linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%)",
   },
 
   card: {
     width: "100%",
-    maxWidth: "600px",
-    padding: "35px 30px",
-    borderRadius: "16px",
-    boxShadow: "0 8px 30px rgba(0,0,0,0.08)",
+    maxWidth: "620px",
+    padding: "40px 36px",
+    borderRadius: "20px",
+    boxShadow: "0 12px 36px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.04)",
     backgroundColor: "#ffffff",
+    border: "1px solid rgba(226, 232, 240, 0.8)",
   },
 
   title: {
-    marginBottom: "4px",
-    fontSize: "24px",
-    fontWeight: "bold",
-    color: "#1a1a1a",
+    marginBottom: "6px",
+    fontSize: "26px",
+    fontWeight: "700",
+    color: "#0f172a",
     textAlign: "center",
+    letterSpacing: "-0.3px",
   },
 
   subtitle: {
-    marginBottom: "15px",
-    color: "#666",
+    marginBottom: "24px",
+    color: "#64748b",
     fontSize: "14px",
     textAlign: "center",
+    lineHeight: "1.5",
   },
 
   profileSection: {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    marginBottom: "15px",
+    marginBottom: "20px",
   },
 
   avatarLabel: {
@@ -466,16 +471,17 @@ const styles = {
 
   avatarContainer: {
     position: "relative",
-    width: "100px",
-    height: "100px",
+    width: "104px",
+    height: "104px",
     borderRadius: "50%",
     overflow: "hidden",
-    border: "3px solid #007bff",
-    backgroundColor: "#e9ecef",
+    border: "3px solid #3b82f6",
+    backgroundColor: "#f8fafc",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    transition: "transform 0.2s ease-in-out",
+    boxShadow: "0 4px 14px rgba(59, 130, 246, 0.2)",
+    transition: "all 0.25s ease",
   },
 
   avatarImage: {
@@ -488,125 +494,139 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    color: "#6c757d",
+    color: "#94a3b8",
   },
 
   badgeOverlay: {
     position: "absolute",
     bottom: "0",
     width: "100%",
-    backgroundColor: "rgba(0, 123, 255, 0.75)",
+    backgroundColor: "rgba(30, 41, 59, 0.75)",
+    backdropFilter: "blur(2px)",
     color: "#fff",
     textAlign: "center",
-    fontSize: "10px",
-    padding: "2px 0",
+    fontSize: "11px",
+    padding: "3px 0",
   },
 
   profileHelpText: {
-    marginTop: "6px",
-    fontSize: "12px",
+    marginTop: "8px",
+    fontSize: "13px",
     fontWeight: "600",
-    color: "#007bff",
+    color: "#2563eb",
+    letterSpacing: "0.2px",
   },
 
   errorAlert: {
-    backgroundColor: "#ffe6e6",
-    color: "#d9534f",
-    padding: "10px",
-    borderRadius: "8px",
-    marginBottom: "15px",
-    fontSize: "13px",
+    backgroundColor: "#fef2f2",
+    color: "#ef4444",
+    padding: "12px 16px",
+    borderRadius: "10px",
+    marginBottom: "18px",
+    fontSize: "13.5px",
     textAlign: "center",
-    border: "1px solid #f5c6cb",
+    border: "1px solid #fecaca",
+    fontWeight: "500",
   },
 
   form: {
     display: "flex",
     flexDirection: "column",
-    gap: "15px",
+    gap: "18px",
   },
 
   row: {
     display: "flex",
-    gap: "12px",
+    gap: "16px",
     flexWrap: "wrap",
   },
 
   inputGroup: {
     textAlign: "left",
+    display: "flex",
+    flexDirection: "column",
   },
 
   label: {
     display: "block",
-    marginBottom: "5px",
+    marginBottom: "6px",
     fontSize: "13px",
     fontWeight: "600",
-    color: "#333",
+    color: "#334155",
   },
 
   input: {
     width: "100%",
-    padding: "10px 12px",
-    borderRadius: "8px",
-    border: "1px solid #ccc",
+    padding: "11px 14px",
+    borderRadius: "10px",
+    border: "1.5px solid #cbd5e1",
     boxSizing: "border-box",
     fontSize: "14px",
     fontFamily: "inherit",
     outline: "none",
+    color: "#1e293b",
+    backgroundColor: "#f8fafc",
+    transition: "all 0.2s ease-in-out",
   },
 
   fileInput: {
     width: "100%",
-    padding: "8px",
-    fontSize: "12px",
-    border: "1px dashed #007bff",
-    borderRadius: "8px",
-    backgroundColor: "#f8f9fa",
+    padding: "10px 12px",
+    fontSize: "12.5px",
+    border: "1.5px dashed #93c5fd",
+    borderRadius: "10px",
+    backgroundColor: "#eff6ff",
+    color: "#1e40af",
+    cursor: "pointer",
+    boxSizing: "border-box",
   },
 
   sectionHeader: {
-    fontSize: "13px",
-    fontWeight: "bold",
-    color: "#007bff",
+    fontSize: "12.5px",
+    fontWeight: "700",
+    color: "#2563eb",
     textTransform: "uppercase",
-    letterSpacing: "0.5px",
-    borderBottom: "1px solid #eee",
-    paddingBottom: "5px",
-    marginTop: "5px",
+    letterSpacing: "0.8px",
+    borderBottom: "1.5px solid #e2e8f0",
+    paddingBottom: "8px",
+    marginTop: "8px",
   },
 
   imagePreviewCard: {
     width: "100%",
-    maxHeight: "90px",
-    borderRadius: "6px",
+    maxHeight: "110px",
+    borderRadius: "8px",
     objectFit: "cover",
-    marginTop: "8px",
-    border: "1px solid #ddd",
+    marginTop: "10px",
+    border: "1px solid #bfdbfe",
+    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
   },
 
   submitBtn: {
-    padding: "12px",
-    backgroundColor: "#28a745",
-    color: "#fff",
+    padding: "13px 20px",
+    backgroundColor: "#2563eb",
+    color: "#ffffff",
     border: "none",
-    borderRadius: "8px",
+    borderRadius: "10px",
     fontSize: "15px",
-    fontWeight: "bold",
+    fontWeight: "600",
     cursor: "pointer",
     marginTop: "10px",
-    transition: "background 0.2s",
+    boxShadow: "0 4px 12px rgba(37, 99, 235, 0.25)",
+    transition: "all 0.2s ease-in-out",
   },
 
   footerText: {
-    marginTop: "20px",
+    marginTop: "24px",
     fontSize: "14px",
-    color: "#555",
+    color: "#64748b",
     textAlign: "center",
   },
 
   link: {
-    color: "#007bff",
-    fontWeight: "bold",
+    color: "#2563eb",
+    fontWeight: "600",
     textDecoration: "none",
+    marginLeft: "4px",
   },
 };

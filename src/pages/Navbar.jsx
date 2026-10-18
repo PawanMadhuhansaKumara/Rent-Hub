@@ -1,6 +1,7 @@
 import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import "../responsive.css";
 
 export default function Navbar({ user, setUser }) {
   const navigate = useNavigate();
@@ -23,7 +24,7 @@ export default function Navbar({ user, setUser }) {
   };
 
   return (
-    <nav style={styles.nav}>
+    <nav className="navbar" style={styles.nav}>
       {/* User logged in */}
       {user ? (
         <div style={styles.profileWrapper}>
@@ -36,7 +37,9 @@ export default function Navbar({ user, setUser }) {
             }}
           />
 
-          <span style={styles.userName}>{user.full_name}</span>
+          <span className="navbar-username" style={styles.userName}>
+            {user.full_name}
+          </span>
         </div>
       ) : (
         <div style={styles.logo}>

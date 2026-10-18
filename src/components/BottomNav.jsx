@@ -2,11 +2,12 @@ import { Bell, Heart, Home, List, Search } from "lucide-react";
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import "../responsive.css";
 
 export default function BottomNav() {
   const { t } = useTranslation();
   return (
-    <div style={styles.bottomNav}>
+    <div className="bottom-nav" style={styles.bottomNav}>
       <NavLink
         to="/"
         style={({ isActive }) => ({
