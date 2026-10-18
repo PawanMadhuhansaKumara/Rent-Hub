@@ -2,6 +2,7 @@ import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "../responsive.css";
+import logo from "../assets/logo.png";
 
 export default function Login({ onLoginSuccess }) {
   const navigate = useNavigate();
@@ -61,7 +62,7 @@ export default function Login({ onLoginSuccess }) {
             <h2 style={styles.title}>{t("login.title")}</h2>
             <p style={styles.subtitle}>{t("login.subtitle")}</p>
           </div>
-          <img src="/logo.png" alt="Rent Hub" className="login-logo-img" style={styles.logoImg} />
+          <img src={logo} alt="Rent Hub" className="login-logo-img" style={styles.logoImg} />
         </div>
 
         {/* Right Side: Login Form Card */}
@@ -148,12 +149,13 @@ const styles = {
   },
 
   welcomeBox: {
-    marginBottom: "12px",
-    width: "100%",
+    marginLeft:"20",
+    marginBottom: "10px",
+    width: "500px",
   },
 
   logoImg: {
-    width: "660px",
+    width: "500px",
     maxWidth: "100%",
     objectFit: "contain",
     mixBlendMode: "multiply",

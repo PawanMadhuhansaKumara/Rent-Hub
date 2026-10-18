@@ -2,6 +2,7 @@ import React from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "../responsive.css";
+import logo from "../assets/logoSmall.png";
 
 export default function Navbar({ user, setUser }) {
   const navigate = useNavigate();
@@ -44,7 +45,7 @@ export default function Navbar({ user, setUser }) {
       ) : (
         <div style={styles.logo}>
           <Link to="/" style={styles.brandLink}>
-            <img src="/logo.png" alt="Rent Hub Logo" style={styles.brandLogo} />
+            <img src={logo} alt="Rent Hub Logo" style={styles.brandLogo} />
           </Link>
         </div>
       )}
@@ -87,6 +88,7 @@ export default function Navbar({ user, setUser }) {
             <Link
               to="/login"
               style={{
+                
                 ...styles.navLink,
                 ...(isActive("/login") ? styles.activeNavLink : {}),
               }}
@@ -124,7 +126,8 @@ const styles = {
   },
 
   brandLogo: {
-    height: "45px",
+    
+    height: "10px",
     transform: "scale(2.1)",
     transformOrigin: "left center",
     mixBlendMode: "multiply",
