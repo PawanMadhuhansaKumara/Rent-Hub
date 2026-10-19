@@ -50,11 +50,11 @@
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
 }
 
-@media (min-width: 601px) {
+/*@media (min-width: 601px) {
   .bottom-nav {
     display: none !important;
   }
-}
+}*/
 
 /* -------- LOGIN PAGE -------- */
 .login-container {
