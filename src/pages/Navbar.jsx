@@ -7,7 +7,6 @@ import logo from "../assets/logoSmall.png";
 export default function Navbar({ user, setUser }) {
   const navigate = useNavigate();
   const location = useLocation();
-
   const { t, i18n } = useTranslation();
 
   const handleLogout = () => {
@@ -28,20 +27,22 @@ export default function Navbar({ user, setUser }) {
     <nav className="navbar" style={styles.nav}>
       {/* User logged in */}
       {user ? (
-        <div style={styles.profileWrapper}>
-          <img
-            src={`http://localhost:5001${user.profile_pic_url}`}
-            alt="Profile"
-            style={styles.profilePic}
-            onError={(e) => {
-              e.target.src = "https://via.placeholder.com/40";
-            }}
-          />
-
-          <span className="navbar-username" style={styles.userName}>
-            {user.full_name}
-          </span>
-        </div>
+        /* --- මෙතැන වෙනස් කරන ලදී: Profile Picture / Name Click කළ විට /profile එකට යයි --- */
+        <Link to="/profile" style={styles.profileLink}>
+          <div style={styles.profileWrapper}>
+            <img
+              src={`http://localhost:5001${user.profile_pic_url}`}
+              alt="Profile"
+              style={styles.profilePic}
+              onError={(e) => {
+                e.target.src = "https://via.placeholder.com/40";
+              }}
+            />
+            <span className="navbar-username" style={styles.userName}>
+              {user.full_name}
+            </span>
+          </div>
+        </Link>
       ) : (
         <div style={styles.logo}>
           <Link to="/" style={styles.brandLink}>
@@ -52,9 +53,8 @@ export default function Navbar({ user, setUser }) {
 
       {/* Nav Links - Right side */}
       <div style={styles.menu}>
-        {user ? (
-          ""
-        ) : (
+        {/* Home link for logged in users */}
+        {user && (
           <Link
             to="/"
             style={{
@@ -62,7 +62,7 @@ export default function Navbar({ user, setUser }) {
               ...(isActive("/") ? styles.activeNavLink : {}),
             }}
           >
-            {t("appbar.home")}
+            {t("appbar.home") || "Home"}
           </Link>
         )}
 
@@ -73,9 +73,7 @@ export default function Navbar({ user, setUser }) {
           style={styles.languageSelect}
         >
           <option value="en">English</option>
-
           <option value="si">සිංහල</option>
-
           <option value="ta">தமிழ்</option>
         </select>
 
@@ -88,7 +86,6 @@ export default function Navbar({ user, setUser }) {
             <Link
               to="/login"
               style={{
-                
                 ...styles.navLink,
                 ...(isActive("/login") ? styles.activeNavLink : {}),
               }}
@@ -113,34 +110,28 @@ const styles = {
     width: "100%",
     boxSizing: "border-box",
   },
-
   logo: {
     display: "flex",
     alignItems: "center",
   },
-
   brandLink: {
     textDecoration: "none",
     display: "flex",
     alignItems: "center",
   },
-
   brandLogo: {
-    
     height: "10px",
     transform: "scale(2.1)",
     transformOrigin: "left center",
     mixBlendMode: "multiply",
     objectFit: "contain",
   },
-
   menu: {
     display: "flex",
     alignItems: "center",
     gap: "30px",
     marginLeft: "auto",
   },
-
   navLink: {
     textDecoration: "none",
     color: "#444444",
@@ -150,18 +141,19 @@ const styles = {
     borderBottom: "2px solid transparent",
     transition: "all 0.2s ease-in-out",
   },
-
   activeNavLink: {
     color: "#007bff",
     borderBottom: "2.5px solid #007bff",
   },
-
+  profileLink: {
+    textDecoration: "none",
+    cursor: "pointer",
+  },
   profileWrapper: {
     display: "flex",
     alignItems: "center",
     gap: "12px",
   },
-
   profilePic: {
     width: "38px",
     height: "38px",
@@ -169,13 +161,11 @@ const styles = {
     objectFit: "cover",
     border: "2px solid #007bff",
   },
-
   userName: {
     fontWeight: "600",
     color: "#333333",
     fontSize: "14px",
   },
-
   logoutBtn: {
     padding: "6px 14px",
     backgroundColor: "#dc3545",
@@ -187,7 +177,6 @@ const styles = {
     fontWeight: "600",
     marginLeft: "5px",
   },
-
   languageSelect: {
     padding: "7px 10px",
     borderRadius: "6px",

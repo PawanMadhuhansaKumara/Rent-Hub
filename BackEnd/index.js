@@ -292,3 +292,70 @@ app.post('/api/google-login', async (req, res) => {
     res.status(500).json({ success: false, message: 'Server error during Google Login.' });
   }
 });
+
+// ==========================================
+// RENT HUB - ITEMS API ROUTES (Newly Added)
+// ==========================================
+
+// 1. GET ALL ITEMS (Database එකෙන් සියලුම items ලබා ගැනීම)
+app.get('/api/items', async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT * FROM items ORDER BY created_at DESC');
+    
+    // Frontend එකට ගැළපෙන පරිදි Key names format කිරීම
+    const formattedItems = rows.map(item => ({
+      id: item.id,
+      title: item.title,
+      category: item.category,
+      condition: item.condition,
+      price: item.price,
+      priceType: item.price_type,
+      description: item.description,
+      image: item.image_url,
+      available: item.available_qty
+    }));
+
+    res.status(200).json(formattedItems);
+  } catch (error) {
+    console.error('Fetch Items Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch items from database.' });
+  }
+});
+
+// 2. ADD NEW ITEM (Profile එකේ Add Item form එක හරහා අලුත් item එකක් save කිරීම)
+app.post('/api/items', async (req, res) => {
+  const { title, category, condition, price, priceType, description, image } = req.body;
+
+  if (!title || !price || !category) {
+    return res.status(400).json({ success: false, message: 'Title, category, and price are required.' });
+  }
+
+  try {
+    const query = `
+      INSERT INTO items (title, category, \`condition\`, price, price_type, description, image_url) 
+      VALUES (?, ?, ?, ?, ?, ?, ?)
+    `;
+
+    const values = [
+      title,
+      category,
+      condition || 'Good',
+      price,
+      priceType || 'day',
+      description || '',
+      image || 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=300'
+    ];
+
+    const [result] = await db.execute(query, values);
+
+    res.status(201).json({
+      success: true,
+      message: 'Item added successfully!',
+      itemId: result.insertId
+    });
+
+  } catch (error) {
+    console.error('Add Item Error:', error);
+    res.status(500).json({ success: false, message: 'Server error while saving the item.' });
+  }
+});
