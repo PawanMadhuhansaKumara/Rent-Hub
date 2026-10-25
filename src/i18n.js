@@ -4,6 +4,46 @@ import { initReactI18next } from "react-i18next";
 const resources = {
   en: {
     translation: {
+
+      profile: {
+        addItem: "Add Item",
+        editProfile: "Edit Profile",
+        trustedSeller: "Trusted Seller",
+        trustScore: "Trust Score",
+        reviews: "Reviews",
+        profileLikes: "Profile Likes",
+        myShopItems: "My Shop Items",
+        viewAll: "View All Items →",
+        recentItems: "Recent Shop Items",
+        noItems: "No items added yet. Click \"+ Add Item\" to list your first item!",
+        fullName: "Full Name",
+        username: "Username",
+        phoneNumber: "Phone Number",
+        email: "Email",
+        location: "Location",
+        aboutMe: "About Me",
+        save: "Save",
+        addNewItem: "Add New Item",
+        itemPhoto: "Item Photo",
+        clickUpload: "Click to upload item photo",
+        itemTitle: "Item Title",
+        category: "Category",
+        condition: "Condition",
+        price: "Price (per day / per month)",
+        description: "Description",
+        good: "Good",
+        brandNew: "Brand New",
+        used: "Used",
+        available: "available",
+        categories: {
+          electronics: "Electronics",
+          furniture: "Furniture",
+          vehicles: "Vehicles",
+          tools: "Tools",
+          sports: "Sports",
+          others: "Others"
+        }
+      },
       appbar: {
         home: "Home",
         login: "Login",
@@ -118,6 +158,47 @@ const resources = {
 
   si: {
     translation: {
+
+      profile: {
+        addItem: "භාණ්ඩයක් එකතු කරන්න",
+        editProfile: "පැතිකඩ සංස්කරණය",
+        trustedSeller: "විශ්වාසදායී විකුණුම්කරු",
+        trustScore: "විශ්වාසනීයත්ව අගය",
+        reviews: "විචාර",
+        profileLikes: "පැතිකඩ මනාප",
+        myShopItems: "මගේ භාණ්ඩ",
+        viewAll: "සියල්ල බලන්න →",
+        recentItems: "මෑතකදී එකතු කළ භාණ්ඩ",
+        noItems: "තවම භාණ්ඩ එකතු කර නැත. \"+ භාණ්ඩයක් එකතු කරන්න\" ඔබන්න!",
+        fullName: "සම්පූර්ණ නම",
+        username: "පරිශීලක නාමය",
+        phoneNumber: "දුරකථන අංකය",
+        email: "විද්‍යුත් තැපෑල",
+        location: "ස්ථානය",
+        aboutMe: "මම ගැන",
+        save: "සුරකින්න",
+        addNewItem: "අලුත් භාණ්ඩයක් එකතු කරන්න",
+        itemPhoto: "භාණ්ඩයේ ඡායාරූපය",
+        clickUpload: "ඡායාරූපයක් එක් කිරීමට ක්ලික් කරන්න",
+        itemTitle: "භාණ්ඩයේ නම",
+        category: "වර්ගය",
+        condition: "තත්වය",
+        price: "මිල (දිනකට / මාසයකට)",
+        description: "විස්තරය",
+        good: "හොඳ තත්වයේ",
+        brandNew: "නලුත්ම",
+        used: "භාවිත කළ",
+        available: "පවතී",
+        categories: {
+          electronics: "ඉලෙක්ට්‍රොනික",
+          furniture: "ගෘහ භාණ්ඩ",
+          vehicles: "වාහන",
+          tools: "මෙවලම්",
+          sports: "ක්‍රීඩා",
+          others: "වෙනත්"
+        }
+      },
+
       appbar: {
         home: "මුල් පිටුව",
         login: "පිවිසෙන්න",
@@ -229,6 +310,47 @@ const resources = {
 
   ta: {
     translation: {
+
+      profile: {
+        addItem: "பொருளைச் சேர்",
+        editProfile: "சுயவிவரத்தைத் திருத்து",
+        trustedSeller: "நம்பகமான விற்பனையாளர்",
+        trustScore: "நம்பிக்கை அட்டை",
+        reviews: "மதிப்புரைகள்",
+        profileLikes: "சுயவிவர விருப்பங்கள்",
+        myShopItems: "என் கடையில் உள்ள பொருட்கள்",
+        viewAll: "அனைத்தையும் பார் →",
+        recentItems: "சமீபத்திய பொருட்கள்",
+        noItems: "பொருட்கள் எதுவும் சேர்க்கப்படவில்லை. \"+ பொருளைச் சேர்\" என்பதைக் கிளிக் செய்க!",
+        fullName: "முழு பெயர்",
+        username: "பயனர்பெயர்",
+        phoneNumber: "தொலைபேசி எண்",
+        email: "மின்னஞ்சல்",
+        location: "இருப்பிடம்",
+        aboutMe: "என்னை பற்றி",
+        save: "சேமி",
+        addNewItem: "புதிய பொருளைச் சேர்",
+        itemPhoto: "பொருள் புகைப்படம்",
+        clickUpload: "புகைப்படத்தை பதிவேற்ற கிளிக் செய்யவும்",
+        itemTitle: "பொருளின் தலைப்பு",
+        category: "வகை",
+        condition: "நிலைமை",
+        price: "விலை (நாளுக்கு / மாதத்திற்கு)",
+        description: "விளக்கம்",
+        good: "நல்ல நிலை",
+        brandNew: "புதியது",
+        used: "பயன்படுத்தப்பட்டது",
+        available: "கிடைக்கும்",
+        categories: {
+          electronics: "மின்சாதனங்கள்",
+          furniture: "மரச்சாமான்கள்",
+          vehicles: "வாகனங்கள்",
+          tools: "கருவிகள்",
+          sports: "விளையாட்டு",
+          others: "மற்றவை"
+        }
+      },
+
       appbar: {
         home: "முகப்பு",
         login: "உள்நுழைவு",
