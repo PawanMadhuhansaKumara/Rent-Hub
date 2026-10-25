@@ -1,6 +1,6 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
+import { useTranslation } from "react-i18next";
 import {
-  ChevronLeft,
   Camera,
   CheckCircle2,
   Phone,
@@ -25,13 +25,20 @@ import {
 } from "lucide-react";
 
 export default function Profile({ user }) {
+  const { t } = useTranslation();
+
   const [activeTab, setActiveTab] = useState("shop");
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showAddItem, setShowAddItem] = useState(false);
   const [showAllShopItems, setShowAllShopItems] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
 
-  // Profile Data
+  // Hidden File Input References
+  const profileInputRef = useRef(null);
+  const coverInputRef = useRef(null);
+  const itemImageInputRef = useRef(null);
+
+  // Profile State
   const [profile, setProfile] = useState({
     fullName: user?.full_name || user?.fullName || "Pawan Madhuhansa",
     username: user?.username || "user_renthub",
@@ -49,7 +56,7 @@ export default function Profile({ user }) {
   // Items List
   const [items, setItems] = useState([]);
 
-  // New Item Form State
+  // New Item State
   const [newItem, setNewItem] = useState({
     title: "",
     category: "Electronics",
@@ -57,7 +64,7 @@ export default function Profile({ user }) {
     price: "",
     priceType: "day",
     description: "",
-    photos: []
+    image: ""
   });
 
   useEffect(() => {
@@ -73,6 +80,28 @@ export default function Profile({ user }) {
       }
     } catch (err) {
       console.error("Error fetching items:", err);
+    }
+  };
+
+  // Image Upload Handlers
+  const handleProfileImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfile((prev) => ({ ...prev, profilePic: URL.createObjectURL(file) }));
+    }
+  };
+
+  const handleCoverImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setProfile((prev) => ({ ...prev, coverPic: URL.createObjectURL(file) }));
+    }
+  };
+
+  const handleItemImageChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setNewItem((prev) => ({ ...prev, image: URL.createObjectURL(file) }));
     }
   };
 
@@ -109,21 +138,21 @@ export default function Profile({ user }) {
       price: "",
       priceType: "day",
       description: "",
-      photos: []
+      image: ""
     });
   };
 
   const categoriesList = [
-    { name: "Electronics", icon: Tv },
-    { name: "Furniture", icon: Armchair },
-    { name: "Vehicles", icon: Car },
-    { name: "Tools", icon: Wrench },
-    { name: "Sports", icon: Trophy },
-    { name: "Others", icon: Package },
+    { name: t("profile.categories.electronics"), key: "Electronics", icon: Tv },
+    { name: t("profile.categories.furniture"), key: "Furniture", icon: Armchair },
+    { name: t("profile.categories.vehicles"), key: "Vehicles", icon: Car },
+    { name: t("profile.categories.tools"), key: "Tools", icon: Wrench },
+    { name: t("profile.categories.sports"), key: "Sports", icon: Trophy },
+    { name: t("profile.categories.others"), key: "Others", icon: Package },
   ];
 
-  const getCategoryCount = (catName) => {
-    return items.filter((i) => i.category === catName).length;
+  const getCategoryCount = (catKey) => {
+    return items.filter((i) => i.category === catKey).length;
   };
 
   const filteredItems =
@@ -135,10 +164,15 @@ export default function Profile({ user }) {
     <div style={styles.desktopPageBackground}>
       <div style={styles.desktopContainer}>
         
+        {/* Hidden Inputs */}
+        <input type="file" ref={profileInputRef} style={{ display: "none" }} accept="image/*" onChange={handleProfileImageChange} />
+        <input type="file" ref={coverInputRef} style={{ display: "none" }} accept="image/*" onChange={handleCoverImageChange} />
+        <input type="file" ref={itemImageInputRef} style={{ display: "none" }} accept="image/*" onChange={handleItemImageChange} />
+
         {/* Cover Photo Banner */}
         <div style={styles.desktopCoverWrapper}>
           <img src={profile.coverPic} alt="Cover" style={styles.coverImg} />
-          <button style={styles.cameraCoverBtn}>
+          <button onClick={() => coverInputRef.current.click()} style={styles.cameraCoverBtn}>
             <Camera size={18} color="#333" />
           </button>
         </div>
@@ -146,21 +180,18 @@ export default function Profile({ user }) {
         {/* Profile Content Body */}
         <div style={styles.desktopProfileBody}>
           
-          {/* Header Row: Avatar, Info, Action Buttons */}
           <div style={styles.desktopHeaderRow}>
             
             <div style={{ display: "flex", gap: "24px", alignItems: "flex-end" }}>
-              {/* Profile Pic Overlap */}
               <div style={styles.desktopAvatarWrapper}>
                 <div style={{ position: "relative", display: "inline-block" }}>
                   <img src={profile.profilePic} alt="Profile" style={styles.desktopProfileImg} />
-                  <button style={styles.desktopCameraAvatarBtn}>
+                  <button onClick={() => profileInputRef.current.click()} style={styles.desktopCameraAvatarBtn}>
                     <Camera size={16} color="#fff" />
                   </button>
                 </div>
               </div>
 
-              {/* User Info Details */}
               <div style={{ marginBottom: "5px" }}>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                   <h2 style={styles.desktopUserName}>{profile.fullName}</h2>
@@ -168,18 +199,17 @@ export default function Profile({ user }) {
                 </div>
                 <p style={styles.desktopUserHandle}>@{profile.username}</p>
                 <p style={styles.desktopUserTagline}>
-                  Rent • Buy • Share | <span style={{ color: "#28a745", fontWeight: "bold" }}>✓ Trusted Seller</span>
+                  Rent • Buy • Share | <span style={{ color: "#28a745", fontWeight: "bold" }}>✓ {t("profile.trustedSeller")}</span>
                 </p>
               </div>
             </div>
 
-            {/* Action Buttons Right Aligned */}
             <div style={styles.desktopActionBtns}>
               <button onClick={() => setShowAddItem(true)} style={styles.primaryBtn}>
-                <Plus size={18} /> Add Item
+                <Plus size={18} /> {t("profile.addItem")}
               </button>
               <button onClick={() => setShowEditProfile(true)} style={styles.secondaryBtn}>
-                <Edit3 size={18} /> Edit Profile
+                <Edit3 size={18} /> {t("profile.editProfile")}
               </button>
               <button style={styles.iconBtn}>
                 <Settings size={18} color="#444" />
@@ -188,20 +218,16 @@ export default function Profile({ user }) {
 
           </div>
 
-          {/* Contact Details Bar */}
           <div style={styles.desktopContactBar}>
             <div style={styles.contactItem}><Phone size={16} color="#007bff"/> {profile.phone}</div>
             <div style={styles.contactItem}><MapPin size={16} color="#007bff"/> {profile.location}</div>
             <div style={styles.contactItem}><Mail size={16} color="#007bff"/> {profile.email}</div>
           </div>
 
-          {/* Desktop Grid Layout */}
           <div style={styles.desktopGridColumns}>
             
-            {/* Left Column: Trust Score & Stats Cards */}
             <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
               
-              {/* Trust Score Box */}
               <div style={styles.trustScoreBox}>
                 <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
                   <div style={styles.trustIconWrapper}>
@@ -209,7 +235,7 @@ export default function Profile({ user }) {
                   </div>
                   <div style={{ flex: 1 }}>
                     <div style={{ display: "flex", justifyContent: "space-between", fontSize: "13px", fontWeight: "bold", marginBottom: "6px" }}>
-                      <span style={{ color: "#007bff" }}>Trust Score</span>
+                      <span style={{ color: "#007bff" }}>{t("profile.trustScore")}</span>
                       <span style={{ color: "#007bff" }}>{profile.trustScore}%</span>
                     </div>
                     <div style={styles.progressBarBg}>
@@ -219,42 +245,39 @@ export default function Profile({ user }) {
                 </div>
               </div>
 
-              {/* Stats Cards Row */}
               <div style={styles.statsGrid}>
                 <div style={styles.statCard}>
                   <div style={styles.statValRow}>
                     <Star size={20} color="#ffc107" fill="#ffc107" />
                     <span style={styles.statNum}>{profile.reviewsCount}</span>
                   </div>
-                  <span style={styles.statLabel}>Reviews</span>
+                  <span style={styles.statLabel}>{t("profile.reviews")}</span>
                 </div>
                 <div style={styles.statCard}>
                   <div style={styles.statValRow}>
                     <Heart size={20} color="#e63946" fill="#e63946" />
                     <span style={styles.statNum}>{profile.likesCount}</span>
                   </div>
-                  <span style={styles.statLabel}>Profile Likes</span>
+                  <span style={styles.statLabel}>{t("profile.profileLikes")}</span>
                 </div>
               </div>
 
             </div>
 
-            {/* Right Column: Shop Navigation & Category Cards Grid */}
             <div style={{ flex: 1 }}>
               
-              {/* Navigation Tabs */}
               <div style={styles.desktopTabsRow}>
                 <button 
                   onClick={() => setActiveTab("shop")}
                   style={{ ...styles.desktopTabBtn, ...(activeTab === "shop" ? styles.activeTabBtn : {}) }}
                 >
-                  My Shop Items ({items.length})
+                  {t("profile.myShopItems")} ({items.length})
                 </button>
                 <button 
                   onClick={() => setActiveTab("reviews")}
                   style={{ ...styles.desktopTabBtn, ...(activeTab === "reviews" ? styles.activeTabBtn : {}) }}
                 >
-                  Reviews ({profile.reviewsCount})
+                  {t("profile.reviews")} ({profile.reviewsCount})
                 </button>
               </div>
 
@@ -262,30 +285,29 @@ export default function Profile({ user }) {
                 <div style={{ marginTop: "20px" }}>
                   
                   <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "14px" }}>
-                    <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "bold" }}>Categories</h3>
+                    <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "bold" }}>{t("profile.category")}</h3>
                     <span 
                       onClick={() => setShowAllShopItems(true)} 
                       style={{ fontSize: "13px", color: "#007bff", fontWeight: "bold", cursor: "pointer" }}
                     >
-                      View All Items →
+                      {t("profile.viewAll")}
                     </span>
                   </div>
 
-                  {/* 6 Category Desktop Grid */}
                   <div style={styles.desktopCategoryGrid}>
                     {categoriesList.map((cat) => {
                       const Icon = cat.icon;
-                      const count = getCategoryCount(cat.name);
+                      const count = getCategoryCount(cat.key);
                       return (
                         <div
-                          key={cat.name}
+                          key={cat.key}
                           onClick={() => {
-                            setSelectedCategory(cat.name);
+                            setSelectedCategory(cat.key);
                             setShowAllShopItems(true);
                           }}
                           style={{
                             ...styles.categoryCard,
-                            ...(selectedCategory === cat.name ? styles.categoryCardSelected : {})
+                            ...(selectedCategory === cat.key ? styles.categoryCardSelected : {})
                           }}
                         >
                           <Icon size={24} color="#007bff" />
@@ -296,12 +318,11 @@ export default function Profile({ user }) {
                     })}
                   </div>
 
-                  {/* Shop Items Display Cards Grid */}
                   <div style={{ marginTop: "24px" }}>
-                    <h4 style={{ fontSize: "15px", fontWeight: "bold", marginBottom: "12px" }}>Recent Shop Items</h4>
+                    <h4 style={{ fontSize: "15px", fontWeight: "bold", marginBottom: "12px" }}>{t("profile.recentItems")}</h4>
                     {filteredItems.length === 0 ? (
                       <div style={styles.emptyState}>
-                        No items added yet. Click "+ Add Item" to list your first item!
+                        {t("profile.noItems")}
                       </div>
                     ) : (
                       <div style={styles.desktopItemsGrid}>
@@ -315,7 +336,7 @@ export default function Profile({ user }) {
                             <div style={{ padding: "12px" }}>
                               <span style={styles.itemCategoryBadge}>{item.category}</span>
                               <h4 style={{ margin: "6px 0 4px 0", fontSize: "15px", fontWeight: "bold" }}>{item.title}</h4>
-                              <p style={styles.itemStatus}>● Available ({item.condition || 'Good'})</p>
+                              <p style={styles.itemStatus}>● {t("profile.available")} ({item.condition || 'Good'})</p>
                               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "10px" }}>
                                 <p style={styles.itemPrice}>Rs. {item.price} / {item.priceType || 'day'}</p>
                                 <button style={styles.prettyEditBtn}>
@@ -338,7 +359,7 @@ export default function Profile({ user }) {
 
         </div>
 
-        {/* --- 1. EDIT PROFILE POPUP MODAL (ප්‍රමාණය ලොකු කරන ලදී) --- */}
+        {/* EDIT PROFILE POPUP */}
         {showEditProfile && (
           <div style={styles.modalOverlay}>
             <div style={styles.prettyModalBox}>
@@ -347,16 +368,16 @@ export default function Profile({ user }) {
                 <button onClick={() => setShowEditProfile(false)} style={styles.circleBackBtn}>
                   <X size={18} color="#333" />
                 </button>
-                <h3 style={styles.prettyModalTitle}>Edit Profile</h3>
+                <h3 style={styles.prettyModalTitle}>{t("profile.editProfile")}</h3>
                 <button onClick={() => setShowEditProfile(false)} style={styles.topSaveBtn}>
-                  Save
+                  {t("profile.save")}
                 </button>
               </div>
 
               <div style={styles.centerAvatarContainer}>
                 <div style={{ position: "relative", display: "inline-block" }}>
                   <img src={profile.profilePic} alt="Avatar" style={styles.modalAvatarImg} />
-                  <button style={styles.modalCameraBtn}>
+                  <button onClick={() => profileInputRef.current.click()} style={styles.modalCameraBtn}>
                     <Camera size={15} color="#007bff" />
                   </button>
                 </div>
@@ -365,7 +386,7 @@ export default function Profile({ user }) {
               <div style={styles.formFieldsStack}>
                 <div style={styles.twoColumnRow}>
                   <div style={{ flex: 1 }}>
-                    <label style={styles.fieldLabel}>Full Name</label>
+                    <label style={styles.fieldLabel}>{t("profile.fullName")}</label>
                     <div style={styles.inputWithIconWrapper}>
                       <User size={18} color="#777" style={styles.inputIcon} />
                       <input 
@@ -377,7 +398,7 @@ export default function Profile({ user }) {
                     </div>
                   </div>
                   <div style={{ flex: 1 }}>
-                    <label style={styles.fieldLabel}>Username</label>
+                    <label style={styles.fieldLabel}>{t("profile.username")}</label>
                     <div style={styles.inputWithIconWrapper}>
                       <AtSign size={18} color="#777" style={styles.inputIcon} />
                       <input 
@@ -392,7 +413,7 @@ export default function Profile({ user }) {
 
                 <div style={styles.twoColumnRow}>
                   <div style={{ flex: 1 }}>
-                    <label style={styles.fieldLabel}>Phone Number</label>
+                    <label style={styles.fieldLabel}>{t("profile.phoneNumber")}</label>
                     <div style={styles.inputWithIconWrapper}>
                       <Phone size={18} color="#777" style={styles.inputIcon} />
                       <input 
@@ -404,7 +425,7 @@ export default function Profile({ user }) {
                     </div>
                   </div>
                   <div style={{ flex: 1 }}>
-                    <label style={styles.fieldLabel}>Email</label>
+                    <label style={styles.fieldLabel}>{t("profile.email")}</label>
                     <div style={styles.inputWithIconWrapper}>
                       <Mail size={18} color="#777" style={styles.inputIcon} />
                       <input 
@@ -418,7 +439,7 @@ export default function Profile({ user }) {
                 </div>
 
                 <div>
-                  <label style={styles.fieldLabel}>Location</label>
+                  <label style={styles.fieldLabel}>{t("profile.location")}</label>
                   <div style={styles.inputWithIconWrapper}>
                     <MapPin size={18} color="#777" style={styles.inputIcon} />
                     <input 
@@ -431,7 +452,7 @@ export default function Profile({ user }) {
                 </div>
 
                 <div>
-                  <label style={styles.fieldLabel}>About Me</label>
+                  <label style={styles.fieldLabel}>{t("profile.aboutMe")}</label>
                   <textarea 
                     style={styles.prettyTextarea} 
                     value={profile.about} 
@@ -445,13 +466,13 @@ export default function Profile({ user }) {
           </div>
         )}
 
-        {/* --- 2. ADD ITEM POPUP MODAL (ප්‍රමාණය ලොකු කරන ලදී) --- */}
+        {/* ADD ITEM POPUP */}
         {showAddItem && (
           <div style={styles.modalOverlay}>
             <div style={styles.prettyModalBox}>
               
               <div style={styles.prettyModalHeaderCenter}>
-                <h3 style={styles.prettyModalTitle}>Add New Item</h3>
+                <h3 style={styles.prettyModalTitle}>{t("profile.addNewItem")}</h3>
                 <button onClick={() => setShowAddItem(false)} style={styles.circleBackBtn}>
                   <X size={18} color="#333" />
                 </button>
@@ -460,23 +481,26 @@ export default function Profile({ user }) {
               <form onSubmit={handleAddItem} style={styles.formFieldsStack}>
                 
                 <div>
-                  <label style={styles.fieldLabel}>Item Photos</label>
-                  <div style={styles.photoGrid}>
-                    <div style={styles.addPhotoTile}>
-                      <Camera size={22} color="#555" />
-                      <span style={{ fontSize: "11px", color: "#555", fontWeight: "600", marginTop: "3px" }}>Add Photos</span>
-                    </div>
-                    <img src="https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=200" alt="p1" style={styles.photoTileImg} />
-                    <img src="https://images.unsplash.com/photo-1485965120184-e220f721d03e?auto=format&fit=crop&q=80&w=200" alt="p2" style={styles.photoTileImg} />
-                    <div style={styles.photoOverlayTile}>
-                      <img src="https://images.unsplash.com/photo-1507136566006-cfc505b114fc?auto=format&fit=crop&q=80&w=200" alt="p3" style={{ width: "100%", height: "100%", objectFit: "cover", opacity: 0.5 }} />
-                      <span style={styles.overlayText}>+3</span>
-                    </div>
+                  <label style={styles.fieldLabel}>{t("profile.itemPhoto")}</label>
+                  <div style={styles.singlePhotoUploadContainer}>
+                    {newItem.image ? (
+                      <div style={{ position: "relative", width: "100%", height: "120px" }}>
+                        <img src={newItem.image} alt="Selected Item" style={styles.selectedItemPreviewImg} />
+                        <button type="button" onClick={() => setNewItem({...newItem, image: ""})} style={styles.removeImgBtn}>
+                          <X size={14} color="#fff" />
+                        </button>
+                      </div>
+                    ) : (
+                      <div onClick={() => itemImageInputRef.current.click()} style={styles.addPhotoTileLarge}>
+                        <Camera size={28} color="#007bff" />
+                        <span style={{ fontSize: "12px", color: "#007bff", fontWeight: "600", marginTop: "6px" }}>{t("profile.clickUpload")}</span>
+                      </div>
+                    )}
                   </div>
                 </div>
 
                 <div>
-                  <label style={styles.fieldLabel}>Item Title</label>
+                  <label style={styles.fieldLabel}>{t("profile.itemTitle")}</label>
                   <input 
                     required 
                     style={styles.prettyInputNoIcon} 
@@ -489,30 +513,30 @@ export default function Profile({ user }) {
 
                 <div style={styles.twoColumnRow}>
                   <div style={{ flex: 1 }}>
-                    <label style={styles.fieldLabel}>Category</label>
+                    <label style={styles.fieldLabel}>{t("profile.category")}</label>
                     <div style={{ position: "relative" }}>
                       <select 
                         style={styles.prettySelect} 
                         value={newItem.category} 
                         onChange={(e) => setNewItem({...newItem, category: e.target.value})}
                       >
-                        {categoriesList.map(c => <option key={c.name} value={c.name}>{c.name}</option>)}
+                        {categoriesList.map(c => <option key={c.key} value={c.key}>{c.name}</option>)}
                       </select>
                       <ChevronDown size={18} color="#555" style={styles.selectArrow} />
                     </div>
                   </div>
 
                   <div style={{ flex: 1 }}>
-                    <label style={styles.fieldLabel}>Condition</label>
+                    <label style={styles.fieldLabel}>{t("profile.condition")}</label>
                     <div style={{ position: "relative" }}>
                       <select 
                         style={styles.prettySelect} 
                         value={newItem.condition} 
                         onChange={(e) => setNewItem({...newItem, condition: e.target.value})}
                       >
-                        <option value="Good">Good</option>
-                        <option value="Brand New">Brand New</option>
-                        <option value="Used">Used</option>
+                        <option value="Good">{t("profile.good")}</option>
+                        <option value="Brand New">{t("profile.brandNew")}</option>
+                        <option value="Used">{t("profile.used")}</option>
                       </select>
                       <ChevronDown size={18} color="#555" style={styles.selectArrow} />
                     </div>
@@ -520,7 +544,7 @@ export default function Profile({ user }) {
                 </div>
 
                 <div>
-                  <label style={styles.fieldLabel}>Price <span style={{ color: "#777", fontWeight: "normal" }}>(per day / per month)</span></label>
+                  <label style={styles.fieldLabel}>{t("profile.price")}</label>
                   <input 
                     required 
                     style={styles.prettyInputNoIcon} 
@@ -532,10 +556,10 @@ export default function Profile({ user }) {
                 </div>
 
                 <div>
-                  <label style={styles.fieldLabel}>Description</label>
+                  <label style={styles.fieldLabel}>{t("profile.description")}</label>
                   <textarea 
                     style={styles.prettyTextarea} 
-                    placeholder="Describe your item, features, and rental terms..." 
+                    placeholder="..." 
                     value={newItem.description} 
                     onChange={(e) => setNewItem({...newItem, description: e.target.value})} 
                   />
@@ -543,7 +567,7 @@ export default function Profile({ user }) {
                 </div>
 
                 <button type="submit" style={styles.fullBlueBtn}>
-                  Add Item
+                  {t("profile.addItem")}
                 </button>
 
               </form>
@@ -552,21 +576,18 @@ export default function Profile({ user }) {
           </div>
         )}
 
-        {/* --- 3. MY SHOP ITEMS POPUP MODAL (ප්‍රමාණය ලොකු කරන ලදී) --- */}
+        {/* MY SHOP ITEMS POPUP */}
         {showAllShopItems && (
           <div style={styles.modalOverlay}>
             <div style={styles.prettyModalBoxWide}>
               
               <div style={styles.prettyModalHeaderCenter}>
                 <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                  <h3 style={styles.prettyModalTitle}>My Shop Items</h3>
+                  <h3 style={styles.prettyModalTitle}>{t("profile.myShopItems")}</h3>
                 </div>
                 <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                  <button 
-                    onClick={() => { setShowAllShopItems(false); setShowAddItem(true); }} 
-                    style={styles.smallAddBtn}
-                  >
-                    <Plus size={14} /> Add Item
+                  <button onClick={() => { setShowAllShopItems(false); setShowAddItem(true); }} style={styles.smallAddBtn}>
+                    <Plus size={14} /> {t("profile.addItem")}
                   </button>
                   <button onClick={() => setShowAllShopItems(false)} style={styles.circleBackBtn}>
                     <X size={18} color="#333" />
@@ -583,39 +604,31 @@ export default function Profile({ user }) {
                 </button>
                 {categoriesList.map((cat) => (
                   <button 
-                    key={cat.name}
-                    onClick={() => setSelectedCategory(cat.name)}
-                    style={{ ...styles.pillBtn, ...(selectedCategory === cat.name ? styles.pillBtnActive : {}) }}
+                    key={cat.key}
+                    onClick={() => setSelectedCategory(cat.key)}
+                    style={{ ...styles.pillBtn, ...(selectedCategory === cat.key ? styles.pillBtnActive : {}) }}
                   >
-                    {cat.name} ({getCategoryCount(cat.name)})
+                    {cat.name} ({getCategoryCount(cat.key)})
                   </button>
                 ))}
               </div>
 
               <div style={{ display: "flex", flexDirection: "column", gap: "12px", marginTop: "18px" }}>
                 {filteredItems.length === 0 ? (
-                  <div style={styles.emptyState}>No items available in this category.</div>
+                  <div style={styles.emptyState}>{t("profile.noItems")}</div>
                 ) : (
                   filteredItems.map((item, idx) => (
                     <div key={item.id || idx} style={styles.shopListCard}>
-                      <img 
-                        src={item.image || "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=300"} 
-                        alt={item.title} 
-                        style={styles.shopListCardImg} 
-                      />
+                      <img src={item.image || "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=300"} alt={item.title} style={styles.shopListCardImg} />
                       <div style={{ flex: 1 }}>
                         <h4 style={{ margin: "0 0 4px 0", fontSize: "15px", fontWeight: "bold" }}>{item.title}</h4>
                         <span style={styles.itemCategoryBadge}>{item.category}</span>
-                        <p style={styles.itemStatus}>● {item.available || 5} available</p>
+                        <p style={styles.itemStatus}>● {item.available || 5} {t("profile.available")}</p>
                         <p style={styles.itemPrice}>Rs. {item.price || "1,000"} / {item.priceType || "day"}</p>
                       </div>
                       <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                        <button style={styles.prettyEditBtn}>
-                          <Edit3 size={13} /> Edit
-                        </button>
-                        <button style={styles.circleMoreBtn}>
-                          <MoreVertical size={16} color="#666" />
-                        </button>
+                        <button style={styles.prettyEditBtn}><Edit3 size={13} /> Edit</button>
+                        <button style={styles.circleMoreBtn}><MoreVertical size={16} color="#666" /></button>
                       </div>
                     </div>
                   ))
@@ -631,7 +644,6 @@ export default function Profile({ user }) {
   );
 }
 
-// Inline Styles (Modals Enlarged for Desktop Display)
 const styles = {
   desktopPageBackground: {
     backgroundColor: "#f4f6f8",
@@ -942,8 +954,6 @@ const styles = {
     backgroundColor: "#f9f9f9",
     borderRadius: "14px"
   },
-
-  /* MODALS ENLARGED FOR DESKTOP */
   modalOverlay: {
     position: "fixed",
     inset: 0,
@@ -958,7 +968,7 @@ const styles = {
   prettyModalBox: {
     backgroundColor: "#ffffff",
     width: "100%",
-    maxWidth: "520px", // 400px සිට 520px දක්වා පුළුල් කරන ලදී
+    maxWidth: "520px",
     borderRadius: "24px",
     padding: "28px",
     boxShadow: "0 20px 40px rgba(0,0,0,0.18)",
@@ -968,7 +978,7 @@ const styles = {
   prettyModalBoxWide: {
     backgroundColor: "#ffffff",
     width: "100%",
-    maxWidth: "680px", // 500px සිට 680px දක්වා පුළුල් කරන ලදී
+    maxWidth: "680px",
     borderRadius: "24px",
     padding: "28px",
     boxShadow: "0 20px 40px rgba(0,0,0,0.18)",
@@ -1121,14 +1131,12 @@ const styles = {
     color: "#aaa",
     marginTop: "3px"
   },
-  photoGrid: {
-    display: "grid",
-    gridTemplateColumns: "repeat(4, 1fr)",
-    gap: "10px"
+  singlePhotoUploadContainer: {
+    width: "100%"
   },
-  addPhotoTile: {
-    height: "80px",
-    border: "1px dashed #cbd5e1",
+  addPhotoTileLarge: {
+    height: "110px",
+    border: "2px dashed #cbd5e1",
     borderRadius: "14px",
     display: "flex",
     flexDirection: "column",
@@ -1137,28 +1145,25 @@ const styles = {
     backgroundColor: "#f8fafc",
     cursor: "pointer"
   },
-  photoTileImg: {
+  selectedItemPreviewImg: {
     width: "100%",
-    height: "80px",
+    height: "120px",
     borderRadius: "14px",
     objectFit: "cover"
   },
-  photoOverlayTile: {
-    position: "relative",
-    height: "80px",
-    borderRadius: "14px",
-    overflow: "hidden",
-    backgroundColor: "#000"
-  },
-  overlayText: {
+  removeImgBtn: {
     position: "absolute",
-    inset: 0,
+    top: "8px",
+    right: "8px",
+    backgroundColor: "rgba(0,0,0,0.6)",
+    border: "none",
+    borderRadius: "50%",
+    width: "24px",
+    height: "24px",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
-    color: "#fff",
-    fontWeight: "bold",
-    fontSize: "15px"
+    cursor: "pointer"
   },
   fullBlueBtn: {
     width: "100%",
