@@ -1,5 +1,5 @@
-
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import "./AddItem.css";
 
 const initialForm = {
@@ -9,24 +9,33 @@ const initialForm = {
   price: "",
   priceType: "day",
   description: "",
-  image: "",
 };
 
 export default function AddItem({ onItemAdded }) {
   const [form, setForm] = useState(initialForm);
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState("");
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
+  const navigate = useNavigate();
 
   function handleChange(event) {
     const { name, value } = event.target;
-
     setForm((previous) => ({
       ...previous,
       [name]: value,
     }));
-
     setMessage("");
+  }
+
+  // ෆයිල් එකක් Select කළ විට ක්‍රියාත්මක වන Function එක
+  function handleImageChange(event) {
+    const file = event.target.files[0];
+    if (file) {
+      setImageFile(file);
+      setImagePreview(URL.createObjectURL(file)); // Preview එක පෙන්වීම සඳහා
+    }
   }
 
   async function handleSubmit(event) {
@@ -49,22 +58,24 @@ export default function AddItem({ onItemAdded }) {
     setLoading(true);
 
     try {
-      const response = await fetch(
-        "http://localhost:5001/api/items",
-        {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            ...form,
-            title: form.title.trim(),
-            description: form.description.trim(),
-            image: form.image.trim(),
-            price: Number(form.price),
-          }),
-        }
-      );
+      // FormData භාවිතයෙන් දත්ත සහ ෆයිල් එක Backend එකට යැවීම
+      const formData = new FormData();
+      formData.append("userId", localStorage.getItem("userId") || 1);
+      formData.append("title", form.title.trim());
+      formData.append("category", form.category);
+      formData.append("condition", form.condition);
+      formData.append("price", Number(form.price));
+      formData.append("priceType", form.priceType);
+      formData.append("description", form.description.trim());
+      
+      if (imageFile) {
+        formData.append("image", imageFile); // Image file එක යැවීම
+      }
+
+      const response = await fetch("http://localhost:5001/api/items", {
+        method: "POST",
+        body: formData, // JSON.stringify වෙනුවට FormData යොදයි
+      });
 
       const result = await response.json();
 
@@ -75,14 +86,20 @@ export default function AddItem({ onItemAdded }) {
       setMessage("Your item has been published successfully!");
       setIsError(false);
       setForm({ ...initialForm });
+      setImageFile(null);
+      setImagePreview("");
 
       if (onItemAdded) {
         onItemAdded();
       }
+
+      // සාර්ථකව එකතු වූ පසු Profile එකට යාම
+      setTimeout(() => {
+        navigate("/profile");
+      }, 1000);
+
     } catch (error) {
-      setMessage(
-        error.message || "Could not connect to the backend."
-      );
+      setMessage(error.message || "Could not connect to the backend.");
       setIsError(true);
     } finally {
       setLoading(false);
@@ -103,9 +120,7 @@ export default function AddItem({ onItemAdded }) {
 
         <section className="add-item-card">
           <div className="add-item-card-heading">
-            <div className="add-item-icon" aria-hidden="true">
-              +
-            </div>
+            <div className="add-item-icon" aria-hidden="true">+</div>
             <div>
               <h2>Item Information</h2>
               <p>Enter the details of the item you want to rent out.</p>
@@ -203,39 +218,28 @@ export default function AddItem({ onItemAdded }) {
                 rows={5}
                 maxLength={2000}
               />
-              <small className="add-item-hint">
-                Help customers understand what they are renting.
-              </small>
             </div>
 
+            {/* Image File Upload Field */}
             <div className="add-item-field">
-              <label htmlFor="image">Item Image URL</label>
+              <label htmlFor="image">Upload Item Image <span>*</span></label>
               <input
                 id="image"
                 name="image"
-                type="url"
-                value={form.image}
-                onChange={handleChange}
-                placeholder="https://example.com/item.jpg"
+                type="file"
+                accept="image/*"
+                onChange={handleImageChange}
               />
               <small className="add-item-hint">
-                Paste a direct link to your item's image.
+                Choose an image file from your device.
               </small>
             </div>
 
-            {form.image.trim() && (
+            {/* Image Preview */}
+            {imagePreview && (
               <div className="add-item-image-preview">
                 <p>Image Preview</p>
-                <img
-                  src={form.image}
-                  alt="Preview of the item"
-                  onError={(event) => {
-                    event.currentTarget.style.display = "none";
-                  }}
-                  onLoad={(event) => {
-                    event.currentTarget.style.display = "block";
-                  }}
-                />
+                <img src={imagePreview} alt="Preview of the item" />
               </div>
             )}
 
@@ -263,7 +267,7 @@ export default function AddItem({ onItemAdded }) {
               <button
                 type="button"
                 className="back-button"
-                onClick={() => window.history.back()}
+                onClick={() => navigate("/profile")}
                 disabled={loading}
               >
                 Back

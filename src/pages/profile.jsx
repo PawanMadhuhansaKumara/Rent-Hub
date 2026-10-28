@@ -1,5 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
+import { useNavigate } from "react-router-dom";
 import {
   Camera,
   CheckCircle2,
@@ -26,25 +27,25 @@ import {
 
 export default function Profile({ user }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
 
   const [activeTab, setActiveTab] = useState("shop");
   const [showEditProfile, setShowEditProfile] = useState(false);
-  const [showAddItem, setShowAddItem] = useState(false);
   const [showAllShopItems, setShowAllShopItems] = useState(false);
   const [selectedCategory, setSelectedCategory] = useState("All");
 
   // Hidden File Input References
   const profileInputRef = useRef(null);
   const coverInputRef = useRef(null);
-  const itemImageInputRef = useRef(null);
 
   // Profile State
   const [profile, setProfile] = useState({
+    userId: user?.user_id || user?.id || localStorage.getItem("userId") || 1,
     fullName: user?.full_name || user?.fullName || "Pawan Madhuhansa",
     username: user?.username || "user_renthub",
-    phone: user?.phone || "+94 77 123 4567",
+    phone: user?.phone_no || user?.phone || "+94 77 123 4567",
     email: user?.email || "madhuhansapawan@gmail.com",
-    location: user?.location || "Colombo, Sri Lanka",
+    location: user?.address || user?.location || "Colombo, Sri Lanka",
     about: user?.about || "Hi! I rent and sell quality items. Feel free to contact me!",
     trustScore: user?.trust_score || 92,
     reviewsCount: user?.reviews_count || 12,
@@ -53,36 +54,30 @@ export default function Profile({ user }) {
     coverPic: user?.cover_pic_url ? `http://localhost:5001${user.cover_pic_url}` : "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=1000",
   });
 
-  // Items List
+  // Items List (Filtered for this logged-in user only)
   const [items, setItems] = useState([]);
 
-  // New Item State
-  const [newItem, setNewItem] = useState({
-    title: "",
-    category: "Electronics",
-    condition: "Good",
-    price: "",
-    priceType: "day",
-    description: "",
-    image: ""
-  });
-
   useEffect(() => {
-    fetchItems();
+    // localStorage එකෙන් userId එක ලබා ගැනීම
+    const currentUserId = localStorage.getItem("userId");
+    
+    if (currentUserId) {
+      fetchUserItems(currentUserId);
+    }
   }, []);
 
-  const fetchItems = async () => {
+  // Login වුණු User ගේ Items පමණක් Fetch කර ගැනීම
+  const fetchUserItems = async (userId) => {
     try {
-      const res = await fetch("http://localhost:5001/api/items");
+      const res = await fetch(`http://localhost:5001/api/items/${userId}`);
       if (res.ok) {
         const data = await res.json();
         setItems(data);
       }
     } catch (err) {
-      console.error("Error fetching items:", err);
+      console.error("Error fetching user items:", err);
     }
   };
-
   // Image Upload Handlers
   const handleProfileImageChange = (e) => {
     const file = e.target.files[0];
@@ -96,50 +91,6 @@ export default function Profile({ user }) {
     if (file) {
       setProfile((prev) => ({ ...prev, coverPic: URL.createObjectURL(file) }));
     }
-  };
-
-  const handleItemImageChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-      setNewItem((prev) => ({ ...prev, image: URL.createObjectURL(file) }));
-    }
-  };
-
-  const handleAddItem = async (e) => {
-    e.preventDefault();
-    try {
-      const res = await fetch("http://localhost:5001/api/items", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(newItem),
-      });
-
-      if (res.ok) {
-        setShowAddItem(false);
-        resetAddItemForm();
-        fetchItems();
-      } else {
-        setItems((prev) => [...prev, { ...newItem, id: Date.now(), available: 5 }]);
-        setShowAddItem(false);
-        resetAddItemForm();
-      }
-    } catch (err) {
-      setItems((prev) => [...prev, { ...newItem, id: Date.now(), available: 5 }]);
-      setShowAddItem(false);
-      resetAddItemForm();
-    }
-  };
-
-  const resetAddItemForm = () => {
-    setNewItem({
-      title: "",
-      category: "Electronics",
-      condition: "Good",
-      price: "",
-      priceType: "day",
-      description: "",
-      image: ""
-    });
   };
 
   const categoriesList = [
@@ -167,7 +118,6 @@ export default function Profile({ user }) {
         {/* Hidden Inputs */}
         <input type="file" ref={profileInputRef} style={{ display: "none" }} accept="image/*" onChange={handleProfileImageChange} />
         <input type="file" ref={coverInputRef} style={{ display: "none" }} accept="image/*" onChange={handleCoverImageChange} />
-        <input type="file" ref={itemImageInputRef} style={{ display: "none" }} accept="image/*" onChange={handleItemImageChange} />
 
         {/* Cover Photo Banner */}
         <div style={styles.desktopCoverWrapper}>
@@ -204,8 +154,9 @@ export default function Profile({ user }) {
               </div>
             </div>
 
+            {/* Add Item Button - Navigate to AddItem Page */}
             <div style={styles.desktopActionBtns}>
-              <button onClick={() => setShowAddItem(true)} style={styles.primaryBtn}>
+              <button onClick={() => navigate("/add-item")} style={styles.primaryBtn}>
                 <Plus size={18} /> {t("profile.addItem")}
               </button>
               <button onClick={() => setShowEditProfile(true)} style={styles.secondaryBtn}>
@@ -466,116 +417,6 @@ export default function Profile({ user }) {
           </div>
         )}
 
-        {/* ADD ITEM POPUP */}
-        {showAddItem && (
-          <div style={styles.modalOverlay}>
-            <div style={styles.prettyModalBox}>
-              
-              <div style={styles.prettyModalHeaderCenter}>
-                <h3 style={styles.prettyModalTitle}>{t("profile.addNewItem")}</h3>
-                <button onClick={() => setShowAddItem(false)} style={styles.circleBackBtn}>
-                  <X size={18} color="#333" />
-                </button>
-              </div>
-
-              <form onSubmit={handleAddItem} style={styles.formFieldsStack}>
-                
-                <div>
-                  <label style={styles.fieldLabel}>{t("profile.itemPhoto")}</label>
-                  <div style={styles.singlePhotoUploadContainer}>
-                    {newItem.image ? (
-                      <div style={{ position: "relative", width: "100%", height: "120px" }}>
-                        <img src={newItem.image} alt="Selected Item" style={styles.selectedItemPreviewImg} />
-                        <button type="button" onClick={() => setNewItem({...newItem, image: ""})} style={styles.removeImgBtn}>
-                          <X size={14} color="#fff" />
-                        </button>
-                      </div>
-                    ) : (
-                      <div onClick={() => itemImageInputRef.current.click()} style={styles.addPhotoTileLarge}>
-                        <Camera size={28} color="#007bff" />
-                        <span style={{ fontSize: "12px", color: "#007bff", fontWeight: "600", marginTop: "6px" }}>{t("profile.clickUpload")}</span>
-                      </div>
-                    )}
-                  </div>
-                </div>
-
-                <div>
-                  <label style={styles.fieldLabel}>{t("profile.itemTitle")}</label>
-                  <input 
-                    required 
-                    style={styles.prettyInputNoIcon} 
-                    type="text" 
-                    placeholder="e.g. MacBook Pro 2023" 
-                    value={newItem.title} 
-                    onChange={(e) => setNewItem({...newItem, title: e.target.value})} 
-                  />
-                </div>
-
-                <div style={styles.twoColumnRow}>
-                  <div style={{ flex: 1 }}>
-                    <label style={styles.fieldLabel}>{t("profile.category")}</label>
-                    <div style={{ position: "relative" }}>
-                      <select 
-                        style={styles.prettySelect} 
-                        value={newItem.category} 
-                        onChange={(e) => setNewItem({...newItem, category: e.target.value})}
-                      >
-                        {categoriesList.map(c => <option key={c.key} value={c.key}>{c.name}</option>)}
-                      </select>
-                      <ChevronDown size={18} color="#555" style={styles.selectArrow} />
-                    </div>
-                  </div>
-
-                  <div style={{ flex: 1 }}>
-                    <label style={styles.fieldLabel}>{t("profile.condition")}</label>
-                    <div style={{ position: "relative" }}>
-                      <select 
-                        style={styles.prettySelect} 
-                        value={newItem.condition} 
-                        onChange={(e) => setNewItem({...newItem, condition: e.target.value})}
-                      >
-                        <option value="Good">{t("profile.good")}</option>
-                        <option value="Brand New">{t("profile.brandNew")}</option>
-                        <option value="Used">{t("profile.used")}</option>
-                      </select>
-                      <ChevronDown size={18} color="#555" style={styles.selectArrow} />
-                    </div>
-                  </div>
-                </div>
-
-                <div>
-                  <label style={styles.fieldLabel}>{t("profile.price")}</label>
-                  <input 
-                    required 
-                    style={styles.prettyInputNoIcon} 
-                    type="text" 
-                    placeholder="Rs. 1,000" 
-                    value={newItem.price} 
-                    onChange={(e) => setNewItem({...newItem, price: e.target.value})} 
-                  />
-                </div>
-
-                <div>
-                  <label style={styles.fieldLabel}>{t("profile.description")}</label>
-                  <textarea 
-                    style={styles.prettyTextarea} 
-                    placeholder="..." 
-                    value={newItem.description} 
-                    onChange={(e) => setNewItem({...newItem, description: e.target.value})} 
-                  />
-                  <div style={styles.charCounter}>{newItem.description.length}/500</div>
-                </div>
-
-                <button type="submit" style={styles.fullBlueBtn}>
-                  {t("profile.addItem")}
-                </button>
-
-              </form>
-
-            </div>
-          </div>
-        )}
-
         {/* MY SHOP ITEMS POPUP */}
         {showAllShopItems && (
           <div style={styles.modalOverlay}>
@@ -586,7 +427,7 @@ export default function Profile({ user }) {
                   <h3 style={styles.prettyModalTitle}>{t("profile.myShopItems")}</h3>
                 </div>
                 <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                  <button onClick={() => { setShowAllShopItems(false); setShowAddItem(true); }} style={styles.smallAddBtn}>
+                  <button onClick={() => { setShowAllShopItems(false); navigate("/add-item"); }} style={styles.smallAddBtn}>
                     <Plus size={14} /> {t("profile.addItem")}
                   </button>
                   <button onClick={() => setShowAllShopItems(false)} style={styles.circleBackBtn}>
@@ -1082,36 +923,6 @@ const styles = {
     outline: "none",
     boxSizing: "border-box"
   },
-  prettyInputNoIcon: {
-    width: "100%",
-    padding: "12px 14px",
-    borderRadius: "14px",
-    border: "1px solid #e2e8f0",
-    backgroundColor: "#ffffff",
-    color: "#111111",
-    fontSize: "14px",
-    outline: "none",
-    boxSizing: "border-box"
-  },
-  prettySelect: {
-    width: "100%",
-    padding: "12px 14px",
-    borderRadius: "14px",
-    border: "1px solid #e2e8f0",
-    backgroundColor: "#ffffff",
-    color: "#111111",
-    fontSize: "14px",
-    outline: "none",
-    appearance: "none",
-    boxSizing: "border-box"
-  },
-  selectArrow: {
-    position: "absolute",
-    right: "14px",
-    top: "50%",
-    transform: "translateY(-50%)",
-    pointerEvents: "none"
-  },
   prettyTextarea: {
     width: "100%",
     padding: "12px 14px",
@@ -1130,52 +941,6 @@ const styles = {
     fontSize: "11px",
     color: "#aaa",
     marginTop: "3px"
-  },
-  singlePhotoUploadContainer: {
-    width: "100%"
-  },
-  addPhotoTileLarge: {
-    height: "110px",
-    border: "2px dashed #cbd5e1",
-    borderRadius: "14px",
-    display: "flex",
-    flexDirection: "column",
-    alignItems: "center",
-    justifyContent: "center",
-    backgroundColor: "#f8fafc",
-    cursor: "pointer"
-  },
-  selectedItemPreviewImg: {
-    width: "100%",
-    height: "120px",
-    borderRadius: "14px",
-    objectFit: "cover"
-  },
-  removeImgBtn: {
-    position: "absolute",
-    top: "8px",
-    right: "8px",
-    backgroundColor: "rgba(0,0,0,0.6)",
-    border: "none",
-    borderRadius: "50%",
-    width: "24px",
-    height: "24px",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    cursor: "pointer"
-  },
-  fullBlueBtn: {
-    width: "100%",
-    backgroundColor: "#2563eb",
-    color: "#fff",
-    border: "none",
-    padding: "14px",
-    borderRadius: "14px",
-    fontWeight: "bold",
-    fontSize: "15px",
-    cursor: "pointer",
-    marginTop: "10px"
   },
   smallAddBtn: {
     backgroundColor: "#2563eb",
