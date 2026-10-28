@@ -1,0 +1,501 @@
+
+/* Page */
+.item-details-page {
+  min-height: 80vh;
+  padding: 34px 24px 60px;
+  background: #f7faf8;
+  color: #1f2937;
+  font-family: Arial, Helvetica, sans-serif;
+}
+
+.details-container {
+  width: 100%;
+  max-width: 1180px;
+  margin: 0 auto;
+}
+
+/* Breadcrumb */
+.details-breadcrumb {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 22px;
+  color: #7b887f;
+  font-size: 14px;
+}
+
+.details-breadcrumb a {
+  color: #15803d;
+  text-decoration: none;
+  font-weight: 600;
+}
+
+.details-breadcrumb a:hover {
+  text-decoration: underline;
+}
+
+/* Main Card */
+.item-details-card {
+  display: grid;
+  grid-template-columns: minmax(0, 1.05fr) minmax(0, 1fr);
+  gap: 38px;
+  align-items: start;
+  padding: 32px;
+  border: 1px solid #e5eee8;
+  border-radius: 22px;
+  background: #ffffff;
+  box-shadow: 0 12px 40px rgba(24, 65, 40, 0.07);
+}
+
+/* Image */
+.details-image-section {
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  border-radius: 16px;
+  background: #f0f5f1;
+}
+
+.details-image {
+  display: block;
+  width: 100%;
+  height: 440px;
+  object-fit: contain;
+  background: #f8faf9;
+}
+
+.details-no-image {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 350px;
+  padding: 20px;
+  color: #819087;
+  text-align: center;
+}
+
+.details-no-image span {
+  font-size: 64px;
+}
+
+.details-no-image p {
+  margin: 10px 0 0;
+}
+
+/* Item Content */
+.details-content {
+  min-width: 0;
+}
+
+.details-eyebrow {
+  display: inline-block;
+  margin-bottom: 12px;
+  color: #15803d;
+  font-size: 11px;
+  font-weight: 800;
+  letter-spacing: 2px;
+}
+
+.details-content > h1 {
+  margin: 0 0 18px;
+  color: #172b22;
+  font-size: clamp(28px, 3vw, 38px);
+  line-height: 1.2;
+  overflow-wrap: anywhere;
+}
+
+/* Category and Condition */
+.details-badges {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 9px;
+  margin-bottom: 24px;
+}
+
+.details-category,
+.details-condition {
+  display: inline-flex;
+  align-items: center;
+  padding: 8px 12px;
+  border-radius: 7px;
+  font-size: 13px;
+  font-weight: 600;
+}
+
+.details-category {
+  background: #dcfce7;
+  color: #166534;
+}
+
+.details-condition {
+  background: #f3f4f6;
+  color: #4b5563;
+}
+
+/* Price Box */
+.details-price-box {
+  padding: 19px 20px;
+  border: 1px solid #d9f0df;
+  border-radius: 13px;
+  background: linear-gradient(135deg, #f0fdf4, #ffffff);
+}
+
+.details-price-label {
+  color: #66756b;
+  font-size: 13px;
+}
+
+.details-price {
+  margin: 7px 0 0;
+  color: #15803d;
+  font-size: clamp(25px, 3vw, 32px);
+  font-weight: 800;
+  overflow-wrap: anywhere;
+}
+
+.details-price span {
+  color: #66756b;
+  font-size: 14px;
+  font-weight: 500;
+}
+
+/* Availability */
+.details-availability {
+  display: flex;
+  align-items: center;
+  gap: 9px;
+  margin-top: 19px;
+  color: #374151;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+.availability-dot {
+  width: 9px;
+  height: 9px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  background: #22c55e;
+}
+
+.availability-dot.unavailable {
+  background: #ef4444;
+}
+
+/* Description */
+.details-description {
+  margin-top: 27px;
+}
+
+.details-description h2 {
+  margin: 0 0 10px;
+  color: #172b22;
+  font-size: 19px;
+}
+
+.details-description p {
+  margin: 0;
+  color: #667085;
+  font-size: 15px;
+  line-height: 1.8;
+  white-space: pre-wrap;
+  overflow-wrap: anywhere;
+}
+
+/* Main Actions */
+.details-actions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 12px;
+  margin-top: 28px;
+}
+
+.rent-request-button,
+.submit-request-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 9px;
+  background: #15803d;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.rent-request-button:hover:not(:disabled),
+.submit-request-button:hover {
+  background: #166534;
+  transform: translateY(-1px);
+}
+
+.rent-request-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+.details-back-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 44px;
+  padding: 10px 15px;
+  border: 1px solid #d1dcd4;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #374151;
+  text-decoration: none;
+  font-size: 14px;
+  font-weight: 600;
+  transition: background 0.2s ease;
+}
+
+.details-back-button:hover {
+  background: #f0fdf4;
+  color: #15803d;
+}
+
+/* Rental Request Form */
+.rent-request-form {
+  display: flex;
+  flex-direction: column;
+  gap: 11px;
+  margin-top: 25px;
+  padding: 22px;
+  border: 1px solid #dcebe0;
+  border-radius: 14px;
+  background: #fbfefc;
+}
+
+.request-form-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 9px;
+}
+
+.request-form-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 42px;
+  height: 42px;
+  flex-shrink: 0;
+  border-radius: 11px;
+  background: #dcfce7;
+  color: #15803d;
+  font-size: 21px;
+  font-weight: 800;
+}
+
+.request-form-heading h2 {
+  margin: 0 0 5px;
+  color: #172b22;
+  font-size: 19px;
+}
+
+.request-form-heading p {
+  margin: 0;
+  color: #758078;
+  font-size: 13px;
+}
+
+.rent-request-form label {
+  margin-top: 5px;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.rent-request-form input {
+  width: 100%;
+  min-height: 45px;
+  padding: 11px 12px;
+  box-sizing: border-box;
+  border: 1px solid #d1ddd4;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #1f2937;
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.rent-request-form input:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.1);
+}
+
+.request-price-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  margin-top: 8px;
+  padding: 14px;
+  border-radius: 8px;
+  background: #f0fdf4;
+  color: #526257;
+  font-size: 13px;
+}
+
+.request-price-summary strong {
+  color: #15803d;
+  text-align: right;
+}
+
+.submit-request-button {
+  width: 100%;
+  margin-top: 5px;
+}
+
+.request-note {
+  margin: 2px 0 0;
+  color: #7b857d;
+  font-size: 12px;
+  line-height: 1.6;
+  text-align: center;
+}
+
+/* Loading and Error */
+.details-message {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  min-height: 55vh;
+  padding: 30px 20px;
+  color: #526257;
+  text-align: center;
+}
+
+.details-message h2 {
+  margin-bottom: 8px;
+  color: #172b22;
+}
+
+.details-message .details-back-button {
+  margin-top: 14px;
+}
+
+.details-loader {
+  width: 38px;
+  height: 38px;
+  margin-bottom: 15px;
+  border: 4px solid #dcfce7;
+  border-top-color: #15803d;
+  border-radius: 50%;
+  animation: details-spin 0.8s linear infinite;
+}
+
+@keyframes details-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Tablet */
+@media (max-width: 850px) {
+  .item-details-page {
+    padding: 25px 18px 45px;
+  }
+
+  .item-details-card {
+    grid-template-columns: minmax(0, 1fr);
+    gap: 26px;
+    padding: 24px;
+  }
+
+  .details-image {
+    height: 360px;
+  }
+
+  .details-content > h1 {
+    font-size: 32px;
+  }
+}
+
+/* Mobile */
+@media (max-width: 520px) {
+  .item-details-page {
+    padding: 18px 12px 35px;
+  }
+
+  .details-breadcrumb {
+    margin-bottom: 15px;
+    font-size: 12px;
+  }
+
+  .item-details-card {
+    gap: 22px;
+    padding: 14px;
+    border-radius: 15px;
+  }
+
+  .details-image {
+    height: 260px;
+  }
+
+  .details-no-image {
+    min-height: 240px;
+  }
+
+  .details-eyebrow {
+    font-size: 10px;
+    letter-spacing: 1.5px;
+  }
+
+  .details-content > h1 {
+    font-size: 27px;
+  }
+
+  .details-badges {
+    gap: 7px;
+    margin-bottom: 18px;
+  }
+
+  .details-category,
+  .details-condition {
+    padding: 7px 9px;
+    font-size: 12px;
+  }
+
+  .details-price-box {
+    padding: 16px;
+  }
+
+  .details-price {
+    font-size: 26px;
+  }
+
+  .details-description p {
+    font-size: 14px;
+  }
+
+  .details-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .rent-request-button,
+  .details-actions .details-back-button {
+    width: 100%;
+    box-sizing: border-box;
+  }
+
+  .rent-request-form {
+    padding: 16px;
+  }
+
+  .request-form-heading h2 {
+    font-size: 17px;
+  }
+}

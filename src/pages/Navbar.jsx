@@ -1,6 +1,12 @@
+
 import React from "react";
-import { Link, useLocation, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useLocation,
+  useNavigate,
+} from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import "./Navbar.css";
 import "../responsive.css";
 import logo from "../assets/logoSmall.png";
 
@@ -16,61 +22,63 @@ export default function Navbar({ user, setUser }) {
     navigate("/login");
   };
 
-  const isActive = (path) => location.pathname === path;
-
   const changeLanguage = (language) => {
     i18n.changeLanguage(language);
     localStorage.setItem("language", language);
   };
 
+  const isActive = (path) => location.pathname === path;
+
   return (
-    <nav className="navbar" style={styles.nav}>
-      {/* User logged in */}
-      {user ? (
-        /* --- මෙතැන වෙනස් කරන ලදී: Profile Picture / Name Click කළ විට /profile එකට යයි --- */
-        <Link to="/profile" style={styles.profileLink}>
-          <div style={styles.profileWrapper}>
-            <img
-              src={`http://localhost:5001${user.profile_pic_url}`}
-              alt="Profile"
-              style={styles.profilePic}
-              onError={(e) => {
-                e.target.src = "https://via.placeholder.com/40";
-              }}
-            />
-            <span className="navbar-username" style={styles.userName}>
-              {user.full_name}
-            </span>
-          </div>
-        </Link>
-      ) : (
-        <div style={styles.logo}>
-          <Link to="/" style={styles.brandLink}>
-            <img src={logo} alt="Rent Hub Logo" style={styles.brandLogo} />
-          </Link>
-        </div>
-      )}
+    <nav className="navbar">
+      {/* Logo */}
+      <Link to="/" className="navbar-brand">
+        <img
+          src={logo}
+          alt="Rent-Hub Logo"
+          className="navbar-logo"
+        />
+      </Link>
 
-      {/* Nav Links - Right side */}
-      <div style={styles.menu}>
-        {/* Home link for logged in users */}
-        {user && (
-          <Link
-            to="/"
-            style={{
-              ...styles.navLink,
-              ...(isActive("/") ? styles.activeNavLink : {}),
-            }}
-          >
-            {t("appbar.home") || "Home"}
-          </Link>
-        )}
+      
+{/* Navigation Links - Only show when logged in */}
+{user && (
+  <div className="navbar-menu">
+    <Link
+      to="/"
+      className={`navbar-link ${
+        isActive("/") ? "active" : ""
+      }`}
+    >
+      {t("appbar.home") || "Home"}
+    </Link>
 
-        {/* Language Selector */}
+    <Link
+      to="/#rental-items"
+      className="navbar-link"
+    >
+      Browse Items
+    </Link>
+
+    <Link
+      to="/add-item"
+      className={`navbar-add-item ${
+        isActive("/add-item") ? "active" : ""
+      }`}
+    >
+      <span>+</span> Add Item
+    </Link>
+  </div>
+)}
+
+
+      {/* Right Side */}
+      <div className="navbar-actions">
         <select
-          value={i18n.language}
+          className="navbar-language"
+          value={i18n.language?.split("-")[0] || "en"}
           onChange={(e) => changeLanguage(e.target.value)}
-          style={styles.languageSelect}
+          aria-label="Select language"
         >
           <option value="en">English</option>
           <option value="si">සිංහල</option>
@@ -78,113 +86,49 @@ export default function Navbar({ user, setUser }) {
         </select>
 
         {user ? (
-          <button onClick={handleLogout} style={styles.logoutBtn}>
-            {t("appbar.logout")}
-          </button>
-        ) : (
-          <div>
-            <Link
-              to="/login"
-              style={{
-                ...styles.navLink,
-                ...(isActive("/login") ? styles.activeNavLink : {}),
-              }}
-            >
-              {t("appbar.login")}
+          <>
+            <Link to="/profile" className="navbar-profile">
+              <img
+                src={
+                  user.profile_pic_url
+                    ? user.profile_pic_url.startsWith("http")
+                      ? user.profile_pic_url
+                      : `http://localhost:5001${user.profile_pic_url}`
+                    : "https://via.placeholder.com/40"
+                }
+                alt="Profile"
+                className="navbar-profile-pic"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src =
+                    "https://via.placeholder.com/40";
+                }}
+              />
+
+              <span className="navbar-username">
+                {user.full_name || "My Profile"}
+              </span>
             </Link>
-          </div>
+
+            <button
+              type="button"
+              className="navbar-logout"
+              onClick={handleLogout}
+            >
+              {t("appbar.logout") || "Logout"}
+            </button>
+          </>
+        ) : (
+          <Link
+            to="/login"
+            className={`navbar-login ${
+              isActive("/login") ? "active" : ""
+            }`}
+          >
+            {t("appbar.login") || "Login"}
+          </Link>
         )}
       </div>
     </nav>
   );
 }
-
-const styles = {
-  nav: {
-    display: "flex",
-    justifyContent: "space-between",
-    alignItems: "center",
-    padding: "18px 40px",
-    backgroundColor: "#ffffff",
-    boxShadow: "0 2px 10px rgba(0,0,0,0.05)",
-    width: "100%",
-    boxSizing: "border-box",
-  },
-  logo: {
-    display: "flex",
-    alignItems: "center",
-  },
-  brandLink: {
-    textDecoration: "none",
-    display: "flex",
-    alignItems: "center",
-  },
-  brandLogo: {
-    height: "10px",
-    transform: "scale(2.1)",
-    transformOrigin: "left center",
-    mixBlendMode: "multiply",
-    objectFit: "contain",
-  },
-  menu: {
-    display: "flex",
-    alignItems: "center",
-    gap: "30px",
-    marginLeft: "auto",
-  },
-  navLink: {
-    textDecoration: "none",
-    color: "#444444",
-    fontWeight: "600",
-    fontSize: "16px",
-    paddingBottom: "4px",
-    borderBottom: "2px solid transparent",
-    transition: "all 0.2s ease-in-out",
-  },
-  activeNavLink: {
-    color: "#007bff",
-    borderBottom: "2.5px solid #007bff",
-  },
-  profileLink: {
-    textDecoration: "none",
-    cursor: "pointer",
-  },
-  profileWrapper: {
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-  },
-  profilePic: {
-    width: "38px",
-    height: "38px",
-    borderRadius: "50%",
-    objectFit: "cover",
-    border: "2px solid #007bff",
-  },
-  userName: {
-    fontWeight: "600",
-    color: "#333333",
-    fontSize: "14px",
-  },
-  logoutBtn: {
-    padding: "6px 14px",
-    backgroundColor: "#dc3545",
-    color: "#ffffff",
-    border: "none",
-    borderRadius: "6px",
-    cursor: "pointer",
-    fontSize: "13px",
-    fontWeight: "600",
-    marginLeft: "5px",
-  },
-  languageSelect: {
-    padding: "7px 10px",
-    borderRadius: "6px",
-    border: "1px solid #cccccc",
-    backgroundColor: "#ffffff",
-    color: "#333333",
-    fontSize: "14px",
-    cursor: "pointer",
-    outline: "none",
-  },
-};

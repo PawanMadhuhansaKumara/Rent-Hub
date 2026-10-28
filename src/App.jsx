@@ -1,3 +1,4 @@
+import AddItem from "./AddItem";
 import React, { useState, useEffect } from "react";
 import {
   BrowserRouter as Router,
@@ -11,6 +12,9 @@ import Login from "./pages/Login";
 import Home from "./pages/Home";
 import Profile from "./pages/Profile"; // Profile page එක මෙතැනින් Import කරගත්තා
 import BottomNav from "./components/BottomNav";
+import ItemDetails from "./pages/ItemDetails";
+
+
 
 export default function App() {
   const [user, setUser] = useState(null); 
@@ -25,23 +29,28 @@ export default function App() {
 
   return (
     <Router>
-      <Navbar user={user} setUser={setUser} />
-      <Routes>
-        <Route path="/" element={<Home user={user} setUser={setUser} />} />
-        
-        <Route
-          path="/login"
-          element={<Login onLoginSuccess={(userData) => setUser(userData)} />}
-        />
-        
-        <Route path="/register" element={<Register />} />
+  <Navbar user={user} setUser={setUser} />
 
-        {/* අලුතෙන් එකතු කළ Profile Route එක (ලොග් වී සිටී නම් පමණක් Profile එකට යයි) */}
-        <Route
-          path="/profile"
-          element={user ? <Profile user={user} /> : <Navigate to="/login" />}
-        />
-      </Routes>
-    </Router>
+  <Routes>
+    <Route path="/" element={<Home user={user} setUser={setUser} />} />
+    <Route path="/login" element={<Login onLoginSuccess={setUser} />} />
+    <Route path="/register" element={<Register />} />
+
+    <Route path="/item/:id" element={<ItemDetails />} />
+
+    <Route
+      path="/profile"
+      element={user ? <Profile user={user} /> : <Navigate to="/login" />}
+    />
+
+    <Route
+      path="/add-item"
+      element={user ? <AddItem /> : <Navigate to="/login" />}
+    />
+  </Routes>
+  
+</Router>
+
+    
   );
 }
