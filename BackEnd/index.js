@@ -271,12 +271,14 @@ app.put('/api/users/:id', userUpdateUpload, async (req, res) => {
 });
 
 // ==========================================
-// RENT HUB - ITEMS API ROUTES
+// RENT HUB - ITEMS API ROUTES (User-Specific)
 // ==========================================
 
-app.get('/api/items', async (req, res) => {
+// 1. අදාළ User ගේ ID එකට අදාළ items පමණක් ලබා ගැනීම
+app.get('/api/items/:userId', async (req, res) => {
+  const userId = req.params.userId;
   try {
-    const [rows] = await db.execute('SELECT * FROM items ORDER BY created_at DESC');
+    const [rows] = await db.execute('SELECT * FROM items WHERE user_id = ? ORDER BY created_at DESC', [userId]);
     
     const formattedItems = rows.map(item => ({
       id: item.id,
@@ -292,32 +294,37 @@ app.get('/api/items', async (req, res) => {
 
     res.status(200).json(formattedItems);
   } catch (error) {
-    console.error('Fetch Items Error:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch items from database.' });
+    console.error('Fetch User Items Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch items.' });
   }
 });
 
-app.post('/api/items', async (req, res) => {
-  const { title, category, condition, price, priceType, description, image } = req.body;
+// 2. අලුත් Item එකක් Image File එක සමඟ Save කිරීම (FormData support)
+app.post('/api/items', upload.single('image'), async (req, res) => {
+  const { userId, title, category, condition, price, priceType, description } = req.body;
 
   if (!title || !price || !category) {
     return res.status(400).json({ success: false, message: 'Title, category, and price are required.' });
   }
 
   try {
+    // කම්පියුටරයෙන් Upload කළ Image එකක් ඇත්නම් එහි URL එක ලබා ගැනීම
+    const image_url = req.file ? `/uploads/${req.file.filename}` : 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=300';
+
     const query = `
-      INSERT INTO items (title, category, \`condition\`, price, price_type, description, image_url) 
-      VALUES (?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO items (user_id, title, category, \`condition\`, price, price_type, description, image_url) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
+      userId || 1,
       title,
       category,
       condition || 'Good',
       price,
       priceType || 'day',
       description || '',
-      image || 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=300'
+      image_url
     ];
 
     const [result] = await db.execute(query, values);
