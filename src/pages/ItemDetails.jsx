@@ -1,17 +1,53 @@
 
 import React, { useEffect, useState } from "react";
-import { Link, useParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
+import { Link, useParams, useNavigate } from "react-router-dom";
+import { MessageCircle } from "lucide-react";
+import ChatBox from "../components/ChatBox";
 import "./ItemDetails.css";
 
 const API_URL = "http://localhost:5001";
 
 export default function ItemDetails() {
   const { id } = useParams();
+  const { t } = useTranslation();
 
   const [item, setItem] = useState(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showRequestForm, setShowRequestForm] = useState(false);
+  const [showChat, setShowChat] = useState(false);
+  const [currentUser, setCurrentUser] = useState(null);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    const savedUser = localStorage.getItem("user");
+    if (savedUser) {
+      try {
+        setCurrentUser(JSON.parse(savedUser));
+      } catch (e) {
+        console.error("Error reading current user:", e);
+      }
+    }
+  }, []);
+
+  const handleOpenChat = () => {
+    if (!currentUser) {
+      alert("Please login to chat with the seller.");
+      navigate("/login");
+      return;
+    }
+
+    const sellerId = item?.user_id || item?.seller_id || 1;
+    const myId = currentUser?.user_id || currentUser?.id;
+
+    if (Number(myId) === Number(sellerId)) {
+      alert("This is your own item. You cannot chat with yourself.");
+      return;
+    }
+
+    setShowChat(true);
+  };
 
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
@@ -206,6 +242,15 @@ export default function ItemDetails() {
             <div className="details-actions">
               <button
                 type="button"
+                className="chat-seller-button"
+                onClick={handleOpenChat}
+              >
+                <MessageCircle size={18} />
+                <span>{t("chat.chatWithSeller") || "Chat with Seller"}</span>
+              </button>
+
+              <button
+                type="button"
                 className="rent-request-button"
                 onClick={() => setShowRequestForm(!showRequestForm)}
                 disabled={available < 1}
@@ -306,6 +351,20 @@ export default function ItemDetails() {
           </div>
         </div>
       </div>
+
+      {showChat && (
+        <ChatBox
+          itemId={item.id}
+          itemTitle={item.title}
+          itemImage={imageUrl}
+          itemPrice={price}
+          itemPriceType={priceType}
+          sellerId={item.user_id || item.seller_id || 1}
+          sellerName={item.seller_name || "Seller"}
+          currentUser={currentUser}
+          onClose={() => setShowChat(false)}
+        />
+      )}
     </main>
   );
 }

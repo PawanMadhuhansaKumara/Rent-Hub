@@ -212,6 +212,44 @@
   margin-top: 28px;
 }
 
+.chat-seller-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  max-width: 170px;
+  padding: 6px 12px;
+  border: 1px solid #2563eb;
+  border-radius: 9px;
+  background: #eff6ff;
+  color: #1d4ed8;
+  font-size: 13px;
+  font-weight: 700;
+  line-height: 1.25;
+  white-space: normal;
+  text-align: left;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.chat-seller-button svg {
+  flex-shrink: 0;
+}
+
+.chat-seller-button span {
+  display: inline-block;
+  white-space: normal;
+  overflow-wrap: break-word;
+}
+
+.chat-seller-button:hover {
+  background: #2563eb;
+  color: #ffffff;
+  transform: translateY(-1px);
+}
+
 .rent-request-button,
 .submit-request-button {
   display: inline-flex;

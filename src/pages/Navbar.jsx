@@ -1,11 +1,13 @@
 
-import React from "react";
+import React, { useState, useEffect, useRef } from "react";
 import {
   Link,
   useLocation,
   useNavigate,
 } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { MessageCircle, X, Clock } from "lucide-react";
+import ChatBox from "../components/ChatBox";
 import "./Navbar.css";
 import "../responsive.css";
 import logo from "../assets/logoSmall.png";
@@ -28,6 +30,88 @@ export default function Navbar({ user, setUser }) {
   };
 
   const isActive = (path) => location.pathname === path;
+
+  // Chat States
+  const [unreadCount, setUnreadCount] = useState(0);
+  const [conversations, setConversations] = useState([]);
+  const [showChatDropdown, setShowChatDropdown] = useState(false);
+  const [loadingChats, setLoadingChats] = useState(false);
+  const [activeChatConversation, setActiveChatConversation] = useState(null);
+  const dropdownRef = useRef(null);
+
+  const userId = user?.user_id || user?.id;
+
+  // Fetch unread messages count
+  const fetchUnreadCount = async () => {
+    if (!userId) {
+      setUnreadCount(0);
+      return;
+    }
+    try {
+      const res = await fetch(`http://localhost:5001/api/chat/unread-count/${userId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setUnreadCount(data.unreadCount || 0);
+      }
+    } catch (err) {
+      console.error("Error fetching unread count:", err);
+    }
+  };
+
+  // Fetch conversations list when dropdown opens
+  const fetchConversations = async () => {
+    if (!userId) return;
+    setLoadingChats(true);
+    try {
+      const res = await fetch(`http://localhost:5001/api/chat/user-conversations/${userId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setConversations(data.conversations || []);
+      }
+    } catch (err) {
+      console.error("Error fetching user conversations:", err);
+    } finally {
+      setLoadingChats(false);
+    }
+  };
+
+  // Poll unread count every 5 seconds
+  useEffect(() => {
+    fetchUnreadCount();
+    const interval = setInterval(fetchUnreadCount, 5000);
+    return () => clearInterval(interval);
+  }, [userId]);
+
+  // When dropdown opens, fetch conversations
+  useEffect(() => {
+    if (showChatDropdown) {
+      fetchConversations();
+    }
+  }, [showChatDropdown]);
+
+  // Close dropdown on outside click
+  useEffect(() => {
+    const handleOutsideClick = (e) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(e.target)) {
+        setShowChatDropdown(false);
+      }
+    };
+    document.addEventListener("mousedown", handleOutsideClick);
+    return () => document.removeEventListener("mousedown", handleOutsideClick);
+  }, []);
+
+  const handleChatIconClick = () => {
+    if (!user) {
+      navigate("/login");
+      return;
+    }
+    setShowChatDropdown((prev) => !prev);
+  };
+
+  const handleOpenConversation = (conv) => {
+    setActiveChatConversation(conv);
+    setShowChatDropdown(false);
+  };
 
   return (
     <nav className="navbar">
@@ -85,6 +169,106 @@ export default function Navbar({ user, setUser }) {
           <option value="ta">தமிழ்</option>
         </select>
 
+        {/* Chat Icon & Dropdown - Placed right next to Language Changer */}
+        <div className="navbar-chat-wrapper" ref={dropdownRef}>
+          <button
+            type="button"
+            className="navbar-chat-btn"
+            onClick={handleChatIconClick}
+            title="Messages & Inquiries"
+            aria-label="Messages"
+          >
+            <MessageCircle size={22} color="#374151" />
+            {unreadCount > 0 && (
+              <span className="navbar-chat-badge">
+                {unreadCount > 9 ? "9+" : unreadCount}
+              </span>
+            )}
+          </button>
+
+          {/* Conversations Dropdown */}
+          {showChatDropdown && (
+            <div className="navbar-chat-dropdown">
+              <div className="navbar-chat-dropdown-header">
+                <div>
+                  <h4 style={{ margin: 0, fontSize: "15px", fontWeight: "bold", color: "#0f172a" }}>
+                    Messages
+                  </h4>
+                  <p style={{ margin: "2px 0 0 0", fontSize: "11px", color: "#64748b" }}>
+                    {conversations.length} {t("chat.conversations") || "conversations"}
+                  </p>
+                </div>
+                <button
+                  type="button"
+                  className="navbar-chat-close-btn"
+                  onClick={() => setShowChatDropdown(false)}
+                >
+                  <X size={16} color="#64748b" />
+                </button>
+              </div>
+
+              <div className="navbar-chat-dropdown-body">
+                {loadingChats ? (
+                  <div className="navbar-chat-empty">Loading chats...</div>
+                ) : conversations.length === 0 ? (
+                  <div className="navbar-chat-empty">
+                    <MessageCircle size={32} color="#cbd5e1" style={{ marginBottom: "6px" }} />
+                    <p style={{ margin: 0, fontWeight: "600", fontSize: "13px", color: "#475569" }}>
+                      {t("chat.noMessagesYet") || "No messages yet"}
+                    </p>
+                    <p style={{ margin: "4px 0 0 0", fontSize: "11px", color: "#94a3b8" }}>
+                      {t("chat.startChattingNotice") || "Start chatting with sellers directly from any item details page!"}
+                    </p>
+                  </div>
+                ) : (
+                  conversations.map((conv) => {
+                    const isBuyer = Number(userId) === Number(conv.buyer_id);
+                    const partnerName = isBuyer ? conv.seller_name || "Seller" : conv.buyer_name || "Buyer";
+                    const hasUnread = conv.unread_count > 0;
+
+                    return (
+                      <div
+                        key={conv.conversation_id}
+                        className={`navbar-chat-item ${hasUnread ? "unread" : ""}`}
+                        onClick={() => handleOpenConversation(conv)}
+                      >
+                        <img
+                          src={conv.item_image || "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=100"}
+                          alt={conv.item_title}
+                          className="navbar-chat-item-img"
+                        />
+                        <div className="navbar-chat-item-info">
+                          <div className="navbar-chat-item-row">
+                            <span className="navbar-chat-item-title">
+                              {conv.item_title || "Item Chat"}
+                            </span>
+                            <span className="navbar-chat-item-time">
+                              {conv.last_message_time
+                                ? new Date(conv.last_message_time).toLocaleDateString([], { month: "short", day: "numeric" })
+                                : ""}
+                            </span>
+                          </div>
+                          <p className="navbar-chat-item-partner">
+                            {t("chat.with") || "With:"} <strong>{partnerName}</strong>
+                          </p>
+                          <p className="navbar-chat-item-snippet">
+                            {conv.last_message || "No messages yet"}
+                          </p>
+                        </div>
+                        {hasUnread && (
+                          <span className="navbar-chat-unread-dot" title={`${conv.unread_count} unread`}>
+                            {conv.unread_count}
+                          </span>
+                        )}
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+            </div>
+          )}
+        </div>
+
         {user ? (
           <>
             <Link to="/profile" className="navbar-profile">
@@ -129,6 +313,29 @@ export default function Navbar({ user, setUser }) {
           </Link>
         )}
       </div>
+
+      {/* Active Chat Box Modal */}
+      {activeChatConversation && (
+        <ChatBox
+          conversationId={activeChatConversation.conversation_id}
+          itemId={activeChatConversation.item_id}
+          itemTitle={activeChatConversation.item_title}
+          itemImage={activeChatConversation.item_image}
+          itemPrice={activeChatConversation.item_price}
+          itemPriceType={activeChatConversation.item_price_type}
+          sellerId={activeChatConversation.seller_id}
+          sellerName={
+            Number(userId) === Number(activeChatConversation.seller_id)
+              ? activeChatConversation.buyer_name
+              : activeChatConversation.seller_name
+          }
+          currentUser={user}
+          onClose={() => {
+            setActiveChatConversation(null);
+            fetchUnreadCount();
+          }}
+        />
+      )}
     </nav>
   );
 }
