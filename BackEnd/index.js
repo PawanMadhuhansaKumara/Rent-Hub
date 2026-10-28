@@ -274,7 +274,33 @@ app.put('/api/users/:id', userUpdateUpload, async (req, res) => {
 // RENT HUB - ITEMS API ROUTES (User-Specific)
 // ==========================================
 
-// 1. අදාළ User ගේ ID එකට අදාළ items පමණක් ලබා ගැනීම
+// 1. GET ALL ITEMS (Home page සහ Item Details සඳහා සියලුම items ලබා ගැනීම)
+app.get('/api/items', async (req, res) => {
+  try {
+    const [rows] = await db.execute('SELECT * FROM items ORDER BY created_at DESC');
+    
+    const formattedItems = rows.map(item => ({
+      id: item.id,
+      title: item.title,
+      category: item.category,
+      condition: item.condition,
+      price: item.price,
+      priceType: item.price_type,
+      description: item.description,
+      image: item.image_url,
+      available: item.available_qty,
+      userId: item.user_id,
+      user_id: item.user_id
+    }));
+
+    res.status(200).json(formattedItems);
+  } catch (error) {
+    console.error('Fetch Items Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch items from database.' });
+  }
+});
+
+// 2. අදාළ User ගේ ID එකට අදාළ items පමණක් ලබා ගැනීම (Profile එක සඳහා)
 app.get('/api/items/:userId', async (req, res) => {
   const userId = req.params.userId;
   try {
