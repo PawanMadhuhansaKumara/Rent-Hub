@@ -10,7 +10,7 @@ import Navbar from "./pages/Navbar";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
 import Home from "./pages/Home";
-import Profile from "./pages/Profile"; // Profile page එක මෙතැනින් Import කරගත්තා
+import Profile from "./pages/profile"; // Profile page එක මෙතැනින් Import කරගත්තා
 import BottomNav from "./components/BottomNav";
 import ItemDetails from "./pages/ItemDetails";
 

@@ -325,32 +325,32 @@ app.get('/api/items/:userId', async (req, res) => {
   }
 });
 
-// 2. අලුත් Item එකක් Image File එක සමඟ Save කිරීම (FormData support)
+// ADD NEW ITEM WITH IMAGE FILE UPLOAD
 app.post('/api/items', upload.single('image'), async (req, res) => {
-  const { userId, title, category, condition, price, priceType, description } = req.body;
+  const { title, category, condition, price, priceType, description, userId } = req.body;
 
   if (!title || !price || !category) {
     return res.status(400).json({ success: false, message: 'Title, category, and price are required.' });
   }
 
   try {
-    // කම්පියුටරයෙන් Upload කළ Image එකක් ඇත්නම් එහි URL එක ලබා ගැනීම
-    const image_url = req.file ? `/uploads/${req.file.filename}` : 'https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=300';
+    // ෆයිල් එකක් ලැබී ඇත්නම් uploads/ folder එකේ URL එක යෙදීම, නැතහොත් default image එක
+    const image_url = req.file ? `/uploads/${req.file.filename}` : '/uploads/default-item.png';
 
     const query = `
-      INSERT INTO items (user_id, title, category, \`condition\`, price, price_type, description, image_url) 
+      INSERT INTO items (title, category, \`condition\`, price, price_type, description, image_url, user_id) 
       VALUES (?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
-      userId || 1,
       title,
       category,
       condition || 'Good',
       price,
       priceType || 'day',
       description || '',
-      image_url
+      image_url,
+      userId || null
     ];
 
     const [result] = await db.execute(query, values);
@@ -591,4 +591,18 @@ app.put('/api/chat/mark-read/:conversationId', async (req, res) => {
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {
   console.log(`🚀 Backend server running on port ${PORT}...`);
+});
+
+// UPDATE ITEM DETAILS & AVAILABILITY
+app.put('/api/items/status/:id', async (req, res) => {
+  const itemId = req.params.id;
+  const { available } = req.body;
+
+  try {
+    await db.execute('UPDATE items SET available_qty = ? WHERE id = ?', [available, itemId]);
+    res.status(200).json({ success: true, message: 'Status updated successfully!' });
+  } catch (error) {
+    console.error('Update Status Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to update status.' });
+  }
 });

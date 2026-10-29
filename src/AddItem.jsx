@@ -29,12 +29,12 @@ export default function AddItem({ onItemAdded }) {
     setMessage("");
   }
 
-  // ෆයිල් එකක් Select කළ විට ක්‍රියාත්මක වන Function එක
+  // Image select කරන විට
   function handleImageChange(event) {
     const file = event.target.files[0];
     if (file) {
       setImageFile(file);
-      setImagePreview(URL.createObjectURL(file)); // Preview එක පෙන්වීම සඳහා
+      setImagePreview(URL.createObjectURL(file));
     }
   }
 
@@ -44,7 +44,7 @@ export default function AddItem({ onItemAdded }) {
     setIsError(false);
 
     if (!form.title.trim() || !form.category || !form.price.trim()) {
-      setMessage("Please complete the required fields.");
+      setMessage("Please complete all required fields.");
       setIsError(true);
       return;
     }
@@ -55,26 +55,33 @@ export default function AddItem({ onItemAdded }) {
       return;
     }
 
+    if (!imageFile) {
+      setMessage("Please select an item image to upload.");
+      setIsError(true);
+      return;
+    }
+
     setLoading(true);
 
     try {
-      // FormData භාවිතයෙන් දත්ත සහ ෆයිල් එක Backend එකට යැවීම
+      // LocalStorage එකේ ඇති Logged-in User Object එකෙන් user_id එක ලබා ගැනීම
+      const loggedUser = JSON.parse(localStorage.getItem("user") || "{}");
+      const userId = loggedUser.user_id || localStorage.getItem("userId") || 1;
+
+      // FormData එක සාදාගෙන Data සහ File එක append කිරීම
       const formData = new FormData();
-      formData.append("userId", localStorage.getItem("userId") || 1);
+      formData.append("userId", userId);
       formData.append("title", form.title.trim());
       formData.append("category", form.category);
       formData.append("condition", form.condition);
       formData.append("price", Number(form.price));
       formData.append("priceType", form.priceType);
       formData.append("description", form.description.trim());
-      
-      if (imageFile) {
-        formData.append("image", imageFile); // Image file එක යැවීම
-      }
+      formData.append("image", imageFile); // Multer name 'image'
 
       const response = await fetch("http://localhost:5001/api/items", {
         method: "POST",
-        body: formData, // JSON.stringify වෙනුවට FormData යොදයි
+        body: formData, // Multipart FormData ලෙස යවයි
       });
 
       const result = await response.json();
@@ -93,12 +100,13 @@ export default function AddItem({ onItemAdded }) {
         onItemAdded();
       }
 
-      // සාර්ථකව එකතු වූ පසු Profile එකට යාම
+      // සාර්ථකව එකතු වූ පසු Profile එකට Navigate වීම
       setTimeout(() => {
         navigate("/profile");
       }, 1000);
 
     } catch (error) {
+      console.error("Add Item Error:", error);
       setMessage(error.message || "Could not connect to the backend.");
       setIsError(true);
     } finally {
@@ -229,6 +237,7 @@ export default function AddItem({ onItemAdded }) {
                 type="file"
                 accept="image/*"
                 onChange={handleImageChange}
+                required
               />
               <small className="add-item-hint">
                 Choose an image file from your device.
