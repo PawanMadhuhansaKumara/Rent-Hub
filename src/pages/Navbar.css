@@ -357,47 +357,86 @@
 
 .navbar-chat-dropdown {
   position: absolute;
-  top: calc(100% + 12px);
+  top: calc(100% + 14px);
   right: 0;
-  width: 360px;
-  max-width: 90vw;
+  width: 380px;
+  max-width: 92vw;
   background: #ffffff;
-  border-radius: 16px;
-  box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
-  border: 1px solid #e2e8f0;
+  border-radius: 20px;
+  border: 2px solid #93c5fd;
+  box-shadow: 0 16px 40px rgba(37, 99, 235, 0.12), 0 6px 16px rgba(0, 0, 0, 0.06);
   z-index: 1000;
   overflow: hidden;
   animation: fadeIn 0.2s ease-out;
 }
 
 .navbar-chat-dropdown-header {
-  padding: 14px 18px;
-  background: #ffffff;
-  border-bottom: 1px solid #f1f5f9;
+  padding: 16px 20px 14px;
+  background: linear-gradient(180deg, #f0f7ff 0%, #ffffff 100%);
+  border-bottom: 1px solid #e2e8f0;
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
+.navbar-chat-dropdown-title {
+  margin: 0;
+  font-size: 19px;
+  font-weight: 800;
+  color: #0f172a;
+  letter-spacing: -0.3px;
+}
+
+.navbar-chat-dropdown-subtitle {
+  margin: 2px 0 0 0;
+  font-size: 13px;
+  font-weight: 500;
+  color: #64748b;
+}
+
 .navbar-chat-close-btn {
-  background: #f1f5f9;
+  background: #e0f2fe;
   border: none;
   border-radius: 50%;
-  width: 28px;
-  height: 28px;
+  width: 32px;
+  height: 32px;
   display: flex;
   align-items: center;
   justify-content: center;
   cursor: pointer;
+  transition: background 0.15s ease, transform 0.1s ease;
+}
+
+.navbar-chat-close-btn:hover {
+  background: #bae6fd;
+  transform: scale(1.05);
 }
 
 .navbar-chat-dropdown-body {
-  max-height: 380px;
+  max-height: 400px;
   overflow-y: auto;
 }
 
+/* Custom sleek scrollbar matching target */
+.navbar-chat-dropdown-body::-webkit-scrollbar {
+  width: 6px;
+}
+
+.navbar-chat-dropdown-body::-webkit-scrollbar-track {
+  background: transparent;
+}
+
+.navbar-chat-dropdown-body::-webkit-scrollbar-thumb {
+  background: #0f3f7a;
+  border-radius: 4px;
+}
+
+.navbar-chat-dropdown-body::-webkit-scrollbar-thumb:hover {
+  background: #092c57;
+}
+
 .navbar-chat-empty {
-  padding: 32px 20px;
+  padding: 36px 20px;
   text-align: center;
   display: flex;
   flex-direction: column;
@@ -407,13 +446,17 @@
 
 .navbar-chat-item {
   display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 12px 16px;
-  border-bottom: 1px solid #f1f5f9;
+  align-items: flex-start;
+  gap: 14px;
+  padding: 14px 18px;
+  border-bottom: 1px solid #edf2f7;
   cursor: pointer;
   transition: background 0.15s ease;
   position: relative;
+}
+
+.navbar-chat-item:last-child {
+  border-bottom: none;
 }
 
 .navbar-chat-item:hover {
@@ -425,11 +468,12 @@
 }
 
 .navbar-chat-item-img {
-  width: 44px;
-  height: 44px;
-  border-radius: 10px;
+  width: 48px;
+  height: 48px;
+  border-radius: 12px;
   object-fit: cover;
   border: 1px solid #e2e8f0;
+  background: #f1f5f9;
   flex-shrink: 0;
 }
 
@@ -441,38 +485,76 @@
 .navbar-chat-item-row {
   display: flex;
   justify-content: space-between;
-  align-items: center;
+  align-items: baseline;
+  gap: 8px;
 }
 
 .navbar-chat-item-title {
-  font-size: 13px;
+  font-size: 15px;
   font-weight: 700;
   color: #0f172a;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
-  max-width: 170px;
 }
 
 .navbar-chat-item-time {
-  font-size: 10px;
-  color: #94a3b8;
+  font-size: 12px;
+  color: #64748b;
+  font-weight: 500;
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
-.navbar-chat-item-partner {
-  margin: 2px 0 0 0;
-  font-size: 11px;
-  color: #15803d;
+.navbar-chat-item-partner-row {
+  margin-top: 3px;
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 4px;
+}
+
+.navbar-chat-partner-label {
+  font-size: 13px;
+  color: #334155;
   font-weight: 500;
 }
 
-.navbar-chat-item-snippet {
-  margin: 3px 0 0 0;
+.navbar-chat-partner-badge {
+  display: inline-block;
+  border: 1.5px solid #0284c7;
+  color: #0f172a;
+  border-radius: 9999px;
+  padding: 0 10px;
   font-size: 12px;
+  font-weight: 600;
+  line-height: 1.6;
+}
+
+.navbar-chat-item-snippet-row {
+  margin-top: 4px;
+}
+
+.navbar-chat-snippet-bubble {
+  display: inline-block;
+  background: #eff6ff;
+  color: #334155;
+  padding: 2px 10px;
+  border-radius: 6px;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 100%;
+}
+
+.navbar-chat-item-snippet {
+  font-size: 13px;
   color: #64748b;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+  display: block;
 }
 
 .navbar-chat-unread-dot {
@@ -488,4 +570,5 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
+  margin-top: 4px;
 }

@@ -43,6 +43,7 @@ const db = mysql.createPool({
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
+  timezone: 'Z',
   ssl: {
     rejectUnauthorized: false 
   }
@@ -439,7 +440,12 @@ app.get('/api/chat/messages/:conversationId', async (req, res) => {
     // Messages ලබා ගැනීම
     const [messages] = await db.execute(`
       SELECT 
-        m.*, 
+        m.id,
+        m.conversation_id,
+        m.sender_id,
+        m.message_text,
+        m.is_read,
+        DATE_FORMAT(m.created_at, '%Y-%m-%dT%H:%i:%s.000Z') AS created_at,
         u.full_name AS sender_name, 
         u.profile_pic_url AS sender_pic 
       FROM messages m 
@@ -483,7 +489,12 @@ app.post('/api/chat/send', async (req, res) => {
     // 3. Insert වූ message එක sender විස්තර සහිතව ලබා ගැනීම
     const [newMessage] = await db.execute(`
       SELECT 
-        m.*, 
+        m.id,
+        m.conversation_id,
+        m.sender_id,
+        m.message_text,
+        m.is_read,
+        DATE_FORMAT(m.created_at, '%Y-%m-%dT%H:%i:%s.000Z') AS created_at,
         u.full_name AS sender_name, 
         u.profile_pic_url AS sender_pic 
       FROM messages m 
@@ -522,13 +533,14 @@ app.get('/api/chat/user-conversations/:userId', async (req, res) => {
         seller.full_name AS seller_name,
         seller.profile_pic_url AS seller_pic,
         (SELECT message_text FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_message,
-        (SELECT created_at FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_message_time,
+        (SELECT DATE_FORMAT(created_at, '%Y-%m-%dT%H:%i:%s.000Z') FROM messages WHERE conversation_id = c.id ORDER BY created_at DESC LIMIT 1) AS last_message_time,
         (SELECT COUNT(*) FROM messages WHERE conversation_id = c.id AND sender_id != ? AND is_read = FALSE) AS unread_count
       FROM conversations c
       LEFT JOIN items i ON c.item_id = i.id
       LEFT JOIN users_details buyer ON c.buyer_id = buyer.user_id
       LEFT JOIN users_details seller ON c.seller_id = seller.user_id
-      WHERE c.buyer_id = ? OR c.seller_id = ?
+      WHERE (c.buyer_id = ? OR c.seller_id = ?)
+        AND EXISTS (SELECT 1 FROM messages WHERE conversation_id = c.id)
       ORDER BY c.updated_at DESC
     `, [userId, userId, userId]);
 

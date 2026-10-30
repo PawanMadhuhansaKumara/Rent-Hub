@@ -227,11 +227,31 @@ export default function ChatBox({
     }
   };
 
-  // Format time (e.g. 10:45 AM)
+  // Format time to Sri Lanka time (Asia/Colombo, UTC+5:30)
   const formatTime = (dateStr) => {
     if (!dateStr) return "";
-    const date = new Date(dateStr);
-    return date.toLocaleTimeString([], { hour: "2-digit", minute: "2-digit" });
+    try {
+      let date;
+      if (typeof dateStr === "number" || dateStr instanceof Date) {
+        date = new Date(dateStr);
+      } else {
+        let s = String(dateStr).trim();
+        // If MySQL datetime lacks timezone indicator, treat as UTC
+        if (!s.endsWith("Z") && !s.includes("+") && !s.match(/-\d{2}:\d{2}$/)) {
+          s = s.replace(" ", "T") + "Z";
+        }
+        date = new Date(s);
+      }
+      if (isNaN(date.getTime())) return "";
+      return date.toLocaleTimeString("en-US", {
+        timeZone: "Asia/Colombo",
+        hour: "2-digit",
+        minute: "2-digit",
+        hour12: true,
+      });
+    } catch {
+      return "";
+    }
   };
 
   // Header display details

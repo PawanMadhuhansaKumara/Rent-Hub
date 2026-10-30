@@ -66,7 +66,10 @@ export default function Navbar({ user, setUser }) {
       const res = await fetch(`http://localhost:5001/api/chat/user-conversations/${userId}`);
       if (res.ok) {
         const data = await res.json();
-        setConversations(data.conversations || []);
+        const activeList = (data.conversations || []).filter(
+          (conv) => conv.last_message && conv.last_message.trim() !== ""
+        );
+        setConversations(activeList);
       }
     } catch (err) {
       console.error("Error fetching user conversations:", err);
@@ -106,6 +109,45 @@ export default function Navbar({ user, setUser }) {
       return;
     }
     setShowChatDropdown((prev) => !prev);
+  };
+
+  const formatChatTime = (dateStr) => {
+    if (!dateStr) return "";
+    try {
+      let date;
+      if (typeof dateStr === "number" || dateStr instanceof Date) {
+        date = new Date(dateStr);
+      } else {
+        let s = String(dateStr).trim();
+        // If MySQL datetime lacks timezone indicator, treat as UTC
+        if (!s.endsWith("Z") && !s.includes("+") && !s.match(/-\d{2}:\d{2}$/)) {
+          s = s.replace(" ", "T") + "Z";
+        }
+        date = new Date(s);
+      }
+      if (isNaN(date.getTime())) return "";
+
+      const now = new Date();
+      const msgDate = date.toLocaleDateString("en-CA", { timeZone: "Asia/Colombo" });
+      const nowDate = now.toLocaleDateString("en-CA", { timeZone: "Asia/Colombo" });
+
+      if (msgDate === nowDate) {
+        return date.toLocaleTimeString("en-US", {
+          timeZone: "Asia/Colombo",
+          hour: "2-digit",
+          minute: "2-digit",
+          hour12: true,
+        });
+      }
+
+      return date.toLocaleDateString("en-US", {
+        timeZone: "Asia/Colombo",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return "";
+    }
   };
 
   const handleOpenConversation = (conv) => {
@@ -191,10 +233,10 @@ export default function Navbar({ user, setUser }) {
             <div className="navbar-chat-dropdown">
               <div className="navbar-chat-dropdown-header">
                 <div>
-                  <h4 style={{ margin: 0, fontSize: "15px", fontWeight: "bold", color: "#0f172a" }}>
+                  <h4 className="navbar-chat-dropdown-title">
                     Messages
                   </h4>
-                  <p style={{ margin: "2px 0 0 0", fontSize: "11px", color: "#64748b" }}>
+                  <p className="navbar-chat-dropdown-subtitle">
                     {conversations.length} {t("chat.conversations") || "conversations"}
                   </p>
                 </div>
@@ -202,8 +244,9 @@ export default function Navbar({ user, setUser }) {
                   type="button"
                   className="navbar-chat-close-btn"
                   onClick={() => setShowChatDropdown(false)}
+                  aria-label="Close"
                 >
-                  <X size={16} color="#64748b" />
+                  <X size={17} color="#0284c7" />
                 </button>
               </div>
 
@@ -243,17 +286,24 @@ export default function Navbar({ user, setUser }) {
                               {conv.item_title || "Item Chat"}
                             </span>
                             <span className="navbar-chat-item-time">
-                              {conv.last_message_time
-                                ? new Date(conv.last_message_time).toLocaleDateString([], { month: "short", day: "numeric" })
-                                : ""}
+                              {formatChatTime(conv.last_message_time)}
                             </span>
                           </div>
-                          <p className="navbar-chat-item-partner">
-                            {t("chat.with") || "With:"} <strong>{partnerName}</strong>
-                          </p>
-                          <p className="navbar-chat-item-snippet">
-                            {conv.last_message || "No messages yet"}
-                          </p>
+                          <div className="navbar-chat-item-partner-row">
+                            <span className="navbar-chat-partner-label">{t("chat.with") || "With:"}</span>
+                            <span className="navbar-chat-partner-badge">{partnerName}</span>
+                          </div>
+                          <div className="navbar-chat-item-snippet-row">
+                            {conv.last_message ? (
+                              <span className="navbar-chat-snippet-bubble">
+                                {conv.last_message}
+                              </span>
+                            ) : (
+                              <span className="navbar-chat-item-snippet">
+                                {t("chat.noMessagesYet") || "No messages yet"}
+                              </span>
+                            )}
+                          </div>
                         </div>
                         {hasUnread && (
                           <span className="navbar-chat-unread-dot" title={`${conv.unread_count} unread`}>
