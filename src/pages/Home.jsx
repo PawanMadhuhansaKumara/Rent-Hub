@@ -1,7 +1,8 @@
-import { useEffect, useState } from "react";
-import { Link } from "react-router-dom";
+import { useEffect, useState, useRef } from "react";
+import { Link, useLocation } from "react-router-dom";
 import "./Home.css";
 import SearchBar from "../components/SearchBar";
+import ItemCard from "../components/ItemCard";
 
 const API_URL = "http://localhost:5001/api/items";
 
@@ -10,6 +11,27 @@ export default function Home() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [searchTerm, setSearchTerm] = useState("");
+  const searchInputRef = useRef(null);
+  const location = useLocation();
+
+  // Focus search input when coming with focusSearch state
+  useEffect(() => {
+    if (location.state?.focusSearch) {
+      const focusSearch = () => {
+        if (searchInputRef.current) {
+          searchInputRef.current.focus();
+          searchInputRef.current.scrollIntoView({
+            behavior: "smooth",
+            block: "center",
+          });
+        }
+      };
+
+      focusSearch();
+      const timer = setTimeout(focusSearch, 150);
+      return () => clearTimeout(timer);
+    }
+  }, [location.state]);
 
   useEffect(() => {
     fetch(API_URL)
@@ -35,14 +57,14 @@ export default function Home() {
 
   return (
     <main className="items-page">
-      <SearchBar searchTerm={searchTerm} setSearchTerm={setSearchTerm} />
-      
-      
+      <SearchBar
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+        searchInputRef={searchInputRef}
+      />
 
       {/* Rental Items Section */}
       <section id="rental-items" className="rental-section">
-        
-
         {loading ? (
           <p className="items-message">Loading items...</p>
         ) : error ? (
@@ -52,44 +74,7 @@ export default function Home() {
         ) : (
           <div className="items-grid">
             {filteredItems.map((item) => (
-              <article className="item-card" key={item.id}>
-                {item.image ? (
-                  <img
-                    src={
-                      item.image.startsWith("http")
-                        ? item.image
-                        : `http://localhost:5001${item.image.startsWith("/") ? "" : "/"}${item.image}`
-                    }
-                    alt={item.title}
-                    className="item-image"
-                  />
-                ) : (
-                  <div className="no-image">No Image Available</div>
-                )}
-
-                <div className="item-info">
-                  <span className="item-category">{item.category}</span>
-
-                  <h3>{item.title}</h3>
-
-                  <p className="item-condition">
-                    Condition: {item.condition || "Not specified"}
-                  </p>
-
-                  <div className="item-price">
-                    <strong>LKR {Number(item.price).toFixed(2)}</strong>
-                    <span> / {item.priceType || "day"}</span>
-                  </div>
-
-                  <p className="item-availability">
-                    Available: {item.available ?? 0}
-                  </p>
-
-                  <Link to={`/item/${item.id}`} className="view-details-button">
-                    View Details <span>→</span>
-                  </Link>
-                </div>
-              </article>
+              <ItemCard key={item.id} item={item} />
             ))}
           </div>
         )}

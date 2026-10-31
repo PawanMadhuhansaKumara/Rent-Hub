@@ -79,3 +79,377 @@
 .clear-search:hover {
   background: #dcfce7;
 }
+/* =================================
+   ITEM CARD - COMPACT DESIGN
+================================= */
+
+/* =================================
+   ITEM CARD & GRID STYLES
+================================= */
+
+.items-grid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 20px;
+  width: 100%;
+}
+
+.item-card {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100%;
+  overflow: hidden;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  background: #ffffff;
+  box-shadow: 0 2px 8px rgba(15, 23, 42, 0.05);
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.item-card:hover {
+  transform: translateY(-3px);
+  box-shadow: 0 8px 18px rgba(15, 23, 42, 0.1);
+}
+
+/* Facebook-style Item Author Header */
+.item-author-header {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 10px;
+  background: #ffffff;
+  border-bottom: 1px solid #f1f5f9;
+  min-width: 0;
+  text-decoration: none;
+  color: inherit;
+  cursor: pointer;
+  transition: background-color 0.15s ease;
+}
+
+.item-author-header:hover {
+  background-color: #f8fafc;
+}
+
+.item-author-header:hover .item-author-name {
+  color: #16a34a;
+}
+
+.item-author-avatar-wrapper {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+  border-radius: 50%;
+  overflow: hidden;
+  background: #f0fdf4;
+  border: 1.5px solid #dcfce7;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.item-author-avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  display: block;
+}
+
+.item-author-avatar-fallback {
+  width: 100%;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: #f0fdf4;
+}
+
+.item-author-info {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  justify-content: center;
+}
+
+.item-author-name {
+  font-size: 13px;
+  font-weight: 700;
+  color: #172b22;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  line-height: 1.2;
+}
+
+.item-author-badge {
+  font-size: 10px;
+  font-weight: 600;
+  color: #64748b;
+  line-height: 1;
+  margin-top: 2px;
+}
+
+/* Image */
+.item-card-image-wrapper {
+  position: relative;
+  width: 100%;
+  overflow: hidden;
+  background: #f1f5f9;
+}
+
+.item-card img,
+.item-image {
+  display: block;
+  width: 100%;
+  height: 165px;
+  object-fit: cover;
+  background: #f1f5f9;
+  transition: transform 0.3s ease;
+}
+
+.item-card:hover .item-image {
+  transform: scale(1.02);
+}
+
+.no-image {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 165px;
+  background: #f1f5f9;
+  color: #64748b;
+  font-size: 12px;
+  font-weight: 500;
+}
+
+/* Card Content */
+.item-info {
+  display: flex;
+  flex: 1;
+  flex-direction: column;
+  padding: 10px;
+  min-width: 0;
+}
+
+.item-meta-row {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  
+  margin: 1px 1px;
+}
+
+.item-condition,
+.item-availability {
+  margin: 0;
+  color: #64748b;
+  font-size: 11px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.item-price {
+  margin: 4px 0 8px;
+  color: #15803d;
+  display: flex;
+  align-items: baseline;
+  gap: 4px;
+}
+
+.item-price strong {
+  font-size: 15px;
+  font-weight: 800;
+  color: #15803d;
+}
+
+.item-price span {
+  color: #64748b;
+  font-size: 11px;
+}
+
+/* View Details Button */
+.view-details-button {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 5px;
+  width: 100%;
+  margin-top: auto;
+  padding: 8px 10px;
+  border-radius: 7px;
+  background: #15803d;
+  color: white;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  text-align: center;
+  transition: background 0.2s ease;
+}
+
+.view-details-button:hover {
+  background: #166534;
+}
+
+/* =================================
+   TABLET RESPONSIVE (3 columns)
+================================= */
+@media (max-width: 1100px) {
+  .items-grid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 16px;
+  }
+
+  .item-card img,
+  .item-image,
+  .no-image {
+    height: 150px;
+  }
+}
+
+/* =================================
+   MOBILE - EXACTLY TWO COLUMNS
+================================= */
+@media (max-width: 600px) {
+  .items-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+    gap: 10px;
+  }
+
+  .item-card {
+    border-radius: 10px;
+  }
+
+  /* Mobile Author Header */
+  .item-author-header {
+    padding: 6px 8px;
+    gap: 6px;
+  }
+
+  .item-author-avatar-wrapper {
+    width: 26px;
+    height: 26px;
+  }
+
+  .item-author-name {
+    font-size: 11px;
+  }
+
+  .item-author-badge {
+    font-size: 9px;
+  }
+
+  .item-card img,
+  .item-image,
+  .no-image {
+    height: 120px !important;
+  }
+
+  .item-info {
+    padding: 8px 8px 10px;
+  }
+
+  .item-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 6px;
+    width: 100%;
+    min-width: 0;
+  }
+
+  .item-title {
+    margin: 0;
+    font-size: 13px;
+    flex: 1;
+    min-width: 0;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+  }
+
+  
+
+  .item-meta-row {
+    margin: 2px 0 4px;
+    gap: 4px;
+  }
+
+  .item-condition,
+  .item-availability {
+    font-size: 10px;
+  }
+
+  .item-price {
+    margin: 2px 0 6px;
+  }
+
+  .item-price strong {
+    font-size: 13px;
+  }
+
+  .item-price span {
+    font-size: 10px;
+  }
+
+  .view-details-button {
+    padding: 6px 4px;
+    font-size: 11px;
+    border-radius: 6px;
+    gap: 4px;
+  }
+}
+
+/* Very small screens (<= 360px) */
+@media (max-width: 360px) {
+  .items-grid {
+    gap: 6px;
+  }
+
+  .item-author-header {
+    padding: 5px 6px;
+    gap: 5px;
+  }
+
+  .item-author-avatar-wrapper {
+    width: 22px;
+    height: 22px;
+  }
+
+  .item-author-name {
+    font-size: 10px;
+  }
+
+  .item-author-badge {
+    display: none;
+  }
+
+  .item-card img,
+  .item-image,
+  .no-image {
+    height: 105px !important;
+  }
+
+  .item-info {
+    padding: 6px 5px 8px;
+  }
+
+  .item-info h2,
+  .item-info h3,
+  .item-title {
+    font-size: 11px;
+    min-height: 30px;
+  }
+
+  .item-price strong {
+    font-size: 12px;
+  }
+
+  .view-details-button {
+    padding: 5px 2px;
+    font-size: 10px;
+  }
+}

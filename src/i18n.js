@@ -4,6 +4,18 @@ import { initReactI18next } from "react-i18next";
 const resources = {
   en: {
     translation: {
+      search: {
+        placeholder: "Search items by name or category...",
+      },
+      item: {
+        condition: "Condition",
+        availability: "Availability",
+        currency: "LKR",
+        viewDetails: "View Details",
+        day: "day",
+        week: "week",
+        month: "month",
+      },
 
       profile: {
         addItem: "Add Item",
@@ -15,7 +27,8 @@ const resources = {
         myShopItems: "My Shop Items",
         viewAll: "View All Items →",
         recentItems: "Recent Shop Items",
-        noItems: "No items added yet. Click \"+ Add Item\" to list your first item!",
+        noItems:
+          'No items added yet. Click "+ Add Item" to list your first item!',
         fullName: "Full Name",
         username: "Username",
         phoneNumber: "Phone Number",
@@ -41,8 +54,8 @@ const resources = {
           vehicles: "Vehicles",
           tools: "Tools",
           sports: "Sports",
-          others: "Others"
-        }
+          others: "Others",
+        },
       },
       appbar: {
         home: "Home",
@@ -158,7 +171,8 @@ const resources = {
         messages: "Messages",
         conversations: "conversations",
         noMessagesYet: "No messages yet",
-        startChattingNotice: "Start chatting with sellers directly from any item details page!",
+        startChattingNotice:
+          "Start chatting with sellers directly from any item details page!",
         inquireNotice: "Send a message to start inquiring about this item!",
         sellerOfItem: "Seller of item",
         interestedBuyer: "Interested Buyer",
@@ -172,7 +186,18 @@ const resources = {
 
   si: {
     translation: {
-
+      search: {
+        placeholder: "භාණ්ඩ නම හෝ වර්ගය අනුව සොයන්න...",
+      },
+      item: {
+        condition: "තත්ත්වය",
+        availability: "ලබාගත හැකි ප්‍රමාණය",
+        currency: "රු.",
+        viewDetails: "විස්තර බලන්න",
+        day: "දිනකට",
+        week: "සතියකට",
+        month: "මාසයකට",
+      },
       profile: {
         addItem: "භාණ්ඩයක් එකතු කරන්න",
         editProfile: "පැතිකඩ සංස්කරණය",
@@ -183,7 +208,7 @@ const resources = {
         myShopItems: "මගේ භාණ්ඩ",
         viewAll: "සියල්ල බලන්න →",
         recentItems: "මෑතකදී එකතු කළ භාණ්ඩ",
-        noItems: "තවම භාණ්ඩ එකතු කර නැත. \"+ භාණ්ඩයක් එකතු කරන්න\" ඔබන්න!",
+        noItems: 'තවම භාණ්ඩ එකතු කර නැත. "+ භාණ්ඩයක් එකතු කරන්න" ඔබන්න!',
         fullName: "සම්පූර්ණ නම",
         username: "පරිශීලක නාමය",
         phoneNumber: "දුරකථන අංකය",
@@ -209,8 +234,8 @@ const resources = {
           vehicles: "වාහන",
           tools: "මෙවලම්",
           sports: "ක්‍රීඩා",
-          others: "වෙනත්"
-        }
+          others: "වෙනත්",
+        },
       },
 
       appbar: {
@@ -324,7 +349,8 @@ const resources = {
         messages: "පණිවිඩ",
         conversations: "සංවාද",
         noMessagesYet: "තවම පණිවිඩ නොමැත",
-        startChattingNotice: "ඕනෑම භාණ්ඩයක විස්තර පිටුවකින් කෙලින්ම විකුණුම්කරු සමඟ කතා කරන්න!",
+        startChattingNotice:
+          "ඕනෑම භාණ්ඩයක විස්තර පිටුවකින් කෙලින්ම විකුණුම්කරු සමඟ කතා කරන්න!",
         inquireNotice: "මෙම භාණ්ඩය පිළිබඳ විමසීමට පණිවිඩයක් යවන්න!",
         sellerOfItem: "භාණ්ඩයේ අයිතිකරු",
         interestedBuyer: "මිලදී ගන්නා පාර්ශ්වය",
@@ -338,7 +364,18 @@ const resources = {
 
   ta: {
     translation: {
-
+      search: {
+        placeholder: "பொருளின் பெயர் அல்லது வகையின் அடிப்படையில் தேடுங்கள்...",
+      },
+      item: {
+        condition: "நிலை",
+        availability: "கிடைக்கும் அளவு",
+        currency: "ரூ.",
+        viewDetails: "விவரங்களைப் பார்க்க",
+        day: "ஒரு நாளுக்கு",
+        week: "ஒரு வாரத்திற்கு",
+        month: "ஒரு மாதத்திற்கு",
+      },
       profile: {
         addItem: "பொருளைச் சேர்",
         editProfile: "சுயவிவரத்தைத் திருத்து",
@@ -349,7 +386,8 @@ const resources = {
         myShopItems: "என் கடையில் உள்ள பொருட்கள்",
         viewAll: "அனைத்தையும் பார் →",
         recentItems: "சமீபத்திய பொருட்கள்",
-        noItems: "பொருட்கள் எதுவும் சேர்க்கப்படவில்லை. \"+ பொருளைச் சேர்\" என்பதைக் கிளிக் செய்க!",
+        noItems:
+          'பொருட்கள் எதுவும் சேர்க்கப்படவில்லை. "+ பொருளைச் சேர்" என்பதைக் கிளிக் செய்க!',
         fullName: "முழு பெயர்",
         username: "பயனர்பெயர்",
         phoneNumber: "தொலைபேசி எண்",
@@ -375,8 +413,8 @@ const resources = {
           vehicles: "வாகனங்கள்",
           tools: "கருவிகள்",
           sports: "விளையாட்டு",
-          others: "மற்றவை"
-        }
+          others: "மற்றவை",
+        },
       },
 
       appbar: {
@@ -493,8 +531,10 @@ const resources = {
         messages: "செய்திகள்",
         conversations: "உரையாடல்கள்",
         noMessagesYet: "இன்னும் செய்திகள் இல்லை",
-        startChattingNotice: "பொருளின் விவரப் பக்கத்திலிருந்து நேரடியாக விற்பனையாளருடன் அரட்டையடிக்கவும்!",
-        inquireNotice: "இந்தப் பொருளைப் பற்றி விசாரிக்க ஒரு செய்தியை அனுப்பவும்!",
+        startChattingNotice:
+          "பொருளின் விவரப் பக்கத்திலிருந்து நேரடியாக விற்பனையாளருடன் அரட்டையடிக்கவும்!",
+        inquireNotice:
+          "இந்தப் பொருளைப் பற்றி விசாரிக்க ஒரு செய்தியை அனுப்பவும்!",
         sellerOfItem: "பொருளின் விற்பனையாளர்",
         interestedBuyer: "வாங்க விரும்பும் வாடிக்கையாளர்",
         typeMessagePlaceholder: "உங்கள் செய்தியை தட்டச்சு செய்யவும்...",

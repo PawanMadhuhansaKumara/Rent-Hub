@@ -40,7 +40,11 @@ export default function App() {
 
         <Route
           path="/profile"
-          element={user ? <Profile user={user} /> : <Navigate to="/login" />}
+          element={user ? <Profile user={user} setUser={setUser} /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/profile/:userId"
+          element={<Profile user={user} setUser={setUser} />}
         />
 
         <Route

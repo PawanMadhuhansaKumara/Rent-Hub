@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { useNavigate } from "react-router-dom";
+import { useNavigate, useParams } from "react-router-dom";
 import {
   Camera,
   CheckCircle2,
@@ -21,6 +21,10 @@ import SettingsPopup from "../components/SettingsPopup";
 export default function Profile({ user, setUser }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const { userId: paramUserId } = useParams();
+
+  // Determine if viewing own profile or someone else's
+  const isOwnProfile = !paramUserId || (user && String(user.user_id) === String(paramUserId));
 
   const [activeTab, setActiveTab] = useState("shop");
   const [showEditProfile, setShowEditProfile] = useState(false);
@@ -57,6 +61,62 @@ export default function Profile({ user, setUser }) {
   const [newPostContent, setNewPostContent] = useState("");
   const [postImageFile, setPostImageFile] = useState(null);
   const postImageInputRef = useRef(null);
+
+  // If viewing someone else's profile via /profile/:userId, fetch their data
+  useEffect(() => {
+    if (paramUserId && !isOwnProfile) {
+      fetch(`http://localhost:5001/api/users/${paramUserId}`)
+        .then(res => res.json())
+        .then(data => {
+          if (data.success && data.user) {
+            const u = data.user;
+            setProfile({
+              user_id: u.user_id,
+              full_name: u.full_name || "Rent Hub Member",
+              username: u.username || "",
+              phone_no: u.phone_no || "",
+              email: u.email || "",
+              address: u.address || "",
+              nearest_city: u.nearest_city || "",
+              about: u.about || "",
+              trust_score: u.user_rating ? u.user_rating * 20 : 80,
+              reviews_count: u.reviews_count || 0,
+              likes_count: u.likes_count || 0,
+              profile_pic_url: u.profile_pic_url
+                ? (u.profile_pic_url.startsWith("http") ? u.profile_pic_url : `http://localhost:5001${u.profile_pic_url}`)
+                : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
+              coverphoto: u.coverphoto
+                ? (u.coverphoto.startsWith("http") ? u.coverphoto : `http://localhost:5001${u.coverphoto}`)
+                : "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=1000",
+              is_verified: u.is_verified || 0
+            });
+          }
+        })
+        .catch(err => console.error("Fetch public profile error:", err));
+    } else if (isOwnProfile && user) {
+      setProfile(prev => ({
+        ...prev,
+        user_id: user.user_id,
+        full_name: user.full_name || prev.full_name,
+        username: user.username || prev.username,
+        phone_no: user.phone_no || prev.phone_no,
+        email: user.email || prev.email,
+        address: user.address || prev.address,
+        nearest_city: user.nearest_city || prev.nearest_city,
+        about: user.about || prev.about,
+        trust_score: user.user_rating ? user.user_rating * 20 : prev.trust_score,
+        reviews_count: user.reviews_count || prev.reviews_count,
+        likes_count: user.likes_count || prev.likes_count,
+        profile_pic_url: user.profile_pic_url
+          ? (user.profile_pic_url.startsWith("http") ? user.profile_pic_url : `http://localhost:5001${user.profile_pic_url}`)
+          : prev.profile_pic_url,
+        coverphoto: user.coverphoto
+          ? (user.coverphoto.startsWith("http") ? user.coverphoto : `http://localhost:5001${user.coverphoto}`)
+          : prev.coverphoto,
+        is_verified: user.is_verified ?? prev.is_verified
+      }));
+    }
+  }, [paramUserId, isOwnProfile, user]);
 
   useEffect(() => {
     fetchItems();
@@ -225,16 +285,18 @@ export default function Profile({ user, setUser }) {
               </div>
             </div>
 
-            <div style={styles.desktopActionBtns}>
-              <button onClick={() => navigate("/add-item")} style={styles.primaryBtn}>
-                <Plus size={18} /> {t("profile.addItem")}
-              </button>
-              <button onClick={() => setShowEditProfile(true)} style={styles.secondaryBtn}>
-                <Edit3 size={18} /> {t("profile.editProfile")}
-              </button>
-              {/*setings button*/}
-              <SettingsPopup/>
-            </div>
+            {isOwnProfile && (
+              <div style={styles.desktopActionBtns}>
+                <button onClick={() => navigate("/add-item")} style={styles.primaryBtn}>
+                  <Plus size={18} /> {t("profile.addItem")}
+                </button>
+                <button onClick={() => setShowEditProfile(true)} style={styles.secondaryBtn}>
+                  <Edit3 size={18} /> {t("profile.editProfile")}
+                </button>
+                {/*setings button*/}
+                <SettingsPopup/>
+              </div>
+            )}
 
           </div>
 
@@ -343,24 +405,39 @@ export default function Profile({ user, setUser }) {
                             {/* Direct Availability Dropdown Selector inside card */}
                             <div style={{ margin: "6px 0 10px 0", display: "flex", alignItems: "center", gap: "6px" }}>
                               <span style={{ fontSize: "12px", color: "#666" }}>Status:</span>
-                              <select 
-                                value={item.available || "Available"}
-                                onChange={(e) => handleStatusChange(item.id, e.target.value)}
-                                style={{
-                                  fontSize: "12px",
-                                  fontWeight: "bold",
-                                  padding: "3px 6px",
-                                  borderRadius: "6px",
-                                  border: "1px solid #ddd",
-                                  backgroundColor: item.available === "Rented Out" ? "#fff3cd" : "#d4edda",
-                                  color: item.available === "Rented Out" ? "#856404" : "#155724",
-                                  cursor: "pointer",
-                                  outline: "none"
-                                }}
-                              >
-                                <option value="Available">Available</option>
-                                <option value="Rented Out">Rented Out</option>
-                              </select>
+                              {isOwnProfile ? (
+                                <select 
+                                  value={item.available || "Available"}
+                                  onChange={(e) => handleStatusChange(item.id, e.target.value)}
+                                  style={{
+                                    fontSize: "12px",
+                                    fontWeight: "bold",
+                                    padding: "3px 6px",
+                                    borderRadius: "6px",
+                                    border: "1px solid #ddd",
+                                    backgroundColor: item.available === "Rented Out" ? "#fff3cd" : "#d4edda",
+                                    color: item.available === "Rented Out" ? "#856404" : "#155724",
+                                    cursor: "pointer",
+                                    outline: "none"
+                                  }}
+                                >
+                                  <option value="Available">Available</option>
+                                  <option value="Rented Out">Rented Out</option>
+                                </select>
+                              ) : (
+                                <span
+                                  style={{
+                                    fontSize: "12px",
+                                    fontWeight: "bold",
+                                    padding: "3px 8px",
+                                    borderRadius: "6px",
+                                    backgroundColor: item.available === "Rented Out" ? "#fff3cd" : "#d4edda",
+                                    color: item.available === "Rented Out" ? "#856404" : "#155724"
+                                  }}
+                                >
+                                  {item.available || "Available"}
+                                </span>
+                              )}
                             </div>
                             
                             <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginTop: "12px", borderTop: "1px solid #f0f0f0", paddingTop: "10px" }}>
@@ -379,37 +456,39 @@ export default function Profile({ user, setUser }) {
 
               {activeTab === "posts" && (
                 <div style={{ marginTop: "20px", maxWidth: "600px" }}>
-                  <div style={styles.createPostCard}>
-                    <form onSubmit={handleCreatePost}>
-                      <div style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "12px" }}>
-                        <img src={profile.profile_pic_url} alt="Profile" style={{ width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover" }} />
-                        <textarea
-                          style={styles.postInputBox}
-                          placeholder="What's on your mind, rent & sell items?"
-                          value={newPostContent}
-                          onChange={(e) => setNewPostContent(e.target.value)}
-                        />
-                      </div>
-
-                      {postImageFile && (
-                        <div style={{ position: "relative", marginBottom: "12px" }}>
-                          <img src={URL.createObjectURL(postImageFile)} alt="Preview" style={{ width: "100%", maxHeight: "200px", objectFit: "cover", borderRadius: "8px" }} />
-                          <button type="button" onClick={() => setPostImageFile(null)} style={styles.removeImgBtn}>
-                            <X size={14} color="#fff" />
-                          </button>
+                  {isOwnProfile && (
+                    <div style={styles.createPostCard}>
+                      <form onSubmit={handleCreatePost}>
+                        <div style={{ display: "flex", gap: "12px", alignItems: "center", marginBottom: "12px" }}>
+                          <img src={profile.profile_pic_url} alt="Profile" style={{ width: "40px", height: "40px", borderRadius: "50%", objectFit: "cover" }} />
+                          <textarea
+                            style={styles.postInputBox}
+                            placeholder="What's on your mind, rent & sell items?"
+                            value={newPostContent}
+                            onChange={(e) => setNewPostContent(e.target.value)}
+                          />
                         </div>
-                      )}
 
-                      <input type="file" ref={postImageInputRef} style={{ display: "none" }} accept="image/*" onChange={(e) => setPostImageFile(e.target.files[0])} />
+                        {postImageFile && (
+                          <div style={{ position: "relative", marginBottom: "12px" }}>
+                            <img src={URL.createObjectURL(postImageFile)} alt="Preview" style={{ width: "100%", maxHeight: "200px", objectFit: "cover", borderRadius: "8px" }} />
+                            <button type="button" onClick={() => setPostImageFile(null)} style={styles.removeImgBtn}>
+                              <X size={14} color="#fff" />
+                            </button>
+                          </div>
+                        )}
 
-                      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f0f0f0", paddingTop: "10px" }}>
-                        <button type="button" onClick={() => postImageInputRef.current.click()} style={styles.photoUploadBtn}>
-                          <Camera size={18} color="#007bff" /> Add Photo
-                        </button>
-                        <button type="submit" style={styles.postSubmitBtn}>Post</button>
-                      </div>
-                    </form>
-                  </div>
+                        <input type="file" ref={postImageInputRef} style={{ display: "none" }} accept="image/*" onChange={(e) => setPostImageFile(e.target.files[0])} />
+
+                        <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", borderTop: "1px solid #f0f0f0", paddingTop: "10px" }}>
+                          <button type="button" onClick={() => postImageInputRef.current.click()} style={styles.photoUploadBtn}>
+                            <Camera size={18} color="#007bff" /> Add Photo
+                          </button>
+                          <button type="submit" style={styles.postSubmitBtn}>Post</button>
+                        </div>
+                      </form>
+                    </div>
+                  )}
 
                   <div style={{ display: "flex", flexDirection: "column", gap: "16px", marginTop: "20px" }}>
                     {userPosts.length === 0 ? (
@@ -444,7 +523,7 @@ export default function Profile({ user, setUser }) {
         </div>
 
         {/* EDIT PROFILE POPUP */}
-        {showEditProfile && (
+        {isOwnProfile && showEditProfile && (
           <div style={styles.modalOverlay}>
             <div style={styles.prettyModalBox}>
               
