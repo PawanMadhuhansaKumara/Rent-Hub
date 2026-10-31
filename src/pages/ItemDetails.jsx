@@ -1,10 +1,10 @@
-
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { MessageCircle } from "lucide-react";
+import { MessageCircle, User, MapPin, CartonIcon, ShoppingCart } from "lucide-react";
 import ChatBox from "../components/ChatBox";
 import "./ItemDetails.css";
+import CartIcon from "../components/CartIcon";
 
 const API_URL = "http://localhost:5001";
 
@@ -76,7 +76,7 @@ export default function ItemDetails() {
         const items = Array.isArray(data) ? data : data.items || [];
 
         const selectedItem = items.find(
-          (product) => String(product.id) === String(id)
+          (product) => String(product.id) === String(id),
         );
 
         if (!selectedItem) {
@@ -108,16 +108,13 @@ export default function ItemDetails() {
       return;
     }
 
-    if (
-      quantity < 1 ||
-      quantity > Number(item.available ?? 0)
-    ) {
+    if (quantity < 1 || quantity > Number(item.available ?? 0)) {
       alert("Please select a valid quantity.");
       return;
     }
 
     alert(
-      "Form validation successful. Rental request saving is not connected yet."
+      "Form validation successful. Rental request saving is not connected yet.",
     );
 
     setShowRequestForm(false);
@@ -158,16 +155,72 @@ export default function ItemDetails() {
   const price = Number(item.price) || 0;
   const priceType = item.priceType || "day";
 
+  const authorId = item.userId || item.user_id || item.seller_id;
+  const authorProfileLink = authorId ? `/profile/${authorId}` : "/profile";
+
+  const rawAvatar = item.userProfilePic || item.user_profile_pic;
+  const avatarUrl = rawAvatar
+    ? rawAvatar.startsWith("http")
+      ? rawAvatar
+      : `${API_URL}${rawAvatar.startsWith("/") ? "" : "/"}${rawAvatar}`
+    : null;
+
+  const authorName =
+    item.userName || item.user_name || item.seller_name || "Rent Hub Member";
+
+  const nearestCity =
+    item.nearestCity || item.nearest_city || item.city || "Sri Lanka";
+
   return (
     <main className="item-details-page">
       <div className="details-container">
         <div className="details-breadcrumb">
-          <Link to="/">Home</Link>
-          <span>/</span>
-          <span>Item Details</span>
+          <Link to="/" className="details-back-button">
+            ← Back to Home
+          </Link>
         </div>
 
         <div className="item-details-card">
+          {/* Author Header like Item Card */}
+          <Link to={authorProfileLink} className="details-author-header">
+            <div className="details-author-avatar-wrapper">
+              {avatarUrl ? (
+                <img
+                  src={avatarUrl}
+                  alt={authorName}
+                  className="details-author-avatar"
+                  onError={(e) => {
+                    e.currentTarget.onerror = null;
+                    e.currentTarget.style.display = "none";
+                    const fallback =
+                      e.currentTarget.parentElement?.querySelector(
+                        ".details-author-avatar-fallback",
+                      );
+                    if (fallback) fallback.style.display = "flex";
+                  }}
+                />
+              ) : null}
+              <div
+                className="details-author-avatar-fallback"
+                style={{ display: avatarUrl ? "none" : "flex" }}
+              >
+                <User size={18} color="#15803d" />
+              </div>
+            </div>
+
+            <div className="details-author-info">
+              <span className="details-author-name">{authorName}</span>
+              <span className="details-author-badge">
+                <MapPin size={12} style={{ flexShrink: 0, color: "#16a34a" }} />
+                <span>{nearestCity}</span>
+              </span>
+            </div>
+
+            <span className="details-author-view-profile">
+              Visit Store <span>→</span>
+            </span>
+          </Link>
+
           {/* Item Image */}
           <div className="details-image-section">
             {imageUrl ? (
@@ -189,9 +242,7 @@ export default function ItemDetails() {
 
           {/* Item Information */}
           <div className="details-content">
-            <span className="details-eyebrow">
-              RENT-HUB MARKETPLACE
-            </span>
+            <span className="details-eyebrow">RENT-HUB MARKETPLACE</span>
 
             <h1>{item.title}</h1>
 
@@ -206,11 +257,10 @@ export default function ItemDetails() {
             </div>
 
             <div className="details-price-box">
-              <span className="details-price-label">
-                Rental price
-              </span>
+              <span className="details-price-label">Rental price</span>
               <p className="details-price">
-                LKR {price.toLocaleString("en-LK", {
+                LKR{" "}
+                {price.toLocaleString("en-LK", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
@@ -239,6 +289,8 @@ export default function ItemDetails() {
               </p>
             </div>
 
+            {/* button section */}
+
             <div className="details-actions">
               <button
                 type="button"
@@ -246,9 +298,19 @@ export default function ItemDetails() {
                 onClick={handleOpenChat}
               >
                 <MessageCircle size={18} />
-                <span>{t("chat.chatWithSeller") || "Chat with Seller"}</span>
               </button>
-
+              <button
+                type="button"
+                className="add-to-rent-cart-button"
+                onClick={""}
+                disabled={available < 1}
+              ><ShoppingCart size={18} />
+                {available < 1
+                  ? "Not Available"
+                  : showRequestForm
+                    ? "Add to Rent Cart"
+                    : "Add to Rent Cart"}
+              </button>
               <button
                 type="button"
                 className="rent-request-button"
@@ -258,13 +320,9 @@ export default function ItemDetails() {
                 {available < 1
                   ? "Not Available"
                   : showRequestForm
-                  ? "Cancel Request"
-                  : "Request to Rent"}
+                    ? "Cancel Request"
+                    : "Rent Now"}
               </button>
-
-              <Link to="/" className="details-back-button">
-                ← Back to Home
-              </Link>
             </div>
 
             {showRequestForm && (
@@ -280,9 +338,7 @@ export default function ItemDetails() {
                   </div>
                 </div>
 
-                <label htmlFor="startDate">
-                  Rental Start Date
-                </label>
+                <label htmlFor="startDate">Rental Start Date</label>
                 <input
                   id="startDate"
                   type="date"
@@ -297,9 +353,7 @@ export default function ItemDetails() {
                   required
                 />
 
-                <label htmlFor="endDate">
-                  Rental End Date
-                </label>
+                <label htmlFor="endDate">Rental End Date</label>
                 <input
                   id="endDate"
                   type="date"
@@ -318,9 +372,7 @@ export default function ItemDetails() {
                   value={quantity}
                   onChange={(e) => {
                     const value = Number(e.target.value);
-                    setQuantity(
-                      value > available ? available : value
-                    );
+                    setQuantity(value > available ? available : value);
                   }}
                   required
                 />
@@ -328,23 +380,21 @@ export default function ItemDetails() {
                 <div className="request-price-summary">
                   <span>Price per {priceType}</span>
                   <strong>
-                    LKR {price.toLocaleString("en-LK", {
+                    LKR{" "}
+                    {price.toLocaleString("en-LK", {
                       minimumFractionDigits: 2,
                       maximumFractionDigits: 2,
                     })}
                   </strong>
                 </div>
 
-                <button
-                  type="submit"
-                  className="submit-request-button"
-                >
+                <button type="submit" className="submit-request-button">
                   Submit Request →
                 </button>
 
                 <p className="request-note">
-                  This is a demo form. Your request is not saved
-                  to the database yet.
+                  This is a demo form. Your request is not saved to the database
+                  yet.
                 </p>
               </form>
             )}

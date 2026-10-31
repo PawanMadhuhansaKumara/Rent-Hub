@@ -7,7 +7,7 @@ import "./Navbar.css";
 import "../responsive.css";
 import logo from "../assets/logoSmall.png";
 import LanguageSelecter from "../components/LanguageSelecter";
-import LogoutButton from "../components/LogoutButton";
+import CartIcon from "../components/CartIcon";
 
 export default function Navbar({ user, setUser }) {
   const navigate = useNavigate();
@@ -170,13 +170,15 @@ export default function Navbar({ user, setUser }) {
       {/* Right Side Actions: Home, Language/Chat, Profile/Login */}
       <div className="navbar-actions">
         {/* Home Link (Moved to Right Side) */}
-        <Link
-          to="/"
-          className={`navbar-link ${isActive("/") ? "active" : ""}`}
-        >
-          {t("appbar.home") || "Home"}
-        </Link>
-
+        {!user && (
+          <Link
+            to="/"
+            className={`navbar-link ${isActive("/") ? "active" : ""}`}
+          >
+            {t("appbar.home") || "Home"}
+          </Link>
+        )}
+        {user && <CartIcon />}
         {/* Language Selector - shown when not logged in */}
         {!user && <LanguageSelecter />}
 
@@ -190,7 +192,7 @@ export default function Navbar({ user, setUser }) {
               title="Messages & Inquiries"
               aria-label="Messages"
             >
-              <MessageCircle size={21} color="#374151" />
+              <MessageCircle size={21} color="#ffffff" />
               {unreadCount > 0 && (
                 <span className="navbar-chat-badge">
                   {unreadCount > 9 ? "9+" : unreadCount}
@@ -320,7 +322,11 @@ export default function Navbar({ user, setUser }) {
         )}
 
         {user ? (
-          <Link to="/profile" className="navbar-profile" title={user.full_name || "Profile"}>
+          <Link
+            to="/profile"
+            className="navbar-profile"
+            title={user.full_name || "Profile"}
+          >
             <img
               src={
                 user.profile_pic_url

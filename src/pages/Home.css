@@ -11,6 +11,7 @@
   box-sizing: border-box;
   font-family: Arial, Helvetica, sans-serif;
   color: #172b22;
+  background-color: #ffffff;
 }
 
 .items-page * {
@@ -25,6 +26,7 @@
   position: relative;
   overflow: hidden;
   margin-bottom: 54px;
+  margin-top: 55px;
   padding: 64px 30px;
   border: 1px solid #dcfce7;
   border-radius: 24px;

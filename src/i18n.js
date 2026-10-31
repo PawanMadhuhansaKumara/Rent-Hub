@@ -15,6 +15,7 @@ const resources = {
         day: "day",
         week: "week",
         month: "month",
+        addToRentCart: "Add to Cart"
       },
 
       profile: {
@@ -24,7 +25,7 @@ const resources = {
         trustScore: "Trust Score",
         reviews: "Reviews",
         profileLikes: "Profile Likes",
-        myShopItems: "My Shop Items",
+        myShopItems: "Shop Items",
         viewAll: "View All Items →",
         recentItems: "Recent Shop Items",
         noItems:
@@ -197,6 +198,7 @@ const resources = {
         day: "දිනකට",
         week: "සතියකට",
         month: "මාසයකට",
+        addToRentCart: "ලැයිස්තුව​ට එක් කරන්න"
       },
       profile: {
         addItem: "භාණ්ඩයක් එකතු කරන්න",
@@ -205,7 +207,7 @@ const resources = {
         trustScore: "විශ්වාසනීයත්ව අගය",
         reviews: "විචාර",
         profileLikes: "පැතිකඩ මනාප",
-        myShopItems: "මගේ භාණ්ඩ",
+        myShopItems: "භාණ්ඩ",
         viewAll: "සියල්ල බලන්න →",
         recentItems: "මෑතකදී එකතු කළ භාණ්ඩ",
         noItems: 'තවම භාණ්ඩ එකතු කර නැත. "+ භාණ්ඩයක් එකතු කරන්න" ඔබන්න!',
@@ -375,6 +377,7 @@ const resources = {
         day: "ஒரு நாளுக்கு",
         week: "ஒரு வாரத்திற்கு",
         month: "ஒரு மாதத்திற்கு",
+        addToRentCart: "கூடையில் சேர்"
       },
       profile: {
         addItem: "பொருளைச் சேர்",
@@ -383,7 +386,7 @@ const resources = {
         trustScore: "நம்பிக்கை அட்டை",
         reviews: "மதிப்புரைகள்",
         profileLikes: "சுயவிவர விருப்பங்கள்",
-        myShopItems: "என் கடையில் உள்ள பொருட்கள்",
+        myShopItems: "கடையில் உள்ள பொருட்கள்",
         viewAll: "அனைத்தையும் பார் →",
         recentItems: "சமீபத்திய பொருட்கள்",
         noItems:

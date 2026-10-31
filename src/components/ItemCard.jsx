@@ -108,6 +108,7 @@ export default function ItemCard({ item }) {
         <Link to={`/item/${item.id}`} className="view-details-button">
           {t("item.viewDetails")} <span>→</span>
         </Link>
+        
       </div>
     </article>
   );
