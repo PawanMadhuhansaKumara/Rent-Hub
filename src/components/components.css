@@ -14,3 +14,68 @@
 .navbar-language:focus {
   border-color: #16a34a;
 }
+/* =================================
+   SEARCH BAR
+================================= */
+
+.home-search {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  width: 100%;
+  max-width: 650px;
+  min-height: 56px;
+  margin: 24px 0 32px;
+  padding: 0 18px;
+  border: 1px solid #dbe3dc;
+  border-radius: 13px;
+  background: #ffffff;
+  box-shadow: 0 5px 20px rgba(15, 23, 42, 0.05);
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.home-search:focus-within {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 4px rgba(22, 163, 74, 0.1);
+}
+
+.search-icon {
+  color: #16a34a;
+  font-size: 28px;
+  line-height: 1;
+}
+
+.home-search input {
+  flex: 1;
+  width: 100%;
+  min-width: 0;
+  padding: 14px 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #1f2937;
+  font-size: 15px;
+}
+
+.home-search input::placeholder {
+  color: #9ca3af;
+}
+
+.clear-search {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 30px;
+  height: 30px;
+  border: none;
+  border-radius: 50%;
+  background: #f0fdf4;
+  color: #15803d;
+  font-size: 22px;
+  cursor: pointer;
+}
+
+.clear-search:hover {
+  background: #dcfce7;
+}

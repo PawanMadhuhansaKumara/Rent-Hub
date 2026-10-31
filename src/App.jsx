@@ -29,28 +29,32 @@ export default function App() {
 
   return (
     <Router>
-  <Navbar user={user} setUser={setUser} />
+      <Navbar user={user} setUser={setUser} />
 
-  <Routes>
-    <Route path="/" element={<Home user={user} setUser={setUser} />} />
-    <Route path="/login" element={<Login onLoginSuccess={setUser} />} />
-    <Route path="/register" element={<Register />} />
+      <Routes>
+        <Route path="/" element={<Home user={user} setUser={setUser} />} />
+        <Route path="/login" element={<Login onLoginSuccess={setUser} />} />
+        <Route path="/register" element={<Register />} />
 
-    <Route path="/item/:id" element={<ItemDetails />} />
+        <Route path="/item/:id" element={<ItemDetails />} />
 
-    <Route
-      path="/profile"
-      element={user ? <Profile user={user} /> : <Navigate to="/login" />}
-    />
+        <Route
+          path="/profile"
+          element={user ? <Profile user={user} /> : <Navigate to="/login" />}
+        />
 
-    <Route
-      path="/add-item"
-      element={user ? <AddItem /> : <Navigate to="/login" />}
-    />
-  </Routes>
-  
-</Router>
+        <Route
+          path="/add-item"
+          element={user ? <AddItem /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/add-post"
+          element={<Navigate to="/add-item" replace />}
+        />
+      </Routes>
 
-    
+      {/* Show Bottom Navigation only when user is logged in */}
+      {user && <BottomNav user={user} />}
+    </Router>
   );
 }

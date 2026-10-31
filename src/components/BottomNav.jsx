@@ -4,8 +4,25 @@ import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "../responsive.css";
 
-export default function BottomNav() {
+export default function BottomNav({ user }) {
   const { t } = useTranslation();
+
+  // Show only when user is logged in
+  const currentUser =
+    user ||
+    (() => {
+      try {
+        const saved = localStorage.getItem("user");
+        return saved ? JSON.parse(saved) : null;
+      } catch {
+        return null;
+      }
+    })();
+
+  if (!currentUser) {
+    return null;
+  }
+
   return (
     <div className="bottom-nav" style={styles.bottomNav}>
       <NavLink
@@ -35,7 +52,7 @@ export default function BottomNav() {
       </NavLink>
 
       <NavLink
-        to="/add-post"
+        to="/add-item"
         style={({ isActive }) => ({
           ...styles.addItem,
           ...(isActive ? styles.activeAddItem : {}),
@@ -105,7 +122,7 @@ const styles = {
   },
 
   activeItem: {
-    color: "#007bff",
+    color: "#11843b",
   },
 
   icon: {
@@ -117,7 +134,7 @@ const styles = {
     width: "52px",
     height: "52px",
     borderRadius: "50%",
-    backgroundColor: "#007bff",
+    backgroundColor: "#11843b",
     color: "#ffffff",
     textDecoration: "none",
     display: "flex",
