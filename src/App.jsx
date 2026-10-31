@@ -13,6 +13,7 @@ import Home from "./pages/Home";
 import Profile from "./pages/profile"; // Profile page එක මෙතැනින් Import කරගත්තා
 import BottomNav from "./components/BottomNav";
 import ItemDetails from "./pages/ItemDetails";
+import MyItems from "./pages/MyItems";
 
 
 
@@ -50,6 +51,14 @@ export default function App() {
         <Route
           path="/add-item"
           element={user ? <AddItem /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/my-items"
+          element={user ? <MyItems user={user} /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/MyItems"
+          element={user ? <MyItems user={user} /> : <Navigate to="/login" />}
         />
         <Route
           path="/add-post"

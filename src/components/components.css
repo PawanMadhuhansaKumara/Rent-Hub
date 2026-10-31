@@ -4,7 +4,7 @@
   border: 1px solid rgba(255, 255, 255, 0.45);
   border-radius: 8px;
   background: rgba(255, 255, 255, 0.18);
-  color: #ffffff;
+  color: #222020;
   font-size: 13px;
   font-weight: 600;
   cursor: pointer;
@@ -283,27 +283,64 @@
   font-size: 11px;
 }
 
-/* View Details Button */
-.view-details-button {
+/* Item Card Button Row (Row on all screen sizes) */
+.item-card-button-rapper {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  width: 100%;
+  margin-top: auto;
+  padding-top: 6px;
+}
+
+.cart-button {
+  flex: 1;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 5px;
-  width: 100%;
-  margin-top: auto;
-  padding: 8px 10px;
+  gap: 4px;
+  padding: 8px 6px;
   border-radius: 7px;
   background: #15803d;
-  color: white;
+  color: #ffffff;
   font-size: 12px;
   font-weight: 700;
   text-decoration: none;
   text-align: center;
-  transition: background 0.2s ease;
+  border: 1px solid #15803d;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.cart-button:hover {
+  background: #166534;
+  border-color: #166534;
+}
+
+/* View Details Button (Transparent background) */
+.view-details-button {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 4px;
+  padding: 8px 6px;
+  border-radius: 7px;
+  background: transparent !important;
+  color: #15803d;
+  font-size: 12px;
+  font-weight: 700;
+  text-decoration: none;
+  text-align: center;
+  border: 1.5px solid #15803d;
+  transition: all 0.2s ease;
+  white-space: nowrap;
 }
 
 .view-details-button:hover {
-  background: #166534;
+  background: #f0fdf4 !important;
+  color: #166534;
+  border-color: #166534;
 }
 
 /* =================================

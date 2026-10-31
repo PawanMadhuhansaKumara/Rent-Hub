@@ -9,7 +9,7 @@ export default function CartIcon({ count = 0 }) {
     <div className="cart-icon-container">
     <button
       className="cart-icon-button"
-      onClick={() => navigate("/cart")}
+      onClick={() => navigate("/MyItems?tab=rent-cart")}
       aria-label="Shopping cart"
     >
         <ShoppingCart size={21} color="#ffffff" />

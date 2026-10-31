@@ -15,9 +15,14 @@ const resources = {
         day: "day",
         week: "week",
         month: "month",
-        addToRentCart: "Add to Cart"
+        addToRentCart: "Add to Cart",
       },
-
+      /* my items page*/
+      myItems: {
+        rentedItems: "Rented Items",
+        rentRequests: "Rent Requests",
+        myItems: "My Items",
+      },
       profile: {
         addItem: "Add Item",
         editProfile: "Edit Profile",
@@ -164,7 +169,7 @@ const resources = {
       navigation: {
         home: "Home",
         businessHub: "business Hub",
-        myItems: "My Items",
+        rents: "Rents",
         notifications: "Notifications",
       },
       chat: {
@@ -198,7 +203,13 @@ const resources = {
         day: "දිනකට",
         week: "සතියකට",
         month: "මාසයකට",
-        addToRentCart: "ලැයිස්තුව​ට එක් කරන්න"
+        addToRentCart: "ලැයිස්තුව​ට එක් කරන්න",
+      },
+      /* my items page*/
+      myItems: {
+        rentedItems: "කුලියට ගත් භාණ්ඩ",
+        rentRequests: "කුලී ඉල්ලීම්",
+        myItems: "මගේ භාණ්ඩ",
       },
       profile: {
         addItem: "භාණ්ඩයක් එකතු කරන්න",
@@ -343,7 +354,7 @@ const resources = {
       navigation: {
         home: "මුල් පිටුව",
         businessHub: "ව්‍යාපාර මධ්‍යස්ථානය",
-        myItems: "මගේ අයිතම",
+        rents: "කුලී",
         notifications: "දැනුම්දීම්",
       },
       chat: {
@@ -377,7 +388,13 @@ const resources = {
         day: "ஒரு நாளுக்கு",
         week: "ஒரு வாரத்திற்கு",
         month: "ஒரு மாதத்திற்கு",
-        addToRentCart: "கூடையில் சேர்"
+        addToRentCart: "கூடையில் சேர்",
+      },
+      /* my items page*/
+      myItems: {
+        rentedItems: "வாடகைக்கு எடுத்தவை",
+        rentRequests: "வாடகைக் கோரிக்கைகள்",
+        myItems: "எனது பொருட்கள்",
       },
       profile: {
         addItem: "பொருளைச் சேர்",
@@ -526,7 +543,7 @@ const resources = {
       navigation: {
         home: "முகப்பு",
         businessHub: "வணிக மையம்",
-        myItems: "எனது பொருட்கள்",
+        rents: "வாடகைகள்",
         notifications: "அறிவிப்புகள்",
       },
       chat: {

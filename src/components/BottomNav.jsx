@@ -63,7 +63,7 @@ export default function BottomNav({ user }) {
         <span>{t("navigation.home")}</span>
       </NavLink>
       <NavLink
-        to="/messages"
+        to="/MyItems"
         style={({ isActive }) => ({
           ...styles.navItem,
           ...(isActive ? styles.activeItem : {}),
@@ -72,7 +72,7 @@ export default function BottomNav({ user }) {
         <span style={styles.icon}>
           <List />
         </span>
-        <span>{t("navigation.myItems")}</span>
+        <span>{t("navigation.rents")}</span>
       </NavLink>
 
       <button
