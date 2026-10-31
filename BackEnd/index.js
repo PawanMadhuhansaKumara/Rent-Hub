@@ -271,6 +271,22 @@ app.put('/api/users/:id', userUpdateUpload, async (req, res) => {
   }
 });
 
+// 4. GET SINGLE USER PROFILE BY ID (Public view)
+app.get('/api/users/:id', async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const [rows] = await db.execute('SELECT * FROM users_details WHERE user_id = ?', [userId]);
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+    const { password_hash, nic_photo_front_url, nic_photo_back_url, ...publicUser } = rows[0];
+    res.status(200).json({ success: true, user: publicUser });
+  } catch (error) {
+    console.error('Fetch User Error:', error);
+    res.status(500).json({ success: false, message: 'Server error.' });
+  }
+});
+
 // ==========================================
 // RENT HUB - ITEMS API ROUTES (User-Specific)
 // ==========================================
@@ -278,7 +294,16 @@ app.put('/api/users/:id', userUpdateUpload, async (req, res) => {
 // 1. GET ALL ITEMS (Home page සහ Item Details සඳහා සියලුම items ලබා ගැනීම)
 app.get('/api/items', async (req, res) => {
   try {
-    const [rows] = await db.execute('SELECT * FROM items ORDER BY created_at DESC');
+    const [rows] = await db.execute(`
+      SELECT 
+        items.*,
+        u.full_name AS user_name,
+        u.profile_pic_url AS user_profile_pic,
+        u.nearest_city AS nearest_city
+      FROM items
+      LEFT JOIN users_details u ON items.user_id = u.user_id
+      ORDER BY items.created_at DESC
+    `);
     
     const formattedItems = rows.map(item => ({
       id: item.id,
@@ -291,7 +316,14 @@ app.get('/api/items', async (req, res) => {
       image: item.image_url,
       available: item.available_qty,
       userId: item.user_id,
-      user_id: item.user_id
+      user_id: item.user_id,
+      userName: item.user_name || null,
+      user_name: item.user_name || null,
+      userProfilePic: item.user_profile_pic || null,
+      user_profile_pic: item.user_profile_pic || null,
+      nearestCity: item.nearest_city || null,
+      nearest_city: item.nearest_city || null,
+      createdAt: item.created_at
     }));
 
     res.status(200).json(formattedItems);

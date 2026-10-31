@@ -1,16 +1,13 @@
-
 import React, { useState, useEffect, useRef } from "react";
-import {
-  Link,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { MessageCircle, X, Clock } from "lucide-react";
 import ChatBox from "../components/ChatBox";
 import "./Navbar.css";
 import "../responsive.css";
 import logo from "../assets/logoSmall.png";
+import LanguageSelecter from "../components/LanguageSelecter";
+import CartIcon from "../components/CartIcon";
 
 export default function Navbar({ user, setUser }) {
   const navigate = useNavigate();
@@ -48,7 +45,9 @@ export default function Navbar({ user, setUser }) {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:5001/api/chat/unread-count/${userId}`);
+      const res = await fetch(
+        `http://localhost:5001/api/chat/unread-count/${userId}`,
+      );
       if (res.ok) {
         const data = await res.json();
         setUnreadCount(data.unreadCount || 0);
@@ -63,11 +62,13 @@ export default function Navbar({ user, setUser }) {
     if (!userId) return;
     setLoadingChats(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/chat/user-conversations/${userId}`);
+      const res = await fetch(
+        `http://localhost:5001/api/chat/user-conversations/${userId}`,
+      );
       if (res.ok) {
         const data = await res.json();
         const activeList = (data.conversations || []).filter(
-          (conv) => conv.last_message && conv.last_message.trim() !== ""
+          (conv) => conv.last_message && conv.last_message.trim() !== "",
         );
         setConversations(activeList);
       }
@@ -128,8 +129,12 @@ export default function Navbar({ user, setUser }) {
       if (isNaN(date.getTime())) return "";
 
       const now = new Date();
-      const msgDate = date.toLocaleDateString("en-CA", { timeZone: "Asia/Colombo" });
-      const nowDate = now.toLocaleDateString("en-CA", { timeZone: "Asia/Colombo" });
+      const msgDate = date.toLocaleDateString("en-CA", {
+        timeZone: "Asia/Colombo",
+      });
+      const nowDate = now.toLocaleDateString("en-CA", {
+        timeZone: "Asia/Colombo",
+      });
 
       if (msgDate === nowDate) {
         return date.toLocaleTimeString("en-US", {
@@ -159,205 +164,189 @@ export default function Navbar({ user, setUser }) {
     <nav className="navbar">
       {/* Logo */}
       <Link to="/" className="navbar-brand">
-        <img
-          src={logo}
-          alt="Rent-Hub Logo"
-          className="navbar-logo"
-        />
+        <img src={logo} alt="Rent-Hub Logo" className="navbar-logo" />
       </Link>
 
-      
-{/* Navigation Links - Only show when logged in */}
-{user && (
-  <div className="navbar-menu">
-    <Link
-      to="/"
-      className={`navbar-link ${
-        isActive("/") ? "active" : ""
-      }`}
-    >
-      {t("appbar.home") || "Home"}
-    </Link>
-
-    <Link
-      to="/#rental-items"
-      className="navbar-link"
-    >
-      Browse Items
-    </Link>
-
-    <Link
-      to="/add-item"
-      className={`navbar-add-item ${
-        isActive("/add-item") ? "active" : ""
-      }`}
-    >
-      <span>+</span> Add Item
-    </Link>
-  </div>
-)}
-
-
-      {/* Right Side */}
+      {/* Right Side Actions: Home, Language/Chat, Profile/Login */}
       <div className="navbar-actions">
-        <select
-          className="navbar-language"
-          value={i18n.language?.split("-")[0] || "en"}
-          onChange={(e) => changeLanguage(e.target.value)}
-          aria-label="Select language"
-        >
-          <option value="en">English</option>
-          <option value="si">සිංහල</option>
-          <option value="ta">தமிழ்</option>
-        </select>
-
-        {/* Chat Icon & Dropdown - Placed right next to Language Changer */}
-        <div className="navbar-chat-wrapper" ref={dropdownRef}>
-          <button
-            type="button"
-            className="navbar-chat-btn"
-            onClick={handleChatIconClick}
-            title="Messages & Inquiries"
-            aria-label="Messages"
+        {/* Home Link (Moved to Right Side) */}
+        {!user && (
+          <Link
+            to="/"
+            className={`navbar-link ${isActive("/") ? "active" : ""}`}
           >
-            <MessageCircle size={22} color="#374151" />
-            {unreadCount > 0 && (
-              <span className="navbar-chat-badge">
-                {unreadCount > 9 ? "9+" : unreadCount}
-              </span>
-            )}
-          </button>
+            {t("appbar.home") || "Home"}
+          </Link>
+        )}
+        {user && <CartIcon />}
+        {/* Language Selector - shown when not logged in */}
+        {!user && <LanguageSelecter />}
 
-          {/* Conversations Dropdown */}
-          {showChatDropdown && (
-            <div className="navbar-chat-dropdown">
-              <div className="navbar-chat-dropdown-header">
-                <div>
-                  <h4 className="navbar-chat-dropdown-title">
-                    Messages
-                  </h4>
-                  <p className="navbar-chat-dropdown-subtitle">
-                    {conversations.length} {t("chat.conversations") || "conversations"}
-                  </p>
-                </div>
-                <button
-                  type="button"
-                  className="navbar-chat-close-btn"
-                  onClick={() => setShowChatDropdown(false)}
-                  aria-label="Close"
-                >
-                  <X size={17} color="#0284c7" />
-                </button>
-              </div>
-
-              <div className="navbar-chat-dropdown-body">
-                {loadingChats ? (
-                  <div className="navbar-chat-empty">Loading chats...</div>
-                ) : conversations.length === 0 ? (
-                  <div className="navbar-chat-empty">
-                    <MessageCircle size={32} color="#cbd5e1" style={{ marginBottom: "6px" }} />
-                    <p style={{ margin: 0, fontWeight: "600", fontSize: "13px", color: "#475569" }}>
-                      {t("chat.noMessagesYet") || "No messages yet"}
-                    </p>
-                    <p style={{ margin: "4px 0 0 0", fontSize: "11px", color: "#94a3b8" }}>
-                      {t("chat.startChattingNotice") || "Start chatting with sellers directly from any item details page!"}
-                    </p>
-                  </div>
-                ) : (
-                  conversations.map((conv) => {
-                    const isBuyer = Number(userId) === Number(conv.buyer_id);
-                    const partnerName = isBuyer ? conv.seller_name || "Seller" : conv.buyer_name || "Buyer";
-                    const hasUnread = conv.unread_count > 0;
-
-                    return (
-                      <div
-                        key={conv.conversation_id}
-                        className={`navbar-chat-item ${hasUnread ? "unread" : ""}`}
-                        onClick={() => handleOpenConversation(conv)}
-                      >
-                        <img
-                          src={conv.item_image || "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=100"}
-                          alt={conv.item_title}
-                          className="navbar-chat-item-img"
-                        />
-                        <div className="navbar-chat-item-info">
-                          <div className="navbar-chat-item-row">
-                            <span className="navbar-chat-item-title">
-                              {conv.item_title || "Item Chat"}
-                            </span>
-                            <span className="navbar-chat-item-time">
-                              {formatChatTime(conv.last_message_time)}
-                            </span>
-                          </div>
-                          <div className="navbar-chat-item-partner-row">
-                            <span className="navbar-chat-partner-label">{t("chat.with") || "With:"}</span>
-                            <span className="navbar-chat-partner-badge">{partnerName}</span>
-                          </div>
-                          <div className="navbar-chat-item-snippet-row">
-                            {conv.last_message ? (
-                              <span className="navbar-chat-snippet-bubble">
-                                {conv.last_message}
-                              </span>
-                            ) : (
-                              <span className="navbar-chat-item-snippet">
-                                {t("chat.noMessagesYet") || "No messages yet"}
-                              </span>
-                            )}
-                          </div>
-                        </div>
-                        {hasUnread && (
-                          <span className="navbar-chat-unread-dot" title={`${conv.unread_count} unread`}>
-                            {conv.unread_count}
-                          </span>
-                        )}
-                      </div>
-                    );
-                  })
-                )}
-              </div>
-            </div>
-          )}
-        </div>
-
-        {user ? (
-          <>
-            <Link to="/profile" className="navbar-profile">
-              <img
-                src={
-                  user.profile_pic_url
-                    ? user.profile_pic_url.startsWith("http")
-                      ? user.profile_pic_url
-                      : `http://localhost:5001${user.profile_pic_url}`
-                    : "https://via.placeholder.com/40"
-                }
-                alt="Profile"
-                className="navbar-profile-pic"
-                onError={(e) => {
-                  e.currentTarget.onerror = null;
-                  e.currentTarget.src =
-                    "https://via.placeholder.com/40";
-                }}
-              />
-
-              <span className="navbar-username">
-                {user.full_name || "My Profile"}
-              </span>
-            </Link>
-
+        {/* Chat Icon & Dropdown - ONLY shown when logged in */}
+        {user && (
+          <div className="navbar-chat-wrapper" ref={dropdownRef}>
             <button
               type="button"
-              className="navbar-logout"
-              onClick={handleLogout}
+              className="navbar-chat-btn"
+              onClick={handleChatIconClick}
+              title="Messages & Inquiries"
+              aria-label="Messages"
             >
-              {t("appbar.logout") || "Logout"}
+              <MessageCircle size={21} color="#ffffff" />
+              {unreadCount > 0 && (
+                <span className="navbar-chat-badge">
+                  {unreadCount > 9 ? "9+" : unreadCount}
+                </span>
+              )}
             </button>
-          </>
+
+            {/* Conversations Dropdown */}
+            {showChatDropdown && (
+              <div className="navbar-chat-dropdown">
+                <div className="navbar-chat-dropdown-header">
+                  <div>
+                    <h4 className="navbar-chat-dropdown-title">Messages</h4>
+                    <p className="navbar-chat-dropdown-subtitle">
+                      {conversations.length}{" "}
+                      {t("chat.conversations") || "conversations"}
+                    </p>
+                  </div>
+                  <button
+                    type="button"
+                    className="navbar-chat-close-btn"
+                    onClick={() => setShowChatDropdown(false)}
+                    aria-label="Close"
+                  >
+                    <X size={17} color="#0284c7" />
+                  </button>
+                </div>
+
+                <div className="navbar-chat-dropdown-body">
+                  {loadingChats ? (
+                    <div className="navbar-chat-empty">Loading chats...</div>
+                  ) : conversations.length === 0 ? (
+                    <div className="navbar-chat-empty">
+                      <MessageCircle
+                        size={32}
+                        color="#cbd5e1"
+                        style={{ marginBottom: "6px" }}
+                      />
+                      <p
+                        style={{
+                          margin: 0,
+                          fontWeight: "600",
+                          fontSize: "13px",
+                          color: "#475569",
+                        }}
+                      >
+                        {t("chat.noMessagesYet") || "No messages yet"}
+                      </p>
+                      <p
+                        style={{
+                          margin: "4px 0 0 0",
+                          fontSize: "11px",
+                          color: "#94a3b8",
+                        }}
+                      >
+                        {t("chat.startChattingNotice") ||
+                          "Start chatting with sellers directly from any item details page!"}
+                      </p>
+                    </div>
+                  ) : (
+                    conversations.map((conv) => {
+                      const isBuyer = Number(userId) === Number(conv.buyer_id);
+                      const partnerName = isBuyer
+                        ? conv.seller_name || "Seller"
+                        : conv.buyer_name || "Buyer";
+                      const hasUnread = conv.unread_count > 0;
+
+                      return (
+                        <div
+                          key={conv.conversation_id}
+                          className={`navbar-chat-item ${hasUnread ? "unread" : ""}`}
+                          onClick={() => handleOpenConversation(conv)}
+                        >
+                          <img
+                            src={
+                              conv.item_image ||
+                              "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=100"
+                            }
+                            alt={conv.item_title}
+                            className="navbar-chat-item-img"
+                          />
+                          <div className="navbar-chat-item-info">
+                            <div className="navbar-chat-item-row">
+                              <span className="navbar-chat-item-title">
+                                {conv.item_title || "Item Chat"}
+                              </span>
+                              <span className="navbar-chat-item-time">
+                                {formatChatTime(conv.last_message_time)}
+                              </span>
+                            </div>
+                            <div className="navbar-chat-item-partner-row">
+                              <span className="navbar-chat-partner-label">
+                                {t("chat.with") || "With:"}
+                              </span>
+                              <span className="navbar-chat-partner-badge">
+                                {partnerName}
+                              </span>
+                            </div>
+                            <div className="navbar-chat-item-snippet-row">
+                              {conv.last_message ? (
+                                <span className="navbar-chat-snippet-bubble">
+                                  {conv.last_message}
+                                </span>
+                              ) : (
+                                <span className="navbar-chat-item-snippet">
+                                  {t("chat.noMessagesYet") || "No messages yet"}
+                                </span>
+                              )}
+                            </div>
+                          </div>
+                          {hasUnread && (
+                            <span
+                              className="navbar-chat-unread-dot"
+                              title={`${conv.unread_count} unread`}
+                            >
+                              {conv.unread_count}
+                            </span>
+                          )}
+                        </div>
+                      );
+                    })
+                  )}
+                </div>
+              </div>
+            )}
+          </div>
+        )}
+
+        {user ? (
+          <Link
+            to="/profile"
+            className="navbar-profile"
+            title={user.full_name || "Profile"}
+          >
+            <img
+              src={
+                user.profile_pic_url
+                  ? user.profile_pic_url.startsWith("http")
+                    ? user.profile_pic_url
+                    : `http://localhost:5001${user.profile_pic_url}`
+                  : "https://via.placeholder.com/40"
+              }
+              alt="Profile"
+              className="navbar-profile-pic"
+              onError={(e) => {
+                e.currentTarget.onerror = null;
+                e.currentTarget.src = "https://via.placeholder.com/40";
+              }}
+            />
+          </Link>
         ) : (
           <Link
             to="/login"
-            className={`navbar-login ${
-              isActive("/login") ? "active" : ""
-            }`}
+            className={`navbar-login ${isActive("/login") ? "active" : ""}`}
           >
             {t("appbar.login") || "Login"}
           </Link>

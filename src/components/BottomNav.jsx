@@ -1,11 +1,53 @@
-import { Bell, Heart, Home, List, Search } from "lucide-react";
+import {
+  Bell,
+  Heart,
+  Home,
+  LayoutDashboard,
+  List,
+  Search,
+  Store,
+} from "lucide-react";
 import React from "react";
-import { NavLink } from "react-router-dom";
+import { NavLink, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import "../responsive.css";
 
-export default function BottomNav() {
+export default function BottomNav({ user }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  // Show only when user is logged in
+  const currentUser =
+    user ||
+    (() => {
+      try {
+        const saved = localStorage.getItem("user");
+        return saved ? JSON.parse(saved) : null;
+      } catch {
+        return null;
+      }
+    })();
+
+  if (!currentUser) {
+    return null;
+  }
+
+  const handleSearchClick = (e) => {
+    e.preventDefault();
+    // Navigate to Home with focusSearch state
+    navigate("/", { state: { focusSearch: true, timestamp: Date.now() } });
+
+    // Focus immediately if already on home or as soon as rendered
+    setTimeout(() => {
+      const input = document.querySelector(".home-search input");
+      if (input) {
+        input.focus();
+        input.scrollIntoView({ behavior: "smooth", block: "center" });
+      }
+    }, 100);
+  };
+
   return (
     <div className="bottom-nav" style={styles.bottomNav}>
       <NavLink
@@ -20,34 +62,8 @@ export default function BottomNav() {
         </span>
         <span>{t("navigation.home")}</span>
       </NavLink>
-
       <NavLink
-        to="/search"
-        style={({ isActive }) => ({
-          ...styles.navItem,
-          ...(isActive ? styles.activeItem : {}),
-        })}
-      >
-        <span style={styles.icon}>
-          <Heart />
-        </span>
-        <span>{t("navigation.saved")}</span>
-      </NavLink>
-
-      <NavLink
-        to="/add-post"
-        style={({ isActive }) => ({
-          ...styles.addItem,
-          ...(isActive ? styles.activeAddItem : {}),
-        })}
-      >
-        <span style={styles.plus}>
-          <Search />
-        </span>
-      </NavLink>
-
-      <NavLink
-        to="/messages"
+        to="/MyItems"
         style={({ isActive }) => ({
           ...styles.navItem,
           ...(isActive ? styles.activeItem : {}),
@@ -56,11 +72,35 @@ export default function BottomNav() {
         <span style={styles.icon}>
           <List />
         </span>
-        <span>{t("navigation.myItems")}</span>
+        <span>{t("navigation.rents")}</span>
+      </NavLink>
+
+      <button
+        type="button"
+        onClick={handleSearchClick}
+        style={styles.addItem}
+        aria-label="Search"
+      >
+        <span style={styles.plus}>
+          <Search />
+        </span>
+      </button>
+
+      <NavLink
+        to="/business-hub"
+        style={({ isActive }) => ({
+          ...styles.navItem,
+          ...(isActive ? styles.activeItem : {}),
+        })}
+      >
+        <span style={styles.icon}>
+          <LayoutDashboard />
+        </span>
+        <span>{t("navigation.businessHub")}</span>
       </NavLink>
 
       <NavLink
-        to="/profile"
+        to="/notifications"
         style={({ isActive }) => ({
           ...styles.navItem,
           ...(isActive ? styles.activeItem : {}),
@@ -105,7 +145,7 @@ const styles = {
   },
 
   activeItem: {
-    color: "#007bff",
+    color: "#11843b",
   },
 
   icon: {
@@ -117,18 +157,21 @@ const styles = {
     width: "52px",
     height: "52px",
     borderRadius: "50%",
-    backgroundColor: "#007bff",
+    backgroundColor: "#11843b",
     color: "#ffffff",
     textDecoration: "none",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
     marginTop: "-25px",
-    boxShadow: "0 4px 10px rgba(0,123,255,0.35)",
+    boxShadow: "0 4px 10px rgba(17,132,59,0.35)",
+    border: "none",
+    cursor: "pointer",
+    outline: "none",
   },
 
   activeAddItem: {
-    backgroundColor: "#0056b3",
+    backgroundColor: "#11843b",
   },
 
   plus: {
