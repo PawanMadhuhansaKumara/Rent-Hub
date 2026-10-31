@@ -149,7 +149,7 @@ const resources = {
       },
       navigation: {
         home: "Home",
-        saved: "Saved",
+        businessHub: "business Hub",
         myItems: "My Items",
         notifications: "Notifications",
       },
@@ -315,7 +315,7 @@ const resources = {
       },
       navigation: {
         home: "මුල් පිටුව",
-        saved: "සුරැකි දෑ",
+        businessHub: "ව්‍යාපාර මධ්‍යස්ථානය",
         myItems: "මගේ අයිතම",
         notifications: "දැනුම්දීම්",
       },
@@ -484,7 +484,7 @@ const resources = {
       },
       navigation: {
         home: "முகப்பு",
-        saved: "சேமித்தவை",
+        businessHub: "வணிக மையம்",
         myItems: "எனது பொருட்கள்",
         notifications: "அறிவிப்புகள்",
       },

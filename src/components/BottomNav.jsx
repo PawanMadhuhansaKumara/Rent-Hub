@@ -1,4 +1,4 @@
-import { Bell, Heart, Home, List, Search } from "lucide-react";
+import { Bell, Heart, Home, LayoutDashboard, List, Search, Store } from "lucide-react";
 import React from "react";
 import { NavLink } from "react-router-dom";
 import { useTranslation } from "react-i18next";
@@ -37,33 +37,7 @@ export default function BottomNav({ user }) {
         </span>
         <span>{t("navigation.home")}</span>
       </NavLink>
-
-      <NavLink
-        to="/search"
-        style={({ isActive }) => ({
-          ...styles.navItem,
-          ...(isActive ? styles.activeItem : {}),
-        })}
-      >
-        <span style={styles.icon}>
-          <Heart />
-        </span>
-        <span>{t("navigation.saved")}</span>
-      </NavLink>
-
-      <NavLink
-        to="/add-item"
-        style={({ isActive }) => ({
-          ...styles.addItem,
-          ...(isActive ? styles.activeAddItem : {}),
-        })}
-      >
-        <span style={styles.plus}>
-          <Search />
-        </span>
-      </NavLink>
-
-      <NavLink
+<NavLink
         to="/messages"
         style={({ isActive }) => ({
           ...styles.navItem,
@@ -75,9 +49,35 @@ export default function BottomNav({ user }) {
         </span>
         <span>{t("navigation.myItems")}</span>
       </NavLink>
+      
 
       <NavLink
-        to="/profile"
+        to="/search"
+        style={({ isActive }) => ({
+          ...styles.addItem,
+          ...(isActive ? styles.activeAddItem : {}),
+        })}
+      >
+        <span style={styles.plus}>
+          <Search />
+        </span>
+      </NavLink>
+<NavLink
+        to="/search"
+        style={({ isActive }) => ({
+          ...styles.navItem,
+          ...(isActive ? styles.activeItem : {}),
+        })}
+      >
+        <span style={styles.icon}>
+          <LayoutDashboard/>
+        </span>
+        <span>{t("navigation.businessHub")}</span>
+      </NavLink>
+      
+
+      <NavLink
+        to="/notifications"
         style={({ isActive }) => ({
           ...styles.navItem,
           ...(isActive ? styles.activeItem : {}),
