@@ -1,0 +1,17 @@
+.navbar-language {
+  max-width: 125px;
+  padding: 9px 15px;
+  border: 1px solid #d1e2d6;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #374151;
+  font-size: 13px;
+  cursor: pointer;
+  outline: none;
+  margin-left: 40px;
+
+}
+
+.navbar-language:focus {
+  border-color: #16a34a;
+}

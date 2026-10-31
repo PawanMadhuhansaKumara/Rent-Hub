@@ -16,6 +16,7 @@ import {
   User,
   AtSign
 } from "lucide-react";
+import SettingsPopup from "../components/SettingsPopup";
 
 export default function Profile({ user, setUser }) {
   const { t } = useTranslation();
@@ -231,9 +232,8 @@ export default function Profile({ user, setUser }) {
               <button onClick={() => setShowEditProfile(true)} style={styles.secondaryBtn}>
                 <Edit3 size={18} /> {t("profile.editProfile")}
               </button>
-              <button style={styles.iconBtn}>
-                <Settings size={18} color="#444" />
-              </button>
+              {/*setings button*/}
+              <SettingsPopup/>
             </div>
 
           </div>

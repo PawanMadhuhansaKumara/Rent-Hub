@@ -1,16 +1,13 @@
-
 import React, { useState, useEffect, useRef } from "react";
-import {
-  Link,
-  useLocation,
-  useNavigate,
-} from "react-router-dom";
+import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { MessageCircle, X, Clock } from "lucide-react";
 import ChatBox from "../components/ChatBox";
 import "./Navbar.css";
 import "../responsive.css";
 import logo from "../assets/logoSmall.png";
+import LanguageSelecter from "../components/LanguageSelecter";
+import LogoutButton from "../components/LogoutButton";
 
 export default function Navbar({ user, setUser }) {
   const navigate = useNavigate();
@@ -48,7 +45,9 @@ export default function Navbar({ user, setUser }) {
       return;
     }
     try {
-      const res = await fetch(`http://localhost:5001/api/chat/unread-count/${userId}`);
+      const res = await fetch(
+        `http://localhost:5001/api/chat/unread-count/${userId}`,
+      );
       if (res.ok) {
         const data = await res.json();
         setUnreadCount(data.unreadCount || 0);
@@ -63,11 +62,13 @@ export default function Navbar({ user, setUser }) {
     if (!userId) return;
     setLoadingChats(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/chat/user-conversations/${userId}`);
+      const res = await fetch(
+        `http://localhost:5001/api/chat/user-conversations/${userId}`,
+      );
       if (res.ok) {
         const data = await res.json();
         const activeList = (data.conversations || []).filter(
-          (conv) => conv.last_message && conv.last_message.trim() !== ""
+          (conv) => conv.last_message && conv.last_message.trim() !== "",
         );
         setConversations(activeList);
       }
@@ -128,8 +129,12 @@ export default function Navbar({ user, setUser }) {
       if (isNaN(date.getTime())) return "";
 
       const now = new Date();
-      const msgDate = date.toLocaleDateString("en-CA", { timeZone: "Asia/Colombo" });
-      const nowDate = now.toLocaleDateString("en-CA", { timeZone: "Asia/Colombo" });
+      const msgDate = date.toLocaleDateString("en-CA", {
+        timeZone: "Asia/Colombo",
+      });
+      const nowDate = now.toLocaleDateString("en-CA", {
+        timeZone: "Asia/Colombo",
+      });
 
       if (msgDate === nowDate) {
         return date.toLocaleTimeString("en-US", {
@@ -159,57 +164,25 @@ export default function Navbar({ user, setUser }) {
     <nav className="navbar">
       {/* Logo */}
       <Link to="/" className="navbar-brand">
-        <img
-          src={logo}
-          alt="Rent-Hub Logo"
-          className="navbar-logo"
-        />
+        <img src={logo} alt="Rent-Hub Logo" className="navbar-logo" />
       </Link>
 
-      
-{/* Navigation Links - Only show when logged in */}
-{user && (
-  <div className="navbar-menu">
-    <Link
-      to="/"
-      className={`navbar-link ${
-        isActive("/") ? "active" : ""
-      }`}
-    >
-      {t("appbar.home") || "Home"}
-    </Link>
-
-    <Link
-      to="/#rental-items"
-      className="navbar-link"
-    >
-      Browse Items
-    </Link>
-
-    <Link
-      to="/add-item"
-      className={`navbar-add-item ${
-        isActive("/add-item") ? "active" : ""
-      }`}
-    >
-      <span>+</span> Add Item
-    </Link>
-  </div>
-)}
-
+      {/* Navigation Links - Only show when logged in */}
+      {
+        <div className="navbar-menu">
+          <Link
+            to="/"
+            className={`navbar-link ${isActive("/") ? "active" : ""}`}
+          >
+            {t("appbar.home") || "Home"}
+          </Link>
+        </div>
+      }
 
       {/* Right Side */}
       <div className="navbar-actions">
-        <select
-          className="navbar-language"
-          value={i18n.language?.split("-")[0] || "en"}
-          onChange={(e) => changeLanguage(e.target.value)}
-          aria-label="Select language"
-        >
-          <option value="en">English</option>
-          <option value="si">සිංහල</option>
-          <option value="ta">தமிழ்</option>
-        </select>
+        {!user && <LanguageSelecter />}
+
 
         {/* Chat Icon & Dropdown - Placed right next to Language Changer */}
         <div className="navbar-chat-wrapper" ref={dropdownRef}>
@@ -233,11 +206,10 @@ export default function Navbar({ user, setUser }) {
             <div className="navbar-chat-dropdown">
               <div className="navbar-chat-dropdown-header">
                 <div>
-                  <h4 className="navbar-chat-dropdown-title">
-                    Messages
-                  </h4>
+                  <h4 className="navbar-chat-dropdown-title">Messages</h4>
                   <p className="navbar-chat-dropdown-subtitle">
-                    {conversations.length} {t("chat.conversations") || "conversations"}
+                    {conversations.length}{" "}
+                    {t("chat.conversations") || "conversations"}
                   </p>
                 </div>
                 <button
@@ -255,18 +227,38 @@ export default function Navbar({ user, setUser }) {
                   <div className="navbar-chat-empty">Loading chats...</div>
                 ) : conversations.length === 0 ? (
                   <div className="navbar-chat-empty">
-                    <MessageCircle size={32} color="#cbd5e1" style={{ marginBottom: "6px" }} />
-                    <p style={{ margin: 0, fontWeight: "600", fontSize: "13px", color: "#475569" }}>
+                    <MessageCircle
+                      size={32}
+                      color="#cbd5e1"
+                      style={{ marginBottom: "6px" }}
+                    />
+                    <p
+                      style={{
+                        margin: 0,
+                        fontWeight: "600",
+                        fontSize: "13px",
+                        color: "#475569",
+                      }}
+                    >
                       {t("chat.noMessagesYet") || "No messages yet"}
                     </p>
-                    <p style={{ margin: "4px 0 0 0", fontSize: "11px", color: "#94a3b8" }}>
-                      {t("chat.startChattingNotice") || "Start chatting with sellers directly from any item details page!"}
+                    <p
+                      style={{
+                        margin: "4px 0 0 0",
+                        fontSize: "11px",
+                        color: "#94a3b8",
+                      }}
+                    >
+                      {t("chat.startChattingNotice") ||
+                        "Start chatting with sellers directly from any item details page!"}
                     </p>
                   </div>
                 ) : (
                   conversations.map((conv) => {
                     const isBuyer = Number(userId) === Number(conv.buyer_id);
-                    const partnerName = isBuyer ? conv.seller_name || "Seller" : conv.buyer_name || "Buyer";
+                    const partnerName = isBuyer
+                      ? conv.seller_name || "Seller"
+                      : conv.buyer_name || "Buyer";
                     const hasUnread = conv.unread_count > 0;
 
                     return (
@@ -276,7 +268,10 @@ export default function Navbar({ user, setUser }) {
                         onClick={() => handleOpenConversation(conv)}
                       >
                         <img
-                          src={conv.item_image || "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=100"}
+                          src={
+                            conv.item_image ||
+                            "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=100"
+                          }
                           alt={conv.item_title}
                           className="navbar-chat-item-img"
                         />
@@ -290,8 +285,12 @@ export default function Navbar({ user, setUser }) {
                             </span>
                           </div>
                           <div className="navbar-chat-item-partner-row">
-                            <span className="navbar-chat-partner-label">{t("chat.with") || "With:"}</span>
-                            <span className="navbar-chat-partner-badge">{partnerName}</span>
+                            <span className="navbar-chat-partner-label">
+                              {t("chat.with") || "With:"}
+                            </span>
+                            <span className="navbar-chat-partner-badge">
+                              {partnerName}
+                            </span>
                           </div>
                           <div className="navbar-chat-item-snippet-row">
                             {conv.last_message ? (
@@ -306,7 +305,10 @@ export default function Navbar({ user, setUser }) {
                           </div>
                         </div>
                         {hasUnread && (
-                          <span className="navbar-chat-unread-dot" title={`${conv.unread_count} unread`}>
+                          <span
+                            className="navbar-chat-unread-dot"
+                            title={`${conv.unread_count} unread`}
+                          >
                             {conv.unread_count}
                           </span>
                         )}
@@ -334,30 +336,19 @@ export default function Navbar({ user, setUser }) {
                 className="navbar-profile-pic"
                 onError={(e) => {
                   e.currentTarget.onerror = null;
-                  e.currentTarget.src =
-                    "https://via.placeholder.com/40";
+                  e.currentTarget.src = "https://via.placeholder.com/40";
                 }}
               />
 
-              <span className="navbar-username">
-                {user.full_name || "My Profile"}
-              </span>
+              
             </Link>
 
-            <button
-              type="button"
-              className="navbar-logout"
-              onClick={handleLogout}
-            >
-              {t("appbar.logout") || "Logout"}
-            </button>
+           
           </>
         ) : (
           <Link
             to="/login"
-            className={`navbar-login ${
-              isActive("/login") ? "active" : ""
-            }`}
+            className={`navbar-login ${isActive("/login") ? "active" : ""}`}
           >
             {t("appbar.login") || "Login"}
           </Link>
