@@ -1,6 +1,6 @@
 .navbar-language {
-  max-width: 125px;
-  padding: 9px 15px;
+  max-width: 120px;
+  padding: 8px 12px;
   border: 1px solid #d1e2d6;
   border-radius: 8px;
   background: #ffffff;
@@ -9,7 +9,6 @@
   cursor: pointer;
   outline: none;
   margin-left: 40px;
-
 }
 
 .navbar-language:focus {
