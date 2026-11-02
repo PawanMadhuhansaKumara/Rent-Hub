@@ -97,25 +97,13 @@ export default function Login({ onLoginSuccess }) {
             <button type="submit" disabled={loading} style={styles.loginBtn}>
               {loading ? t("login.loggingIn") : t("login.button")}
             </button>
+
+            <div style={styles.forgotWrapper}>
+              <Link to="/forgot-password" style={styles.forgotLink}>
+                Forgot Password?
+              </Link>
+            </div>
           </form>
-
-          <div style={styles.divider}>
-            <span>{t("login.or")}</span>
-          </div>
-
-          {/* Google Connect Button */}
-          <button
-            type="button"
-            style={styles.googleBtn}
-            onClick={() => alert(t("login.googleMessage"))}
-          >
-            <img
-              src="https://www.svgrepo.com/show/475656/google-color.svg"
-              alt="Google"
-              style={{ width: "20px", marginRight: "10px" }}
-            />
-            {t("login.googleButton")}
-          </button>
 
           <div style={styles.footerText}>
             {t("login.noAccount")}{" "}
@@ -163,13 +151,13 @@ const styles = {
 
   card: {
     width: "100%",
-    maxWidth: "480px",
-    padding: "44px 38px",
-    borderRadius: "20px",
-    boxShadow: "0 16px 40px rgba(15, 23, 42, 0.1), 0 2px 8px rgba(15, 23, 42, 0.05)",
+    maxWidth: "430px",
+    padding: "44px 36px 36px 36px",
+    borderRadius: "28px",
+    boxShadow: "0 14px 38px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.02)",
     backgroundColor: "#ffffff",
-    border: "1px solid rgba(226, 232, 240, 0.9)",
-    textAlign: "center",
+    border: "1px solid rgba(226, 232, 240, 0.7)",
+    boxSizing: "border-box",
   },
 
   title: {
@@ -191,7 +179,7 @@ const styles = {
     backgroundColor: "#fef2f2",
     color: "#ef4444",
     padding: "12px 16px",
-    borderRadius: "10px",
+    borderRadius: "12px",
     marginBottom: "18px",
     fontSize: "13.5px",
     border: "1px solid #fecaca",
@@ -201,7 +189,7 @@ const styles = {
   form: {
     display: "flex",
     flexDirection: "column",
-    gap: "18px",
+    gap: "20px",
     textAlign: "left",
   },
 
@@ -211,69 +199,61 @@ const styles = {
   },
 
   label: {
-    marginBottom: "6px",
-    fontSize: "13px",
+    marginBottom: "8px",
+    fontSize: "14px",
     fontWeight: "600",
-    color: "#334155",
+    color: "#374151",
   },
 
   input: {
     width: "100%",
-    padding: "12px 14px",
-    borderRadius: "10px",
-    border: "1.5px solid #cbd5e1",
+    padding: "13px 18px",
+    borderRadius: "14px",
+    border: "1px solid #d4e4fc",
+    backgroundColor: "#edf5fe",
     boxSizing: "border-box",
-    fontSize: "14px",
+    fontSize: "15px",
     fontFamily: "inherit",
     outline: "none",
     color: "#1e293b",
-    backgroundColor: "#f8fafc",
+    fontWeight: "500",
     transition: "all 0.2s ease-in-out",
   },
 
   loginBtn: {
-    padding: "13px 20px",
+    width: "100%",
+    padding: "14px",
     backgroundColor: "#2563eb",
     color: "#ffffff",
     border: "none",
-    borderRadius: "10px",
-    fontSize: "15px",
+    borderRadius: "14px",
+    fontSize: "16px",
     fontWeight: "600",
     cursor: "pointer",
-    marginTop: "6px",
-    boxShadow: "0 4px 12px rgba(37, 99, 235, 0.25)",
+    marginTop: "4px",
+    boxShadow: "0 8px 22px rgba(37, 99, 235, 0.35)",
     transition: "all 0.2s ease-in-out",
   },
 
-  divider: {
+  forgotWrapper: {
     display: "flex",
-    alignItems: "center",
-    margin: "22px 0",
-    color: "#94a3b8",
-    fontSize: "12px",
-    fontWeight: "500",
+    justifyContent: "flex-end",
+    marginTop: "2px",
   },
 
-  googleBtn: {
-    width: "100%",
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    padding: "11px",
-    border: "1.5px solid #e2e8f0",
-    borderRadius: "10px",
-    backgroundColor: "#ffffff",
-    color: "#334155",
-    cursor: "pointer",
+  forgotLink: {
+    color: "#1d4ed8",
     fontSize: "14px",
-    fontWeight: "600",
-    transition: "background-color 0.2s ease",
+    fontWeight: "500",
+    textDecoration: "none",
+    transition: "color 0.2s ease",
   },
 
   footerText: {
-    marginTop: "24px",
+    marginTop: "52px",
     fontSize: "14px",
-    color: "#64748b",
+    color: "#6b7280",
+    textAlign: "center",
   },
 
   link: {

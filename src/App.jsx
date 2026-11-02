@@ -9,6 +9,7 @@ import {
 import Navbar from "./pages/Navbar";
 import Register from "./pages/Register";
 import Login from "./pages/Login";
+import ForgotPW from "./pages/ForgotPW";
 import Home from "./pages/Home";
 import Profile from "./pages/profile"; // Profile page එක මෙතැනින් Import කරගත්තා
 import BottomNav from "./components/BottomNav";
@@ -36,6 +37,7 @@ export default function App() {
         <Route path="/" element={<Home user={user} setUser={setUser} />} />
         <Route path="/login" element={<Login onLoginSuccess={setUser} />} />
         <Route path="/register" element={<Register />} />
+        <Route path="/forgot-password" element={<ForgotPW />} />
 
         <Route path="/item/:id" element={<ItemDetails />} />
 
