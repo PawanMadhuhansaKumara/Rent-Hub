@@ -632,6 +632,79 @@ app.put('/api/chat/mark-read/:conversationId', async (req, res) => {
   }
 });
 
+// 7. DELETE SINGLE MESSAGE (Chat එකේ නිශ්චිත message එකක් delete කිරීම)
+app.delete('/api/chat/messages/:messageId', async (req, res) => {
+  const { messageId } = req.params;
+  const userId = req.body?.userId || req.query?.userId;
+
+  if (!userId) {
+    return res.status(400).json({ success: false, message: 'userId is required.' });
+  }
+
+  try {
+    // 1. Message එක තිබේදැයි සහ sender හෝ participant දැයි පරීක්ෂාව
+    const [msgRows] = await db.execute(`
+      SELECT m.id, m.conversation_id, m.sender_id, c.buyer_id, c.seller_id
+      FROM messages m
+      JOIN conversations c ON m.conversation_id = c.id
+      WHERE m.id = ?
+    `, [messageId]);
+
+    if (msgRows.length === 0) {
+      return res.status(404).json({ success: false, message: 'Message not found.' });
+    }
+
+    const msg = msgRows[0];
+    const isSender = Number(msg.sender_id) === Number(userId);
+    const isParticipant = Number(msg.buyer_id) === Number(userId) || Number(msg.seller_id) === Number(userId);
+
+    if (!isSender && !isParticipant) {
+      return res.status(403).json({ success: false, message: 'Not authorized to delete this message.' });
+    }
+
+    // 2. Message එක delete කිරීම
+    await db.execute('DELETE FROM messages WHERE id = ?', [messageId]);
+
+    res.status(200).json({ success: true, message: 'Message deleted successfully.' });
+  } catch (error) {
+    console.error('Delete Message Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete message.' });
+  }
+});
+
+// 8. DELETE CONVERSATION (සම්පූර්ණ Conversation එක සහ එහි messages delete කිරීම)
+app.delete('/api/chat/conversations/:conversationId', async (req, res) => {
+  const { conversationId } = req.params;
+  const userId = req.body?.userId || req.query?.userId;
+
+  if (!userId) {
+    return res.status(400).json({ success: false, message: 'userId is required.' });
+  }
+
+  try {
+    // 1. User අදාළ conversation එකේ buyer හෝ seller දැයි පරීක්ෂාව
+    const [convRows] = await db.execute(
+      'SELECT id, buyer_id, seller_id FROM conversations WHERE id = ? AND (buyer_id = ? OR seller_id = ?)',
+      [conversationId, userId, userId]
+    );
+
+    if (convRows.length === 0) {
+      return res.status(403).json({ success: false, message: 'Not authorized or conversation not found.' });
+    }
+
+    // 2. Foreign Key ගැටළු මඟහරවා ගැනීමට පළමුව සියලුම messages delete කිරීම
+    await db.execute('DELETE FROM messages WHERE conversation_id = ?', [conversationId]);
+
+    // 3. ඉන්පසු conversation record එක delete කිරීම
+    await db.execute('DELETE FROM conversations WHERE id = ?', [conversationId]);
+
+    res.status(200).json({ success: true, message: 'Conversation deleted successfully.' });
+  } catch (error) {
+    console.error('Delete Conversation Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete conversation.' });
+  }
+});
+
 
 // ==========================================
 // RENT HUB - FORGOT PASSWORD & SMS / WHATSAPP OTP
