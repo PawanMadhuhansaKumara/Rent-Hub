@@ -260,6 +260,12 @@ export default function ChatBox({
   const displayPrice = conversation?.item_price || itemPrice;
   const displayPriceType = conversation?.item_price_type || itemPriceType || "day";
 
+  const formattedItemImage = displayImage
+    ? displayImage.startsWith("http")
+      ? displayImage
+      : `http://localhost:5001${displayImage.startsWith("/") ? "" : "/"}${displayImage}`
+    : "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=150";
+
   // The other person in this conversation
   const isBuyer = Number(currentUserId) === Number(conversation?.buyer_id);
   const otherPartyName = isBuyer
@@ -305,9 +311,15 @@ export default function ChatBox({
 
         {/* ITEM CARD PREVIEW */}
         <div style={styles.itemPreview}>
-          {displayImage && (
-            <img src={displayImage} alt={displayTitle} style={styles.itemImg} />
-          )}
+          <img
+            src={formattedItemImage}
+            alt={displayTitle}
+            style={styles.itemImg}
+            onError={(e) => {
+              e.currentTarget.onerror = null;
+              e.currentTarget.src = "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=150";
+            }}
+          />
           <div style={{ flex: 1, minWidth: 0 }}>
             <h5 style={styles.itemTitle}>{displayTitle}</h5>
             {displayPrice && (
@@ -432,12 +444,13 @@ const styles = {
     alignItems: "flex-end",
     justifyContent: "flex-end",
     zIndex: 2000,
-    padding: "20px",
+    padding: "20px 20px 85px 20px", // Space above bottom navigation bar
   },
   chatContainer: {
     width: "100%",
     maxWidth: "420px",
-    height: "560px",
+    height: "530px",
+    maxHeight: "calc(100vh - 105px)",
     backgroundColor: "#ffffff",
     borderRadius: "20px",
     boxShadow: "0 10px 35px rgba(0,0,0,0.2)",

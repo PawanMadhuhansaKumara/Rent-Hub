@@ -268,11 +268,18 @@ export default function Navbar({ user, setUser }) {
                         >
                           <img
                             src={
-                              conv.item_image ||
-                              "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=100"
+                              conv.item_image
+                                ? conv.item_image.startsWith("http")
+                                  ? conv.item_image
+                                  : `http://localhost:5001${conv.item_image.startsWith("/") ? "" : "/"}${conv.item_image}`
+                                : "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=100"
                             }
                             alt={conv.item_title}
                             className="navbar-chat-item-img"
+                            onError={(e) => {
+                              e.currentTarget.onerror = null;
+                              e.currentTarget.src = "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=100";
+                            }}
                           />
                           <div className="navbar-chat-item-info">
                             <div className="navbar-chat-item-row">
