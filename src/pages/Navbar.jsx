@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { MessageCircle, X, Clock } from "lucide-react";
+import { MessageCircle, X, Clock, Trash2 } from "lucide-react";
 import ChatBox from "../components/ChatBox";
 import "./Navbar.css";
 import "../responsive.css";
@@ -34,6 +34,8 @@ export default function Navbar({ user, setUser }) {
   const [showChatDropdown, setShowChatDropdown] = useState(false);
   const [loadingChats, setLoadingChats] = useState(false);
   const [activeChatConversation, setActiveChatConversation] = useState(null);
+  const [deleteConfirmConvId, setDeleteConfirmConvId] = useState(null);
+  const [isDeletingChat, setIsDeletingChat] = useState(false);
   const dropdownRef = useRef(null);
 
   const userId = user?.user_id || user?.id;
@@ -155,6 +157,41 @@ export default function Navbar({ user, setUser }) {
     }
   };
 
+  const handleDeleteConversation = (e, convId) => {
+    e.stopPropagation();
+    setDeleteConfirmConvId(convId);
+  };
+
+  const executeDeleteConversation = async (convId) => {
+    if (!convId || isDeletingChat) return;
+    setIsDeletingChat(true);
+
+    try {
+      const res = await fetch(`http://localhost:5001/api/chat/conversations/${convId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ userId }),
+      });
+
+      if (res.ok) {
+        setConversations((prev) => prev.filter((c) => c.conversation_id !== convId));
+        fetchUnreadCount();
+        if (activeChatConversation?.conversation_id === convId) {
+          setActiveChatConversation(null);
+        }
+        setDeleteConfirmConvId(null);
+      } else {
+        const data = await res.json().catch(() => ({}));
+        alert(data.message || "Failed to delete conversation.");
+      }
+    } catch (err) {
+      console.error("Delete conversation error:", err);
+      alert("Server error while deleting conversation.");
+    } finally {
+      setIsDeletingChat(false);
+    }
+  };
+
   const handleOpenConversation = (conv) => {
     setActiveChatConversation(conv);
     setShowChatDropdown(false);
@@ -203,6 +240,46 @@ export default function Navbar({ user, setUser }) {
             {/* Conversations Dropdown */}
             {showChatDropdown && (
               <div className="navbar-chat-dropdown">
+                {deleteConfirmConvId && (
+                  <div
+                    className="navbar-chat-confirm-overlay"
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      if (!isDeletingChat) setDeleteConfirmConvId(null);
+                    }}
+                  >
+                    <div
+                      className="navbar-chat-confirm-box"
+                      onClick={(e) => e.stopPropagation()}
+                    >
+                      <div className="navbar-chat-confirm-icon">
+                        <Trash2 size={22} color="#ef4444" />
+                      </div>
+                      <h4 className="navbar-chat-confirm-title">Delete Conversation?</h4>
+                      <p className="navbar-chat-confirm-text">
+                        Are you sure you want to delete this chat and all its messages?
+                      </p>
+                      <div className="navbar-chat-confirm-actions">
+                        <button
+                          type="button"
+                          className="navbar-chat-confirm-cancel"
+                          onClick={() => setDeleteConfirmConvId(null)}
+                          disabled={isDeletingChat}
+                        >
+                          Cancel
+                        </button>
+                        <button
+                          type="button"
+                          className="navbar-chat-confirm-delete"
+                          onClick={() => executeDeleteConversation(deleteConfirmConvId)}
+                          disabled={isDeletingChat}
+                        >
+                          {isDeletingChat ? "Deleting..." : "Delete"}
+                        </button>
+                      </div>
+                    </div>
+                  </div>
+                )}
                 <div className="navbar-chat-dropdown-header">
                   <div>
                     <h4 className="navbar-chat-dropdown-title">Messages</h4>
@@ -310,14 +387,24 @@ export default function Navbar({ user, setUser }) {
                               )}
                             </div>
                           </div>
-                          {hasUnread && (
-                            <span
-                              className="navbar-chat-unread-dot"
-                              title={`${conv.unread_count} unread`}
+                          <div className="navbar-chat-item-actions">
+                            {hasUnread && (
+                              <span
+                                className="navbar-chat-unread-dot"
+                                title={`${conv.unread_count} unread`}
+                              >
+                                {conv.unread_count}
+                              </span>
+                            )}
+                            <button
+                              type="button"
+                              className="navbar-chat-delete-btn"
+                              title={t("chat.deleteChat") || "Delete Chat"}
+                              onClick={(e) => handleDeleteConversation(e, conv.conversation_id)}
                             >
-                              {conv.unread_count}
-                            </span>
-                          )}
+                              <Trash2 size={15} />
+                            </button>
+                          </div>
                         </div>
                       );
                     })
@@ -379,6 +466,11 @@ export default function Navbar({ user, setUser }) {
           onClose={() => {
             setActiveChatConversation(null);
             fetchUnreadCount();
+          }}
+          onConversationDeleted={() => {
+            setActiveChatConversation(null);
+            fetchUnreadCount();
+            fetchConversations();
           }}
         />
       )}

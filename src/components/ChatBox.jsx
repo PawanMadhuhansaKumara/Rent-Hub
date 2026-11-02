@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { Send, X, MessageCircle, User, RefreshCw, Check, CheckCheck } from "lucide-react";
+import { Send, X, MessageCircle, User, RefreshCw, Check, CheckCheck, Trash2 } from "lucide-react";
 
 export default function ChatBox({
   conversationId: initialConversationId,
@@ -14,6 +14,7 @@ export default function ChatBox({
   sellerPic,
   currentUser,
   onClose,
+  onConversationDeleted,
 }) {
   const { t } = useTranslation();
   const [conversationId, setConversationId] = useState(initialConversationId || null);
@@ -23,6 +24,8 @@ export default function ChatBox({
   const [loading, setLoading] = useState(true);
   const [sending, setSending] = useState(false);
   const [error, setError] = useState("");
+  const [confirmModal, setConfirmModal] = useState(null);
+  const [deletingAction, setDeletingAction] = useState(false);
 
   const messagesEndRef = useRef(null);
   const pollingRef = useRef(null);
@@ -254,6 +257,76 @@ export default function ChatBox({
     }
   };
 
+  // Prompt to delete an individual message
+  const promptDeleteMessage = (messageId) => {
+    if (!messageId) return;
+    setConfirmModal({
+      type: "message",
+      id: messageId,
+      title: "Delete Message?",
+      text: "Are you sure you want to delete this message? It will be permanently removed from this conversation.",
+    });
+  };
+
+  // Prompt to delete entire conversation
+  const promptDeleteConversation = () => {
+    if (!conversationId) return;
+    setConfirmModal({
+      type: "conversation",
+      id: conversationId,
+      title: "Delete Conversation?",
+      text: "Are you sure you want to delete this entire chat conversation and all its messages?",
+    });
+  };
+
+  // Handle confirmed delete action
+  const handleConfirmDelete = async () => {
+    if (!confirmModal || deletingAction) return;
+    setDeletingAction(true);
+
+    try {
+      if (confirmModal.type === "message") {
+        const messageId = confirmModal.id;
+        const res = await fetch(`http://localhost:5001/api/chat/messages/${messageId}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: currentUserId }),
+        });
+
+        if (res.ok) {
+          setMessages((prev) => prev.filter((m) => m.id !== messageId));
+          setConfirmModal(null);
+        } else {
+          const data = await res.json().catch(() => ({}));
+          alert(data.message || "Failed to delete message.");
+        }
+      } else if (confirmModal.type === "conversation") {
+        const res = await fetch(`http://localhost:5001/api/chat/conversations/${confirmModal.id}`, {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ userId: currentUserId }),
+        });
+
+        if (res.ok) {
+          setConfirmModal(null);
+          if (onConversationDeleted) {
+            onConversationDeleted();
+          } else if (onClose) {
+            onClose();
+          }
+        } else {
+          const data = await res.json().catch(() => ({}));
+          alert(data.message || "Failed to delete conversation.");
+        }
+      }
+    } catch (err) {
+      console.error("Delete error:", err);
+      alert("Server error while deleting.");
+    } finally {
+      setDeletingAction(false);
+    }
+  };
+
   // Header display details
   const displayTitle = conversation?.item_title || itemTitle || "Item Chat";
   const displayImage = conversation?.item_image || itemImage;
@@ -277,7 +350,73 @@ export default function ChatBox({
 
   return (
     <div style={styles.overlay}>
+      <style>{`
+        @keyframes fadeIn {
+          from { opacity: 0; }
+          to { opacity: 1; }
+        }
+        @keyframes scaleIn {
+          from { opacity: 0; transform: scale(0.9); }
+          to { opacity: 1; transform: scale(1); }
+        }
+        .chat-msg-del-btn:hover {
+          opacity: 1 !important;
+          background-color: #fee2e2 !important;
+        }
+        .chat-msg-del-btn:hover svg {
+          stroke: #ef4444 !important;
+        }
+        .chat-header-del-btn:hover {
+          background-color: #fee2e2 !important;
+          transform: scale(1.05);
+        }
+        .chat-confirm-cancel-btn:hover {
+          background-color: #e2e8f0 !important;
+        }
+        .chat-confirm-delete-btn:hover {
+          background-color: #dc2626 !important;
+        }
+      `}</style>
       <div style={styles.chatContainer}>
+        {/* IN-CHATBOX CONFIRMATION MODAL */}
+        {confirmModal && (
+          <div
+            style={styles.confirmOverlay}
+            onClick={() => !deletingAction && setConfirmModal(null)}
+          >
+            <div
+              style={styles.confirmBox}
+              onClick={(e) => e.stopPropagation()}
+            >
+              <div style={styles.confirmIconWrap}>
+                <Trash2 size={24} color="#ef4444" />
+              </div>
+              <h4 style={styles.confirmTitle}>{confirmModal.title}</h4>
+              <p style={styles.confirmText}>{confirmModal.text}</p>
+              <div style={styles.confirmBtnRow}>
+                <button
+                  type="button"
+                  className="chat-confirm-cancel-btn"
+                  style={styles.confirmCancelBtn}
+                  onClick={() => setConfirmModal(null)}
+                  disabled={deletingAction}
+                >
+                  Cancel
+                </button>
+                <button
+                  type="button"
+                  className="chat-confirm-delete-btn"
+                  style={styles.confirmDeleteBtn}
+                  onClick={handleConfirmDelete}
+                  disabled={deletingAction}
+                >
+                  {deletingAction ? "Deleting..." : "Delete"}
+                </button>
+              </div>
+            </div>
+          </div>
+        )}
+
         {/* HEADER */}
         <div style={styles.header}>
           <div style={styles.headerLeft}>
@@ -304,9 +443,22 @@ export default function ChatBox({
             </div>
           </div>
 
-          <button onClick={onClose} style={styles.closeBtn} title="Close Chat">
-            <X size={20} color="#475569" />
-          </button>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+            {conversationId && (
+              <button
+                type="button"
+                onClick={promptDeleteConversation}
+                className="chat-header-del-btn"
+                style={styles.headerDeleteBtn}
+                title={t("chat.deleteChat") || "Delete entire chat"}
+              >
+                <Trash2 size={16} color="#ef4444" />
+              </button>
+            )}
+            <button onClick={onClose} style={styles.closeBtn} title="Close Chat">
+              <X size={20} color="#475569" />
+            </button>
+          </div>
         </div>
 
         {/* ITEM CARD PREVIEW */}
@@ -374,11 +526,26 @@ export default function ChatBox({
               return (
                 <div
                   key={msg.id || index}
+                  className="chat-message-row"
                   style={{
                     ...styles.messageRow,
                     justifyContent: isMe ? "flex-end" : "flex-start",
+                    alignItems: "center",
+                    gap: "6px",
                   }}
                 >
+                  {isMe && (
+                    <button
+                      type="button"
+                      className="chat-msg-del-btn"
+                      onClick={() => promptDeleteMessage(msg.id)}
+                      title={t("chat.deleteMessage") || "Delete message"}
+                      style={styles.msgDeleteBtn}
+                    >
+                      <Trash2 size={13} color="#94a3b8" />
+                    </button>
+                  )}
+
                   <div
                     style={{
                       ...styles.messageBubble,
@@ -447,6 +614,7 @@ const styles = {
     padding: "20px 20px 85px 20px", // Space above bottom navigation bar
   },
   chatContainer: {
+    position: "relative",
     width: "100%",
     maxWidth: "420px",
     height: "530px",
@@ -459,6 +627,82 @@ const styles = {
     overflow: "hidden",
     border: "1px solid #e2e8f0",
     animation: "slideUp 0.25s ease-out",
+  },
+  confirmOverlay: {
+    position: "absolute",
+    inset: 0,
+    backgroundColor: "rgba(15, 23, 42, 0.55)",
+    backdropFilter: "blur(3px)",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    zIndex: 100,
+    padding: "20px",
+    animation: "fadeIn 0.18s ease-out",
+  },
+  confirmBox: {
+    backgroundColor: "#ffffff",
+    borderRadius: "18px",
+    padding: "22px 20px",
+    width: "100%",
+    maxWidth: "300px",
+    textAlign: "center",
+    boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.15)",
+    border: "1px solid #f1f5f9",
+    animation: "scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
+  },
+  confirmIconWrap: {
+    width: "46px",
+    height: "46px",
+    borderRadius: "50%",
+    backgroundColor: "#fef2f2",
+    border: "1px solid #fee2e2",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    margin: "0 auto 12px auto",
+  },
+  confirmTitle: {
+    margin: "0 0 6px 0",
+    fontSize: "16px",
+    fontWeight: "700",
+    color: "#0f172a",
+  },
+  confirmText: {
+    margin: "0 0 20px 0",
+    fontSize: "13px",
+    color: "#64748b",
+    lineHeight: "1.45",
+  },
+  confirmBtnRow: {
+    display: "flex",
+    gap: "10px",
+    justifyContent: "center",
+  },
+  confirmCancelBtn: {
+    flex: 1,
+    padding: "9px 14px",
+    borderRadius: "10px",
+    border: "1px solid #cbd5e1",
+    backgroundColor: "#f8fafc",
+    color: "#334155",
+    fontSize: "13px",
+    fontWeight: "600",
+    cursor: "pointer",
+    transition: "background 0.2s",
+  },
+  confirmDeleteBtn: {
+    flex: 1,
+    padding: "9px 14px",
+    borderRadius: "10px",
+    border: "none",
+    backgroundColor: "#ef4444",
+    color: "#ffffff",
+    fontSize: "13px",
+    fontWeight: "600",
+    cursor: "pointer",
+    boxShadow: "0 2px 8px rgba(239, 68, 68, 0.3)",
+    transition: "background 0.2s",
   },
   header: {
     padding: "14px 18px",
@@ -509,6 +753,30 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     cursor: "pointer",
+  },
+  headerDeleteBtn: {
+    background: "#fef2f2",
+    border: "1px solid #fee2e2",
+    borderRadius: "50%",
+    width: "32px",
+    height: "32px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    transition: "background 0.2s, transform 0.1s",
+  },
+  msgDeleteBtn: {
+    background: "transparent",
+    border: "none",
+    borderRadius: "4px",
+    padding: "4px",
+    display: "inline-flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    opacity: 0.6,
+    transition: "opacity 0.2s, background-color 0.2s, color 0.2s",
   },
   itemPreview: {
     display: "flex",
