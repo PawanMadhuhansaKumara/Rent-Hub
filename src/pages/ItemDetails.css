@@ -375,22 +375,6 @@
   cursor: pointer;
   transition: background 0.2s ease, transform 0.2s ease;
 }
-.add-to-rent-cart-button{
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  gap: 8px;
-  min-height: 48px;
-  padding: 12px 20px;
-  border:1px solid;
-  border-radius: 9px;
-  
-  color: #15803d;
-  font-size: 14px;
-  font-weight: 700;
-  cursor: pointer;
-  transition: background 0.2s ease, transform 0.2s ease;
-}
 
 .rent-request-button:hover:not(:disabled),
 .submit-request-button:hover {

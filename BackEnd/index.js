@@ -39,11 +39,17 @@ app.use('/uploads', express.static('uploads'));
 // Aiven Cloud MySQL Database Connection Pool
 const db = mysql.createPool({
   host: process.env.DB_HOST,
-  port: process.env.DB_PORT,
+  port: Number(process.env.DB_PORT) || 3306,
   user: process.env.DB_USER,
   password: process.env.DB_PASSWORD,
   database: process.env.DB_NAME,
   timezone: 'Z',
+  waitForConnections: true,
+  connectionLimit: 10,
+  queueLimit: 0,
+  enableKeepAlive: true,
+  keepAliveInitialDelay: 10000,
+  connectTimeout: 20000,
   ssl: {
     rejectUnauthorized: false 
   }
@@ -333,7 +339,176 @@ app.get('/api/items', async (req, res) => {
   }
 });
 
-// 2. අදාළ User ගේ ID එකට අදාළ items පමණක් ලබා ගැනීම (Profile එක සඳහා)
+
+// Add to Cart endpoint
+app.post('/api/cart', async (req, res) => {
+  const { userId, itemId, quantity, startDate, endDate } = req.body;
+  const user_id = userId || req.body.user_id;
+  const item_id = itemId || req.body.item_id;
+  const qty = quantity || req.body.quantity || 1;
+
+  if (!user_id || !item_id) {
+    return res.status(400).json({ success: false, message: 'Missing user_id or item_id.' });
+  }
+
+  try {
+    try {
+      const query = `INSERT INTO cart (user_id, item_id, quantity, start_date, end_date, created_at) VALUES (?, ?, ?, ?, ?, NOW())`;
+      const values = [user_id, item_id, qty, startDate || null, endDate || null];
+      const [result] = await db.execute(query, values);
+      return res.status(201).json({ success: true, message: 'Item added to cart.', cartId: result.insertId });
+    } catch (insertErr) {
+      // Fallback if start_date / end_date columns don't exist in cart table
+      const fallbackQuery = `INSERT INTO cart (user_id, item_id, quantity, created_at) VALUES (?, ?, ?, NOW())`;
+      const fallbackValues = [user_id, item_id, qty];
+      const [result] = await db.execute(fallbackQuery, fallbackValues);
+      return res.status(201).json({ success: true, message: 'Item added to cart.', cartId: result.insertId });
+    }
+  } catch (error) {
+    console.error('Add to cart error:', error);
+    res.status(500).json({ success: false, message: 'Server error while adding to cart: ' + error.message });
+  }
+});
+
+// GET CART ITEMS BY USER ID
+app.get('/api/cart/:userId', async (req, res) => {
+  const userId = req.params.userId;
+  try {
+    const query = `
+      SELECT 
+        c.id,
+        c.user_id,
+        c.item_id,
+        c.quantity,
+        c.created_at,
+        i.title,
+        i.price,
+        i.price_type,
+        i.image_url,
+        i.category,
+        u.full_name AS seller_name,
+        u.profile_pic_url AS seller_pic
+      FROM cart c
+      JOIN items i ON c.item_id = i.id
+      LEFT JOIN users_details u ON i.user_id = u.user_id
+      WHERE c.user_id = ?
+      ORDER BY c.created_at DESC
+    `;
+    const [rows] = await db.execute(query, [userId]);
+
+    const formattedCart = rows.map(item => ({
+      id: item.id,
+      itemId: item.item_id,
+      item_id: item.item_id,
+      title: item.title,
+      price: item.price,
+      priceType: item.price_type || 'day',
+      image: item.image_url,
+      quantity: item.quantity,
+      startDate: item.start_date || null,
+      endDate: item.end_date || null,
+      sellerName: item.seller_name || 'Owner',
+      sellerPic: item.seller_pic || null,
+      category: item.category,
+      createdAt: item.created_at
+    }));
+
+    res.status(200).json(formattedCart);
+  } catch (error) {
+    console.error('Fetch Cart Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to fetch cart items: ' + error.message });
+  }
+});
+
+// DELETE CART ITEM
+app.delete('/api/cart/:id', async (req, res) => {
+  const cartId = req.params.id;
+  try {
+    await db.execute('DELETE FROM cart WHERE id = ?', [cartId]);
+    res.status(200).json({ success: true, message: 'Item removed from cart.' });
+  } catch (error) {
+    console.error('Delete Cart Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to remove item from cart.' });
+  }
+});
+
+// ==========================================
+// USER COMMUNITY POSTS API
+// ==========================================
+
+// GET USER POSTS
+app.get('/api/posts/:userId', async (req, res) => {
+  const { userId } = req.params;
+  try {
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS posts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        content TEXT,
+        image_url VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    const [rows] = await db.execute(
+      `SELECT * FROM posts WHERE user_id = ? ORDER BY created_at DESC`,
+      [userId]
+    );
+
+    const formattedPosts = rows.map((post) => ({
+      id: post.id,
+      userId: post.user_id,
+      content: post.content,
+      image: post.image_url
+        ? post.image_url.startsWith('http')
+          ? post.image_url
+          : `http://localhost:5001${post.image_url.startsWith('/') ? '' : '/'}${post.image_url}`
+        : null,
+      createdAt: post.created_at
+    }));
+
+    res.status(200).json(formattedPosts);
+  } catch (error) {
+    console.error('Fetch Posts Error:', error);
+    res.status(200).json([]);
+  }
+});
+
+// CREATE USER POST
+app.post('/api/posts', upload.single('post_image'), async (req, res) => {
+  const { user_id, content } = req.body;
+  if (!user_id) {
+    return res.status(400).json({ success: false, message: 'user_id is required' });
+  }
+
+  try {
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS posts (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        user_id INT NOT NULL,
+        content TEXT,
+        image_url VARCHAR(255),
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP
+      )
+    `);
+
+    const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+    const [result] = await db.execute(
+      `INSERT INTO posts (user_id, content, image_url, created_at) VALUES (?, ?, ?, NOW())`,
+      [user_id, content || '', image_url]
+    );
+
+    res.status(201).json({
+      success: true,
+      message: 'Post created successfully!',
+      postId: result.insertId
+    });
+  } catch (error) {
+    console.error('Create Post Error:', error);
+    res.status(500).json({ success: false, message: 'Server error creating post' });
+  }
+});
+
 app.get('/api/items/:userId', async (req, res) => {
   const userId = req.params.userId;
   try {
@@ -602,11 +777,11 @@ app.get('/api/chat/unread-count/:userId', async (req, res) => {
 
     res.status(200).json({
       success: true,
-      unreadCount: rows[0].total_unread || 0
+      unreadCount: rows[0]?.total_unread || 0
     });
   } catch (error) {
-    console.error('Get Unread Count Error:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch unread count.' });
+    console.error('Get Unread Count Error:', error.message);
+    res.status(200).json({ success: true, unreadCount: 0 });
   }
 });
 

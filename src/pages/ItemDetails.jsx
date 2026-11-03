@@ -1,10 +1,17 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link, useParams, useNavigate } from "react-router-dom";
-import { MessageCircle, User, MapPin, CartonIcon, ShoppingCart } from "lucide-react";
+import {
+  MessageCircle,
+  User,
+  MapPin,
+  CartonIcon,
+  ShoppingCart,
+} from "lucide-react";
 import ChatBox from "../components/ChatBox";
 import "./ItemDetails.css";
 import CartIcon from "../components/CartIcon";
+import AddToRentCartButton from "../components/AddToRentCartButton";
 
 const API_URL = "http://localhost:5001";
 
@@ -18,6 +25,8 @@ export default function ItemDetails() {
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
+  const [isInCart, setIsInCart] = useState(false);
+  const [addingToCart, setAddingToCart] = useState(false);
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -30,6 +39,29 @@ export default function ItemDetails() {
       }
     }
   }, []);
+
+  // Check if item is already in cart
+  useEffect(() => {
+    const checkCartStatus = async () => {
+      const myId = currentUser?.user_id || currentUser?.id;
+      if (!myId || !id) return;
+      try {
+        const res = await fetch(`${API_URL}/api/cart/${myId}`);
+        if (res.ok) {
+          const cartData = await res.json();
+          if (Array.isArray(cartData)) {
+            const exists = cartData.some(
+              (ci) => String(ci.itemId || ci.item_id) === String(id)
+            );
+            setIsInCart(exists);
+          }
+        }
+      } catch (err) {
+        console.error("Error checking cart status:", err);
+      }
+    };
+    checkCartStatus();
+  }, [currentUser, id]);
 
   const handleOpenChat = () => {
     if (!currentUser) {
@@ -121,6 +153,54 @@ export default function ItemDetails() {
     setStartDate("");
     setEndDate("");
     setQuantity(1);
+  };
+
+  const handleAddToCart = async () => {
+    if (!currentUser) {
+      alert("Please login to add items to your rent cart.");
+      navigate("/login");
+      return;
+    }
+
+    const sellerId = item?.user_id || item?.userId || item?.seller_id;
+    const myId = currentUser?.user_id || currentUser?.id;
+
+    if (Number(myId) === Number(sellerId)) {
+      alert("This is your own item. You cannot add it to your rent cart.");
+      return;
+    }
+
+    if (isInCart) {
+      navigate("/my-items?tab=rent-cart");
+      return;
+    }
+
+    try {
+      setAddingToCart(true);
+      const res = await fetch(`${API_URL}/api/cart`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          userId: myId,
+          itemId: item.id,
+          quantity: quantity || 1,
+          startDate: startDate || null,
+          endDate: endDate || null,
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setIsInCart(true);
+      } else {
+        alert(data.message || "Failed to add item to cart.");
+      }
+    } catch (err) {
+      console.error("Error adding to cart:", err);
+      alert("Error adding item to cart. Please check your backend connection.");
+    } finally {
+      setAddingToCart(false);
+    }
   };
 
   if (loading) {
@@ -299,18 +379,12 @@ export default function ItemDetails() {
               >
                 <MessageCircle size={18} />
               </button>
-              <button
-                type="button"
-                className="add-to-rent-cart-button"
-                onClick={""}
-                disabled={available < 1}
-              ><ShoppingCart size={18} />
-                {available < 1
-                  ? "Not Available"
-                  : showRequestForm
-                    ? "Add to Rent Cart"
-                    : "Add to Rent Cart"}
-              </button>
+              <AddToRentCartButton
+                available={available}
+                isAdded={isInCart}
+                loading={addingToCart}
+                onClick={handleAddToCart}
+              />
               <button
                 type="button"
                 className="rent-request-button"
@@ -324,8 +398,6 @@ export default function ItemDetails() {
                     : "Rent Now"}
               </button>
             </div>
-
-            
           </div>
         </div>
       </div>

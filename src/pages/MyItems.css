@@ -751,3 +751,72 @@
     height: 130px;
   }
 }
+
+/* Rent Cart Items Container */
+.rent-cart-items {
+  display: flex;
+  flex-direction: column;
+  gap: 16px;
+  max-width: 900px;
+  width: 100%;
+  margin: 0 auto;
+  box-sizing: border-box;
+}
+
+/* Rent Cart Toolbar */
+.rent-cart-toolbar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  background: #ffffff;
+  border: 1px solid #e2e8f0;
+  border-radius: 12px;
+  padding: 12px 18px;
+  box-shadow: 0 1px 4px rgba(0, 0, 0, 0.03);
+  flex-wrap: wrap;
+  gap: 12px;
+}
+
+.rent-cart-select-all {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  color: #1e293b;
+  cursor: pointer;
+  user-select: none;
+}
+
+.rent-cart-select-all input[type="checkbox"] {
+  width: 18px;
+  height: 18px;
+  accent-color: #15803d;
+  cursor: pointer;
+}
+
+.rent-cart-selected-summary {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+  font-size: 14px;
+  color: #475569;
+}
+
+.selected-count strong {
+  color: #15803d;
+}
+
+.selected-total {
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+  padding: 4px 12px;
+  border-radius: 8px;
+  color: #166534;
+}
+
+.selected-total strong {
+  font-size: 15px;
+  font-weight: 700;
+  color: #15803d;
+}
