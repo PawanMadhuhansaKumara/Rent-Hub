@@ -16,6 +16,10 @@ import {
   User,
   AtSign,
   ArrowLeft,
+  Package,
+  Calendar,
+  Eye,
+  Trash2,
 } from "lucide-react";
 import SettingsPopup from "../components/SettingsPopup";
 
@@ -42,21 +46,21 @@ export default function Profile({ user, setUser }) {
   // Profile State mapping exactly to database columns
   const [profile, setProfile] = useState({
     user_id: user?.user_id || 1,
-    full_name: user?.full_name || "Pawan Madhuhansa",
-    username: user?.username || "user_renthub",
+    full_name: user?.full_name || "RentHub Shop",
+    username: user?.username || "renthub_shop",
     phone_no: user?.phone_no || "+94 77 123 4567",
-    email: user?.email || "madhuhansapawan@gmail.com",
+    email: user?.email || "renthub@gmail.com",
     address: user?.address || "Colombo, Sri Lanka",
     nearest_city: user?.nearest_city || "Colombo",
     about:
       user?.about ||
-      "Hi! I rent and sell quality items. Feel free to contact me!",
+      "Rent smarter. Live better.",
     trust_score: user?.user_rating ? user.user_rating * 20 : 92,
     reviews_count: user?.reviews_count || 12,
     likes_count: user?.likes_count || 68,
     profile_pic_url: user?.profile_pic_url
       ? `http://localhost:5001${user.profile_pic_url}`
-      : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
+      : "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?auto=format&fit=crop&q=80&w=300",
     coverphoto: user?.coverphoto
       ? `http://localhost:5001${user.coverphoto}`
       : "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=1000",
@@ -80,13 +84,13 @@ export default function Profile({ user, setUser }) {
             const u = data.user;
             setProfile({
               user_id: u.user_id,
-              full_name: u.full_name || "Rent Hub Member",
+              full_name: u.full_name || "RentHub Shop",
               username: u.username || "",
               phone_no: u.phone_no || "",
               email: u.email || "",
               address: u.address || "",
               nearest_city: u.nearest_city || "",
-              about: u.about || "",
+              about: u.about || "Rent smarter. Live better.",
               trust_score: u.user_rating ? u.user_rating * 20 : 80,
               reviews_count: u.reviews_count || 0,
               likes_count: u.likes_count || 0,
@@ -94,7 +98,7 @@ export default function Profile({ user, setUser }) {
                 ? u.profile_pic_url.startsWith("http")
                   ? u.profile_pic_url
                   : `http://localhost:5001${u.profile_pic_url}`
-                : "https://images.unsplash.com/photo-1534528741775-53994a69daeb?auto=format&fit=crop&q=80&w=300",
+                : "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?auto=format&fit=crop&q=80&w=300",
               coverphoto: u.coverphoto
                 ? u.coverphoto.startsWith("http")
                   ? u.coverphoto
@@ -182,7 +186,6 @@ export default function Profile({ user, setUser }) {
       );
       const data = await res.json();
       if (res.ok && data.success) {
-        // Update local state smoothly without reloading
         setItems((prevItems) =>
           prevItems.map((item) =>
             item.id === itemId ? { ...item, available: newStatus } : item,
@@ -193,6 +196,26 @@ export default function Profile({ user, setUser }) {
       }
     } catch (err) {
       console.error("Error updating item status:", err);
+    }
+  };
+
+  // Delete Item Functionality
+  const handleDeleteItem = async (itemId) => {
+    if (!window.confirm("Are you sure you want to delete this item?")) return;
+    try {
+      const res = await fetch(`http://localhost:5001/api/items/${itemId}`, {
+        method: "DELETE",
+      });
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setItems((prevItems) => prevItems.filter((item) => item.id !== itemId));
+        alert("Item deleted successfully!");
+      } else {
+        alert(data.message || "Failed to delete item.");
+      }
+    } catch (err) {
+      console.error("Error deleting item:", err);
+      alert("Server error while deleting item.");
     }
   };
 
@@ -268,30 +291,6 @@ export default function Profile({ user, setUser }) {
     }
   };
 
-  const handleCreatePost = async (e) => {
-    e.preventDefault();
-    const formData = new FormData();
-    formData.append("user_id", profile.user_id);
-    formData.append("content", newPostContent);
-    if (postImageFile) {
-      formData.append("post_image", postImageFile);
-    }
-
-    try {
-      const res = await fetch("http://localhost:5001/api/posts", {
-        method: "POST",
-        body: formData,
-      });
-      if (res.ok) {
-        setNewPostContent("");
-        setPostImageFile(null);
-        fetchUserPosts();
-      }
-    } catch (err) {
-      console.error("Error creating post:", err);
-    }
-  };
-
   const handleBack = () => {
     if (window.history.state && window.history.state.idx > 0) {
       navigate(-1);
@@ -333,21 +332,21 @@ export default function Profile({ user, setUser }) {
                 </div>
               </div>
 
-              <div style={{ marginBottom: "5px" }}>
+              {/* Name adjusted slightly downwards so cover photo won't cover it */}
+              <div style={{ marginBottom: "5px", paddingTop: "10px" }}>
                 <div
                   style={{ display: "flex", alignItems: "center", gap: "8px" }}
                 >
                   <h2 style={styles.desktopUserName}>{profile.full_name}</h2>
                   {profile.is_verified ? (
-                    <CheckCircle2 size={22} color="#007bff" fill="#007bff" />
+                    <CheckCircle2 size={22} color="#00aa5b" fill="#00aa5b" />
                   ) : null}
                 </div>
-                <p style={styles.desktopUserHandle}>@{profile.username}</p>
-                <p style={styles.desktopUserTagline}>
-                  Rent • Buy • Share |{" "}
-                  <span style={{ color: "#28a745", fontWeight: "bold" }}>
-                    ✓ {t("profile.trustedSeller")}
-                  </span>
+                <p style={styles.desktopUserTagline}>{profile.about}</p>
+                <p style={styles.locationText}>
+                  <MapPin size={14} color="#666" /> {profile.address},{" "}
+                  {profile.nearest_city} &nbsp;|&nbsp; <Mail size={14} color="#666" />{" "}
+                  {profile.email}
                 </p>
               </div>
             </div>
@@ -358,461 +357,250 @@ export default function Profile({ user, setUser }) {
                   onClick={() => navigate("/add-item")}
                   style={styles.primaryBtn}
                 >
-                  <Plus size={18} /> {t("profile.addItem")}
+                  <Plus size={16} /> {t("profile.addItem")}
                 </button>
                 <button
                   onClick={() => setShowEditProfile(true)}
                   style={styles.secondaryBtn}
                 >
-                  <Edit3 size={18} /> {t("profile.editProfile")}
+                  <Edit3 size={16} /> {t("profile.editProfile")}
                 </button>
-                {/*setings button*/}
                 <SettingsPopup />
               </div>
             )}
           </div>
 
-          <div style={styles.desktopContactBar}>
-            <div style={styles.contactItem}>
-              <Phone size={16} color="#007bff" /> {profile.phone_no}
+          {/* Stats Bar Layout (Total Items, Trust Score, Reviews) */}
+          <div style={styles.statsBarContainer}>
+            <div style={styles.statBox}>
+              <div style={styles.statIconBg}>
+                <Package size={22} color="#00aa5b" />
+              </div>
+              <div>
+                <span style={styles.statBoxVal}>{items.length}</span>
+                <span style={styles.statBoxLbl}>Total Items</span>
+              </div>
             </div>
-            <div style={styles.contactItem}>
-              <MapPin size={16} color="#007bff" /> {profile.address},{" "}
-              {profile.nearest_city}
+
+            <div style={styles.statBoxDivider}></div>
+
+            <div style={styles.statBox}>
+              <div style={styles.statIconBg}>
+                <CheckCircle2 size={22} color="#00aa5b" />
+              </div>
+              <div>
+                <span style={styles.statBoxVal}>{profile.trust_score}%</span>
+                <span style={styles.statBoxLbl}>Trust Score</span>
+              </div>
             </div>
-            <div style={styles.contactItem}>
-              <Mail size={16} color="#007bff" /> {profile.email}
+
+            <div style={styles.statBoxDivider}></div>
+
+            <div style={styles.statBox}>
+              <div style={styles.statIconBg}>
+                <Star size={22} color="#00aa5b" fill="#00aa5b" />
+              </div>
+              <div>
+                <span style={styles.statBoxVal}>{profile.reviews_count}</span>
+                <span style={styles.statBoxLbl}>Revives</span>
+              </div>
             </div>
           </div>
 
-          <div style={styles.desktopGridColumns}>
-            <div
-              style={{ display: "flex", flexDirection: "column", gap: "16px" }}
+          {/* Tabs Navigation */}
+          <div style={styles.desktopTabsRow}>
+            <button
+              onClick={() => setActiveTab("shop")}
+              style={{
+                ...styles.desktopTabBtn,
+                ...(activeTab === "shop" ? styles.activeTabBtn : {}),
+              }}
             >
-              <div style={styles.trustScoreBox}>
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "12px" }}
-                >
-                  <div style={styles.trustIconWrapper}>
-                    <CheckCircle2 size={22} color="#fff" />
-                  </div>
-                  <div style={{ flex: 1 }}>
-                    <div
-                      style={{
-                        display: "flex",
-                        justifyContent: "space-between",
-                        fontSize: "13px",
-                        fontWeight: "bold",
-                        marginBottom: "6px",
-                      }}
-                    >
-                      <span style={{ color: "#007bff" }}>
-                        {t("profile.trustScore")}
-                      </span>
-                      <span style={{ color: "#007bff" }}>
-                        {profile.trust_score}%
-                      </span>
-                    </div>
-                    <div style={styles.progressBarBg}>
-                      <div
-                        style={{
-                          ...styles.progressBarFill,
-                          width: `${profile.trust_score}%`,
-                        }}
-                      ></div>
-                    </div>
-                  </div>
-                </div>
-              </div>
+              <Package size={16} /> {t("profile.myShopItems")} ({items.length})
+            </button>
 
-              <div style={styles.statsGrid}>
-                <div style={styles.statCard}>
-                  <div style={styles.statValRow}>
-                    <Star size={20} color="#ffc107" fill="#ffc107" />
-                    <span style={styles.statNum}>{profile.reviews_count}</span>
-                  </div>
-                  <span style={styles.statLabel}>{t("profile.reviews")}</span>
-                </div>
-                <div style={styles.statCard}>
-                  <div style={styles.statValRow}>
-                    <Heart size={20} color="#e63946" fill="#e63946" />
-                    <span style={styles.statNum}>{profile.likes_count}</span>
-                  </div>
-                  <span style={styles.statLabel}>
-                    {t("profile.profileLikes")}
-                  </span>
-                </div>
-              </div>
-            </div>
+            <button
+              onClick={() => setActiveTab("reviews")}
+              style={{
+                ...styles.desktopTabBtn,
+                ...(activeTab === "reviews" ? styles.activeTabBtn : {}),
+              }}
+            >
+              <Star size={16} /> {t("profile.reviews")} ({profile.reviews_count})
+            </button>
+          </div>
 
-            <div style={{ flex: 1 }}>
-              <div style={styles.desktopTabsRow}>
-                <button
-                  onClick={() => setActiveTab("shop")}
+          {activeTab === "shop" && (
+            <div style={{ marginTop: "24px" }}>
+              <div
+                style={{
+                  display: "flex",
+                  justifyContent: "space-between",
+                  alignItems: "center",
+                  marginBottom: "16px",
+                }}
+              >
+                <h3
                   style={{
-                    ...styles.desktopTabBtn,
-                    ...(activeTab === "shop" ? styles.activeTabBtn : {}),
+                    margin: 0,
+                    fontSize: "18px",
+                    fontWeight: "bold",
+                    color: "#111",
                   }}
                 >
-                  {t("profile.myShopItems")} ({items.length})
-                </button>
-
-                <button
-                  onClick={() => setActiveTab("reviews")}
+                  My Items
+                </h3>
+                <span
+                  onClick={() => navigate("/add-item")}
                   style={{
-                    ...styles.desktopTabBtn,
-                    ...(activeTab === "reviews" ? styles.activeTabBtn : {}),
+                    fontSize: "13px",
+                    color: "#00aa5b",
+                    fontWeight: "bold",
+                    cursor: "pointer",
                   }}
                 >
-                  {t("profile.reviews")} ({profile.reviews_count})
-                </button>
+                  View All &rarr;
+                </span>
               </div>
 
-              {activeTab === "shop" && (
-                <div style={{ marginTop: "24px" }}>
-                  <div
-                    style={{
-                      display: "flex",
-                      justifyContent: "space-between",
-                      alignItems: "center",
-                      marginBottom: "16px",
-                    }}
-                  >
-                    <h3
-                      style={{
-                        margin: 0,
-                        fontSize: "18px",
-                        fontWeight: "bold",
-                        color: "#111",
-                      }}
-                    >
-                      {t("profile.recentItems")}
-                    </h3>
-                    <span
-                      style={{
-                        fontSize: "13px",
-                        color: "#666",
-                        fontWeight: "600",
-                      }}
-                    >
-                      Total: {items.length} items
-                    </span>
-                  </div>
-
-                  {items.length === 0 ? (
-                    <div style={styles.emptyState}>{t("profile.noItems")}</div>
-                  ) : (
-                    <div style={styles.desktopItemsGrid}>
-                      {items.map((item, idx) => (
-                        <div
-                          key={item.id || idx}
-                          style={styles.desktopItemCard}
-                        >
-                          <div style={styles.itemImgContainer}>
-                            <img
-                              src={
-                                item.image
-                                  ? item.image.startsWith("http")
-                                    ? item.image
-                                    : `http://localhost:5001${item.image}`
-                                  : "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=300"
-                              }
-                              alt={item.title}
-                              style={styles.desktopItemImg}
-                            />
-                            <span style={styles.itemCategoryBadge}>
-                              {item.category}
-                            </span>
-                          </div>
-
-                          <div style={{ padding: "14px" }}>
-                            <h4
-                              style={{
-                                margin: "0 0 6px 0",
-                                fontSize: "15px",
-                                fontWeight: "bold",
-                                color: "#222",
-                              }}
-                            >
-                              {item.title}
-                            </h4>
-
-                            {/* Direct Availability Dropdown Selector inside card */}
-                            <div
-                              style={{
-                                margin: "6px 0 10px 0",
-                                display: "flex",
-                                alignItems: "center",
-                                gap: "6px",
-                              }}
-                            >
-                              <span style={{ fontSize: "12px", color: "#666" }}>
-                                Status:
-                              </span>
-                              {isOwnProfile ? (
-                                <select
-                                  value={item.available || "Available"}
-                                  onChange={(e) =>
-                                    handleStatusChange(item.id, e.target.value)
-                                  }
-                                  style={{
-                                    fontSize: "12px",
-                                    fontWeight: "bold",
-                                    padding: "3px 6px",
-                                    borderRadius: "6px",
-                                    border: "1px solid #ddd",
-                                    backgroundColor:
-                                      item.available === "Rented Out"
-                                        ? "#fff3cd"
-                                        : "#d4edda",
-                                    color:
-                                      item.available === "Rented Out"
-                                        ? "#856404"
-                                        : "#155724",
-                                    cursor: "pointer",
-                                    outline: "none",
-                                  }}
-                                >
-                                  <option value="Available">Available</option>
-                                  <option value="Rented Out">Rented Out</option>
-                                </select>
-                              ) : (
-                                <span
-                                  style={{
-                                    fontSize: "12px",
-                                    fontWeight: "bold",
-                                    padding: "3px 8px",
-                                    borderRadius: "6px",
-                                    backgroundColor:
-                                      item.available === "Rented Out"
-                                        ? "#fff3cd"
-                                        : "#d4edda",
-                                    color:
-                                      item.available === "Rented Out"
-                                        ? "#856404"
-                                        : "#155724",
-                                  }}
-                                >
-                                  {item.available || "Available"}
-                                </span>
-                              )}
-                            </div>
-
-                            <div
-                              style={{
-                                display: "flex",
-                                justifyContent: "space-between",
-                                alignItems: "center",
-                                marginTop: "12px",
-                                borderTop: "1px solid #f0f0f0",
-                                paddingTop: "10px",
-                              }}
-                            >
-                              <div>
-                                <span
-                                  style={{
-                                    fontSize: "11px",
-                                    color: "#888",
-                                    display: "block",
-                                  }}
-                                >
-                                  Price
-                                </span>
-                                <p style={styles.itemPrice}>
-                                  Rs. {item.price}{" "}
-                                  <span
-                                    style={{
-                                      fontSize: "11px",
-                                      fontWeight: "normal",
-                                      color: "#666",
-                                    }}
-                                  >
-                                    / {item.priceType || "day"}
-                                  </span>
-                                </p>
-                              </div>
-                            </div>
-                          </div>
-                        </div>
-                      ))}
-                    </div>
-                  )}
-                </div>
-              )}
-
-              {activeTab === "posts" && (
-                <div style={{ marginTop: "20px", maxWidth: "600px" }}>
-                  {isOwnProfile && (
-                    <div style={styles.createPostCard}>
-                      <form onSubmit={handleCreatePost}>
-                        <div
-                          style={{
-                            display: "flex",
-                            gap: "12px",
-                            alignItems: "center",
-                            marginBottom: "12px",
-                          }}
-                        >
-                          <img
-                            src={profile.profile_pic_url}
-                            alt="Profile"
-                            style={{
-                              width: "40px",
-                              height: "40px",
-                              borderRadius: "50%",
-                              objectFit: "cover",
-                            }}
-                          />
-                          <textarea
-                            style={styles.postInputBox}
-                            placeholder="What's on your mind, rent & sell items?"
-                            value={newPostContent}
-                            onChange={(e) => setNewPostContent(e.target.value)}
-                          />
-                        </div>
-
-                        {postImageFile && (
-                          <div
-                            style={{
-                              position: "relative",
-                              marginBottom: "12px",
-                            }}
-                          >
-                            <img
-                              src={URL.createObjectURL(postImageFile)}
-                              alt="Preview"
-                              style={{
-                                width: "100%",
-                                maxHeight: "200px",
-                                objectFit: "cover",
-                                borderRadius: "8px",
-                              }}
-                            />
-                            <button
-                              type="button"
-                              onClick={() => setPostImageFile(null)}
-                              style={styles.removeImgBtn}
-                            >
-                              <X size={14} color="#fff" />
-                            </button>
-                          </div>
-                        )}
-
-                        <input
-                          type="file"
-                          ref={postImageInputRef}
-                          style={{ display: "none" }}
-                          accept="image/*"
-                          onChange={(e) => setPostImageFile(e.target.files[0])}
+              {items.length === 0 ? (
+                <div style={styles.emptyState}>{t("profile.noItems")}</div>
+              ) : (
+                <div style={styles.desktopItemsGrid}>
+                  {items.map((item, idx) => (
+                    <div key={item.id || idx} style={styles.desktopItemCard}>
+                      <div style={styles.itemImgContainer}>
+                        <img
+                          src={
+                            item.image
+                              ? item.image.startsWith("http")
+                                ? item.image
+                                : `http://localhost:5001${item.image}`
+                              : "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=300"
+                          }
+                          alt={item.title}
+                          style={styles.desktopItemImg}
                         />
 
-                        <div
-                          style={{
-                            display: "flex",
-                            justifyContent: "space-between",
-                            alignItems: "center",
-                            borderTop: "1px solid #f0f0f0",
-                            paddingTop: "10px",
-                          }}
-                        >
-                          <button
-                            type="button"
-                            onClick={() => postImageInputRef.current.click()}
-                            style={styles.photoUploadBtn}
-                          >
-                            <Camera size={18} color="#007bff" /> Add Photo
-                          </button>
-                          <button type="submit" style={styles.postSubmitBtn}>
-                            Post
-                          </button>
-                        </div>
-                      </form>
-                    </div>
-                  )}
-
-                  <div
-                    style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      gap: "16px",
-                      marginTop: "20px",
-                    }}
-                  >
-                    {userPosts.length === 0 ? (
-                      <div style={styles.emptyState}>
-                        No posts yet. Share something with the community!
-                      </div>
-                    ) : (
-                      userPosts.map((post) => (
-                        <div key={post.id} style={styles.feedCard}>
-                          <div
-                            style={{
-                              display: "flex",
-                              alignItems: "center",
-                              gap: "10px",
-                              marginBottom: "10px",
-                            }}
-                          >
-                            <img
-                              src={profile.profile_pic_url}
-                              alt="Author"
+                        {/* Availability Selector Green Badge */}
+                        <div style={styles.badgeOverlay}>
+                          {isOwnProfile ? (
+                            <select
+                              value={item.available || "Available"}
+                              onChange={(e) =>
+                                handleStatusChange(item.id, e.target.value)
+                              }
                               style={{
-                                width: "38px",
-                                height: "38px",
-                                borderRadius: "50%",
-                                objectFit: "cover",
-                              }}
-                            />
-                            <div>
-                              <h4
-                                style={{
-                                  margin: 0,
-                                  fontSize: "14px",
-                                  fontWeight: "bold",
-                                }}
-                              >
-                                {profile.full_name}
-                              </h4>
-                              <span style={{ fontSize: "11px", color: "#888" }}>
-                                {new Date(post.createdAt).toLocaleDateString()}
-                              </span>
-                            </div>
-                          </div>
-
-                          {post.content && (
-                            <p
-                              style={{
-                                fontSize: "14px",
-                                color: "#333",
-                                lineHeight: "1.5",
-                                margin: "0 0 10px 0",
+                                fontSize: "11px",
+                                fontWeight: "bold",
+                                padding: "4px 10px",
+                                borderRadius: "14px",
+                                border: "none",
+                                backgroundColor:
+                                  item.available === "Rented Out"
+                                    ? "#ffc107"
+                                    : "#00aa5b",
+                                color: "#ffffff",
+                                cursor: "pointer",
+                                outline: "none",
+                                boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
                               }}
                             >
-                              {post.content}
-                            </p>
-                          )}
-
-                          {post.image && (
-                            <img
-                              src={post.image}
-                              alt="Post Attachment"
+                              <option value="Available" style={{ color: "#000" }}>
+                                Available
+                              </option>
+                              <option value="Rented Out" style={{ color: "#000" }}>
+                                Rented Out
+                              </option>
+                            </select>
+                          ) : (
+                            <span
                               style={{
-                                width: "100%",
-                                maxHeight: "350px",
-                                objectFit: "cover",
-                                borderRadius: "8px",
-                                marginTop: "5px",
+                                fontSize: "11px",
+                                fontWeight: "bold",
+                                padding: "4px 10px",
+                                borderRadius: "14px",
+                                backgroundColor:
+                                  item.available === "Rented Out"
+                                    ? "#ffc107"
+                                    : "#00aa5b",
+                                color: "#ffffff",
+                                boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
                               }}
-                            />
+                            >
+                              {item.available || "Available"}
+                            </span>
                           )}
                         </div>
-                      ))
-                    )}
-                  </div>
+                      </div>
+
+                      <div style={{ padding: "14px" }}>
+                        <h4
+                          style={{
+                            margin: "0 0 6px 0",
+                            fontSize: "15px",
+                            fontWeight: "bold",
+                            color: "#222",
+                          }}
+                        >
+                          {item.title}
+                        </h4>
+
+                        <p style={styles.itemPrice}>
+                          Rs. {item.price}{" "}
+                          <span
+                            style={{
+                              fontSize: "11px",
+                              fontWeight: "normal",
+                              color: "#666",
+                            }}
+                          >
+                            / {item.priceType || "day"}
+                          </span>
+                        </p>
+
+                        {/* Bookings & Views Indicators + Delete Button */}
+                        <div style={styles.cardFooterMeta}>
+                          <span style={styles.metaBadgeText}>
+                            <Calendar size={13} color="#00aa5b" /> {item.bookings || 2} bookings
+                          </span>
+                          <span style={styles.metaBadgeText}>
+                            <Eye size={13} color="#666" /> {item.views || 124}
+                          </span>
+                        </div>
+
+                        {isOwnProfile && (
+                          <button
+                            onClick={() => handleDeleteItem(item.id)}
+                            style={styles.deleteBtn}
+                          >
+                            <Trash2 size={13} /> Delete Item
+                          </button>
+                        )}
+                      </div>
+                    </div>
+                  ))}
                 </div>
               )}
             </div>
-          </div>
+          )}
+
+          {activeTab === "reviews" && (
+            <div
+              style={{
+                marginTop: "20px",
+                padding: "40px",
+                textAlign: "center",
+                backgroundColor: "#fafafa",
+                borderRadius: "16px",
+                border: "1px dashed #ddd",
+              }}
+            >
+              <p style={{ color: "#666", fontSize: "14px", margin: 0 }}>
+                Customer reviews and ratings will be listed here.
+              </p>
+            </div>
+          )}
         </div>
 
         {/* EDIT PROFILE POPUP */}
@@ -888,7 +676,7 @@ export default function Profile({ user, setUser }) {
                       gap: "4px",
                     }}
                   >
-                    <Camera size={12} color="#007bff" /> Change Cover
+                    <Camera size={12} color="#00aa5b" /> Change Cover
                   </button>
                 </div>
               </div>
@@ -904,7 +692,7 @@ export default function Profile({ user, setUser }) {
                     onClick={() => profileInputRef.current.click()}
                     style={styles.modalCameraBtn}
                   >
-                    <Camera size={15} color="#007bff" />
+                    <Camera size={15} color="#00aa5b" />
                   </button>
                 </div>
               </div>
@@ -1016,9 +804,6 @@ export default function Profile({ user, setUser }) {
                       setProfile({ ...profile, about: e.target.value })
                     }
                   />
-                  <div style={styles.charCounter}>
-                    {profile.about.length}/200
-                  </div>
                 </div>
               </form>
             </div>
@@ -1051,8 +836,8 @@ const styles = {
   },
   desktopCoverWrapper: {
     position: "relative",
-    height: "240px",
-    backgroundColor: "#007bff",
+    height: "200px",
+    backgroundColor: "#00aa5b",
   },
   backBtn: {
     position: "absolute",
@@ -1071,7 +856,6 @@ const styles = {
     justifyContent: "center",
     cursor: "pointer",
     zIndex: 10,
-    transition: "all 0.2s ease",
   },
   coverImg: { width: "100%", height: "100%", objectFit: "cover" },
   desktopProfileBody: { padding: "0 35px" },
@@ -1079,145 +863,112 @@ const styles = {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "flex-end",
-    marginTop: "-60px",
+    marginTop: "-45px", // Adjusted so name sits nicely and isn't hidden by cover photo
     flexWrap: "wrap",
     gap: "20px",
   },
   desktopAvatarWrapper: { position: "relative" },
   desktopProfileImg: {
-    width: "130px",
-    height: "130px",
+    width: "120px",
+    height: "120px",
     borderRadius: "50%",
-    border: "5px solid #ffffff",
+    border: "4px solid #ffffff",
     objectFit: "cover",
     backgroundColor: "#eee",
     boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
   },
   desktopUserName: {
     margin: 0,
-    fontSize: "26px",
+    fontSize: "24px",
     fontWeight: "bold",
     color: "#111",
   },
-  desktopUserHandle: { margin: "2px 0 0 0", fontSize: "14px", color: "#666" },
-  desktopUserTagline: { margin: "4px 0 0 0", fontSize: "13px", color: "#444" },
+  desktopUserTagline: { margin: "2px 0 4px 0", fontSize: "14px", color: "#555" },
+  locationText: {
+    margin: 0,
+    fontSize: "12px",
+    color: "#777",
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+  },
   desktopActionBtns: { display: "flex", gap: "10px", alignItems: "center" },
-  desktopContactBar: {
-    marginTop: "20px",
-    paddingTop: "15px",
-    borderTop: "1px solid #f0f0f0",
-    display: "flex",
-    gap: "30px",
-    flexWrap: "wrap",
-  },
-  contactItem: {
-    fontSize: "13px",
-    color: "#444",
-    display: "flex",
-    alignItems: "center",
-    gap: "8px",
-    fontWeight: "500",
-  },
-  desktopGridColumns: {
-    display: "flex",
-    gap: "30px",
-    marginTop: "25px",
-    flexWrap: "wrap",
-  },
-  trustScoreBox: {
-    backgroundColor: "#eef6ff",
-    border: "1px solid #d0e3ff",
-    borderRadius: "16px",
-    padding: "16px 20px",
-    width: "280px",
-    boxSizing: "border-box",
-  },
-  trustIconWrapper: {
-    backgroundColor: "#007bff",
-    borderRadius: "10px",
-    padding: "8px",
-    display: "flex",
-  },
-  progressBarBg: {
-    width: "100%",
-    height: "8px",
-    backgroundColor: "#cce2ff",
-    borderRadius: "4px",
-    overflow: "hidden",
-  },
-  progressBarFill: { height: "100%", backgroundColor: "#007bff" },
-  statsGrid: {
-    display: "grid",
-    gridTemplateColumns: "1fr 1fr",
-    gap: "12px",
-    width: "280px",
-  },
-  statCard: {
-    backgroundColor: "#f9f9f9",
-    border: "1px solid #eeeeee",
-    borderRadius: "16px",
-    padding: "14px",
-    textAlign: "center",
-  },
-  statValRow: {
-    display: "flex",
-    alignItems: "center",
-    justifyContent: "center",
-    gap: "6px",
-  },
-  statNum: { fontSize: "18px", fontWeight: "bold", color: "#222" },
-  statLabel: { fontSize: "12px", color: "#777" },
   primaryBtn: {
-    backgroundColor: "#2563eb",
-    color: "#fff",
-    border: "none",
-    padding: "10px 20px",
-    borderRadius: "12px",
+    backgroundColor: "#e8f8f0", // Stats box eke thiyena light green background eka
+    color: "#00aa5b", // Green color text
+    border: "1px solid #c7e9d7", // Stats box eke border eka wageema
+    padding: "10px 18px",
+    borderRadius: "14px",
     fontWeight: "bold",
-    fontSize: "14px",
+    fontSize: "13px",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
     gap: "6px",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.02)",
   },
   secondaryBtn: {
-    backgroundColor: "#f0f2f5",
-    color: "#333",
-    border: "none",
-    padding: "10px 20px",
-    borderRadius: "12px",
+    backgroundColor: "#e8f8f0", // Eka wageema light green background eka
+    color: "#00aa5b", // Green color text
+    border: "1px solid #c7e9d7", // Border eka
+    padding: "10px 18px",
+    borderRadius: "14px",
     fontWeight: "bold",
-    fontSize: "14px",
+    fontSize: "13px",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
     gap: "6px",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.02)",
   },
-  iconBtn: {
-    backgroundColor: "#f0f2f5",
-    border: "none",
-    padding: "10px",
-    borderRadius: "12px",
-    cursor: "pointer",
+  
+  statsBarContainer: {
     display: "flex",
     alignItems: "center",
+    justifyContent: "space-around",
+    backgroundColor: "#e8f8f0",
+    border: "1px solid #c7e9d7",
+    borderRadius: "16px",
+    padding: "16px",
+    marginTop: "25px",
   },
+  statBox: { display: "flex", alignItems: "center", gap: "12px" },
+  statIconBg: {
+    backgroundColor: "#ffffff",
+    padding: "8px",
+    borderRadius: "12px",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.04)",
+    display: "flex",
+  },
+  statBoxVal: {
+    display: "block",
+    fontSize: "17px",
+    fontWeight: "bold",
+    color: "#111",
+  },
+  statBoxLbl: { display: "block", fontSize: "12px", color: "#666" },
+  statBoxDivider: { width: "1px", height: "32px", backgroundColor: "#c7e9d7" },
   desktopTabsRow: {
     display: "flex",
     borderBottom: "2px solid #f0f0f0",
-    gap: "10px",
+    gap: "20px",
+    marginTop: "25px",
   },
   desktopTabBtn: {
-    padding: "12px 20px",
+    padding: "10px 4px",
     border: "none",
     backgroundColor: "transparent",
     fontWeight: "bold",
     fontSize: "14px",
-    color: "#888",
+    color: "#777",
     cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    gap: "6px",
     borderBottom: "3px solid transparent",
+    marginBottom: "-2px",
   },
-  activeTabBtn: { color: "#007bff", borderBottom: "3px solid #007bff" },
+  activeTabBtn: { color: "#00aa5b", borderBottom: "3px solid #00aa5b" },
   desktopItemsGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
@@ -1233,23 +984,48 @@ const styles = {
   itemImgContainer: {
     position: "relative",
     width: "100%",
-    height: "160px",
+    height: "150px",
     backgroundColor: "#f8f9fa",
   },
   desktopItemImg: { width: "100%", height: "100%", objectFit: "cover" },
-  itemCategoryBadge: {
-    position: "absolute",
-    top: "10px",
-    left: "10px",
-    backgroundColor: "rgba(0, 123, 255, 0.9)",
-    color: "#fff",
-    fontSize: "10px",
+  badgeOverlay: { position: "absolute", top: "10px", left: "10px" },
+  itemPrice: {
+    fontSize: "15px",
     fontWeight: "bold",
-    padding: "4px 8px",
-    borderRadius: "6px",
-    textTransform: "uppercase",
+    color: "#00aa5b",
+    margin: "4px 0 10px 0",
   },
-  itemPrice: { fontSize: "15px", fontWeight: "bold", color: "#111", margin: 0 },
+  cardFooterMeta: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    borderTop: "1px solid #f0f0f0",
+    paddingTop: "8px",
+    marginBottom: "8px",
+  },
+  metaBadgeText: {
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+    fontSize: "11px",
+    color: "#666",
+  },
+  deleteBtn: {
+    width: "100%",
+    backgroundColor: "#fee2e2",
+    color: "#dc2626",
+    border: "none",
+    padding: "6px",
+    borderRadius: "8px",
+    fontSize: "12px",
+    fontWeight: "bold",
+    cursor: "pointer",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    gap: "5px",
+    transition: "background 0.2s",
+  },
   emptyState: {
     padding: "40px",
     textAlign: "center",
@@ -1301,7 +1077,7 @@ const styles = {
     cursor: "pointer",
   },
   topSaveBtn: {
-    backgroundColor: "#007bff",
+    backgroundColor: "#00aa5b",
     color: "#fff",
     border: "none",
     padding: "6px 16px",
@@ -1320,7 +1096,7 @@ const styles = {
     height: "90px",
     borderRadius: "50%",
     objectFit: "cover",
-    border: "3px solid #007bff",
+    border: "3px solid #00aa5b",
   },
   modalCameraBtn: {
     position: "absolute",
@@ -1376,57 +1152,5 @@ const styles = {
     minHeight: "80px",
     boxSizing: "border-box",
     fontFamily: "inherit",
-  },
-  charCounter: {
-    fontSize: "11px",
-    color: "#888",
-    textAlign: "right",
-    marginTop: "2px",
-  },
-  createPostCard: {
-    backgroundColor: "#fff",
-    border: "1px solid #eaeaea",
-    borderRadius: "16px",
-    padding: "16px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
-    marginBottom: "20px",
-  },
-  postInputBox: {
-    width: "100%",
-    border: "none",
-    outline: "none",
-    resize: "none",
-    fontSize: "14px",
-    fontFamily: "inherit",
-    minHeight: "50px",
-    paddingTop: "8px",
-  },
-  photoUploadBtn: {
-    background: "none",
-    border: "none",
-    display: "flex",
-    alignItems: "center",
-    gap: "6px",
-    fontWeight: "bold",
-    fontSize: "13px",
-    color: "#007bff",
-    cursor: "pointer",
-  },
-  postSubmitBtn: {
-    backgroundColor: "#007bff",
-    color: "#fff",
-    border: "none",
-    padding: "6px 20px",
-    borderRadius: "8px",
-    fontWeight: "bold",
-    fontSize: "13px",
-    cursor: "pointer",
-  },
-  feedCard: {
-    backgroundColor: "#fff",
-    border: "1px solid #eaeaea",
-    borderRadius: "16px",
-    padding: "16px",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.02)",
   },
 };

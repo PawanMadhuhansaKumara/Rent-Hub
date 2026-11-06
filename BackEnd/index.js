@@ -1113,3 +1113,51 @@ app.put('/api/items/status/:id', async (req, res) => {
     res.status(500).json({ success: false, message: 'Failed to update status.' });
   }
 });
+
+// DELETE ITEM ROUTE
+app.delete('/api/items/:id', async (req, res) => {
+  const itemId = req.params.id;
+  try {
+    await db.execute('DELETE FROM items WHERE id = ?', [itemId]);
+    res.status(200).json({ success: true, message: 'Item deleted successfully!' });
+  } catch (error) {
+    console.error('Delete Item Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to delete item.' });
+  }
+});
+
+// DELETE USER PROFILE ROUTE (සම්පූර්ණ දත්ත මකා දැමීම සඳහා)
+app.delete('/api/users/:id', async (req, res) => {
+  const userId = req.params.id;
+
+  try {
+    // 1. Cart එකේ ඇති දත්ත ඉවත් කිරීම
+    await db.execute('DELETE FROM cart WHERE user_id = ?', [userId]);
+
+    // 2. Rent requests ඉවත් කිරීම (Buyer හෝ Seller ලෙස)
+    await db.execute('DELETE FROM rent_requests WHERE buyer_id = ? OR seller_id = ?', [userId, userId]);
+
+    // 3. Conversations සහ Messages ඉවත් කිරීම
+    const [convs] = await db.execute('SELECT id FROM conversations WHERE buyer_id = ? OR seller_id = ?', [userId, userId]);
+    for (let conv of convs) {
+      await db.execute('DELETE FROM messages WHERE conversation_id = ?', [conv.id]);
+    }
+    await db.execute('DELETE FROM conversations WHERE buyer_id = ? OR seller_id = ?', [userId, userId]);
+
+    // 4. Posts සහ Items ඉවත් කිරීම
+    await db.execute('DELETE FROM posts WHERE user_id = ?', [userId]);
+    await db.execute('DELETE FROM items WHERE user_id = ?', [userId]);
+    
+    // 5. අවසානයේ පරිශීලකයාගේ ගිණුම (User Details) ඉවත් කිරීම
+    const [result] = await db.execute('DELETE FROM users_details WHERE user_id = ?', [userId]);
+
+    if (result.affectedRows === 0) {
+      return res.status(404).json({ success: false, message: 'User not found.' });
+    }
+
+    res.status(200).json({ success: true, message: 'Profile deleted successfully!' });
+  } catch (error) {
+    console.error('Delete Profile Error:', error);
+    res.status(500).json({ success: false, message: 'Server error while deleting profile: ' + error.message });
+  }
+});
