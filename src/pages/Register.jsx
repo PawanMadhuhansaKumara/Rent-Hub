@@ -1,6 +1,7 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { UserPlus, Camera, CheckCircle2, ArrowLeft } from "lucide-react";
 import "../responsive.css";
 
 export default function Register() {
@@ -64,12 +65,12 @@ export default function Register() {
     setErrorMsg("");
 
     if (formData.password !== formData.confirm_password) {
-      setErrorMsg(t("register.passwordMismatch"));
+      setErrorMsg(t("register.passwordMismatch") || "Passwords do not match.");
       return;
     }
 
     if (!files.profile_pic || !files.nic_photo_front || !files.nic_photo_back) {
-      setErrorMsg(t("register.photosRequired"));
+      setErrorMsg(t("register.photosRequired") || "Profile picture and both NIC photos are required.");
       return;
     }
 
@@ -94,15 +95,14 @@ export default function Register() {
       const data = await response.json();
 
       if (response.ok && data.success) {
-        alert(t("register.registrationSuccess"));
+        alert(t("register.registrationSuccess") || "Registration Successful!");
         navigate("/login");
       } else {
-        setErrorMsg(data.message || t("register.registrationFailed"));
+        setErrorMsg(data.message || t("register.registrationFailed") || "Registration failed.");
       }
     } catch (err) {
       console.error("Fetch error:", err);
-
-      setErrorMsg(t("register.serverError"));
+      setErrorMsg(t("register.serverError") || "Server connection error occurred.");
     } finally {
       setLoading(false);
     }
@@ -111,15 +111,24 @@ export default function Register() {
   return (
     <div className="register-container" style={styles.container}>
       <div className="register-card" style={styles.card}>
-        <h2 style={styles.title}>{t("register.title")}</h2>
+        {/* Top Header & Back Button */}
+        <div style={styles.headerBox}>
+          <button onClick={() => navigate("/")} style={styles.backBtn} title="Back to Home">
+            <ArrowLeft size={18} color="#00aa5b" />
+          </button>
+          <div style={styles.brandBadge}>
+            <CheckCircle2 size={16} color="#00aa5b" />
+            <span style={{ color: "#00aa5b", fontWeight: "bold", fontSize: "12px" }}>RentHub Community</span>
+          </div>
+        </div>
 
-        <p style={styles.subtitle}>{t("register.subtitle")}</p>
+        <h2 style={styles.title}>{t("register.title") || "Create New Account"}</h2>
+        <p style={styles.subtitle}>{t("register.subtitle") || "Join RentHub to rent or list your items easily"}</p>
 
         {errorMsg && <div style={styles.errorAlert}>{errorMsg}</div>}
 
         <form onSubmit={handleSubmit} style={styles.form}>
-          {/* ------------------- TOP CENTER PROFILE PIC UPLOAD ------------------- */}
-
+          {/* ------------------- PROFILE PIC UPLOAD (WITH USERPLUS & CAMERA ICON) ------------------- */}
           <div style={styles.profileSection}>
             <label htmlFor="profile_pic_input" style={styles.avatarLabel}>
               <div style={styles.avatarContainer}>
@@ -131,20 +140,16 @@ export default function Register() {
                   />
                 ) : (
                   <div style={styles.avatarPlaceholder}>
-                    <span style={{ fontSize: "28px" }}>📷</span>
-
-                    <span
-                      style={{
-                        fontSize: "11px",
-                        marginTop: "4px",
-                      }}
-                    >
-                      {t("register.addPhoto")}
+                    <UserPlus size={36} color="#00aa5b" />
+                    <span style={{ fontSize: "11px", marginTop: "4px", fontWeight: "600", color: "#00aa5b" }}>
+                      Add Photo
                     </span>
                   </div>
                 )}
 
-                <div style={styles.badgeOverlay}>✏️</div>
+                <div style={styles.badgeOverlay}>
+                  <Camera size={13} color="#fff" />
+                </div>
               </div>
             </label>
 
@@ -159,19 +164,17 @@ export default function Register() {
             />
 
             <span style={styles.profileHelpText}>
-              {t("register.profilePicture")}
+              {t("register.profilePicture") || "Upload profile picture"}
             </span>
           </div>
 
           {/* Full Name */}
-
           <div style={styles.inputGroup}>
-            <label style={styles.label}>{t("register.fullName")}</label>
-
+            <label style={styles.label}>{t("register.fullName") || "Full Name"}</label>
             <input
               type="text"
               name="full_name"
-              placeholder={t("register.fullNamePlaceholder")}
+              placeholder={t("register.fullNamePlaceholder") || "e.g. Pawan Madhuhansa"}
               value={formData.full_name}
               onChange={handleChange}
               required
@@ -180,20 +183,13 @@ export default function Register() {
           </div>
 
           {/* Phone Number & NIC */}
-
           <div className="register-row" style={styles.row}>
-            <div
-              style={{
-                ...styles.inputGroup,
-                flex: 1,
-              }}
-            >
-              <label style={styles.label}>{t("register.phoneNumber")}</label>
-
+            <div style={{ ...styles.inputGroup, flex: 1 }}>
+              <label style={styles.label}>{t("register.phoneNumber") || "Phone Number"}</label>
               <input
                 type="tel"
                 name="phone_no"
-                placeholder={t("register.phonePlaceholder")}
+                placeholder={t("register.phonePlaceholder") || "07X XXXXXXX"}
                 value={formData.phone_no}
                 onChange={handleChange}
                 required
@@ -201,18 +197,12 @@ export default function Register() {
               />
             </div>
 
-            <div
-              style={{
-                ...styles.inputGroup,
-                flex: 1,
-              }}
-            >
-              <label style={styles.label}>{t("register.nicNumber")}</label>
-
+            <div style={{ ...styles.inputGroup, flex: 1 }}>
+              <label style={styles.label}>{t("register.nicNumber") || "NIC Number"}</label>
               <input
                 type="text"
                 name="nic_no"
-                placeholder={t("register.nicPlaceholder")}
+                placeholder={t("register.nicPlaceholder") || "e.g. 200012345678"}
                 value={formData.nic_no}
                 onChange={handleChange}
                 required
@@ -222,14 +212,12 @@ export default function Register() {
           </div>
 
           {/* Email */}
-
           <div style={styles.inputGroup}>
-            <label style={styles.label}>{t("register.email")}</label>
-
+            <label style={styles.label}>{t("register.email") || "Email Address"}</label>
             <input
               type="email"
               name="email"
-              placeholder={t("register.emailPlaceholder")}
+              placeholder={t("register.emailPlaceholder") || "example@mail.com"}
               value={formData.email}
               onChange={handleChange}
               style={styles.input}
@@ -237,39 +225,27 @@ export default function Register() {
           </div>
 
           {/* Address */}
-
           <div style={styles.inputGroup}>
-            <label style={styles.label}>{t("register.address")}</label>
-
+            <label style={styles.label}>{t("register.address") || "Residential Address"}</label>
             <textarea
               name="address"
-              placeholder={t("register.addressPlaceholder")}
+              placeholder={t("register.addressPlaceholder") || "No. 12, Main Street, City"}
               value={formData.address}
               onChange={handleChange}
               required
               rows="2"
-              style={{
-                ...styles.input,
-                resize: "vertical",
-              }}
+              style={{ ...styles.input, resize: "vertical" }}
             />
           </div>
 
           {/* Nearest City & Role */}
-
           <div className="register-row" style={styles.row}>
-            <div
-              style={{
-                ...styles.inputGroup,
-                flex: 1,
-              }}
-            >
-              <label style={styles.label}>{t("register.nearestCity")}</label>
-
+            <div style={{ ...styles.inputGroup, flex: 1 }}>
+              <label style={styles.label}>{t("register.nearestCity") || "Nearest City"}</label>
               <input
                 type="text"
                 name="nearest_city"
-                placeholder={t("register.cityPlaceholder")}
+                placeholder={t("register.cityPlaceholder") || "e.g. Colombo"}
                 value={formData.nearest_city}
                 onChange={handleChange}
                 required
@@ -277,44 +253,29 @@ export default function Register() {
               />
             </div>
 
-            <div
-              style={{
-                ...styles.inputGroup,
-                flex: 1,
-              }}
-            >
-              <label style={styles.label}>{t("register.accountType")}</label>
-
+            <div style={{ ...styles.inputGroup, flex: 1 }}>
+              <label style={styles.label}>{t("register.accountType") || "Account Type"}</label>
               <select
                 name="user_role"
                 value={formData.user_role}
                 onChange={handleChange}
                 style={styles.input}
               >
-                <option value="both">{t("register.both")}</option>
-
-                <option value="renter">{t("register.renter")}</option>
-
-                <option value="owner">{t("register.owner")}</option>
+                <option value="both">{t("register.both") || "Both (Rent & Buy)"}</option>
+                <option value="renter">{t("register.renter") || "Renter"}</option>
+                <option value="owner">{t("register.owner") || "Item Owner"}</option>
               </select>
             </div>
           </div>
 
           {/* ------------------- NIC DOCUMENTS SECTION ------------------- */}
-
           <div style={styles.sectionHeader}>
-            {t("register.verificationDocuments")}
+            {t("register.verificationDocuments") || "Verification Documents (NIC Photos)"}
           </div>
 
           <div className="register-row" style={styles.row}>
-            <div
-              style={{
-                ...styles.inputGroup,
-                flex: 1,
-              }}
-            >
-              <label style={styles.label}>{t("register.nicFront")}</label>
-
+            <div style={{ ...styles.inputGroup, flex: 1 }}>
+              <label style={styles.label}>{t("register.nicFront") || "NIC Front Photo"}</label>
               <input
                 type="file"
                 name="nic_photo_front"
@@ -323,7 +284,6 @@ export default function Register() {
                 required
                 style={styles.fileInput}
               />
-
               {previews.nic_photo_front && (
                 <img
                   src={previews.nic_photo_front}
@@ -333,14 +293,8 @@ export default function Register() {
               )}
             </div>
 
-            <div
-              style={{
-                ...styles.inputGroup,
-                flex: 1,
-              }}
-            >
-              <label style={styles.label}>{t("register.nicBack")}</label>
-
+            <div style={{ ...styles.inputGroup, flex: 1 }}>
+              <label style={styles.label}>{t("register.nicBack") || "NIC Back Photo"}</label>
               <input
                 type="file"
                 name="nic_photo_back"
@@ -349,7 +303,6 @@ export default function Register() {
                 required
                 style={styles.fileInput}
               />
-
               {previews.nic_photo_back && (
                 <img
                   src={previews.nic_photo_back}
@@ -361,16 +314,9 @@ export default function Register() {
           </div>
 
           {/* Passwords */}
-
           <div className="register-row" style={styles.row}>
-            <div
-              style={{
-                ...styles.inputGroup,
-                flex: 1,
-              }}
-            >
-              <label style={styles.label}>{t("register.password")}</label>
-
+            <div style={{ ...styles.inputGroup, flex: 1 }}>
+              <label style={styles.label}>{t("register.password") || "Password"}</label>
               <input
                 type="password"
                 name="password"
@@ -382,16 +328,8 @@ export default function Register() {
               />
             </div>
 
-            <div
-              style={{
-                ...styles.inputGroup,
-                flex: 1,
-              }}
-            >
-              <label style={styles.label}>
-                {t("register.confirmPassword")}
-              </label>
-
+            <div style={{ ...styles.inputGroup, flex: 1 }}>
+              <label style={styles.label}>{t("register.confirmPassword") || "Confirm Password"}</label>
               <input
                 type="password"
                 name="confirm_password"
@@ -405,14 +343,14 @@ export default function Register() {
           </div>
 
           <button type="submit" disabled={loading} style={styles.submitBtn}>
-            {loading ? t("register.uploading") : t("register.registerButton")}
+            {loading ? (t("register.uploading") || "Creating Account...") : (t("register.registerButton") || "Create Account")}
           </button>
         </form>
 
         <div style={styles.footerText}>
-          {t("register.alreadyAccount")}{" "}
+          {t("register.alreadyAccount") || "Already have an account?"}{" "}
           <Link to="/login" style={styles.link}>
-            {t("register.login")}
+            {t("register.login") || "Log In"}
           </Link>
         </div>
       </div>
@@ -427,35 +365,63 @@ const styles = {
     alignItems: "center",
     minHeight: "100vh",
     padding: "40px 20px",
-    backgroundColor: "#f0f4f8",
-    background: "linear-gradient(135deg, #f0f4f8 0%, #e2e8f0 100%)",
+    backgroundColor: "#f4f6f8",
   },
 
   card: {
     width: "100%",
     maxWidth: "620px",
     padding: "40px 36px",
-    borderRadius: "20px",
-    boxShadow: "0 12px 36px rgba(15, 23, 42, 0.08), 0 2px 6px rgba(15, 23, 42, 0.04)",
+    borderRadius: "24px",
+    boxShadow: "0 6px 25px rgba(0,0,0,0.06)",
     backgroundColor: "#ffffff",
-    border: "1px solid rgba(226, 232, 240, 0.8)",
+    border: "1px solid #eaeaea",
+    boxSizing: "border-box",
+  },
+
+  headerBox: {
+    position: "relative",
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "16px",
+  },
+
+  backBtn: {
+    backgroundColor: "#e8f8f0",
+    border: "1px solid #c7e9d7",
+    borderRadius: "50%",
+    width: "36px",
+    height: "36px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+  },
+
+  brandBadge: {
+    display: "inline-flex",
+    alignItems: "center",
+    gap: "6px",
+    backgroundColor: "#e8f8f0",
+    border: "1px solid #c7e9d7",
+    padding: "5px 14px",
+    borderRadius: "20px",
   },
 
   title: {
-    marginBottom: "6px",
-    fontSize: "26px",
+    margin: "0 0 6px 0",
+    fontSize: "24px",
     fontWeight: "700",
-    color: "#0f172a",
+    color: "#111",
     textAlign: "center",
-    letterSpacing: "-0.3px",
   },
 
   subtitle: {
     marginBottom: "24px",
-    color: "#64748b",
-    fontSize: "14px",
+    color: "#666",
+    fontSize: "13px",
     textAlign: "center",
-    lineHeight: "1.5",
   },
 
   profileSection: {
@@ -471,22 +437,23 @@ const styles = {
 
   avatarContainer: {
     position: "relative",
-    width: "104px",
-    height: "104px",
+    width: "100px",
+    height: "100px",
     borderRadius: "50%",
-    overflow: "hidden",
-    border: "3px solid #3b82f6",
-    backgroundColor: "#f8fafc",
+    overflow: "visible",
+    border: "3px solid #00aa5b",
+    backgroundColor: "#e8f8f0",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    boxShadow: "0 4px 14px rgba(59, 130, 246, 0.2)",
+    boxShadow: "0 4px 14px rgba(0, 170, 91, 0.2)",
     transition: "all 0.25s ease",
   },
 
   avatarImage: {
     width: "100%",
     height: "100%",
+    borderRadius: "50%",
     objectFit: "cover",
   },
 
@@ -494,45 +461,47 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    color: "#94a3b8",
+    color: "#00aa5b",
   },
 
   badgeOverlay: {
     position: "absolute",
-    bottom: "0",
-    width: "100%",
-    backgroundColor: "rgba(30, 41, 59, 0.75)",
-    backdropFilter: "blur(2px)",
+    bottom: "2px",
+    right: "2px",
+    backgroundColor: "#00aa5b",
     color: "#fff",
-    textAlign: "center",
-    fontSize: "11px",
-    padding: "3px 0",
+    borderRadius: "50%",
+    width: "28px",
+    height: "28px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
   },
 
   profileHelpText: {
     marginTop: "8px",
-    fontSize: "13px",
+    fontSize: "12px",
     fontWeight: "600",
-    color: "#2563eb",
-    letterSpacing: "0.2px",
+    color: "#555",
   },
 
   errorAlert: {
-    backgroundColor: "#fef2f2",
-    color: "#ef4444",
+    backgroundColor: "#fee2e2",
+    color: "#dc2626",
     padding: "12px 16px",
     borderRadius: "10px",
     marginBottom: "18px",
-    fontSize: "13.5px",
+    fontSize: "13px",
     textAlign: "center",
     border: "1px solid #fecaca",
-    fontWeight: "500",
+    fontWeight: "600",
   },
 
   form: {
     display: "flex",
     flexDirection: "column",
-    gap: "18px",
+    gap: "16px",
   },
 
   row: {
@@ -549,83 +518,82 @@ const styles = {
 
   label: {
     display: "block",
-    marginBottom: "6px",
-    fontSize: "13px",
-    fontWeight: "600",
-    color: "#334155",
+    marginBottom: "5px",
+    fontSize: "12px",
+    fontWeight: "bold",
+    color: "#555",
   },
 
   input: {
     width: "100%",
-    padding: "11px 14px",
+    padding: "10px 12px",
     borderRadius: "10px",
-    border: "1.5px solid #cbd5e1",
+    border: "1px solid #ddd",
     boxSizing: "border-box",
     fontSize: "14px",
     fontFamily: "inherit",
     outline: "none",
-    color: "#1e293b",
-    backgroundColor: "#f8fafc",
+    color: "#222",
+    backgroundColor: "#fcfdfe",
     transition: "all 0.2s ease-in-out",
   },
 
   fileInput: {
     width: "100%",
     padding: "10px 12px",
-    fontSize: "12.5px",
-    border: "1.5px dashed #93c5fd",
+    fontSize: "12px",
+    border: "1px dashed #00aa5b",
     borderRadius: "10px",
-    backgroundColor: "#eff6ff",
-    color: "#1e40af",
+    backgroundColor: "#e8f8f0",
+    color: "#00aa5b",
     cursor: "pointer",
     boxSizing: "border-box",
   },
 
   sectionHeader: {
-    fontSize: "12.5px",
-    fontWeight: "700",
-    color: "#2563eb",
+    fontSize: "12px",
+    fontWeight: "bold",
+    color: "#00aa5b",
     textTransform: "uppercase",
-    letterSpacing: "0.8px",
-    borderBottom: "1.5px solid #e2e8f0",
-    paddingBottom: "8px",
-    marginTop: "8px",
+    letterSpacing: "0.6px",
+    borderBottom: "1px solid #eaeaea",
+    paddingBottom: "6px",
+    marginTop: "6px",
   },
 
   imagePreviewCard: {
     width: "100%",
-    maxHeight: "110px",
+    maxHeight: "100px",
     borderRadius: "8px",
     objectFit: "cover",
-    marginTop: "10px",
-    border: "1px solid #bfdbfe",
-    boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
+    marginTop: "8px",
+    border: "1px solid #c7e9d7",
   },
 
   submitBtn: {
-    padding: "13px 20px",
-    backgroundColor: "#2563eb",
+    padding: "12px 20px",
+    backgroundColor: "#00aa5b",
     color: "#ffffff",
     border: "none",
-    borderRadius: "10px",
-    fontSize: "15px",
-    fontWeight: "600",
+    borderRadius: "12px",
+    fontSize: "14px",
+    fontWeight: "bold",
     cursor: "pointer",
     marginTop: "10px",
-    boxShadow: "0 4px 12px rgba(37, 99, 235, 0.25)",
+    boxShadow: "0 4px 12px rgba(0, 170, 91, 0.25)",
     transition: "all 0.2s ease-in-out",
   },
 
   footerText: {
-    marginTop: "24px",
-    fontSize: "14px",
-    color: "#64748b",
+    marginTop: "20px",
+    fontSize: "13px",
+    color: "#666",
     textAlign: "center",
   },
 
   link: {
-    color: "#2563eb",
-    fontWeight: "600",
+    color: "#00aa5b",
+    fontWeight: "bold",
     textDecoration: "none",
     marginLeft: "4px",
   },
