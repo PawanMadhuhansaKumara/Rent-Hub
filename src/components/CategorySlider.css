@@ -1,0 +1,37 @@
+
+.category-slider {
+  display: flex;
+  gap: 12px;
+  overflow-x: auto;
+  padding: 15px 0;
+  margin-bottom: 15px;
+  white-space: nowrap;
+  scrollbar-width: none;
+}
+
+.category-slider::-webkit-scrollbar {
+  display: none;
+}
+
+.category-btn {
+  flex-shrink: 0;
+  padding: 10px 22px;
+  border: 1px solid #ddd;
+  border-radius: 25px;
+  background: white;
+  color: #333;
+  cursor: pointer;
+  font-size: 14px;
+  transition: 0.2s;
+}
+
+.category-btn:hover {
+  border-color: #168342;
+  color: #168342;
+}
+
+.category-btn.active {
+  background: #168342;
+  color: white;
+  border-color: #168342;
+}

@@ -3,6 +3,7 @@ import { Link, useLocation } from "react-router-dom";
 import "./Home.css";
 import SearchBar from "../components/SearchBar";
 import ItemCard from "../components/ItemCard";
+import CategorySlider from "../components/CategorySlider";
 
 const API_URL = "http://localhost:5001/api/items";
 
@@ -13,6 +14,8 @@ export default function Home() {
   const [searchTerm, setSearchTerm] = useState("");
   const searchInputRef = useRef(null);
   const location = useLocation();
+
+  
 
   // Focus search input when coming with focusSearch state
   useEffect(() => {
@@ -31,8 +34,28 @@ export default function Home() {
       const timer = setTimeout(focusSearch, 150);
       return () => clearTimeout(timer);
     }
+    
   }, [location.state]);
+   
+  //Filter item
+  const [selectedCategory, setSelectedCategory] = useState("All");
+   
 
+const filteredItems = items.filter((item) => {
+  const matchesSearch =
+    item.title?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    item.category?.toLowerCase().includes(searchTerm.toLowerCase());
+
+  const matchesCategory =
+    selectedCategory === "All" ||
+    item.category === selectedCategory;
+
+  return matchesSearch && matchesCategory;
+});
+ 
+ 
+  
+  
   useEffect(() => {
     fetch(API_URL)
       .then((response) => {
@@ -46,39 +69,54 @@ export default function Home() {
       .finally(() => setLoading(false));
   }, []);
 
-  const filteredItems = items.filter((item) => {
+ /* const filteredItems = items.filter((item) => {
     const search = searchTerm.toLowerCase();
 
     return (
       (item.title || "").toLowerCase().includes(search) ||
       (item.category || "").toLowerCase().includes(search)
     );
-  });
+  });*/
+   
+
 
   return (
     <main className="items-page">
-      <SearchBar
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-        searchInputRef={searchInputRef}
-      />
 
-      {/* Rental Items Section */}
-      <section id="rental-items" className="rental-section">
-        {loading ? (
-          <p className="items-message">Loading items...</p>
-        ) : error ? (
-          <p className="items-message error-message">{error}</p>
-        ) : filteredItems.length === 0 ? (
-          <p className="items-message">No items found. Try another search.</p>
-        ) : (
-          <div className="items-grid">
-            {filteredItems.map((item) => (
-              <ItemCard key={item.id} item={item} />
-            ))}
-          </div>
-        )}
-      </section>
+  {/* Search Bar */}
+  <SearchBar
+    searchTerm={searchTerm}
+    setSearchTerm={setSearchTerm}
+    searchInputRef={searchInputRef}
+  />
+
+  {/* Category Slider */}
+  <CategorySlider
+    selectedCategory={selectedCategory}
+    setSelectedCategory={setSelectedCategory}
+  />
+
+  {/* Rental Items Section */}
+  <section id="rental-items" className="rental-section">
+    {loading ? (
+      <p className="items-message">Loading items...</p>
+    ) : error ? (
+      <p className="items-message error-message">{error}</p>
+    ) : filteredItems.length === 0 ? (
+      <p className="items-message">No items found. Try another search.</p>
+    ) : (
+      <div className="items-grid">
+        {filteredItems.map((item) => (
+          <ItemCard key={item.id} item={item} />
+        ))}
+      </div>
+    )}
+  </section>
+
+      
+
+     
+      
       {/* Professional Hero Section */}
       <section className="hero-section">
         <div className="hero-content">
