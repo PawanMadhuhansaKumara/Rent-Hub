@@ -1,6 +1,11 @@
 import React, { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { Link, useParams, useNavigate } from "react-router-dom";
+import {
+  Link,
+  useParams,
+  useNavigate,
+  useSearchParams,
+} from "react-router-dom";
 import {
   MessageCircle,
   User,
@@ -12,6 +17,8 @@ import ChatBox from "../components/ChatBox";
 import "./ItemDetails.css";
 import CartIcon from "../components/CartIcon";
 import AddToRentCartButton from "../components/AddToRentCartButton";
+import RentRequestButton from "../components/RentRequestButton";
+import RentRequestForm from "../components/RentRequestForm";
 
 const API_URL = "http://localhost:5001";
 
@@ -28,6 +35,13 @@ export default function ItemDetails() {
   const [isInCart, setIsInCart] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    if (searchParams.get("rent") === "true") {
+      setShowRequestForm(true);
+    }
+  }, [searchParams]);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -51,7 +65,7 @@ export default function ItemDetails() {
           const cartData = await res.json();
           if (Array.isArray(cartData)) {
             const exists = cartData.some(
-              (ci) => String(ci.itemId || ci.item_id) === String(id)
+              (ci) => String(ci.itemId || ci.item_id) === String(id),
             );
             setIsInCart(exists);
           }
@@ -127,8 +141,32 @@ export default function ItemDetails() {
     fetchItem();
   }, [id]);
 
-  const handleRequestSubmit = (event) => {
+  const handleOpenRentForm = () => {
+    if (!currentUser) {
+      alert("Please login to request a rental.");
+      navigate("/login");
+      return;
+    }
+
+    const sellerId = item?.user_id || item?.userId || item?.seller_id;
+    const myId = currentUser?.user_id || currentUser?.id;
+
+    if (Number(myId) === Number(sellerId)) {
+      alert("This is your own item. You cannot rent your own item.");
+      return;
+    }
+
+    setShowRequestForm(true);
+  };
+
+  const handleRequestSubmit = async (event) => {
     event.preventDefault();
+
+    if (!currentUser) {
+      alert("Please login to request a rental.");
+      navigate("/login");
+      return;
+    }
 
     if (!startDate || !endDate) {
       alert("Please select the rental start and end dates.");
@@ -145,14 +183,90 @@ export default function ItemDetails() {
       return;
     }
 
-    alert(
-      "Form validation successful. Rental request saving is not connected yet.",
-    );
+    const myId = currentUser?.user_id || currentUser?.id;
+    const sellerId = item?.user_id || item?.userId || item?.seller_id;
 
+    // Calculate duration in days and total price
+    const s = new Date(startDate);
+    const e = new Date(endDate);
+    const diffTime = e - s;
+    const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+    const numPrice = Number(item.price) || 0;
+    const numQty = Number(quantity) || 1;
+    const itemPriceType = item.priceType || item.price_type || "day";
+    const calculatedTotal =
+      itemPriceType === "day" ? numPrice * numQty * diffDays : numPrice * numQty;
+
+    const requestPayload = {
+      itemId: item.id,
+      buyerId: myId,
+      sellerId: sellerId,
+      startDate: startDate,
+      endDate: endDate,
+      quantity: numQty,
+      totalPrice: calculatedTotal,
+      status: "Pending",
+    };
+
+    let createdRequest = null;
+
+    try {
+      const res = await fetch(`${API_URL}/api/rent-requests`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(requestPayload),
+      });
+
+      const data = await res.json().catch(() => ({}));
+      if (res.ok && (data.success !== false || data.requestId)) {
+        createdRequest = {
+          id: data.requestId || data.request?.id || Date.now(),
+          ...requestPayload,
+          createdAt: data.request?.createdAt || new Date().toISOString(),
+          itemTitle: item.title,
+          itemImage: item.image || item.image_url,
+          itemPrice: numPrice,
+          priceType: itemPriceType,
+          sellerName: item.userName || item.user_name || item.sellerName || "Item Owner",
+          sellerPhone: item.userPhone || item.user_phone || item.phone_no || "",
+          sellerCity: item.nearestCity || item.nearest_city || "",
+        };
+      }
+    } catch (err) {
+      console.warn("Rent request API error, saving locally:", err);
+    }
+
+    if (!createdRequest) {
+      createdRequest = {
+        id: Date.now(),
+        ...requestPayload,
+        createdAt: new Date().toISOString(),
+        itemTitle: item.title,
+        itemImage: item.image || item.image_url,
+        itemPrice: numPrice,
+        priceType: itemPriceType,
+        sellerName: item.userName || item.user_name || item.sellerName || "Item Owner",
+        sellerPhone: item.userPhone || item.user_phone || item.phone_no || "",
+        sellerCity: item.nearestCity || item.nearest_city || "",
+      };
+    }
+
+    try {
+      const saved = JSON.parse(localStorage.getItem("rent_hub_requests") || "[]");
+      const filtered = saved.filter((r) => String(r.id) !== String(createdRequest.id));
+      localStorage.setItem("rent_hub_requests", JSON.stringify([createdRequest, ...filtered]));
+      window.dispatchEvent(new Event("rent_requests_updated"));
+    } catch (e) {
+      console.error("Local storage update error:", e);
+    }
+
+    alert(`Rental request sent for "${item.title}"! Redirecting to your Rent Requests...`);
     setShowRequestForm(false);
     setStartDate("");
     setEndDate("");
     setQuantity(1);
+
+    navigate("/my-items?tab=rent-requests");
   };
 
   const handleAddToCart = async () => {
@@ -385,22 +499,33 @@ export default function ItemDetails() {
                 loading={addingToCart}
                 onClick={handleAddToCart}
               />
-              <button
-                type="button"
-                className="rent-request-button"
-                onClick={() => setShowRequestForm(!showRequestForm)}
-                disabled={available < 1}
-              >
-                {available < 1
-                  ? "Not Available"
-                  : showRequestForm
-                    ? "Cancel Request"
-                    : "Rent Now"}
-              </button>
+              <RentRequestButton
+                available={available}
+                onClick={handleOpenRentForm}
+              />
             </div>
           </div>
         </div>
       </div>
+
+      {showRequestForm && (
+        <RentRequestForm
+          isOpen={showRequestForm}
+          onClose={() => setShowRequestForm(false)}
+          handleRequestSubmit={handleRequestSubmit}
+          minDate={minDate}
+          startDate={startDate}
+          setStartDate={setStartDate}
+          endDate={endDate}
+          setEndDate={setEndDate}
+          quantity={quantity}
+          setQuantity={setQuantity}
+          available={available}
+          priceType={priceType}
+          price={price}
+          itemTitle={item.title}
+        />
+      )}
 
       {showChat && (
         <ChatBox

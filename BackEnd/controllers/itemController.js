@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const db = require("../config/db");
 
 // GET ALL ITEMS (Home page & Item Details)
 exports.getAllItems = async (req, res) => {
@@ -13,8 +13,8 @@ exports.getAllItems = async (req, res) => {
       LEFT JOIN users_details u ON items.user_id = u.user_id
       ORDER BY items.created_at DESC
     `);
-    
-    const formattedItems = rows.map(item => ({
+
+    const formattedItems = rows.map((item) => ({
       id: item.id,
       title: item.title,
       category: item.category,
@@ -32,13 +32,16 @@ exports.getAllItems = async (req, res) => {
       user_profile_pic: item.user_profile_pic || null,
       nearestCity: item.nearest_city || null,
       nearest_city: item.nearest_city || null,
-      createdAt: item.created_at
+      createdAt: item.created_at,
     }));
 
     res.status(200).json(formattedItems);
   } catch (error) {
-    console.error('Fetch Items Error:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch items from database.' });
+    console.error("Fetch Items Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch items from database.",
+    });
   }
 };
 
@@ -46,9 +49,12 @@ exports.getAllItems = async (req, res) => {
 exports.getUserItems = async (req, res) => {
   const userId = req.params.userId;
   try {
-    const [rows] = await db.execute('SELECT * FROM items WHERE user_id = ? ORDER BY created_at DESC', [userId]);
-    
-    const formattedItems = rows.map(item => ({
+    const [rows] = await db.execute(
+      "SELECT * FROM items WHERE user_id = ? ORDER BY created_at DESC",
+      [userId],
+    );
+
+    const formattedItems = rows.map((item) => ({
       id: item.id,
       title: item.title,
       category: item.category,
@@ -57,26 +63,32 @@ exports.getUserItems = async (req, res) => {
       priceType: item.price_type,
       description: item.description,
       image: item.image_url,
-      available: item.available_qty
+      available: item.available_qty,
     }));
 
     res.status(200).json(formattedItems);
   } catch (error) {
-    console.error('Fetch User Items Error:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch items.' });
+    console.error("Fetch User Items Error:", error);
+    res.status(500).json({ success: false, message: "Failed to fetch items." });
   }
 };
 
 // ADD NEW ITEM WITH IMAGE FILE UPLOAD
 exports.addItem = async (req, res) => {
-  const { title, category, condition, price, priceType, description, userId } = req.body;
+  const { title, category, condition, price, priceType, description, userId } =
+    req.body;
 
   if (!title || !price || !category) {
-    return res.status(400).json({ success: false, message: 'Title, category, and price are required.' });
+    return res.status(400).json({
+      success: false,
+      message: "Title, category, and price are required.",
+    });
   }
 
   try {
-    const image_url = req.file ? `/uploads/${req.file.filename}` : '/uploads/default-item.png';
+    const image_url = req.file
+      ? `/uploads/${req.file.filename}`
+      : "/uploads/default-item.png";
 
     const query = `
       INSERT INTO items (title, category, \`condition\`, price, price_type, description, image_url, user_id) 
@@ -86,25 +98,26 @@ exports.addItem = async (req, res) => {
     const values = [
       title,
       category,
-      condition || 'Good',
+      condition || "Good",
       price,
-      priceType || 'day',
-      description || '',
+      priceType || "day",
+      description || "",
       image_url,
-      userId || null
+      userId || null,
     ];
 
     const [result] = await db.execute(query, values);
 
     res.status(201).json({
       success: true,
-      message: 'Item added successfully!',
-      itemId: result.insertId
+      message: "Item added successfully!",
+      itemId: result.insertId,
     });
-
   } catch (error) {
-    console.error('Add Item Error:', error);
-    res.status(500).json({ success: false, message: 'Server error while saving the item.' });
+    console.error("Add Item Error:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Server error while saving the item." });
   }
 };
 
@@ -114,11 +127,18 @@ exports.updateStatus = async (req, res) => {
   const { available } = req.body;
 
   try {
-    await db.execute('UPDATE items SET available_qty = ? WHERE id = ?', [available, itemId]);
-    res.status(200).json({ success: true, message: 'Status updated successfully!' });
+    await db.execute("UPDATE items SET available_qty = ? WHERE id = ?", [
+      available,
+      itemId,
+    ]);
+    res
+      .status(200)
+      .json({ success: true, message: "Status updated successfully!" });
   } catch (error) {
-    console.error('Update Status Error:', error);
-    res.status(500).json({ success: false, message: 'Failed to update status.' });
+    console.error("Update Status Error:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to update status." });
   }
 };
 
@@ -126,10 +146,12 @@ exports.updateStatus = async (req, res) => {
 exports.deleteItem = async (req, res) => {
   const itemId = req.params.id;
   try {
-    await db.execute('DELETE FROM items WHERE id = ?', [itemId]);
-    res.status(200).json({ success: true, message: 'Item deleted successfully!' });
+    await db.execute("DELETE FROM items WHERE id = ?", [itemId]);
+    res
+      .status(200)
+      .json({ success: true, message: "Item deleted successfully!" });
   } catch (error) {
-    console.error('Delete Item Error:', error);
-    res.status(500).json({ success: false, message: 'Failed to delete item.' });
+    console.error("Delete Item Error:", error);
+    res.status(500).json({ success: false, message: "Failed to delete item." });
   }
 };

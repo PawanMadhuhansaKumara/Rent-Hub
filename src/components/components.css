@@ -598,6 +598,243 @@
   border-color: #166534 !important;
 }
 
+/* Rent Request button */
+.rent-request-button {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 48px;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 9px;
+  background: #15803d;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+
+.rent-request-button:hover:not(:disabled) {
+  background: #166534;
+  transform: translateY(-1px);
+}
+
+.rent-request-button:disabled {
+  background: #9ca3af;
+  cursor: not-allowed;
+}
+
+/* =============================================================
+   RENT REQUEST MODAL POPUP
+   ============================================================= */
+.rent-request-modal-overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  background: rgba(15, 23, 42, 0.6);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  animation: rentModalFadeIn 0.2s ease-out;
+}
+
+.rent-request-modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 460px;
+  max-height: 92vh;
+  overflow-y: auto;
+  border-radius: 20px;
+  background: #ffffff;
+  box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.35);
+  animation: rentModalSlideUp 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+@keyframes rentModalFadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes rentModalSlideUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px) scale(0.97);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0) scale(1);
+  }
+}
+
+.rent-request-modal-content .rent-request-form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  margin: 0;
+  padding: 24px 22px;
+  border: none;
+  background: #ffffff;
+  border-radius: 20px;
+}
+
+.rent-request-modal-content .request-form-heading {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin-bottom: 8px;
+  position: relative;
+}
+
+.rent-request-modal-content .request-form-icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 40px;
+  height: 40px;
+  flex-shrink: 0;
+  border-radius: 12px;
+  background: #dcfce7;
+}
+
+.rent-request-modal-content .request-form-heading-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.rent-request-modal-content .request-form-heading-text h2 {
+  margin: 0 0 2px;
+  color: #14532d;
+  font-size: 19px;
+  font-weight: 700;
+}
+
+.rent-request-modal-content .request-form-heading-text p {
+  margin: 0;
+  color: #64748b;
+  font-size: 13px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.rent-modal-close-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  border-radius: 50%;
+  background: #f1f5f9;
+  color: #64748b;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+}
+
+.rent-modal-close-btn:hover {
+  background: #fee2e2;
+  color: #dc2626;
+  transform: rotate(90deg);
+}
+
+.rent-request-modal-content .rent-request-form label {
+  margin-top: 4px;
+  color: #374151;
+  font-size: 13px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+}
+
+.rent-request-modal-content .rent-request-form input {
+  width: 100%;
+  min-height: 44px;
+  padding: 10px 14px;
+  box-sizing: border-box;
+  border: 1px solid #d1ddd4;
+  border-radius: 9px;
+  background: #ffffff;
+  color: #1f2937;
+  font: inherit;
+  font-size: 14px;
+  outline: none;
+  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.rent-request-modal-content .rent-request-form input:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.15);
+}
+
+.rent-request-modal-content .request-price-summary {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-top: 6px;
+  padding: 12px 14px;
+  border-radius: 10px;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
+}
+
+.rent-request-modal-content .request-price-row {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  color: #374151;
+  font-size: 13px;
+}
+
+.rent-request-modal-content .request-price-row strong {
+  color: #15803d;
+}
+
+.rent-request-modal-content .request-total-row {
+  border-top: 1px dashed #86efac;
+  padding-top: 8px;
+  margin-top: 2px;
+}
+
+.rent-request-modal-content .request-total-amount {
+  font-size: 15px;
+  font-weight: 800;
+  color: #166534 !important;
+}
+
+.rent-request-modal-content .submit-request-button {
+  width: 100%;
+  min-height: 46px;
+  margin-top: 6px;
+  padding: 12px;
+  border: none;
+  border-radius: 10px;
+  background: #15803d;
+  color: #ffffff;
+  font-size: 15px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: background 0.2s ease, transform 0.15s ease;
+}
+
+.rent-request-modal-content .submit-request-button:hover {
+  background: #166534;
+  transform: translateY(-1px);
+}
+
+.rent-request-modal-content .request-note {
+  margin: 2px 0 0;
+  color: #7b857d;
+  font-size: 12px;
+  text-align: center;
+}
+
 /* =============================================================
    CART ITEM CARD STYLES - MODERN & RESPONSIVE
    ============================================================= */
@@ -849,6 +1086,41 @@
   font-size: 12px;
   font-weight: 500;
   color: #64748b;
+}
+
+.cart-item-actions-group {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  flex-wrap: wrap;
+}
+
+.cart-item-details-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 14px;
+  border-radius: 8px;
+  background: #f0fdf4;
+  color: #15803d;
+  font-size: 13px;
+  font-weight: 600;
+  text-decoration: none;
+  border: 1px solid #bbf7d0;
+  transition: all 0.2s ease;
+}
+
+.cart-item-details-btn:hover {
+  background: #dcfce7;
+  color: #166534;
+  transform: translateY(-1px);
+}
+
+.cart-item-rent-now-btn {
+  min-height: 36px;
+  padding: 8px 16px;
+  font-size: 13px;
+  border-radius: 8px;
 }
 
 .cart-item-action-btn {

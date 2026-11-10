@@ -23,6 +23,7 @@ const cartRoutes = require('./routes/cartRoutes');
 const postRoutes = require('./routes/postRoutes');
 const chatRoutes = require('./routes/chatRoutes');
 const forgotPasswordRoutes = require('./routes/forgotPasswordRoutes');
+const rentRequestRoutes = require('./routes/rentRequestRoutes');
 
 // Root Health Check Route
 app.get('/', (req, res) => {
@@ -37,6 +38,7 @@ app.use('/api/cart', cartRoutes);
 app.use('/api/posts', postRoutes);
 app.use('/api/chat', chatRoutes);
 app.use('/api/forgot-password', forgotPasswordRoutes);
+app.use('/api/rent-requests', rentRequestRoutes);
 
 // Server Listening
 const PORT = process.env.PORT || 5001;

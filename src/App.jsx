@@ -15,6 +15,7 @@ import Profile from "./pages/profile"; // Profile page එක මෙතැනි
 import BottomNav from "./components/BottomNav";
 import ItemDetails from "./pages/ItemDetails";
 import MyItems from "./pages/MyItems";
+import BusinessHub from "./pages/BusinessHub";
 
 
 
@@ -61,6 +62,14 @@ export default function App() {
         <Route
           path="/MyItems"
           element={user ? <MyItems user={user} /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/business-hub"
+          element={user ? <BusinessHub user={user} /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/BusinessHub"
+          element={user ? <BusinessHub user={user} /> : <Navigate to="/login" />}
         />
         <Route
           path="/add-post"

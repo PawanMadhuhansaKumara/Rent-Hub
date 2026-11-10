@@ -1,4 +1,4 @@
-const db = require('../config/db');
+const db = require("../config/db");
 
 // ADD ITEM TO CART
 exports.addToCart = async (req, res) => {
@@ -8,25 +8,44 @@ exports.addToCart = async (req, res) => {
   const qty = quantity || req.body.quantity || 1;
 
   if (!user_id || !item_id) {
-    return res.status(400).json({ success: false, message: 'Missing user_id or item_id.' });
+    return res
+      .status(400)
+      .json({ success: false, message: "Missing user_id or item_id." });
   }
 
   try {
     try {
       const query = `INSERT INTO cart (user_id, item_id, quantity, start_date, end_date, created_at) VALUES (?, ?, ?, ?, ?, NOW())`;
-      const values = [user_id, item_id, qty, startDate || null, endDate || null];
+      const values = [
+        user_id,
+        item_id,
+        qty,
+        startDate || null,
+        endDate || null,
+      ];
       const [result] = await db.execute(query, values);
-      return res.status(201).json({ success: true, message: 'Item added to cart.', cartId: result.insertId });
+      return res.status(201).json({
+        success: true,
+        message: "Item added to cart.",
+        cartId: result.insertId,
+      });
     } catch (insertErr) {
       // Fallback if start_date / end_date columns don't exist in cart table
       const fallbackQuery = `INSERT INTO cart (user_id, item_id, quantity, created_at) VALUES (?, ?, ?, NOW())`;
       const fallbackValues = [user_id, item_id, qty];
       const [result] = await db.execute(fallbackQuery, fallbackValues);
-      return res.status(201).json({ success: true, message: 'Item added to cart.', cartId: result.insertId });
+      return res.status(201).json({
+        success: true,
+        message: "Item added to cart.",
+        cartId: result.insertId,
+      });
     }
   } catch (error) {
-    console.error('Add to cart error:', error);
-    res.status(500).json({ success: false, message: 'Server error while adding to cart: ' + error.message });
+    console.error("Add to cart error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Server error while adding to cart: " + error.message,
+    });
   }
 };
 
@@ -56,27 +75,30 @@ exports.getCart = async (req, res) => {
     `;
     const [rows] = await db.execute(query, [userId]);
 
-    const formattedCart = rows.map(item => ({
+    const formattedCart = rows.map((item) => ({
       id: item.id,
       itemId: item.item_id,
       item_id: item.item_id,
       title: item.title,
       price: item.price,
-      priceType: item.price_type || 'day',
+      priceType: item.price_type || "day",
       image: item.image_url,
       quantity: item.quantity,
       startDate: item.start_date || null,
       endDate: item.end_date || null,
-      sellerName: item.seller_name || 'Owner',
+      sellerName: item.seller_name || "Owner",
       sellerPic: item.seller_pic || null,
       category: item.category,
-      createdAt: item.created_at
+      createdAt: item.created_at,
     }));
 
     res.status(200).json(formattedCart);
   } catch (error) {
-    console.error('Fetch Cart Error:', error);
-    res.status(500).json({ success: false, message: 'Failed to fetch cart items: ' + error.message });
+    console.error("Fetch Cart Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch cart items: " + error.message,
+    });
   }
 };
 
@@ -84,10 +106,12 @@ exports.getCart = async (req, res) => {
 exports.deleteCartItem = async (req, res) => {
   const cartId = req.params.id;
   try {
-    await db.execute('DELETE FROM cart WHERE id = ?', [cartId]);
-    res.status(200).json({ success: true, message: 'Item removed from cart.' });
+    await db.execute("DELETE FROM cart WHERE id = ?", [cartId]);
+    res.status(200).json({ success: true, message: "Item removed from cart." });
   } catch (error) {
-    console.error('Delete Cart Error:', error);
-    res.status(500).json({ success: false, message: 'Failed to remove item from cart.' });
+    console.error("Delete Cart Error:", error);
+    res
+      .status(500)
+      .json({ success: false, message: "Failed to remove item from cart." });
   }
 };
