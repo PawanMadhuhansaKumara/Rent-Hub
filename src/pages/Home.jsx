@@ -57,16 +57,26 @@ const filteredItems = items.filter((item) => {
   
   
   useEffect(() => {
-    fetch(API_URL)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Could not load items");
-        }
-        return response.json();
-      })
-      .then((data) => setItems(data))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
+    const loadItems = () => {
+      fetch(API_URL)
+        .then((response) => {
+          if (!response.ok) {
+            throw new Error("Could not load items");
+          }
+          return response.json();
+        })
+        .then((data) => setItems(data))
+        .catch((err) => setError(err.message))
+        .finally(() => setLoading(false));
+    };
+
+    loadItems();
+    window.addEventListener("items_updated", loadItems);
+    window.addEventListener("rent_requests_updated", loadItems);
+    return () => {
+      window.removeEventListener("items_updated", loadItems);
+      window.removeEventListener("rent_requests_updated", loadItems);
+    };
   }, []);
 
  /* const filteredItems = items.filter((item) => {

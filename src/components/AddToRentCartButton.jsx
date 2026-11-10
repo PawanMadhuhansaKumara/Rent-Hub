@@ -9,12 +9,24 @@ function AddToRentCartButton({
   loading = false,
   onClick,
 }) {
+  const isRentedOut =
+    available === "Rented Out" ||
+    String(available).toLowerCase() === "rented out" ||
+    String(available).toLowerCase() === "rented" ||
+    available === 0 ||
+    available === "0" ||
+    (available !== undefined &&
+      available !== null &&
+      available !== "" &&
+      !isNaN(Number(available)) &&
+      Number(available) < 1);
+
   return (
     <button
       type="button"
       className={`add-to-rent-cart-button ${isAdded ? "added" : ""}`}
       onClick={onClick}
-      disabled={available < 1 || loading}
+      disabled={isRentedOut || loading}
     >
       {isAdded ? (
         <>
@@ -27,8 +39,8 @@ function AddToRentCartButton({
           <span>
             {loading
               ? "Adding..."
-              : available < 1
-              ? "Not Available"
+              : isRentedOut
+              ? "Rented Out"
               : "Add to Rent Cart"}
           </span>
         </>

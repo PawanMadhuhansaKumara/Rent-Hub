@@ -42,25 +42,60 @@ export default function CartItemCard({
       : `${API_URL}${sellerPic.startsWith("/") ? "" : "/"}${sellerPic}`
     : null;
 
+  const isRented =
+    cartItem.available === "Rented Out" ||
+    String(cartItem.available).toLowerCase() === "rented out" ||
+    String(cartItem.available).toLowerCase() === "rented" ||
+    cartItem.available === 0 ||
+    cartItem.available === "0" ||
+    (cartItem.available !== undefined &&
+      cartItem.available !== null &&
+      cartItem.available !== "" &&
+      !isNaN(Number(cartItem.available)) &&
+      Number(cartItem.available) < 1);
+
   return (
     <div
-      className={`cart-item-card ${isSelected ? "is-selected" : ""}`}
+      className={`cart-item-card ${
+        isSelected && !isRented ? "is-selected" : ""
+      } ${isRented ? "is-rented-out" : ""}`}
       data-cart-id={id}
+      style={isRented ? { opacity: 0.75 } : {}}
     >
       {/* Checkbox */}
       <div className="cart-item-checkbox-container">
         <input
           type="checkbox"
           id={`cart-check-${id}`}
-          checked={isSelected}
+          checked={isSelected && !isRented}
           onChange={() => onToggleSelect && onToggleSelect(id)}
           className="cart-item-checkbox"
+          disabled={isRented}
+          title={isRented ? "Item is currently rented out" : `Select ${title}`}
           aria-label={`Select ${title}`}
         />
       </div>
 
       {/* Image Wrapper */}
-      <div className="cart-item-img-wrapper">
+      <div className="cart-item-img-wrapper" style={{ position: "relative" }}>
+        {isRented && (
+          <span
+            style={{
+              position: "absolute",
+              top: "6px",
+              left: "6px",
+              background: "#b91c1c",
+              color: "#ffffff",
+              fontSize: "10px",
+              fontWeight: "700",
+              padding: "2px 6px",
+              borderRadius: "4px",
+              zIndex: 2,
+            }}
+          >
+            Rented Out
+          </span>
+        )}
         <img
           src={imageUrl}
           alt={title}

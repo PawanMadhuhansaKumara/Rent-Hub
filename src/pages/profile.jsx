@@ -23,6 +23,41 @@ import {
 } from "lucide-react";
 import SettingsPopup from "../components/SettingsPopup";
 
+const isItemRented = (item) => {
+  if (!item) return false;
+
+  const directRented =
+    item.available === "Rented Out" ||
+    String(item.available).toLowerCase() === "rented out" ||
+    String(item.available).toLowerCase() === "rented" ||
+    item.available === 0 ||
+    item.available === "0" ||
+    String(item.status).toLowerCase() === "rented" ||
+    (item.available !== undefined &&
+      item.available !== null &&
+      item.available !== "" &&
+      !isNaN(Number(item.available)) &&
+      Number(item.available) < 1);
+
+  if (directRented) return true;
+
+  try {
+    const saved = localStorage.getItem("rent_hub_requests");
+    if (saved) {
+      const requests = JSON.parse(saved);
+      if (Array.isArray(requests)) {
+        return requests.some((r) => {
+          const matchItem = String(r.itemId || r.item_id) === String(item.id);
+          const isRentedStatus = String(r.status).toLowerCase() === "rented";
+          return matchItem && isRentedStatus;
+        });
+      }
+    }
+  } catch {}
+
+  return false;
+};
+
 export default function Profile({ user, setUser }) {
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -141,8 +176,25 @@ export default function Profile({ user, setUser }) {
   }, [paramUserId, isOwnProfile, user]);
 
   useEffect(() => {
-    fetchItems();
-    fetchUserPosts();
+    if (profile.user_id) {
+      fetchItems();
+      fetchUserPosts();
+    }
+
+    const handleUpdate = () => {
+      if (profile.user_id) {
+        fetchItems();
+      }
+    };
+
+    window.addEventListener("items_updated", handleUpdate);
+    window.addEventListener("rent_requests_updated", handleUpdate);
+    window.addEventListener("storage", handleUpdate);
+    return () => {
+      window.removeEventListener("items_updated", handleUpdate);
+      window.removeEventListener("rent_requests_updated", handleUpdate);
+      window.removeEventListener("storage", handleUpdate);
+    };
   }, [profile.user_id]);
 
   const fetchItems = async () => {
@@ -191,6 +243,9 @@ export default function Profile({ user, setUser }) {
             item.id === itemId ? { ...item, available: newStatus } : item,
           ),
         );
+        window.dispatchEvent(new Event("rent_requests_updated"));
+        window.dispatchEvent(new Event("items_updated"));
+        window.dispatchEvent(new Event("storage"));
       } else {
         alert("Failed to update status.");
       }
@@ -467,119 +522,100 @@ export default function Profile({ user, setUser }) {
                 <div style={styles.emptyState}>{t("profile.noItems")}</div>
               ) : (
                 <div style={styles.desktopItemsGrid}>
-                  {items.map((item, idx) => (
-                    <div key={item.id || idx} style={styles.desktopItemCard}>
-                      <div style={styles.itemImgContainer}>
-                        <img
-                          src={
-                            item.image
-                              ? item.image.startsWith("http")
-                                ? item.image
-                                : `http://localhost:5001${item.image}`
-                              : "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=300"
-                          }
-                          alt={item.title}
-                          style={styles.desktopItemImg}
-                        />
+                  {items.map((item, idx) => {
+                    const isRented = isItemRented(item);
+                    return (
+                      <div key={item.id || idx} style={styles.desktopItemCard}>
+                        <div style={styles.itemImgContainer}>
+                          <img
+                            src={
+                              item.image
+                                ? item.image.startsWith("http")
+                                  ? item.image
+                                  : `http://localhost:5001${item.image}`
+                                : "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=300"
+                            }
+                            alt={item.title}
+                            style={styles.desktopItemImg}
+                          />
 
-                        {/* Availability Selector Green Badge */}
-                        <div style={styles.badgeOverlay}>
-                          {isOwnProfile ? (
-                            <select
-                              value={item.available || "Available"}
-                              onChange={(e) =>
-                                handleStatusChange(item.id, e.target.value)
-                              }
-                              style={{
-                                fontSize: "11px",
-                                fontWeight: "bold",
-                                padding: "4px 10px",
-                                borderRadius: "14px",
-                                border: "none",
-                                backgroundColor:
-                                  item.available === "Rented Out"
-                                    ? "#ffc107"
-                                    : "#00aa5b",
-                                color: "#ffffff",
-                                cursor: "pointer",
-                                outline: "none",
-                                boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
-                              }}
-                            >
-                              <option value="Available" style={{ color: "#000" }}>
-                                Available
-                              </option>
-                              <option value="Rented Out" style={{ color: "#000" }}>
-                                Rented Out
-                              </option>
-                            </select>
-                          ) : (
+                          {/* Availability Status Badge */}
+                          <div style={styles.badgeOverlay}>
                             <span
                               style={{
                                 fontSize: "11px",
                                 fontWeight: "bold",
                                 padding: "4px 10px",
                                 borderRadius: "14px",
-                                backgroundColor:
-                                  item.available === "Rented Out"
-                                    ? "#ffc107"
-                                    : "#00aa5b",
+                                backgroundColor: isRented ? "#dc2626" : "#00aa5b",
                                 color: "#ffffff",
                                 boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                                display: "inline-flex",
+                                alignItems: "center",
+                                gap: "5px",
                               }}
                             >
-                              {item.available || "Available"}
+                              <span
+                                style={{
+                                  width: "6px",
+                                  height: "6px",
+                                  borderRadius: "50%",
+                                  backgroundColor: "#ffffff",
+                                  display: "inline-block",
+                                }}
+                              />
+                              {isRented ? "Rented Out" : "Available"}
                             </span>
+                          </div>
+                        </div>
+
+                        <div style={{ padding: "14px" }}>
+                          <h4
+                            style={{
+                              margin: "0 0 6px 0",
+                              fontSize: "15px",
+                              fontWeight: "bold",
+                              color: "#222",
+                            }}
+                          >
+                            {item.title}
+                          </h4>
+
+                          <p style={styles.itemPrice}>
+                            Rs. {item.price}{" "}
+                            <span
+                              style={{
+                                fontSize: "11px",
+                                fontWeight: "normal",
+                                color: "#666",
+                              }}
+                            >
+                              / {item.priceType || "day"}
+                            </span>
+                          </p>
+
+                          {/* Bookings & Views Indicators + Delete Button */}
+                          <div style={styles.cardFooterMeta}>
+                            <span style={styles.metaBadgeText}>
+                              <Calendar size={13} color="#00aa5b" /> {item.bookings || 2} bookings
+                            </span>
+                            <span style={styles.metaBadgeText}>
+                              <Eye size={13} color="#666" /> {item.views || 124}
+                            </span>
+                          </div>
+
+                          {isOwnProfile && (
+                            <button
+                              onClick={() => handleDeleteItem(item.id)}
+                              style={styles.deleteBtn}
+                            >
+                              <Trash2 size={13} /> Delete Item
+                            </button>
                           )}
                         </div>
                       </div>
-
-                      <div style={{ padding: "14px" }}>
-                        <h4
-                          style={{
-                            margin: "0 0 6px 0",
-                            fontSize: "15px",
-                            fontWeight: "bold",
-                            color: "#222",
-                          }}
-                        >
-                          {item.title}
-                        </h4>
-
-                        <p style={styles.itemPrice}>
-                          Rs. {item.price}{" "}
-                          <span
-                            style={{
-                              fontSize: "11px",
-                              fontWeight: "normal",
-                              color: "#666",
-                            }}
-                          >
-                            / {item.priceType || "day"}
-                          </span>
-                        </p>
-
-                        {/* Bookings & Views Indicators + Delete Button */}
-                        <div style={styles.cardFooterMeta}>
-                          <span style={styles.metaBadgeText}>
-                            <Calendar size={13} color="#00aa5b" /> {item.bookings || 2} bookings
-                          </span>
-                          <span style={styles.metaBadgeText}>
-                            <Eye size={13} color="#666" /> {item.views || 124}
-                          </span>
-                        </div>
-
-                        {isOwnProfile && (
-                          <button
-                            onClick={() => handleDeleteItem(item.id)}
-                            style={styles.deleteBtn}
-                          >
-                            <Trash2 size={13} /> Delete Item
-                          </button>
-                        )}
-                      </div>
-                    </div>
-                  ))}
+                    );
+                  })}
                 </div>
               )}
             </div>

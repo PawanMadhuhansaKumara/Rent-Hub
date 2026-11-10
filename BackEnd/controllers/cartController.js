@@ -14,6 +14,48 @@ exports.addToCart = async (req, res) => {
   }
 
   try {
+    // Check if the item is currently rented out
+    try {
+      // 1. Check available_qty in items table
+      const [items] = await db.execute(
+        "SELECT id, available_qty FROM items WHERE id = ?",
+        [item_id]
+      );
+      if (items.length > 0) {
+        const it = items[0];
+        const isRented =
+          it.available_qty === "Rented Out" ||
+          String(it.available_qty).toLowerCase() === "rented out" ||
+          String(it.available_qty).toLowerCase() === "rented" ||
+          it.available_qty === 0 ||
+          it.available_qty === "0" ||
+          (it.available_qty !== null &&
+            !isNaN(Number(it.available_qty)) &&
+            Number(it.available_qty) < 1);
+
+        if (isRented) {
+          return res.status(400).json({
+            success: false,
+            message: "This item is currently rented out and cannot be added to cart.",
+          });
+        }
+      }
+
+      // 2. Check active rentals in rent_requests
+      const [activeRentals] = await db.execute(
+        "SELECT id FROM rent_requests WHERE item_id = ? AND LOWER(status) = 'rented'",
+        [item_id]
+      );
+      if (activeRentals.length > 0) {
+        return res.status(400).json({
+          success: false,
+          message: "This item is currently rented out and cannot be added to cart.",
+        });
+      }
+    } catch (checkErr) {
+      console.warn("Item availability check error in addToCart:", checkErr.message);
+    }
+
     try {
       const query = `INSERT INTO cart (user_id, item_id, quantity, start_date, end_date, created_at) VALUES (?, ?, ?, ?, ?, NOW())`;
       const values = [
@@ -65,13 +107,14 @@ exports.getCart = async (req, res) => {
         i.price_type,
         i.image_url,
         i.category,
+        i.available_qty AS available,
         u.full_name AS seller_name,
         u.profile_pic_url AS seller_pic
       FROM cart c
       JOIN items i ON c.item_id = i.id
       LEFT JOIN users_details u ON i.user_id = u.user_id
       WHERE c.user_id = ?
-      ORDER BY c.created_at DESC
+      ORDER BY c.id DESC, c.created_at DESC
     `;
     const [rows] = await db.execute(query, [userId]);
 
@@ -89,6 +132,7 @@ exports.getCart = async (req, res) => {
       sellerName: item.seller_name || "Owner",
       sellerPic: item.seller_pic || null,
       category: item.category,
+      available: item.available,
       createdAt: item.created_at,
     }));
 

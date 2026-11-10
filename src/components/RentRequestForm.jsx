@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo } from "react";
+import React, { useEffect, useMemo, useState } from "react";
 import { X, Calendar, CheckCircle } from "lucide-react";
 import "./components.css";
 
@@ -18,6 +18,8 @@ export default function RentRequestForm({
   price = 0,
   itemTitle,
 }) {
+  const [isSubmitting, setIsSubmitting] = useState(false);
+
   // ESC key listener to close modal
   useEffect(() => {
     const handleKeyDown = (e) => {
@@ -61,6 +63,35 @@ export default function RentRequestForm({
   const estimatedTotal =
     priceType === "day" ? numPrice * numQty * daysCount : numPrice * numQty;
 
+  const isRentedOut =
+    available === "Rented Out" ||
+    String(available).toLowerCase() === "rented out" ||
+    String(available).toLowerCase() === "rented" ||
+    available === 0 ||
+    available === "0" ||
+    (available !== undefined &&
+      available !== null &&
+      available !== "" &&
+      !isNaN(Number(available)) &&
+      Number(available) < 1);
+
+  const onSubmit = async (e) => {
+    e.preventDefault();
+    if (isSubmitting || isRentedOut) return;
+    setIsSubmitting(true);
+    try {
+      const res = await handleRequestSubmit(e);
+      if (res !== false) {
+        // Close the form modal immediately upon confirmation!
+        if (onClose) onClose();
+      }
+    } catch (err) {
+      console.error("Rental request submission error:", err);
+    } finally {
+      setIsSubmitting(false);
+    }
+  };
+
   if (!isOpen) return null;
 
   return (
@@ -74,7 +105,7 @@ export default function RentRequestForm({
         className="rent-request-modal-content"
         onClick={(e) => e.stopPropagation()}
       >
-        <form className="rent-request-form" onSubmit={handleRequestSubmit}>
+        <form className="rent-request-form" onSubmit={onSubmit}>
           <div className="request-form-heading">
             <span className="request-form-icon">
               <CheckCircle size={22} color="#15803d" />
@@ -171,8 +202,21 @@ export default function RentRequestForm({
             )}
           </div>
 
-          <button type="submit" className="submit-request-button">
-            Confirm & Send Request →
+          <button
+            type="submit"
+            className="submit-request-button"
+            disabled={isRentedOut || isSubmitting}
+            style={
+              isRentedOut || isSubmitting
+                ? { opacity: 0.75, cursor: "not-allowed" }
+                : {}
+            }
+          >
+            {isRentedOut
+              ? "Item Currently Rented Out"
+              : isSubmitting
+              ? "Sending Request..."
+              : "Confirm & Send Request →"}
           </button>
 
           <p className="request-note">

@@ -8,7 +8,8 @@ exports.getAllItems = async (req, res) => {
         items.*,
         u.full_name AS user_name,
         u.profile_pic_url AS user_profile_pic,
-        u.nearest_city AS nearest_city
+        u.nearest_city AS nearest_city,
+        (SELECT COUNT(*) FROM rent_requests WHERE rent_requests.item_id = items.id AND LOWER(rent_requests.status) = 'rented') AS is_rented_count
       FROM items
       LEFT JOIN users_details u ON items.user_id = u.user_id
       ORDER BY items.created_at DESC
@@ -23,7 +24,13 @@ exports.getAllItems = async (req, res) => {
       priceType: item.price_type,
       description: item.description,
       image: item.image_url,
-      available: item.available_qty,
+      available:
+        Number(item.is_rented_count) > 0 ||
+        item.available_qty === "Rented Out" ||
+        item.available_qty === 0 ||
+        item.available_qty === "0"
+          ? "Rented Out"
+          : item.available_qty,
       userId: item.user_id,
       user_id: item.user_id,
       userName: item.user_name || null,
@@ -49,10 +56,14 @@ exports.getAllItems = async (req, res) => {
 exports.getUserItems = async (req, res) => {
   const userId = req.params.userId;
   try {
-    const [rows] = await db.execute(
-      "SELECT * FROM items WHERE user_id = ? ORDER BY created_at DESC",
-      [userId],
-    );
+    const [rows] = await db.execute(`
+      SELECT 
+        items.*,
+        (SELECT COUNT(*) FROM rent_requests WHERE rent_requests.item_id = items.id AND LOWER(rent_requests.status) = 'rented') AS is_rented_count
+      FROM items 
+      WHERE user_id = ? 
+      ORDER BY created_at DESC
+    `, [userId]);
 
     const formattedItems = rows.map((item) => ({
       id: item.id,
@@ -63,7 +74,13 @@ exports.getUserItems = async (req, res) => {
       priceType: item.price_type,
       description: item.description,
       image: item.image_url,
-      available: item.available_qty,
+      available:
+        Number(item.is_rented_count) > 0 ||
+        item.available_qty === "Rented Out" ||
+        item.available_qty === 0 ||
+        item.available_qty === "0"
+          ? "Rented Out"
+          : item.available_qty,
     }));
 
     res.status(200).json(formattedItems);
@@ -127,10 +144,34 @@ exports.updateStatus = async (req, res) => {
   const { available } = req.body;
 
   try {
-    await db.execute("UPDATE items SET available_qty = ? WHERE id = ?", [
-      available,
-      itemId,
-    ]);
+    try {
+      await db.execute("UPDATE items SET available_qty = ? WHERE id = ?", [
+        available,
+        itemId,
+      ]);
+    } catch (e) {
+      const numVal =
+        available === "Rented Out" || available === 0 || available === "0"
+          ? 0
+          : 1;
+      await db.execute("UPDATE items SET available_qty = ? WHERE id = ?", [
+        numVal,
+        itemId,
+      ]);
+    }
+
+    // Sync rent_requests when item availability changes
+    const isAvail =
+      available === "Available" || available === 1 || available === "1";
+    if (isAvail) {
+      try {
+        await db.execute(
+          "UPDATE rent_requests SET status = 'Completed' WHERE item_id = ? AND LOWER(status) = 'rented'",
+          [itemId]
+        );
+      } catch (err) {}
+    }
+
     res
       .status(200)
       .json({ success: true, message: "Status updated successfully!" });

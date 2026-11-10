@@ -27,6 +27,39 @@ export default function ItemCard({ item }) {
   const authorId = item.userId || item.user_id;
   const authorProfileLink = authorId ? `/profile/${authorId}` : "/profile";
 
+  const isRented = (() => {
+    if (!item) return false;
+    const directRented =
+      item.available === "Rented Out" ||
+      String(item.available).toLowerCase() === "rented out" ||
+      String(item.available).toLowerCase() === "rented" ||
+      item.available === 0 ||
+      item.available === "0" ||
+      String(item.status).toLowerCase() === "rented" ||
+      (item.available !== undefined &&
+        item.available !== null &&
+        item.available !== "" &&
+        !isNaN(Number(item.available)) &&
+        Number(item.available) < 1);
+    if (directRented) return true;
+
+    try {
+      const saved = localStorage.getItem("rent_hub_requests");
+      if (saved) {
+        const requests = JSON.parse(saved);
+        if (Array.isArray(requests)) {
+          return requests.some((r) => {
+            const matchItem =
+              String(r.itemId || r.item_id) === String(item.id);
+            const isRentedStatus = String(r.status).toLowerCase() === "rented";
+            return matchItem && isRentedStatus;
+          });
+        }
+      }
+    } catch {}
+    return false;
+  })();
+
   return (
     <article className="item-card">
       {/* Facebook-style Author Header at the Very Top */}
@@ -77,6 +110,25 @@ export default function ItemCard({ item }) {
         ) : (
           <div className="no-image">No Image Available</div>
         )}
+        {isRented && (
+          <span
+            style={{
+              position: "absolute",
+              top: "10px",
+              right: "10px",
+              background: "#b91c1c",
+              color: "#ffffff",
+              fontSize: "11px",
+              fontWeight: "700",
+              padding: "3px 8px",
+              borderRadius: "6px",
+              boxShadow: "0 2px 6px rgba(0,0,0,0.2)",
+              zIndex: 2,
+            }}
+          >
+            Rented Out
+          </span>
+        )}
       </div>
 
       <div className="item-info">
@@ -92,8 +144,16 @@ export default function ItemCard({ item }) {
           <span className="item-condition">
             {t("item.condition")}: {item.condition || "Good"}
           </span>
-          <span className="item-availability">
-            {t("item.availability")}: {item.available ?? 0}
+          <span
+            className="item-availability"
+            style={{
+              color: isRented ? "#b91c1c" : "inherit",
+              fontWeight: isRented ? "700" : "inherit",
+            }}
+          >
+            {isRented
+              ? "Rented Out"
+              : `${t("item.availability")}: ${item.available ?? 1}`}
           </span>
         </div>
 

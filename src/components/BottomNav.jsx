@@ -33,6 +33,30 @@ export default function BottomNav({ user }) {
     return null;
   }
 
+  const [unreadNotifCount, setUnreadNotifCount] = React.useState(0);
+  const userId = currentUser.id || currentUser.user_id || currentUser.userId;
+
+  React.useEffect(() => {
+    if (!userId) return;
+    const fetchCount = async () => {
+      try {
+        const res = await fetch(`http://localhost:5001/api/notifications/${userId}`);
+        if (res.ok) {
+          const data = await res.json();
+          setUnreadNotifCount(data.unreadCount || 0);
+        }
+      } catch {}
+    };
+
+    fetchCount();
+    window.addEventListener("notifications_updated", fetchCount);
+    window.addEventListener("rent_requests_updated", fetchCount);
+    return () => {
+      window.removeEventListener("notifications_updated", fetchCount);
+      window.removeEventListener("rent_requests_updated", fetchCount);
+    };
+  }, [userId]);
+
   const handleSearchClick = (e) => {
     e.preventDefault();
     // Navigate to Home with focusSearch state
@@ -106,8 +130,30 @@ export default function BottomNav({ user }) {
           ...(isActive ? styles.activeItem : {}),
         })}
       >
-        <span style={styles.icon}>
+        <span style={{ ...styles.icon, position: "relative" }}>
           <Bell />
+          {unreadNotifCount > 0 && (
+            <span
+              style={{
+                position: "absolute",
+                top: "-4px",
+                right: "-6px",
+                background: "#e05260",
+                color: "#ffffff",
+                borderRadius: "9999px",
+                fontSize: "10px",
+                fontWeight: "700",
+                minWidth: "16px",
+                height: "16px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                padding: "0 3px",
+              }}
+            >
+              {unreadNotifCount > 9 ? "9+" : unreadNotifCount}
+            </span>
+          )}
         </span>
         <span>{t("navigation.notifications")}</span>
       </NavLink>

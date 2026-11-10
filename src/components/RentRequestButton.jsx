@@ -10,17 +10,25 @@ function RentRequestButton({
   className = "",
   ...props
 }) {
+  const isRentedOut =
+    available === "Rented Out" ||
+    String(available).toLowerCase() === "rented out" ||
+    String(available).toLowerCase() === "rented" ||
+    available === 0 ||
+    available === "0" ||
+    (available !== undefined &&
+      available !== null &&
+      available !== "" &&
+      !isNaN(Number(available)) &&
+      Number(available) < 1);
+
   const isDisabled =
-    disabled !== undefined
-      ? disabled
-      : available !== undefined
-        ? available < 1
-        : false;
+    disabled !== undefined ? disabled : isRentedOut;
 
   const buttonText =
     children ||
-    (available !== undefined && available < 1
-      ? "Not Available"
+    (isRentedOut
+      ? "Rented Out"
       : "Rent Now");
 
   return (

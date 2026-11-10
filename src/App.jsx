@@ -16,6 +16,7 @@ import BottomNav from "./components/BottomNav";
 import ItemDetails from "./pages/ItemDetails";
 import MyItems from "./pages/MyItems";
 import BusinessHub from "./pages/BusinessHub";
+import Notifications from "./pages/Notifications";
 
 
 
@@ -70,6 +71,10 @@ export default function App() {
         <Route
           path="/BusinessHub"
           element={user ? <BusinessHub user={user} /> : <Navigate to="/login" />}
+        />
+        <Route
+          path="/notifications"
+          element={user ? <Notifications user={user} /> : <Navigate to="/login" />}
         />
         <Route
           path="/add-post"

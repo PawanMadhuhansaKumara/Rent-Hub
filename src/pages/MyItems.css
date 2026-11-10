@@ -147,6 +147,54 @@
   color: #15803d;
 }
 
+/* Sub-tabs for Rented Items & Rent Requests */
+.my-items-subtabs {
+  display: flex;
+  gap: 10px;
+  margin-bottom: 22px;
+  overflow-x: auto;
+  scrollbar-width: none;
+  padding-bottom: 4px;
+}
+
+.my-items-subtabs::-webkit-scrollbar {
+  display: none;
+}
+
+.my-items-subtab-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 18px;
+  border-radius: 9999px;
+  border: 1px solid #e2e8f0;
+  background: #ffffff;
+  color: #64748b;
+  font-size: 13px;
+  font-weight: 700;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+}
+
+.my-items-subtab-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
+  color: #1e293b;
+}
+
+.my-items-subtab-btn.active {
+  background: #15803d;
+  color: #ffffff;
+  border-color: #15803d;
+  box-shadow: 0 2px 8px rgba(21, 128, 61, 0.25);
+}
+
+.my-items-subtab-btn.active .my-items-tab-count {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
 /* Grid */
 .my-items-grid {
   display: grid;
@@ -163,7 +211,9 @@
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
   display: flex;
   flex-direction: column;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .my-item-card:hover {
@@ -173,6 +223,10 @@
 
 .my-item-card.rented-border {
   border-color: #fde68a;
+}
+
+.my-item-card.rented-in-border {
+  border-color: #bfdbfe;
 }
 
 .my-item-image-wrapper {
@@ -308,6 +362,376 @@
   color: #166534;
 }
 
+.my-item-phone-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 36px;
+  height: 36px;
+  border-radius: 8px;
+  background: #f8fafc;
+  color: #15803d;
+  border: 1.5px solid #cbd5e1;
+  transition: all 0.2s ease;
+  flex-shrink: 0;
+  text-decoration: none;
+}
+
+.my-item-phone-btn:hover {
+  background: #dcfce7;
+  border-color: #86efac;
+  color: #166534;
+}
+
+/* Status Pill in Card */
+.rent-status-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: capitalize;
+}
+
+.status-pill-sent {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.status-pill-in {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+/* Rented Item Meta Box */
+.rented-item-details-box {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid #f1f5f9;
+}
+
+.rented-item-title-link {
+  color: #0f172a;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.rented-item-title-link:hover {
+  color: #15803d;
+}
+
+.rented-clean-meta-box {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid #f1f5f9;
+}
+
+.rented-clean-meta-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.rented-clean-label {
+  display: block;
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.rented-user-name-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.rented-clean-date {
+  font-size: 12px;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.rented-item-detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.rented-item-detail-row .detail-label {
+  display: block;
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.rented-item-detail-row .detail-value {
+  display: block;
+  font-size: 12px;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.detail-icon-amber {
+  color: #d97706;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.detail-icon-blue {
+  color: #2563eb;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.my-item-profile-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 6px 12px;
+  background: #f1f5f9;
+  color: #334155;
+  border: 1px solid #e2e8f0;
+  border-radius: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.my-item-profile-btn:hover {
+  background: #e2e8f0;
+  color: #0f172a;
+}
+
+.my-item-phone-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  background: #ecfdf5;
+  color: #059669;
+  border: 1px solid #a7f3d0;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.my-item-phone-btn:hover {
+  background: #d1fae5;
+  color: #047857;
+}
+
+/* Status Pill in Card */
+.rent-status-pill {
+  display: inline-flex;
+  align-items: center;
+  font-size: 11px;
+  font-weight: 700;
+  padding: 3px 8px;
+  border-radius: 6px;
+  text-transform: capitalize;
+}
+
+.status-pill-sent {
+  background: #fef3c7;
+  color: #92400e;
+  border: 1px solid #fcd34d;
+}
+
+.status-pill-in {
+  background: #dbeafe;
+  color: #1e40af;
+  border: 1px solid #bfdbfe;
+}
+
+/* Rented Item Meta Box */
+.rented-item-details-box {
+  background: #f8fafc;
+  border-radius: 8px;
+  padding: 8px 10px;
+  margin-bottom: 10px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  border: 1px solid #f1f5f9;
+}
+
+.rented-item-title-link {
+  color: #0f172a;
+  text-decoration: none;
+  transition: color 0.2s ease;
+}
+
+.rented-item-title-link:hover {
+  color: #15803d;
+}
+
+.rented-clean-meta-box {
+  background: #f8fafc;
+  border-radius: 10px;
+  padding: 10px 12px;
+  margin-bottom: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  border: 1px solid #f1f5f9;
+}
+
+.rented-clean-meta-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+}
+
+.rented-clean-label {
+  display: block;
+  font-size: 10px;
+  color: #64748b;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.rented-user-name-text {
+  font-size: 13px;
+  font-weight: 700;
+  color: #1e293b;
+}
+
+.rented-clean-date {
+  font-size: 12px;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.rented-item-detail-row {
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+}
+
+.rented-item-detail-row .detail-label {
+  display: block;
+  font-size: 10px;
+  color: #94a3b8;
+  font-weight: 700;
+  text-transform: uppercase;
+}
+
+.rented-item-detail-row .detail-value {
+  display: block;
+  font-size: 12px;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.detail-icon-amber {
+  color: #d97706;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+.detail-icon-blue {
+  color: #2563eb;
+  flex-shrink: 0;
+  margin-top: 2px;
+}
+
+/* Rented item profile link & contacts */
+.rented-user-profile-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  text-decoration: none;
+  color: #1e293b;
+  font-weight: 600;
+  transition: all 0.2s ease;
+  max-width: 100%;
+}
+
+.rented-user-profile-link:hover {
+  color: #2563eb;
+  text-decoration: underline;
+}
+
+.detail-value-link {
+  color: #2563eb !important;
+  font-weight: 600 !important;
+}
+
+.rent-ext-icon {
+  color: #3b82f6;
+  flex-shrink: 0;
+}
+
+.rented-item-contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
+}
+
+.rented-contact-badge,
+.rent-contact-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  padding: 3px 8px;
+  border-radius: 6px;
+  font-size: 11px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  line-height: 1.2;
+}
+
+.phone-badge {
+  background: #ecfdf5;
+  color: #047857;
+  border: 1px solid #a7f3d0;
+}
+.phone-badge:hover {
+  background: #d1fae5;
+  color: #065f46;
+}
+
+.email-badge {
+  background: #eff6ff;
+  color: #1d4ed8;
+  border: 1px solid #bfdbfe;
+}
+.email-badge:hover {
+  background: #dbeafe;
+  color: #1e40af;
+}
+
+.location-badge {
+  background: #f8fafc;
+  color: #475569;
+  border: 1px solid #e2e8f0;
+}
+
 /* ========================================= */
 /* RENT REQUESTS STYLING                     */
 /* ========================================= */
@@ -379,6 +803,12 @@
   border: 1px solid #fca5a5;
 }
 
+.badge-rented {
+  background: #ede9fe;
+  color: #6d28d9;
+  border: 1px solid #c4b5fd;
+}
+
 .rent-request-meta-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
@@ -406,6 +836,87 @@
   font-size: 12px;
   color: #64748b;
   margin-top: 1px;
+}
+
+.rent-request-user-label {
+  display: block;
+  font-size: 11px;
+  color: #64748b;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-bottom: 2px;
+}
+
+.rent-request-user-link {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  color: #15803d;
+  font-size: 14px;
+  font-weight: 700;
+  text-decoration: none;
+  transition: all 0.2s ease;
+  width: fit-content;
+  padding: 1px 0;
+}
+
+.rent-request-user-link:hover {
+  color: #166534;
+  text-decoration: underline;
+}
+
+.rent-request-user-link .rent-ext-icon {
+  color: #15803d;
+  transition: transform 0.2s ease;
+}
+
+.rent-request-user-link:hover .rent-ext-icon {
+  transform: translate(1px, -1px);
+}
+
+.rent-request-user-name {
+  font-size: 14px;
+  color: #1e293b;
+  font-weight: 700;
+}
+
+.rent-request-meta-val {
+  font-size: 13px;
+  color: #1e293b;
+  font-weight: 600;
+}
+
+.rent-request-total-price {
+  color: #15803d;
+  font-weight: 700;
+}
+
+.rent-request-profile-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  font-size: 11px;
+  font-weight: 600;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: #f0fdf4;
+  color: #166534;
+  border: 1px solid #bbf7d0;
+  text-decoration: none;
+  transition: all 0.2s ease;
+}
+
+.rent-request-profile-pill:hover {
+  background: #dcfce7;
+  color: #14532d;
+}
+
+.rent-request-contacts {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 6px;
+  margin-top: 6px;
 }
 
 .rent-request-actions {
@@ -445,6 +956,50 @@
 .req-btn-decline:hover {
   background: #fee2e2;
   color: #b91c1c;
+}
+
+.req-btn-pickup {
+  background: #15803d;
+  color: #ffffff;
+}
+
+.req-btn-pickup:hover:not(:disabled) {
+  background: #106630;
+  transform: translateY(-1px);
+}
+
+.req-btn-pickup:active:not(:disabled) {
+  transform: translateY(0);
+}
+
+.req-btn:disabled {
+  opacity: 0.65;
+  cursor: not-allowed;
+  transform: none !important;
+}
+
+.req-btn-spinner {
+  width: 14px;
+  height: 14px;
+  border: 2px solid rgba(255, 255, 255, 0.35);
+  border-top-color: #ffffff;
+  border-radius: 50%;
+  animation: spin 0.8s linear infinite;
+  display: inline-block;
+}
+
+.req-btn-pickup {
+  background: #15803d;
+  color: #ffffff;
+}
+
+.req-btn-pickup:hover:not(:disabled) {
+  background: #106630;
+  transform: translateY(-1px);
+}
+
+.req-btn-pickup:active:not(:disabled) {
+  transform: translateY(0);
 }
 
 /* Empty State */
@@ -613,7 +1168,9 @@
   border-radius: 16px;
   overflow: hidden;
   box-shadow: 0 4px 15px rgba(0, 0, 0, 0.03);
-  transition: box-shadow 0.2s ease, transform 0.2s ease;
+  transition:
+    box-shadow 0.2s ease,
+    transform 0.2s ease;
 }
 
 .profile-item-card:hover {

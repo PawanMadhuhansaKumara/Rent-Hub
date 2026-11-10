@@ -1,33 +1,19 @@
 import React, { useState, useEffect } from "react";
-import { Link, useNavigate, useSearchParams } from "react-router-dom";
-import CartItemCard from "../components/CartItemCard";
-import RentRequestButton from "../components/RentRequestButton";
+import { useSearchParams } from "react-router-dom";
+import { Clock, Inbox, ShoppingCart, Package } from "lucide-react";
+
 import RentRequestForm from "../components/RentRequestForm";
-import { useTranslation } from "react-i18next";
-import {
-  Plus,
-  Package,
-  ArrowLeft,
-  Clock,
-  Inbox,
-  CheckCircle2,
-  XCircle,
-  Calendar,
-  User,
-  ShoppingBag,
-  ShoppingCart,
-  Store,
-  Phone,
-  ExternalLink,
-  Trash2
-} from "lucide-react";
+import RentRequestSuccessModal from "../components/RentRequestSuccessModal";
+import RentedItemsTab from "../components/my-items/RentedItemsTab";
+import RentRequestsTab from "../components/my-items/RentRequestsTab";
+import RentCartTab from "../components/my-items/RentCartTab";
+import InventoryItemsTab from "../components/my-items/InventoryItemsTab";
+
 import "./MyItems.css";
 
 const API_URL = "http://localhost:5001";
 
 export default function MyItems({ user }) {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
   const currentUser =
@@ -41,170 +27,69 @@ export default function MyItems({ user }) {
       }
     })();
 
+  const userId = currentUser?.user_id || currentUser?.id;
+
+  // -------------------------------------------------------------
+  // TAB & FILTER NAVIGATION
+  // -------------------------------------------------------------
   const validTabs = ["my-items", "rented-items", "rent-requests", "rent-cart"];
-  const validRequestFilters = ["all", "sent", "received"];
+  const validRequestFilters = ["sent", "received"];
+
   const tabFromUrl = searchParams.get("tab");
   const initialTab = validTabs.includes(tabFromUrl)
     ? tabFromUrl
-    : "rented-items";
+    : "rent-requests";
 
-  const filterFromUrl = searchParams.get("filter") || searchParams.get("subtab");
-  const initialFilter = validRequestFilters.includes(filterFromUrl)
-    ? filterFromUrl
-    : "all";
+  const fromSource = searchParams.get("from");
+  const isFromBusinessHub = fromSource === "business-hub";
+
+  const filterFromUrl =
+    searchParams.get("filter") || searchParams.get("subtab");
+
+  const initialFilter = isFromBusinessHub
+    ? "received"
+    : validRequestFilters.includes(filterFromUrl)
+      ? filterFromUrl
+      : "sent";
+
+  const subtabParam = searchParams.get("subtab");
+  const initialRentedSubTab = isFromBusinessHub
+    ? "sented-out"
+    : subtabParam === "rented-in"
+      ? "rented-in"
+      : "sented-out";
 
   const [activeTab, setActiveTab] = useState(initialTab);
+  const [requestFilter, setRequestFilter] = useState(initialFilter);
+  const [rentedSubTab, setRentedSubTab] = useState(initialRentedSubTab);
 
   useEffect(() => {
     const tabParam = searchParams.get("tab");
     if (tabParam && validTabs.includes(tabParam)) {
       setActiveTab(tabParam);
     }
-    const filterParam = searchParams.get("filter") || searchParams.get("subtab");
-    if (filterParam && validRequestFilters.includes(filterParam)) {
-      setRequestFilter(filterParam);
+    const fromParam = searchParams.get("from");
+    if (fromParam === "business-hub") {
+      setRequestFilter("received");
+      setRentedSubTab("sented-out");
+    } else {
+      const filterParam =
+        searchParams.get("filter") || searchParams.get("subtab");
+      if (filterParam && validRequestFilters.includes(filterParam)) {
+        setRequestFilter(filterParam);
+      }
+      if (filterParam === "rented-in" || filterParam === "sented-out") {
+        setRentedSubTab(filterParam);
+      }
     }
   }, [searchParams]);
+
+  // -------------------------------------------------------------
+  // INVENTORY ITEMS STATE
+  // -------------------------------------------------------------
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-
-  // Rent Requests state (persisted in localStorage or demo defaults)
-  // Cart items state already declared above (cartItems, loadingCart, errorCart)
-
-  // Fetch cart items for the current user
-  const fetchCartItems = async () => {
-    try {
-      setLoadingCart(true);
-      setErrorCart('');
-      const res = await fetch(`${API_URL}/api/cart/${userId}`);
-      if (res.ok) {
-        const data = await res.json();
-        setCartItems(Array.isArray(data) ? data : []);
-      } else {
-        const errData = await res.json().catch(() => ({}));
-        throw new Error(errData.message || 'Failed to load cart items.');
-      }
-    } catch (err) {
-      console.error('Error fetching cart items:', err);
-      setErrorCart(err.message || 'Failed to load cart items.');
-    } finally {
-      setLoadingCart(false);
-    }
-  };
-  const [cartItems, setCartItems] = useState([]);
-  const [loadingCart, setLoadingCart] = useState(false);
-  const [errorCart, setErrorCart] = useState("");
-  const [selectedCartIds, setSelectedCartIds] = useState([]);
-  const [requests, setRequests] = useState(() => {
-    try {
-      const saved = localStorage.getItem("rent_hub_requests");
-      if (saved) return JSON.parse(saved);
-    } catch {}
-    return [];
-  });
-  const [loadingRequests, setLoadingRequests] = useState(false);
-
-  const userId = currentUser?.user_id || currentUser?.id;
-
-  const [requestFilter, setRequestFilter] = useState(initialFilter);
-
-  // Fetch rental requests (both sent by user and received as seller)
-  const fetchBuyerRequests = async () => {
-    try {
-      setLoadingRequests(true);
-      let localReqs = [];
-      try {
-        const saved = localStorage.getItem("rent_hub_requests");
-        if (saved) localReqs = JSON.parse(saved);
-      } catch (e) {
-        console.error(e);
-      }
-
-      // Filter local requests relevant to this user (either buyer or seller)
-      const userFilteredLocal = userId
-        ? localReqs.filter(
-            (r) =>
-              Number(r.buyerId || r.buyer_id) === Number(userId) ||
-              Number(r.sellerId || r.seller_id) === Number(userId) ||
-              (!r.buyerId && !r.buyer_id)
-          )
-        : localReqs;
-
-      if (!userId) {
-        setRequests(userFilteredLocal);
-        return;
-      }
-
-      try {
-        const [buyerRes, sellerRes] = await Promise.all([
-          fetch(`${API_URL}/api/rent-requests/buyer/${userId}`).catch(() => null),
-          fetch(`${API_URL}/api/rent-requests/seller/${userId}`).catch(() => null),
-        ]);
-
-        let apiList = [];
-        if (buyerRes && buyerRes.ok) {
-          const bData = await buyerRes.json();
-          if (Array.isArray(bData)) {
-            apiList.push(...bData.map((it) => ({ ...it, reqType: "sent" })));
-          }
-        }
-        if (sellerRes && sellerRes.ok) {
-          const sData = await sellerRes.json();
-          if (Array.isArray(sData)) {
-            apiList.push(...sData.map((it) => ({ ...it, reqType: "received" })));
-          }
-        }
-
-        const map = new Map();
-        apiList.forEach((item) => map.set(String(item.id), item));
-        userFilteredLocal.forEach((item) => {
-          if (!map.has(String(item.id))) {
-            map.set(String(item.id), item);
-          } else {
-            map.set(String(item.id), { ...map.get(String(item.id)), ...item });
-          }
-        });
-
-        const merged = Array.from(map.values()).sort(
-          (a, b) =>
-            new Date(b.createdAt || b.created_at || 0) -
-            new Date(a.createdAt || a.created_at || 0)
-        );
-        setRequests(merged);
-        return;
-      } catch (err) {
-        console.warn("Could not reach backend for requests, using local:", err);
-      }
-
-      setRequests(userFilteredLocal);
-    } finally {
-      setLoadingRequests(false);
-    }
-  };
-
-  useEffect(() => {
-    fetchBuyerRequests();
-
-    const handleUpdate = () => {
-      fetchBuyerRequests();
-    };
-
-    window.addEventListener("rent_requests_updated", handleUpdate);
-    window.addEventListener("storage", handleUpdate);
-    return () => {
-      window.removeEventListener("rent_requests_updated", handleUpdate);
-      window.removeEventListener("storage", handleUpdate);
-    };
-  }, [userId]);
-
-  useEffect(() => {
-    if (!userId) {
-      setLoading(false);
-      return;
-    }
-    fetchMyItems();
-  }, [userId]);
 
   const fetchMyItems = async () => {
     try {
@@ -225,34 +110,256 @@ export default function MyItems({ user }) {
     }
   };
 
-  // Fetch cart items when userId changes or active tab is rent-cart
+  useEffect(() => {
+    if (!userId) {
+      setLoading(false);
+      return;
+    }
+    fetchMyItems();
+  }, [userId]);
+
+  // -------------------------------------------------------------
+  // RENT REQUESTS STATE
+  // -------------------------------------------------------------
+  const [requests, setRequests] = useState(() => {
+    try {
+      const saved = localStorage.getItem("rent_hub_requests");
+      if (saved) {
+        const parsed = JSON.parse(saved);
+        if (Array.isArray(parsed)) {
+          return parsed.sort(
+            (a, b) =>
+              new Date(b.createdAt || b.created_at || 0).getTime() -
+                new Date(a.createdAt || a.created_at || 0).getTime() ||
+              Number(b.id || 0) - Number(a.id || 0),
+          );
+        }
+      }
+    } catch {}
+    return [];
+  });
+  const [loadingRequests, setLoadingRequests] = useState(false);
+  const [updatingReqId, setUpdatingReqId] = useState(null);
+
+  const fetchBuyerRequests = async () => {
+    try {
+      setLoadingRequests(true);
+      let localReqs = [];
+      try {
+        const saved = localStorage.getItem("rent_hub_requests");
+        if (saved) localReqs = JSON.parse(saved);
+      } catch (e) {
+        console.error(e);
+      }
+      localReqs = (Array.isArray(localReqs) ? localReqs : []).filter(
+        (r) =>
+          r.status?.toLowerCase() !== "declined" &&
+          r.status?.toLowerCase() !== "cancelled",
+      );
+
+      const userFilteredLocal = userId
+        ? localReqs.filter(
+            (r) =>
+              Number(r.buyerId || r.buyer_id) === Number(userId) ||
+              Number(r.sellerId || r.seller_id) === Number(userId) ||
+              (!r.buyerId && !r.buyer_id),
+          )
+        : localReqs;
+
+      userFilteredLocal.sort(
+        (a, b) =>
+          new Date(b.createdAt || b.created_at || 0).getTime() -
+            new Date(a.createdAt || a.created_at || 0).getTime() ||
+          Number(b.id || 0) - Number(a.id || 0),
+      );
+
+      if (!userId) {
+        setRequests(userFilteredLocal);
+        return;
+      }
+
+      try {
+        const [buyerRes, sellerRes] = await Promise.all([
+          fetch(`${API_URL}/api/rent-requests/buyer/${userId}`).catch(
+            () => null,
+          ),
+          fetch(`${API_URL}/api/rent-requests/seller/${userId}`).catch(
+            () => null,
+          ),
+        ]);
+
+        let apiList = [];
+        if (buyerRes && buyerRes.ok) {
+          const bData = await buyerRes.json();
+          if (Array.isArray(bData)) {
+            apiList.push(...bData.map((it) => ({ ...it, reqType: "sent" })));
+          }
+        }
+        if (sellerRes && sellerRes.ok) {
+          const sData = await sellerRes.json();
+          if (Array.isArray(sData)) {
+            apiList.push(
+              ...sData.map((it) => ({ ...it, reqType: "received" })),
+            );
+          }
+        }
+
+        const map = new Map();
+        apiList.forEach((item) => map.set(String(item.id), item));
+        userFilteredLocal.forEach((item) => {
+          if (map.has(String(item.id))) {
+            const apiItem = map.get(String(item.id));
+            const status =
+              item.status?.toLowerCase() === "rented"
+                ? "rented"
+                : apiItem.status || item.status;
+            map.set(String(item.id), { ...item, ...apiItem, status });
+            return;
+          }
+
+          // If this local request refers to an item & buyer already returned from API, do not create duplicate
+          const itemKey = String(item.itemId || item.item_id);
+          const buyerKey = String(item.buyerId || item.buyer_id);
+          const alreadyInApi = apiList.some((apiItem) => {
+            const aItemKey = String(apiItem.itemId || apiItem.item_id);
+            const aBuyerKey = String(apiItem.buyerId || apiItem.buyer_id);
+            return (
+              itemKey &&
+              itemKey === aItemKey &&
+              buyerKey &&
+              buyerKey === aBuyerKey
+            );
+          });
+
+          if (!alreadyInApi) {
+            map.set(String(item.id), item);
+          }
+        });
+
+        const merged = Array.from(map.values()).sort(
+          (a, b) =>
+            new Date(b.createdAt || b.created_at || 0) -
+            new Date(a.createdAt || a.created_at || 0),
+        );
+        setRequests(merged);
+        try {
+          localStorage.setItem("rent_hub_requests", JSON.stringify(merged));
+        } catch {}
+        return;
+      } catch (err) {
+        console.warn("Could not reach backend for requests, using local:", err);
+      }
+
+      setRequests(userFilteredLocal);
+    } finally {
+      setLoadingRequests(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchBuyerRequests();
+
+    const handleUpdate = () => {
+      fetchBuyerRequests();
+      fetchMyItems();
+    };
+
+    window.addEventListener("rent_requests_updated", handleUpdate);
+    window.addEventListener("items_updated", handleUpdate);
+    window.addEventListener("storage", handleUpdate);
+    return () => {
+      window.removeEventListener("rent_requests_updated", handleUpdate);
+      window.removeEventListener("items_updated", handleUpdate);
+      window.removeEventListener("storage", handleUpdate);
+    };
+  }, [userId]);
+
+  // -------------------------------------------------------------
+  // RENT CART STATE
+  // -------------------------------------------------------------
+  const [cartItems, setCartItems] = useState([]);
+  const [loadingCart, setLoadingCart] = useState(false);
+  const [errorCart, setErrorCart] = useState("");
+  const [selectedCartIds, setSelectedCartIds] = useState([]);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [successModalTitle, setSuccessModalTitle] = useState("");
+
+  const fetchCartItems = async () => {
+    try {
+      setLoadingCart(true);
+      setErrorCart("");
+      const res = await fetch(`${API_URL}/api/cart/${userId}`);
+      if (res.ok) {
+        const data = await res.json();
+        const sorted = (Array.isArray(data) ? data : []).sort(
+          (a, b) =>
+            new Date(b.createdAt || b.created_at || 0).getTime() -
+              new Date(a.createdAt || a.created_at || 0).getTime() ||
+            Number(b.id || 0) - Number(a.id || 0),
+        );
+        setCartItems(sorted);
+      } else {
+        const errData = await res.json().catch(() => ({}));
+        throw new Error(errData.message || "Failed to load cart items.");
+      }
+    } catch (err) {
+      console.error("Error fetching cart items:", err);
+      setErrorCart(err.message || "Failed to load cart items.");
+    } finally {
+      setLoadingCart(false);
+    }
+  };
+
   useEffect(() => {
     if (userId) {
       fetchCartItems();
     }
   }, [userId, activeTab]);
 
+  const isItemCurrentlyRented = (ci) => {
+    if (!ci) return false;
+    return (
+      ci.available === "Rented Out" ||
+      String(ci.available).toLowerCase() === "rented out" ||
+      String(ci.available).toLowerCase() === "rented" ||
+      ci.available === 0 ||
+      ci.available === "0" ||
+      (ci.available !== undefined &&
+        ci.available !== null &&
+        ci.available !== "" &&
+        !isNaN(Number(ci.available)) &&
+        Number(ci.available) < 1)
+    );
+  };
+
   const handleToggleSelect = (cartId) => {
+    const item = cartItems.find((ci) => ci.id === cartId);
+    if (item && isItemCurrentlyRented(item)) {
+      alert("This item is currently rented out and cannot be rented.");
+      return;
+    }
     setSelectedCartIds((prev) =>
       prev.includes(cartId)
         ? prev.filter((id) => id !== cartId)
-        : [...prev, cartId]
+        : [...prev, cartId],
     );
   };
 
   const handleSelectAll = () => {
-    if (selectedCartIds.length === cartItems.length) {
+    const selectable = cartItems.filter((ci) => !isItemCurrentlyRented(ci));
+    if (selectedCartIds.length === selectable.length) {
       setSelectedCartIds([]);
     } else {
-      setSelectedCartIds(cartItems.map((ci) => ci.id));
+      setSelectedCartIds(selectable.map((ci) => ci.id));
     }
   };
 
   const totalSelectedPrice = cartItems
     .filter((ci) => selectedCartIds.includes(ci.id))
     .reduce(
-      (acc, curr) => acc + Number(curr.price || 0) * (Number(curr.quantity) || 1),
-      0
+      (acc, curr) =>
+        acc + Number(curr.price || 0) * (Number(curr.quantity) || 1),
+      0,
     );
 
   const handleRemoveFromCart = async (cartId) => {
@@ -273,6 +380,9 @@ export default function MyItems({ user }) {
     }
   };
 
+  // -------------------------------------------------------------
+  // CART BULK & MODAL RENT ACTIONS
+  // -------------------------------------------------------------
   const [rentModalItem, setRentModalItem] = useState(null);
   const [rentStartDate, setRentStartDate] = useState("");
   const [rentEndDate, setRentEndDate] = useState("");
@@ -283,7 +393,15 @@ export default function MyItems({ user }) {
       alert("Please select at least one item from the cart to rent.");
       return;
     }
-    const selectedItems = cartItems.filter((ci) => selectedCartIds.includes(ci.id));
+    const selectedItems = cartItems.filter(
+      (ci) => selectedCartIds.includes(ci.id) && !isItemCurrentlyRented(ci),
+    );
+
+    if (selectedItems.length === 0) {
+      alert("Selected items are currently rented out and cannot be rented.");
+      return;
+    }
+
     if (selectedItems.length === 1) {
       const targetItem = selectedItems[0];
       setRentModalItem(targetItem);
@@ -293,22 +411,28 @@ export default function MyItems({ user }) {
       return;
     }
 
-    // Process multiple selected cart items
     for (const item of selectedItems) {
       const s = item.startDate ? new Date(item.startDate) : new Date();
-      const e = item.endDate ? new Date(item.endDate) : new Date(Date.now() + 86400000);
+      const e = item.endDate
+        ? new Date(item.endDate)
+        : new Date(Date.now() + 86400000);
       const diffDays = Math.max(1, Math.ceil((e - s) / (1000 * 60 * 60 * 24)));
       const numPrice = Number(item.price) || 0;
       const numQty = Number(item.quantity) || 1;
       const itemPriceType = item.priceType || item.price_type || "day";
-      const total = itemPriceType === "day" ? numPrice * numQty * diffDays : numPrice * numQty;
+      const total =
+        itemPriceType === "day"
+          ? numPrice * numQty * diffDays
+          : numPrice * numQty;
 
       const payload = {
         itemId: item.itemId || item.item_id || item.id,
         buyerId: userId,
         sellerId: item.sellerId || item.user_id,
         startDate: item.startDate || new Date().toISOString().split("T")[0],
-        endDate: item.endDate || new Date(Date.now() + 86400000).toISOString().split("T")[0],
+        endDate:
+          item.endDate ||
+          new Date(Date.now() + 86400000).toISOString().split("T")[0],
         quantity: numQty,
         totalPrice: total,
         status: "Pending",
@@ -334,21 +458,31 @@ export default function MyItems({ user }) {
       };
 
       try {
-        const saved = JSON.parse(localStorage.getItem("rent_hub_requests") || "[]");
-        localStorage.setItem("rent_hub_requests", JSON.stringify([localReq, ...saved]));
+        const saved = JSON.parse(
+          localStorage.getItem("rent_hub_requests") || "[]",
+        );
+        localStorage.setItem(
+          "rent_hub_requests",
+          JSON.stringify([localReq, ...saved]),
+        );
       } catch {}
 
       handleRemoveFromCart(item.id);
     }
 
     fetchBuyerRequests();
-    alert(`Rental requests submitted for ${selectedItems.length} selected item(s)!`);
-    setActiveTab("rent-requests");
+    setSuccessModalTitle(`${selectedItems.length} selected item(s)`);
+    setShowSuccessModal(true);
   };
 
   const handleCartRentSubmit = async (e) => {
     e.preventDefault();
     if (!rentModalItem) return;
+
+    if (isItemCurrentlyRented(rentModalItem)) {
+      alert("This item is currently rented out and cannot be rented.");
+      return;
+    }
 
     if (!rentStartDate || !rentEndDate) {
       alert("Please select rental start and end dates.");
@@ -357,12 +491,18 @@ export default function MyItems({ user }) {
 
     const s = new Date(rentStartDate);
     const eDate = new Date(rentEndDate);
-    const diffDays = Math.max(1, Math.ceil((eDate - s) / (1000 * 60 * 60 * 24)));
+    const diffDays = Math.max(
+      1,
+      Math.ceil((eDate - s) / (1000 * 60 * 60 * 24)),
+    );
     const numPrice = Number(rentModalItem.price) || 0;
     const numQty = Number(rentQuantity) || 1;
-    const itemPriceType = rentModalItem.priceType || rentModalItem.price_type || "day";
+    const itemPriceType =
+      rentModalItem.priceType || rentModalItem.price_type || "day";
     const calculatedTotal =
-      itemPriceType === "day" ? numPrice * numQty * diffDays : numPrice * numQty;
+      itemPriceType === "day"
+        ? numPrice * numQty * diffDays
+        : numPrice * numQty;
 
     const requestPayload = {
       itemId: rentModalItem.itemId || rentModalItem.item_id || rentModalItem.id,
@@ -392,8 +532,10 @@ export default function MyItems({ user }) {
           itemImage: rentModalItem.image || rentModalItem.image_url,
           itemPrice: numPrice,
           priceType: itemPriceType,
-          sellerName: rentModalItem.sellerName || rentModalItem.userName || "Item Owner",
-          sellerPhone: rentModalItem.sellerPhone || rentModalItem.phone_no || "",
+          sellerName:
+            rentModalItem.sellerName || rentModalItem.userName || "Item Owner",
+          sellerPhone:
+            rentModalItem.sellerPhone || rentModalItem.phone_no || "",
         };
       }
     } catch (err) {
@@ -409,15 +551,21 @@ export default function MyItems({ user }) {
         itemImage: rentModalItem.image || rentModalItem.image_url,
         itemPrice: numPrice,
         priceType: itemPriceType,
-        sellerName: rentModalItem.sellerName || rentModalItem.userName || "Item Owner",
+        sellerName:
+          rentModalItem.sellerName || rentModalItem.userName || "Item Owner",
         sellerPhone: rentModalItem.sellerPhone || rentModalItem.phone_no || "",
       };
     }
 
     try {
-      const saved = JSON.parse(localStorage.getItem("rent_hub_requests") || "[]");
+      const saved = JSON.parse(
+        localStorage.getItem("rent_hub_requests") || "[]",
+      );
       const filtered = saved.filter((r) => String(r.id) !== String(created.id));
-      localStorage.setItem("rent_hub_requests", JSON.stringify([created, ...filtered]));
+      localStorage.setItem(
+        "rent_hub_requests",
+        JSON.stringify([created, ...filtered]),
+      );
       window.dispatchEvent(new Event("rent_requests_updated"));
     } catch {}
 
@@ -425,12 +573,23 @@ export default function MyItems({ user }) {
       handleRemoveFromCart(rentModalItem.id);
     }
 
-    setRequests((prev) => [created, ...prev.filter((r) => String(r.id) !== String(created.id))]);
+    setRequests((prev) => [
+      created,
+      ...prev.filter((r) => String(r.id) !== String(created.id)),
+    ]);
+    const sentTitle = created.itemTitle;
     setRentModalItem(null);
-    alert(`Rental request sent for "${created.itemTitle}"!`);
-    setActiveTab("rent-requests");
+    setRentStartDate("");
+    setRentEndDate("");
+    setRentQuantity(1);
+    setSuccessModalTitle(sentTitle);
+    setShowSuccessModal(true);
+    return true;
   };
 
+  // -------------------------------------------------------------
+  // STATUS UPDATE HANDLERS
+  // -------------------------------------------------------------
   const handleStatusChange = async (itemId, newStatus) => {
     try {
       const res = await fetch(`${API_URL}/api/items/status/${itemId}`, {
@@ -442,9 +601,33 @@ export default function MyItems({ user }) {
       if (res.ok && data.success) {
         setItems((prev) =>
           prev.map((it) =>
-            it.id === itemId ? { ...it, available: newStatus } : it
-          )
+            String(it.id) === String(itemId)
+              ? { ...it, available: newStatus }
+              : it,
+          ),
         );
+
+        if (newStatus === "Available") {
+          setRequests((prev) => {
+            const updated = prev.map((r) =>
+              String(r.itemId || r.item_id) === String(itemId) &&
+              r.status?.toLowerCase() === "rented"
+                ? { ...r, status: "Completed" }
+                : r,
+            );
+            try {
+              localStorage.setItem(
+                "rent_hub_requests",
+                JSON.stringify(updated),
+              );
+            } catch {}
+            return updated;
+          });
+        }
+
+        window.dispatchEvent(new Event("rent_requests_updated"));
+        window.dispatchEvent(new Event("items_updated"));
+        window.dispatchEvent(new Event("storage"));
       } else {
         alert("Failed to update status.");
       }
@@ -454,46 +637,408 @@ export default function MyItems({ user }) {
     }
   };
 
-  const handleRequestAction = async (reqId, newStatus) => {
-    try {
-      await fetch(`${API_URL}/api/rent-requests/${reqId}/status`, {
-        method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ status: newStatus }),
-      });
-    } catch (e) {
-      console.warn("Backend status update error:", e);
-    }
+  const [returningItemId, setReturningItemId] = useState(null);
 
+  const handleReturnItem = async (rentedItem) => {
+    if (!rentedItem) return;
+    const itemId = rentedItem.itemId || rentedItem.id;
+    const reqId = rentedItem.requestId;
+
+    setReturningItemId(String(itemId || reqId));
+
+    // 1. Optimistic instant state update
+    // Restore item availability in inventory state
+    setItems((prev) =>
+      prev.map((it) =>
+        String(it.id) === String(itemId)
+          ? { ...it, available: "Available" }
+          : it,
+      ),
+    );
+
+    // Update requests to Completed so item leaves rented lists (for both shop & customer)
     setRequests((prev) => {
-      const updated = prev.map((r) =>
-        String(r.id) === String(reqId) ? { ...r, status: newStatus } : r
-      );
+      const updated = prev.map((r) => {
+        const isMatch =
+          (reqId && String(r.id) === String(reqId)) ||
+          (itemId && String(r.itemId || r.item_id) === String(itemId));
+        return isMatch && r.status?.toLowerCase() === "rented"
+          ? { ...r, status: "Completed" }
+          : r;
+      });
       try {
         localStorage.setItem("rent_hub_requests", JSON.stringify(updated));
       } catch {}
       return updated;
     });
+
+    try {
+      // 2. Call backend APIs to restore availability and complete the rental request
+      const calls = [];
+      if (itemId) {
+        calls.push(
+          fetch(`${API_URL}/api/items/status/${itemId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ available: "Available" }),
+          }).catch((err) => console.warn("Item status update warning:", err)),
+        );
+      }
+      if (reqId) {
+        calls.push(
+          fetch(`${API_URL}/api/rent-requests/${reqId}/status`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "Completed" }),
+          }).catch((err) =>
+            console.warn("Request status update warning:", err),
+          ),
+        );
+      }
+
+      await Promise.all(calls);
+
+      // 3. Dispatch events to notify other views (Home, Profile, Item Details)
+      window.dispatchEvent(new Event("items_updated"));
+      window.dispatchEvent(new Event("rent_requests_updated"));
+      window.dispatchEvent(new Event("storage"));
+    } catch (err) {
+      console.error("Error returning item:", err);
+    } finally {
+      setReturningItemId(null);
+    }
   };
 
-  // Filter items that are rented out
-  const rentedItems = items.filter(
-    (item) => item.available === "Rented Out" || item.available === 0 || item.available === "0"
+  const handleRequestAction = async (
+    reqId,
+    newStatus,
+    verificationData = null,
+  ) => {
+    const isRemoval =
+      newStatus?.toLowerCase() === "declined" ||
+      newStatus?.toLowerCase() === "cancelled";
+
+    const targetReq = requests.find((r) => String(r.id) === String(reqId));
+    const targetItemId = targetReq?.itemId || targetReq?.item_id;
+
+    // 1. Instantly update React state and localStorage FIRST so UI changes on single click immediately!
+    setRequests((prev) => {
+      const updated = isRemoval
+        ? prev.filter((r) => String(r.id) !== String(reqId))
+        : prev.map((r) =>
+            String(r.id) === String(reqId)
+              ? {
+                  ...r,
+                  status: newStatus,
+                  ...(verificationData
+                    ? { verification: verificationData }
+                    : {}),
+                }
+              : r,
+          );
+      try {
+        localStorage.setItem("rent_hub_requests", JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    if (newStatus?.toLowerCase() === "rented") {
+      if (targetItemId) {
+        setItems((prev) =>
+          prev.map((it) =>
+            String(it.id) === String(targetItemId)
+              ? { ...it, available: "Rented Out" }
+              : it,
+          ),
+        );
+      }
+    }
+
+    // 2. Sync to backend asynchronously
+    setUpdatingReqId(reqId);
+    try {
+      if (isRemoval) {
+        await fetch(`${API_URL}/api/rent-requests/${reqId}`, {
+          method: "DELETE",
+        }).catch(() => null);
+        await fetch(`${API_URL}/api/rent-requests/${reqId}/status`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+        }).catch(() => null);
+      } else if (newStatus?.toLowerCase() === "rented" && verificationData) {
+        // Dedicated Handover Verification Endpoint
+        await fetch(`${API_URL}/api/rent-requests/${reqId}/handover`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(verificationData),
+        });
+      } else {
+        await fetch(`${API_URL}/api/rent-requests/${reqId}/status`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ status: newStatus }),
+        });
+
+        if (newStatus?.toLowerCase() === "rented" && targetItemId) {
+          try {
+            await fetch(`${API_URL}/api/items/status/${targetItemId}`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ available: "Rented Out" }),
+            });
+          } catch (e) {}
+        }
+      }
+
+      // 3. Dispatch events AFTER backend has completed
+      window.dispatchEvent(new Event("rent_requests_updated"));
+      window.dispatchEvent(new Event("items_updated"));
+      window.dispatchEvent(new Event("storage"));
+    } catch (e) {
+      console.warn("Backend status update error:", e);
+    } finally {
+      setUpdatingReqId(null);
+    }
+  };
+
+  // -------------------------------------------------------------
+  // RENTED ITEMS DERIVED LISTS
+  // -------------------------------------------------------------
+  const ownedRentedOut = items
+    .filter(
+      (item) =>
+        item.available === "Rented Out" ||
+        item.available === 0 ||
+        item.available === "0",
+    )
+    .map((item) => {
+      const activeReq =
+        requests.find((r) => {
+          const isItemMatch = String(r.itemId || r.item_id) === String(item.id);
+          const isOwner =
+            Number(r.sellerId || r.seller_id) === Number(userId) ||
+            Number(r.buyerId || r.buyer_id) !== Number(userId);
+          const isConfirmed =
+            r.status?.toLowerCase() === "rented" ||
+            r.status?.toLowerCase() === "approved";
+          return isItemMatch && isOwner && isConfirmed;
+        }) ||
+        requests.find((r) => {
+          const isItemMatch = String(r.itemId || r.item_id) === String(item.id);
+          const isOwner =
+            Number(r.sellerId || r.seller_id) === Number(userId) ||
+            Number(r.buyerId || r.buyer_id) !== Number(userId);
+          return isItemMatch && isOwner;
+        }) ||
+        requests.find((r) => String(r.itemId || r.item_id) === String(item.id));
+
+      return {
+        uniqueKey: `item-${item.id}`,
+        id: item.id,
+        itemId: item.id,
+        title: item.title,
+        image: item.image,
+        category: item.category,
+        price: item.price,
+        priceType: item.priceType,
+        available: item.available,
+        rentType: "sented-out",
+        isInventoryItem: true,
+        renterId: activeReq
+          ? activeReq.buyerId || activeReq.buyer_id || activeReq.requesterId
+          : null,
+        renterName: activeReq
+          ? activeReq.requesterName ||
+            activeReq.buyerName ||
+            activeReq.buyer_name ||
+            "Customer"
+          : null,
+        renterPhone: activeReq
+          ? activeReq.requesterPhone ||
+            activeReq.buyerPhone ||
+            activeReq.buyer_phone
+          : null,
+        renterEmail: activeReq
+          ? activeReq.requesterEmail ||
+            activeReq.buyerEmail ||
+            activeReq.buyer_email
+          : null,
+        renterCity: activeReq
+          ? activeReq.requesterCity ||
+            activeReq.buyerCity ||
+            activeReq.buyer_city ||
+            activeReq.requesterAddress
+          : null,
+        startDate: activeReq?.startDate || activeReq?.start_date,
+        endDate: activeReq?.endDate || activeReq?.end_date,
+        totalPrice: activeReq?.totalPrice,
+        requestStatus: activeReq?.status,
+        createdAt:
+          activeReq?.createdAt ||
+          activeReq?.created_at ||
+          item.updated_at ||
+          item.created_at,
+        requestId: activeReq?.id || item.id,
+      };
+    });
+
+  const seenSentedOutItemIds = new Set(
+    ownedRentedOut.map((it) => String(it.id)),
+  );
+  const receivedReqRentedOut = requests
+    .filter((r) => {
+      const isOwner = !(
+        Number(r.buyerId || r.buyer_id) === Number(userId) ||
+        (!r.sellerId && !r.seller_id) ||
+        r.reqType === "sent"
+      );
+      const isConfirmed = r.status?.toLowerCase() === "rented";
+      if (!isOwner || !isConfirmed) return false;
+
+      const itemKey = String(r.itemId || r.item_id || r.id);
+      if (seenSentedOutItemIds.has(itemKey)) {
+        return false;
+      }
+      seenSentedOutItemIds.add(itemKey);
+      return true;
+    })
+    .map((r) => ({
+      uniqueKey: `req-${r.id}`,
+      id: r.itemId || r.item_id || r.id,
+      itemId: r.itemId || r.item_id,
+      requestId: r.id,
+      title: r.itemTitle || "Rented Item",
+      image: r.itemImage,
+      category: "Rented Out",
+      price:
+        r.itemPrice || (r.totalPrice ? r.totalPrice / (r.quantity || 1) : 0),
+      priceType: r.priceType || "day",
+      available: "Rented Out",
+      rentType: "sented-out",
+      isInventoryItem: false,
+      renterId: r.buyerId || r.buyer_id || r.requesterId,
+      renterName: r.requesterName || r.buyerName || r.buyer_name || "Customer",
+      renterPhone: r.requesterPhone || r.buyerPhone || r.buyer_phone,
+      renterEmail: r.requesterEmail || r.buyerEmail || r.buyer_email,
+      renterCity:
+        r.requesterCity || r.buyerCity || r.buyer_city || r.requesterAddress,
+      startDate: r.startDate || r.start_date,
+      endDate: r.endDate || r.end_date,
+      totalPrice: r.totalPrice,
+      requestStatus: r.status,
+      createdAt: r.createdAt || r.created_at,
+    }));
+
+  const getSortTimestamp = (it) => {
+    const d =
+      it.updatedAt ||
+      it.updated_at ||
+      it.createdAt ||
+      it.created_at ||
+      it.startDate;
+    const timeVal = d ? new Date(d).getTime() : 0;
+    const idVal = Number(it.requestId || it.id || 0);
+    return isNaN(timeVal) || timeVal === 0 ? idVal : timeVal;
+  };
+
+  const sentedOutList = [...ownedRentedOut, ...receivedReqRentedOut].sort(
+    (a, b) =>
+      getSortTimestamp(b) - getSortTimestamp(a) ||
+      Number(b.requestId || b.id || 0) - Number(a.requestId || a.id || 0),
   );
 
-  // Tabs configuration sorted descending by item count (highest count on the left)
+  const seenRentedInItemIds = new Set();
+  const rentedInList = requests
+    .filter((r) => {
+      const isBuyer =
+        Number(r.buyerId || r.buyer_id) === Number(userId) ||
+        (!r.sellerId && !r.seller_id) ||
+        r.reqType === "sent";
+      const isConfirmed =
+        r.status?.toLowerCase() === "rented" ||
+        r.status === "Approved" ||
+        r.status?.toLowerCase() === "approved";
+      if (!isBuyer || !isConfirmed) return false;
+
+      const itemKey = String(r.itemId || r.item_id || r.id);
+      if (seenRentedInItemIds.has(itemKey)) {
+        return false;
+      }
+      seenRentedInItemIds.add(itemKey);
+      return true;
+    })
+    .map((r) => ({
+      uniqueKey: `rented-in-${r.id}`,
+      id: r.itemId || r.item_id || r.id,
+      itemId: r.itemId || r.item_id,
+      requestId: r.id,
+      title: r.itemTitle || "Rented Item",
+      image: r.itemImage,
+      category: "Rented In",
+      price: r.itemPrice,
+      priceType: r.priceType,
+      rentType: "rented-in",
+      isInventoryItem: false,
+      sellerId: r.sellerId || r.seller_id || r.userId || r.user_id,
+      sellerName: r.sellerName || r.seller_name || r.userName || "Shop Owner",
+      sellerPhone: r.sellerPhone || r.seller_phone || r.userPhone || r.phone_no,
+      sellerEmail: r.sellerEmail || r.seller_email || r.userEmail || r.email,
+      sellerCity:
+        r.sellerCity || r.seller_city || r.sellerAddress || r.nearestCity,
+      startDate: r.startDate || r.start_date,
+      endDate: r.endDate || r.end_date,
+      quantity: r.quantity,
+      totalPrice: r.totalPrice,
+      requestStatus: r.status,
+      createdAt: r.createdAt || r.created_at,
+    }))
+    .sort(
+      (a, b) =>
+        getSortTimestamp(b) - getSortTimestamp(a) ||
+        Number(b.requestId || b.id || 0) - Number(a.requestId || a.id || 0),
+    );
+
+  const allRentedItems = [...sentedOutList, ...rentedInList];
+  const allRentedCount = allRentedItems.length;
+
+  const displayedRentedItems =
+    isFromBusinessHub || rentedSubTab === "sented-out"
+      ? sentedOutList
+      : rentedInList;
+
+  // -------------------------------------------------------------
+  // FIXED NAVIGATION TABS HEADER (Rent Requests -> Rented Items -> Rent Items Cart)
+  // -------------------------------------------------------------
   const tabsConfig = [
-    {
-      key: "rented-items",
-      label: "Rented Items",
-      icon: <Clock size={17} />,
-      count: rentedItems.length,
-    },
     {
       key: "rent-requests",
       label: "Rent Requests",
       icon: <Inbox size={17} />,
-      count: requests.length,
+      count: isFromBusinessHub
+        ? requests.filter(
+            (r) =>
+              !(
+                Number(r.buyerId || r.buyer_id) === Number(userId) ||
+                (!r.sellerId && !r.seller_id) ||
+                r.reqType === "sent"
+              ) &&
+              r.status?.toLowerCase() !== "declined" &&
+              r.status?.toLowerCase() !== "cancelled" &&
+              r.status?.toLowerCase() !== "rented",
+          ).length
+        : requests.filter(
+            (r) =>
+              r.status?.toLowerCase() !== "declined" &&
+              r.status?.toLowerCase() !== "cancelled" &&
+              r.status?.toLowerCase() !== "rented",
+          ).length,
+    },
+    {
+      key: "rented-items",
+      label: "Rented Items",
+      icon: <Clock size={17} />,
+      count: isFromBusinessHub ? sentedOutList.length : allRentedCount,
     },
     {
       key: "rent-cart",
@@ -503,16 +1048,12 @@ export default function MyItems({ user }) {
     },
   ];
 
-  const sortedTabs = [...tabsConfig].sort((a, b) => b.count - a.count);
-
   return (
     <div className="my-items-page">
       <div className="my-items-container">
-        
-
-        {/* 3 Tabs: Sorted dynamically by highest item count */}
+        {/* Navigation Tabs (Fixed Order) */}
         <div className="my-items-tabs">
-          {sortedTabs.map((tab) => (
+          {tabsConfig.map((tab) => (
             <button
               key={tab.key}
               type="button"
@@ -528,504 +1069,79 @@ export default function MyItems({ user }) {
           ))}
         </div>
 
-        {/* TAB 1: MY ITEMS */}
-        {false && (
-          <>
-            {loading ? (
-              <div className="my-items-loader">
-                <div className="my-items-spinner" />
-                <p>Loading your items...</p>
-              </div>
-            ) : error ? (
-              <div className="my-items-error">
-                <p>{error}</p>
-                <button onClick={fetchMyItems} className="my-items-retry-btn">
-                  Retry
-                </button>
-              </div>
-            ) : items.length === 0 ? (
-              <div className="my-items-empty">
-                <div className="my-items-empty-icon">
-                  <Package size={48} color="#15803d" />
-                </div>
-                <h3>No items listed yet</h3>
-                <p>Start earning by listing your items for rent in the marketplace.</p>
-                <Link to="/add-item" className="my-items-empty-add-btn">
-                  <Plus size={18} /> Add Your First Item
-                </Link>
-              </div>
-            ) : (
-              <div className="profile-items-grid">
-                {items.map((item) => {
-                  const imageUrl = item.image
-                    ? item.image.startsWith("http")
-                      ? item.image
-                      : `${API_URL}${item.image.startsWith("/") ? "" : "/"}${item.image}`
-                    : "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=400";
-
-                  const isAvailable =
-                    item.available === "Available" ||
-                    item.available === 1 ||
-                    item.available === "1";
-
-                  return (
-                    <div key={item.id} className="profile-item-card">
-                      {/* Image */}
-                      <div className="profile-item-img-container">
-                        <img
-                          src={imageUrl}
-                          alt={item.title}
-                          className="profile-item-img"
-                          onError={(e) => {
-                            e.currentTarget.onerror = null;
-                            e.currentTarget.src =
-                              "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=400";
-                          }}
-                        />
-                        {item.category && (
-                          <span className="profile-item-category-badge">
-                            {item.category}
-                          </span>
-                        )}
-                      </div>
-
-                      {/* Body */}
-                      <div className="profile-item-body">
-                        <h4 className="profile-item-title">{item.title}</h4>
-
-                        {/* Status */}
-                        <div className="profile-item-status-row">
-                          <span className="profile-item-status-label">Status:</span>
-                          <select
-                            value={isAvailable ? "Available" : "Rented Out"}
-                            onChange={(e) =>
-                              handleStatusChange(item.id, e.target.value)
-                            }
-                            className={`profile-item-status-select ${
-                              isAvailable ? "status-available" : "status-rented"
-                            }`}
-                          >
-                            <option value="Available">Available</option>
-                            <option value="Rented Out">Rented Out</option>
-                          </select>
-                        </div>
-
-                        {/* Price */}
-                        <div className="profile-item-footer">
-                          <div>
-                            <span className="profile-item-price-label">Price</span>
-                            <p className="profile-item-price">
-                              Rs. {Number(item.price || 0).toLocaleString()}
-                              <span className="profile-item-price-type">
-                                {" "}/ {item.priceType || "day"}
-                              </span>
-                            </p>
-                          </div>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </>
+        {/* TAB 1: MY ITEMS (INVENTORY) */}
+        {activeTab === "my-items" && (
+          <InventoryItemsTab
+            items={items}
+            loading={loading}
+            error={error}
+            onStatusChange={handleStatusChange}
+            onRetry={fetchMyItems}
+            API_URL={API_URL}
+          />
         )}
 
         {/* TAB 2: RENTED ITEMS */}
         {activeTab === "rented-items" && (
-          <>
-            {loading ? (
-              <div className="my-items-loader">
-                <div className="my-items-spinner" />
-                <p>Loading rented items...</p>
-              </div>
-            ) : rentedItems.length === 0 ? (
-              <div className="my-items-empty">
-                <div className="my-items-empty-icon" style={{ background: "#fef3c7" }}>
-                  <Clock size={48} color="#d97706" />
-                </div>
-                <h3>No items currently rented out</h3>
-                <p>
-                  Items marked as "Rented Out" will be displayed here so you can keep track of active rentals.
-                </p>
-                <button
-                  type="button"
-                  onClick={() => setActiveTab("my-items")}
-                  className="my-items-empty-add-btn"
-                >
-                  View All Items
-                </button>
-              </div>
-            ) : (
-              <div className="my-items-grid">
-                {rentedItems.map((item) => {
-                  const imageUrl = item.image
-                    ? item.image.startsWith("http")
-                      ? item.image
-                      : `${API_URL}${item.image.startsWith("/") ? "" : "/"}${item.image}`
-                    : "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=400";
-
-                  return (
-                    <div key={item.id} className="my-item-card rented-border">
-                      <div className="my-item-image-wrapper">
-                        <img
-                          src={imageUrl}
-                          alt={item.title}
-                          className="my-item-image"
-                        />
-                        <span className="my-item-category-badge" style={{ background: "#d97706" }}>
-                          Rented Out
-                        </span>
-                      </div>
-
-                      <div className="my-item-body">
-                        <h3 className="my-item-title" title={item.title}>
-                          {item.title}
-                        </h3>
-
-                        <div className="my-item-status-row">
-                          <span className="my-item-status-label">Status:</span>
-                          <select
-                            value="Rented Out"
-                            onChange={(e) =>
-                              handleStatusChange(item.id, e.target.value)
-                            }
-                            className="my-item-status-select status-rented"
-                          >
-                            <option value="Available">Mark Available</option>
-                            <option value="Rented Out">Rented Out</option>
-                          </select>
-                        </div>
-
-                        <div className="my-item-price-row">
-                          <div>
-                            <span className="my-item-price-label">Rental Rate</span>
-                            <p className="my-item-price">
-                              Rs. {Number(item.price || 0).toLocaleString()}
-                              <span className="my-item-price-type">
-                                {" "}
-                                / {item.priceType || "day"}
-                              </span>
-                            </p>
-                          </div>
-                        </div>
-
-                        <div className="my-item-actions">
-                          <Link
-                            to={`/item/${item.id}`}
-                            className="my-item-view-btn"
-                          >
-                            View Item →
-                          </Link>
-                        </div>
-                      </div>
-                    </div>
-                  );
-                })}
-              </div>
-            )}
-          </>
+          <RentedItemsTab
+            displayedRentedItems={displayedRentedItems}
+            rentedSubTab={rentedSubTab}
+            setRentedSubTab={setRentedSubTab}
+            allRentedCount={allRentedCount}
+            sentedOutCount={sentedOutList.length}
+            rentedInCount={rentedInList.length}
+            loading={loading}
+            onStatusChange={handleStatusChange}
+            onReturnItem={handleReturnItem}
+            returningItemId={returningItemId}
+            onNavigateTab={(tab) => setActiveTab(tab)}
+            API_URL={API_URL}
+            hideRentedIn={isFromBusinessHub}
+          />
         )}
 
         {/* TAB 3: RENT REQUESTS */}
         {activeTab === "rent-requests" && (
-          <div className="rent-requests-section">
-            {/* Filter Sub-Tabs */}
-            <div style={{ display: "flex", gap: "8px", marginBottom: "18px" }}>
-              <button
-                type="button"
-                className={`my-items-tab-btn ${requestFilter === "all" ? "active" : ""}`}
-                style={{ padding: "6px 14px", fontSize: "13px" }}
-                onClick={() => setRequestFilter("all")}
-              >
-                All ({requests.length})
-              </button>
-              <button
-                type="button"
-                className={`my-items-tab-btn ${requestFilter === "sent" ? "active" : ""}`}
-                style={{ padding: "6px 14px", fontSize: "13px" }}
-                onClick={() => setRequestFilter("sent")}
-              >
-                Sent by Me ({
-                  requests.filter(
-                    (r) =>
-                      Number(r.buyerId || r.buyer_id) === Number(userId) ||
-                      (!r.sellerId && !r.seller_id) ||
-                      r.reqType === "sent"
-                  ).length
-                })
-              </button>
-              <button
-                type="button"
-                className={`my-items-tab-btn ${requestFilter === "received" ? "active" : ""}`}
-                style={{ padding: "6px 14px", fontSize: "13px" }}
-                onClick={() => setRequestFilter("received")}
-              >
-                Received ({
-                  requests.filter(
-                    (r) =>
-                      !(
-                        Number(r.buyerId || r.buyer_id) === Number(userId) ||
-                        (!r.sellerId && !r.seller_id) ||
-                        r.reqType === "sent"
-                      )
-                  ).length
-                })
-              </button>
-            </div>
-
-            {requests.length === 0 ? (
-              <div className="my-items-empty">
-                <div className="my-items-empty-icon" style={{ background: "#e0f2fe" }}>
-                  <Inbox size={48} color="#0284c7" />
-                </div>
-                <h3>No rental requests yet</h3>
-                <p>When you click "Rent Now" on items, your sent rental requests will appear here.</p>
-              </div>
-            ) : (
-              <div className="rent-requests-list">
-                {requests
-                  .filter((req) => {
-                    const isSender =
-                      Number(req.buyerId || req.buyer_id) === Number(userId) ||
-                      (!req.sellerId && !req.seller_id) ||
-                      req.reqType === "sent";
-                    if (requestFilter === "sent") return isSender;
-                    if (requestFilter === "received") return !isSender;
-                    return true;
-                  })
-                  .map((req) => {
-                    const isSender =
-                      Number(req.buyerId || req.buyer_id) === Number(userId) ||
-                      (!req.sellerId && !req.seller_id) ||
-                      req.reqType === "sent";
-
-                    return (
-                      <div key={req.id} className="rent-request-card">
-                        <div className="rent-request-top">
-                          <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-                            {(req.itemImage || req.image_url || req.image) && (
-                              <img
-                                src={
-                                  (req.itemImage || req.image_url || req.image)?.startsWith("http")
-                                    ? (req.itemImage || req.image_url || req.image)
-                                    : `${API_URL}${(req.itemImage || req.image_url || req.image)}`
-                                }
-                                alt={req.itemTitle}
-                                style={{
-                                  width: "48px",
-                                  height: "48px",
-                                  borderRadius: "8px",
-                                  objectFit: "cover",
-                                  border: "1px solid #e2e8f0",
-                                }}
-                                onError={(e) => {
-                                  e.currentTarget.style.display = "none";
-                                }}
-                              />
-                            )}
-                            <div>
-                              <span className="rent-request-time">
-                                {req.createdAt
-                                  ? new Date(req.createdAt).toLocaleDateString("en-US", {
-                                      month: "short",
-                                      day: "numeric",
-                                      year: "numeric",
-                                      hour: "2-digit",
-                                      minute: "2-digit",
-                                    })
-                                  : "Recently"}
-                              </span>
-                              <h4 className="rent-request-item-title">{req.itemTitle}</h4>
-                            </div>
-                          </div>
-
-                          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                            <span
-                              style={{
-                                fontSize: "11px",
-                                fontWeight: "600",
-                                padding: "3px 8px",
-                                borderRadius: "12px",
-                                backgroundColor: isSender ? "#eff6ff" : "#fdf4ff",
-                                color: isSender ? "#1d4ed8" : "#9333ea",
-                                border: isSender ? "1px solid #bfdbfe" : "1px solid #f0abfc",
-                              }}
-                            >
-                              {isSender ? "Sent Request" : "Received"}
-                            </span>
-                            <span
-                              className={`rent-request-status-badge ${
-                                req.status === "Approved"
-                                  ? "badge-approved"
-                                  : req.status === "Declined" || req.status === "Cancelled"
-                                  ? "badge-declined"
-                                  : "badge-pending"
-                              }`}
-                            >
-                              {req.status}
-                            </span>
-                          </div>
-                        </div>
-
-                        <div className="rent-request-meta-grid">
-                          <div className="rent-request-meta-item">
-                            <User size={15} color="#15803d" />
-                            <div>
-                              <strong>{isSender ? "Item Owner / Seller" : "Buyer / Requester"}</strong>
-                              <span>{isSender ? (req.sellerName || "Item Owner") : (req.requesterName || "Buyer")}</span>
-                              {(isSender ? req.sellerPhone : req.requesterPhone) && (
-                                <span style={{ fontSize: "11px", color: "#64748b" }}>
-                                  📞 {isSender ? req.sellerPhone : req.requesterPhone}
-                                </span>
-                              )}
-                            </div>
-                          </div>
-
-                          <div className="rent-request-meta-item">
-                            <Calendar size={15} color="#15803d" />
-                            <div>
-                              <strong>Rental Period</strong>
-                              <span>
-                                {req.startDate} → {req.endDate}
-                              </span>
-                            </div>
-                          </div>
-
-                          <div className="rent-request-meta-item">
-                            <ShoppingBag size={15} color="#15803d" />
-                            <div>
-                              <strong>Total ({req.quantity || 1} item)</strong>
-                              <span>Rs. {Number(req.totalPrice || 0).toLocaleString()}</span>
-                            </div>
-                          </div>
-                        </div>
-
-                        {req.status === "Pending" && (
-                          <div className="rent-request-actions">
-                            {!isSender ? (
-                              <>
-                                <button
-                                  type="button"
-                                  onClick={() => handleRequestAction(req.id, "Approved")}
-                                  className="req-btn req-btn-approve"
-                                >
-                                  <CheckCircle2 size={16} /> Approve Request
-                                </button>
-                                <button
-                                  type="button"
-                                  onClick={() => handleRequestAction(req.id, "Declined")}
-                                  className="req-btn req-btn-decline"
-                                >
-                                  <XCircle size={16} /> Decline
-                                </button>
-                              </>
-                            ) : (
-                              <button
-                                type="button"
-                                onClick={() => handleRequestAction(req.id, "Cancelled")}
-                                className="req-btn req-btn-decline"
-                              >
-                                <XCircle size={16} /> Cancel Request
-                              </button>
-                            )}
-                          </div>
-                        )}
-                      </div>
-                    );
-                  })}
-              </div>
-            )}
-          </div>
+          <RentRequestsTab
+            requests={requests}
+            requestFilter={requestFilter}
+            setRequestFilter={setRequestFilter}
+            userId={userId}
+            loadingRequests={loadingRequests}
+            updatingReqId={updatingReqId}
+            onAction={handleRequestAction}
+            API_URL={API_URL}
+            hideSentByMe={isFromBusinessHub}
+          />
         )}
 
         {/* TAB 4: RENT CART */}
         {activeTab === "rent-cart" && (
-        loadingCart ? (
-          <div className="my-items-loader">
-            <div className="my-items-spinner" />
-            <p>Loading cart items...</p>
-          </div>
-        ) : errorCart ? (
-          <div className="my-items-error">
-            <p>{errorCart}</p>
-            <button onClick={fetchCartItems} className="my-items-retry-btn">Retry</button>
-          </div>
-        ) : cartItems.length === 0 ? (
-          <div className="my-items-empty">
-            <div className="my-items-empty-icon" style={{ background: "#eff6ff" }}>
-              <ShoppingCart size={48} color="#2563eb" />
-            </div>
-            <h3>Your Rent Cart is empty</h3>
-            <p>Browse items and add them to your rent cart to request rentals.</p>
-            <Link to="/" className="my-items-empty-add-btn">Browse Items</Link>
-          </div>
-        ) : (
-          <div className="rent-cart-items">
-            {/* Toolbar for Selection */}
-            <div className="rent-cart-toolbar">
-              <label className="rent-cart-select-all">
-                <input
-                  type="checkbox"
-                  checked={
-                    cartItems.length > 0 &&
-                    selectedCartIds.length === cartItems.length
-                  }
-                  onChange={handleSelectAll}
-                />
-                <span>Select All ({cartItems.length} items)</span>
-              </label>
-
-              <div className="rent-cart-toolbar-actions">
-                {selectedCartIds.length > 0 && (
-                  <div className="rent-cart-selected-summary">
-                    <span className="selected-count">
-                      Selected: <strong>{selectedCartIds.length}</strong>
-                    </span>
-                    <span className="selected-total">
-                      Total: <strong>Rs. {totalSelectedPrice.toLocaleString()}</strong>
-                    </span>
-                  </div>
-                )}
-
-                <RentRequestButton
-                  disabled={selectedCartIds.length === 0}
-                  onClick={handleRentNow}
-                />
-              </div>
-            </div>
-
-            {cartItems.map((ci) => (
-              <CartItemCard
-                key={ci.id}
-                cartItem={ci}
-                isSelected={selectedCartIds.includes(ci.id)}
-                onToggleSelect={handleToggleSelect}
-                onRemove={handleRemoveFromCart}
-              />
-            ))}
-
-            {cartItems.length > 1 && (
-              <div className="rent-cart-bottom-bar">
-                <div className="rent-cart-bottom-summary">
-                  <span>Selected: <strong>{selectedCartIds.length}</strong> of {cartItems.length} items</span>
-                  <span>Total Amount: <strong className="summary-price">Rs. {totalSelectedPrice.toLocaleString()}</strong></span>
-                </div>
-                <RentRequestButton
-                  disabled={selectedCartIds.length === 0}
-                  onClick={handleRentNow}
-                />
-              </div>
-            )}
-          </div>
-        )
-      )}
+          <RentCartTab
+            cartItems={cartItems}
+            loadingCart={loadingCart}
+            errorCart={errorCart}
+            selectedCartIds={selectedCartIds}
+            totalSelectedPrice={totalSelectedPrice}
+            onToggleSelect={handleToggleSelect}
+            onSelectAll={handleSelectAll}
+            onRemoveFromCart={handleRemoveFromCart}
+            onRentNow={handleRentNow}
+            onRetry={fetchCartItems}
+          />
+        )}
       </div>
 
+      {/* SINGLE ITEM RENT REQUEST MODAL */}
       {rentModalItem && (
         <RentRequestForm
           isOpen={!!rentModalItem}
-          onClose={() => setRentModalItem(null)}
+          onClose={() => {
+            setRentModalItem(null);
+            setRentStartDate("");
+            setRentEndDate("");
+            setRentQuantity(1);
+          }}
           handleRequestSubmit={handleCartRentSubmit}
           startDate={rentStartDate}
           setStartDate={setRentStartDate}
@@ -1037,6 +1153,20 @@ export default function MyItems({ user }) {
           priceType={rentModalItem.priceType || "day"}
           price={rentModalItem.price || 0}
           itemTitle={rentModalItem.title}
+        />
+      )}
+
+      {/* RENT REQUEST SUCCESS MODAL */}
+      {showSuccessModal && (
+        <RentRequestSuccessModal
+          isOpen={showSuccessModal}
+          onClose={() => setShowSuccessModal(false)}
+          onShowRequests={() => {
+            setShowSuccessModal(false);
+            setActiveTab("rent-requests");
+            setRequestFilter("sent");
+          }}
+          itemTitle={successModalTitle}
         />
       )}
     </div>

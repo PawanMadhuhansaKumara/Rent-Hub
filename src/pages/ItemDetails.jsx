@@ -19,8 +19,47 @@ import CartIcon from "../components/CartIcon";
 import AddToRentCartButton from "../components/AddToRentCartButton";
 import RentRequestButton from "../components/RentRequestButton";
 import RentRequestForm from "../components/RentRequestForm";
+import RentRequestSuccessModal from "../components/RentRequestSuccessModal";
 
 const API_URL = "http://localhost:5001";
+
+export const isItemRented = (item) => {
+  if (!item) return false;
+
+  // 1. Direct item availability check
+  const directRented =
+    item.available === "Rented Out" ||
+    String(item.available).toLowerCase() === "rented out" ||
+    String(item.available).toLowerCase() === "rented" ||
+    item.available === 0 ||
+    item.available === "0" ||
+    String(item.status).toLowerCase() === "rented" ||
+    (item.available !== undefined &&
+      item.available !== null &&
+      item.available !== "" &&
+      !isNaN(Number(item.available)) &&
+      Number(item.available) < 1);
+
+  if (directRented) return true;
+
+  // 2. Check if this item is marked as rented in local rent requests
+  try {
+    const saved = localStorage.getItem("rent_hub_requests");
+    if (saved) {
+      const requests = JSON.parse(saved);
+      if (Array.isArray(requests)) {
+        const hasRentedReq = requests.some((r) => {
+          const matchItem = String(r.itemId || r.item_id) === String(item.id);
+          const isRentedStatus = String(r.status).toLowerCase() === "rented";
+          return matchItem && isRentedStatus;
+        });
+        if (hasRentedReq) return true;
+      }
+    }
+  } catch {}
+
+  return false;
+};
 
 export default function ItemDetails() {
   const { id } = useParams();
@@ -30,6 +69,7 @@ export default function ItemDetails() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
   const [showRequestForm, setShowRequestForm] = useState(false);
+  const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [isInCart, setIsInCart] = useState(false);
@@ -37,11 +77,18 @@ export default function ItemDetails() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
 
+  const isRented = isItemRented(item);
+  const available = isRented
+    ? 0
+    : item?.available === "Available"
+      ? 1
+      : Number(item?.available) || 0;
+
   useEffect(() => {
-    if (searchParams.get("rent") === "true") {
+    if (searchParams.get("rent") === "true" && item && !isItemRented(item)) {
       setShowRequestForm(true);
     }
-  }, [searchParams]);
+  }, [searchParams, item]);
 
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
@@ -139,12 +186,24 @@ export default function ItemDetails() {
     };
 
     fetchItem();
+
+    window.addEventListener("items_updated", fetchItem);
+    window.addEventListener("rent_requests_updated", fetchItem);
+    return () => {
+      window.removeEventListener("items_updated", fetchItem);
+      window.removeEventListener("rent_requests_updated", fetchItem);
+    };
   }, [id]);
 
   const handleOpenRentForm = () => {
     if (!currentUser) {
       alert("Please login to request a rental.");
       navigate("/login");
+      return;
+    }
+
+    if (isRented || available < 1) {
+      alert("This item is currently rented out and cannot be rented.");
       return;
     }
 
@@ -165,6 +224,11 @@ export default function ItemDetails() {
     if (!currentUser) {
       alert("Please login to request a rental.");
       navigate("/login");
+      return;
+    }
+
+    if (isRented || available < 1) {
+      alert("This item is currently rented out and cannot be rented.");
       return;
     }
 
@@ -195,7 +259,9 @@ export default function ItemDetails() {
     const numQty = Number(quantity) || 1;
     const itemPriceType = item.priceType || item.price_type || "day";
     const calculatedTotal =
-      itemPriceType === "day" ? numPrice * numQty * diffDays : numPrice * numQty;
+      itemPriceType === "day"
+        ? numPrice * numQty * diffDays
+        : numPrice * numQty;
 
     const requestPayload = {
       itemId: item.id,
@@ -227,7 +293,8 @@ export default function ItemDetails() {
           itemImage: item.image || item.image_url,
           itemPrice: numPrice,
           priceType: itemPriceType,
-          sellerName: item.userName || item.user_name || item.sellerName || "Item Owner",
+          sellerName:
+            item.userName || item.user_name || item.sellerName || "Item Owner",
           sellerPhone: item.userPhone || item.user_phone || item.phone_no || "",
           sellerCity: item.nearestCity || item.nearest_city || "",
         };
@@ -245,34 +312,46 @@ export default function ItemDetails() {
         itemImage: item.image || item.image_url,
         itemPrice: numPrice,
         priceType: itemPriceType,
-        sellerName: item.userName || item.user_name || item.sellerName || "Item Owner",
+        sellerName:
+          item.userName || item.user_name || item.sellerName || "Item Owner",
         sellerPhone: item.userPhone || item.user_phone || item.phone_no || "",
         sellerCity: item.nearestCity || item.nearest_city || "",
       };
     }
 
     try {
-      const saved = JSON.parse(localStorage.getItem("rent_hub_requests") || "[]");
-      const filtered = saved.filter((r) => String(r.id) !== String(createdRequest.id));
-      localStorage.setItem("rent_hub_requests", JSON.stringify([createdRequest, ...filtered]));
+      const saved = JSON.parse(
+        localStorage.getItem("rent_hub_requests") || "[]",
+      );
+      const filtered = saved.filter(
+        (r) => String(r.id) !== String(createdRequest.id),
+      );
+      localStorage.setItem(
+        "rent_hub_requests",
+        JSON.stringify([createdRequest, ...filtered]),
+      );
       window.dispatchEvent(new Event("rent_requests_updated"));
     } catch (e) {
       console.error("Local storage update error:", e);
     }
 
-    alert(`Rental request sent for "${item.title}"! Redirecting to your Rent Requests...`);
     setShowRequestForm(false);
     setStartDate("");
     setEndDate("");
     setQuantity(1);
-
-    navigate("/my-items?tab=rent-requests");
+    setShowSuccessModal(true);
+    return true;
   };
 
   const handleAddToCart = async () => {
     if (!currentUser) {
       alert("Please login to add items to your rent cart.");
       navigate("/login");
+      return;
+    }
+
+    if (isRented || available < 1) {
+      alert("This item is currently rented out and cannot be added to cart.");
       return;
     }
 
@@ -345,7 +424,6 @@ export default function ItemDetails() {
       : `${API_URL}/${item.image.replace(/^\/+/, "")}`
     : "";
 
-  const available = Number(item.available ?? 0);
   const price = Number(item.price) || 0;
   const priceType = item.priceType || "day";
 
@@ -465,13 +543,20 @@ export default function ItemDetails() {
             <div className="details-availability">
               <span
                 className={`availability-dot ${
-                  available < 1 ? "unavailable" : ""
+                  isRented || available < 1 ? "unavailable" : ""
                 }`}
               />
-              <span>
-                {available > 0
-                  ? `${available} item(s) available`
-                  : "Currently unavailable"}
+              <span
+                style={{
+                  fontWeight: isRented ? "700" : "600",
+                  color: isRented ? "#b91c1c" : "inherit",
+                }}
+              >
+                {isRented
+                  ? "Currently Rented Out"
+                  : available > 0
+                    ? `${available} item(s) available`
+                    : "Currently unavailable"}
               </span>
             </div>
 
@@ -511,7 +596,12 @@ export default function ItemDetails() {
       {showRequestForm && (
         <RentRequestForm
           isOpen={showRequestForm}
-          onClose={() => setShowRequestForm(false)}
+          onClose={() => {
+            setShowRequestForm(false);
+            setStartDate("");
+            setEndDate("");
+            setQuantity(1);
+          }}
           handleRequestSubmit={handleRequestSubmit}
           minDate={minDate}
           startDate={startDate}
@@ -524,6 +614,18 @@ export default function ItemDetails() {
           priceType={priceType}
           price={price}
           itemTitle={item.title}
+        />
+      )}
+
+      {showSuccessModal && (
+        <RentRequestSuccessModal
+          isOpen={showSuccessModal}
+          onClose={() => setShowSuccessModal(false)}
+          onShowRequests={() => {
+            setShowSuccessModal(false);
+            navigate("/my-items?tab=rent-requests");
+          }}
+          itemTitle={item?.title}
         />
       )}
 

@@ -68,15 +68,24 @@ export default function BusinessHub({ user }) {
     };
 
     fetchUserItems();
+
+    window.addEventListener("items_updated", fetchUserItems);
+    window.addEventListener("rent_requests_updated", fetchUserItems);
+    return () => {
+      window.removeEventListener("items_updated", fetchUserItems);
+      window.removeEventListener("rent_requests_updated", fetchUserItems);
+    };
   }, [userId]);
 
   const totalListings = items.length;
-  const availableCount = items.filter(
-    (item) => Number(item.available ?? 0) > 0,
-  ).length;
-  const rentedCount = items.filter(
-    (item) => Number(item.available ?? 0) <= 0,
-  ).length;
+  const isItemAvailable = (it) =>
+    it.available !== "Rented Out" &&
+    it.available !== 0 &&
+    it.available !== "0" &&
+    (it.available === "Available" || Number(it.available ?? 0) > 0);
+
+  const availableCount = items.filter(isItemAvailable).length;
+  const rentedCount = items.filter((it) => !isItemAvailable(it)).length;
 
   const totalPortfolioValue = items.reduce(
     (sum, item) => sum + (Number(item.price) || 0),
@@ -98,14 +107,7 @@ export default function BusinessHub({ user }) {
         {/* Header Bar */}
         <div className="business-hub-header">
           <div className="business-hub-header-left">
-            <button
-              type="button"
-              className="business-hub-back-btn"
-              onClick={() => navigate(-1)}
-              aria-label="Go back"
-            >
-              <ArrowLeft size={18} />
-            </button>
+            
             <div>
               <h1 className="business-hub-title">
                 {t("navigation.businessHub") || "Business Hub"}
@@ -228,7 +230,7 @@ export default function BusinessHub({ user }) {
               <ArrowRight size={18} className="action-arrow" />
             </Link>
 
-            <Link to="/my-items?tab=rent-requests&filter=received" className="action-card">
+            <Link to="/my-items?tab=rent-requests&filter=received&from=business-hub" className="action-card">
               <div className="action-icon">
                 <ShoppingBag size={20} />
               </div>
@@ -239,7 +241,7 @@ export default function BusinessHub({ user }) {
               <ArrowRight size={18} className="action-arrow" />
             </Link>
 
-            <Link to="/my-items?tab=rented-items" className="action-card">
+            <Link to="/my-items?tab=rented-items&subtab=sented-out&from=business-hub" className="action-card">
               <div className="action-icon">
                 <Clock size={20} />
               </div>
@@ -315,7 +317,7 @@ export default function BusinessHub({ user }) {
                     ? item.image
                     : `${API_URL}/${item.image.replace(/^\/+/, "")}`
                   : null;
-                const isAvail = Number(item.available ?? 0) > 0;
+                const isAvail = isItemAvailable(item);
 
                 return (
                   <div key={item.id} className="listing-row-card">
