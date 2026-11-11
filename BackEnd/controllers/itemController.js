@@ -31,6 +31,7 @@ exports.getAllItems = async (req, res) => {
         item.available_qty === "0"
           ? "Rented Out"
           : item.available_qty,
+      available_quantity: item.available_quantity ?? 1,
       userId: item.user_id,
       user_id: item.user_id,
       userName: item.user_name || null,
@@ -81,6 +82,7 @@ exports.getUserItems = async (req, res) => {
         item.available_qty === "0"
           ? "Rented Out"
           : item.available_qty,
+      available_quantity: item.available_quantity ?? 1,
     }));
 
     res.status(200).json(formattedItems);
@@ -92,8 +94,16 @@ exports.getUserItems = async (req, res) => {
 
 // ADD NEW ITEM WITH IMAGE FILE UPLOAD
 exports.addItem = async (req, res) => {
-  const { title, category, condition, price, priceType, description, userId } =
-    req.body;
+  const {
+    title,
+    category,
+    condition,
+    price,
+    priceType,
+    description,
+    userId,
+    available_quantity,
+  } = req.body;
 
   if (!title || !price || !category) {
     return res.status(400).json({
@@ -108,8 +118,8 @@ exports.addItem = async (req, res) => {
       : "/uploads/default-item.png";
 
     const query = `
-      INSERT INTO items (title, category, \`condition\`, price, price_type, description, image_url, user_id) 
-      VALUES (?, ?, ?, ?, ?, ?, ?, ?)
+      INSERT INTO items (title, category, \`condition\`, price, price_type, description, image_url, user_id, available_quantity) 
+      VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
     `;
 
     const values = [
@@ -121,6 +131,7 @@ exports.addItem = async (req, res) => {
       description || "",
       image_url,
       userId || null,
+      available_quantity ? Number(available_quantity) : 1,
     ];
 
     const [result] = await db.execute(query, values);

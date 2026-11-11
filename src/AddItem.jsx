@@ -8,6 +8,7 @@ const initialForm = {
   condition: "Good",
   price: "",
   priceType: "day",
+  available_quantity: "1",
   description: "",
 };
 
@@ -29,7 +30,6 @@ export default function AddItem({ onItemAdded }) {
     setMessage("");
   }
 
-  // Image select කරන විට
   function handleImageChange(event) {
     const file = event.target.files[0];
     if (file) {
@@ -43,7 +43,7 @@ export default function AddItem({ onItemAdded }) {
     setMessage("");
     setIsError(false);
 
-    if (!form.title.trim() || !form.category || !form.price.trim()) {
+    if (!form.title.trim() || !form.category || !form.price.trim() || !form.available_quantity) {
       setMessage("Please complete all required fields.");
       setIsError(true);
       return;
@@ -51,6 +51,12 @@ export default function AddItem({ onItemAdded }) {
 
     if (!Number.isFinite(Number(form.price)) || Number(form.price) <= 0) {
       setMessage("Please enter a valid price greater than zero.");
+      setIsError(true);
+      return;
+    }
+
+    if (!Number.isInteger(Number(form.available_quantity)) || Number(form.available_quantity) < 1) {
+      setMessage("Please enter a valid available quantity (at least 1).");
       setIsError(true);
       return;
     }
@@ -64,24 +70,25 @@ export default function AddItem({ onItemAdded }) {
     setLoading(true);
 
     try {
-      // LocalStorage එකේ ඇති Logged-in User Object එකෙන් user_id එක ලබා ගැනීම
       const loggedUser = JSON.parse(localStorage.getItem("user") || "{}");
-      const userId = loggedUser.user_id || localStorage.getItem("userId") || 1;
+      const userId = loggedUser.user_id || loggedUser.id || localStorage.getItem("userId") || 1;
 
-      // FormData එක සාදාගෙන Data සහ File එක append කිරීම
       const formData = new FormData();
       formData.append("userId", userId);
+      formData.append("user_id", userId);
       formData.append("title", form.title.trim());
       formData.append("category", form.category);
       formData.append("condition", form.condition);
       formData.append("price", Number(form.price));
       formData.append("priceType", form.priceType);
+      formData.append("available_quantity", Number(form.available_quantity));
+      formData.append("available", "Available");
       formData.append("description", form.description.trim());
-      formData.append("image", imageFile); // Multer name 'image'
+      formData.append("image", imageFile);
 
       const response = await fetch("http://localhost:5001/api/items", {
         method: "POST",
-        body: formData, // Multipart FormData ලෙස යවයි
+        body: formData,
       });
 
       const result = await response.json();
@@ -100,7 +107,6 @@ export default function AddItem({ onItemAdded }) {
         onItemAdded();
       }
 
-      // සාර්ථකව එකතු වූ පසු Profile එකට Navigate වීම
       setTimeout(() => {
         navigate("/profile");
       }, 1000);
@@ -215,6 +221,25 @@ export default function AddItem({ onItemAdded }) {
               </div>
             </div>
 
+            {/* Available Quantity Field */}
+            <div className="add-item-field">
+              <label htmlFor="available_quantity">Available Quantity (Stock) <span>*</span></label>
+              <input
+                id="available_quantity"
+                name="available_quantity"
+                type="number"
+                min="1"
+                step="1"
+                value={form.available_quantity}
+                onChange={handleChange}
+                placeholder="e.g. 1"
+                required
+              />
+              <small className="add-item-hint">
+                Specify total number of units available for rent.
+              </small>
+            </div>
+
             <div className="add-item-field">
               <label htmlFor="description">Description</label>
               <textarea
@@ -228,7 +253,6 @@ export default function AddItem({ onItemAdded }) {
               />
             </div>
 
-            {/* Image File Upload Field */}
             <div className="add-item-field">
               <label htmlFor="image">Upload Item Image <span>*</span></label>
               <input
@@ -244,7 +268,6 @@ export default function AddItem({ onItemAdded }) {
               </small>
             </div>
 
-            {/* Image Preview */}
             {imagePreview && (
               <div className="add-item-image-preview">
                 <p>Image Preview</p>
