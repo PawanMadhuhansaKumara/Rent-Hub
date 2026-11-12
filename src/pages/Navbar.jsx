@@ -103,7 +103,11 @@ export default function Navbar({ user, setUser }) {
       }
     };
     document.addEventListener("mousedown", handleOutsideClick);
-    return () => document.removeEventListener("mousedown", handleOutsideClick);
+    document.addEventListener("touchstart", handleOutsideClick);
+    return () => {
+      document.removeEventListener("mousedown", handleOutsideClick);
+      document.removeEventListener("touchstart", handleOutsideClick);
+    };
   }, []);
 
   const handleChatIconClick = () => {
@@ -239,7 +243,12 @@ export default function Navbar({ user, setUser }) {
 
             {/* Conversations Dropdown */}
             {showChatDropdown && (
-              <div className="navbar-chat-dropdown">
+              <>
+                <div
+                  className="navbar-chat-mobile-backdrop"
+                  onClick={() => setShowChatDropdown(false)}
+                />
+                <div className="navbar-chat-dropdown">
                 {deleteConfirmConvId && (
                   <div
                     className="navbar-chat-confirm-overlay"
@@ -411,6 +420,7 @@ export default function Navbar({ user, setUser }) {
                   )}
                 </div>
               </div>
+              </>
             )}
           </div>
         )}

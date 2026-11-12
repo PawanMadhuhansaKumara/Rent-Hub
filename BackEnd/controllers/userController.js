@@ -9,6 +9,29 @@ exports.getUser = async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
     const { password_hash, nic_photo_front_url, nic_photo_back_url, ...publicUser } = rows[0];
+
+    // Compute live review stats directly from reviews table
+    try {
+      const [reviewStats] = await db.execute(
+        `SELECT 
+          COALESCE(ROUND(AVG(rating), 1), 0) AS avg_rating,
+          COUNT(*) AS total_reviews
+         FROM reviews 
+         WHERE seller_id = ?`,
+        [userId]
+      );
+      if (reviewStats.length > 0 && reviewStats[0].total_reviews > 0) {
+        publicUser.user_rating = parseFloat(reviewStats[0].avg_rating);
+        publicUser.reviews_count = parseInt(reviewStats[0].total_reviews);
+      } else {
+        publicUser.user_rating = 0;
+        publicUser.reviews_count = 0;
+      }
+    } catch (rErr) {
+      publicUser.user_rating = publicUser.user_rating || 0;
+      publicUser.reviews_count = publicUser.reviews_count || 0;
+    }
+
     res.status(200).json({ success: true, user: publicUser });
   } catch (error) {
     console.error('Fetch User Error:', error);

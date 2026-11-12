@@ -6,6 +6,8 @@ import {
   ShoppingBag,
   ExternalLink,
   CheckCircle2,
+  Star,
+  Edit3,
 } from "lucide-react";
 import { formatRentalDate } from "../../utils/dateUtils";
 
@@ -17,6 +19,7 @@ export default function RentedItemCard({
   item,
   onReturnItem,
   isReturning = false,
+  onRateItem,
   API_URL = "http://localhost:5001",
 }) {
   const isSentedOut = item.rentType === "sented-out";
@@ -222,6 +225,93 @@ export default function RentedItemCard({
               {isReturning ? "Marking as Returned..." : "Mark as Returned"}
             </span>
           </button>
+        </div>
+      )}
+
+      {/* Review Action: Displayed for Buyer on Rented In items */}
+      {!isSentedOut && (
+        <div className="rent-request-actions" style={{ marginTop: "14px" }}>
+          {item.reviewId || item.hasReviewed ? (
+            <div
+              style={{
+                width: "100%",
+                padding: "8px 12px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "space-between",
+                backgroundColor: "#fefce8",
+                border: "1px solid #fef08a",
+                borderRadius: "8px",
+                fontSize: "13px",
+                fontWeight: "600",
+                color: "#a16207",
+                boxSizing: "border-box",
+              }}
+            >
+              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                <Star size={15} color="#eab308" fill="#eab308" />
+                <span>You rated this: {item.reviewRating || "5.0"}★</span>
+              </div>
+              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                <span style={{ fontSize: "11px", color: "#854d0e" }}>Reviewed</span>
+                <button
+                  type="button"
+                  onClick={(e) => {
+                    e.preventDefault();
+                    e.stopPropagation();
+                    onRateItem && onRateItem(item);
+                  }}
+                  style={{
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    background: "#ffffff",
+                    border: "1px solid #fde047",
+                    color: "#854d0e",
+                    borderRadius: "6px",
+                    padding: "3px 8px",
+                    fontSize: "11px",
+                    fontWeight: "600",
+                    cursor: "pointer",
+                  }}
+                  title="Edit or delete your review"
+                >
+                  <Edit3 size={12} />
+                  <span>Edit</span>
+                </button>
+              </div>
+            </div>
+          ) : (
+            <button
+              type="button"
+              onClick={(e) => {
+                e.preventDefault();
+                e.stopPropagation();
+                onRateItem && onRateItem(item);
+              }}
+              className="req-btn"
+              style={{
+                width: "100%",
+                padding: "10px 16px",
+                display: "flex",
+                alignItems: "center",
+                justifyContent: "center",
+                gap: "8px",
+                backgroundColor: "#00aa5b",
+                color: "#ffffff",
+                border: "none",
+                borderRadius: "8px",
+                fontSize: "13px",
+                fontWeight: "600",
+                cursor: "pointer",
+                boxShadow: "0 2px 6px rgba(0, 170, 91, 0.25)",
+              }}
+              title="Leave a review for this item and shop"
+            >
+              <Star size={16} color="#ffffff" fill="#ffffff" />
+              <span>Rate & Review Item</span>
+            </button>
+          )}
         </div>
       )}
     </div>

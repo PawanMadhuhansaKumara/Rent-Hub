@@ -666,3 +666,77 @@
 .navbar-chat-confirm-delete:hover {
   background: #dc2626;
 }
+
+
+/* ==========================================================================
+   Mobile Responsive Chat Dropdown (Fixes off-screen overflow on mobile)
+   ========================================================================== */
+.navbar-chat-mobile-backdrop {
+  display: none;
+}
+
+@media (max-width: 640px) {
+  .navbar-chat-mobile-backdrop {
+    display: block;
+    position: fixed;
+    inset: 0;
+    background: rgba(15, 23, 42, 0.4);
+    backdrop-filter: blur(2px);
+    z-index: 9998;
+    animation: fadeIn 0.2s ease-out;
+  }
+
+  .navbar-chat-dropdown {
+    position: fixed !important;
+    top: 62px !important;
+    left: 10px !important;
+    right: 10px !important;
+    width: auto !important;
+    max-width: calc(100vw - 20px) !important;
+    max-height: calc(100vh - 145px) !important;
+    border-radius: 18px !important;
+    border: 1.5px solid #93c5fd !important;
+    box-shadow: 0 20px 45px rgba(0, 0, 0, 0.25) !important;
+    z-index: 9999 !important;
+  }
+
+  .navbar-chat-dropdown-header {
+    padding: 14px 16px 12px !important;
+  }
+
+  .navbar-chat-dropdown-title {
+    font-size: 17px !important;
+  }
+
+  .navbar-chat-dropdown-subtitle {
+    font-size: 12px !important;
+  }
+
+  .navbar-chat-dropdown-body {
+    max-height: calc(100vh - 240px) !important;
+  }
+
+  .navbar-chat-item {
+    padding: 12px 14px !important;
+    gap: 12px !important;
+  }
+
+  .navbar-chat-item-img {
+    width: 44px !important;
+    height: 44px !important;
+    border-radius: 10px !important;
+  }
+
+  .navbar-chat-item-title {
+    font-size: 14px !important;
+  }
+
+  .navbar-chat-snippet-bubble {
+    font-size: 12px !important;
+    max-width: 170px !important;
+  }
+
+  .navbar-chat-item-time {
+    font-size: 11px !important;
+  }
+}

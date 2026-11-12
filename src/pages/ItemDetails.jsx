@@ -12,6 +12,11 @@ import {
   MapPin,
   CartonIcon,
   ShoppingCart,
+  Star,
+  ChevronDown,
+  CornerDownRight,
+  Edit3,
+  Trash2,
 } from "lucide-react";
 import ChatBox from "../components/ChatBox";
 import "./ItemDetails.css";
@@ -20,6 +25,7 @@ import AddToRentCartButton from "../components/AddToRentCartButton";
 import RentRequestButton from "../components/RentRequestButton";
 import RentRequestForm from "../components/RentRequestForm";
 import RentRequestSuccessModal from "../components/RentRequestSuccessModal";
+import LeaveReviewModal from "../components/LeaveReviewModal";
 
 const API_URL = "http://localhost:5001";
 
@@ -74,8 +80,150 @@ export default function ItemDetails() {
   const [currentUser, setCurrentUser] = useState(null);
   const [isInCart, setIsInCart] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [itemReviewStats, setItemReviewStats] = useState({
+    avgRating: 0,
+    totalReviews: 0,
+    reviews: [],
+  });
+  const [visibleReviewsCount, setVisibleReviewsCount] = useState(3);
+  const [replyingReviewId, setReplyingReviewId] = useState(null);
+  const [editingReplyId, setEditingReplyId] = useState(null);
+  const [replyText, setReplyText] = useState("");
+  const [submittingReply, setSubmittingReply] = useState(false);
   const navigate = useNavigate();
+
+  const isItemSeller =
+    currentUser &&
+    item &&
+    (Number(currentUser.id || currentUser.user_id) ===
+      Number(item.user_id || item.seller_id));
+
+  const handlePostReply = async (reviewId) => {
+    if (!replyText.trim()) return;
+    const sellerId = currentUser?.id || currentUser?.user_id;
+
+    setSubmittingReply(true);
+    try {
+      const res = await fetch(`${API_URL}/api/reviews/${reviewId}/reply`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          sellerId,
+          reply: replyText.trim(),
+        }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setItemReviewStats((prev) => ({
+          ...prev,
+          reviews: prev.reviews.map((r) =>
+            r.id === reviewId
+              ? {
+                  ...r,
+                  sellerReply: data.sellerReply,
+                  sellerReplyAt: data.sellerReplyAt,
+                }
+              : r
+          ),
+        }));
+        setReplyingReviewId(null);
+        setEditingReplyId(null);
+        setReplyText("");
+      } else {
+        alert(data.message || "Failed to post reply.");
+      }
+    } catch (err) {
+      console.error("Post reply error:", err);
+      alert("Error posting reply: " + err.message);
+    } finally {
+      setSubmittingReply(false);
+    }
+  };
+
+  const handleDeleteReply = async (reviewId) => {
+    if (!window.confirm("Are you sure you want to delete your response to this review?")) return;
+    const sellerId = currentUser?.id || currentUser?.user_id;
+
+    try {
+      const res = await fetch(`${API_URL}/api/reviews/${reviewId}/reply`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ sellerId }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setItemReviewStats((prev) => ({
+          ...prev,
+          reviews: prev.reviews.map((r) =>
+            r.id === reviewId
+              ? {
+                  ...r,
+                  sellerReply: null,
+                  sellerReplyAt: null,
+                }
+              : r
+          ),
+        }));
+      } else {
+        alert(data.message || "Failed to delete reply.");
+      }
+    } catch (err) {
+      console.error("Delete reply error:", err);
+      alert("Error deleting reply: " + err.message);
+    }
+  };
+
+  const [editingReview, setEditingReview] = useState(null);
+
+  const handleDeleteCustomerReview = async (reviewId) => {
+    if (!window.confirm("Are you sure you want to delete your review?")) return;
+    const buyerId = currentUser?.id || currentUser?.user_id;
+    if (!buyerId) {
+      alert("Please log in to delete your review.");
+      return;
+    }
+
+    try {
+      const res = await fetch(`${API_URL}/api/reviews/${reviewId}`, {
+        method: "DELETE",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ buyerId }),
+      });
+
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setItemReviewStats((prev) => {
+          const updatedList = prev.reviews.filter((r) => r.id !== reviewId);
+          const total = updatedList.length;
+          const avg =
+            total > 0
+              ? (
+                  updatedList.reduce((acc, curr) => acc + Number(curr.rating), 0) /
+                  total
+                ).toFixed(1)
+              : 0;
+          return {
+            ...prev,
+            totalReviews: total,
+            avgRating: Number(avg),
+            reviews: updatedList,
+          };
+        });
+      } else {
+        alert(data.message || "Failed to delete review.");
+      }
+    } catch (err) {
+      console.error("Delete review error:", err);
+      alert("Network error while deleting review.");
+    }
+  };
   const [searchParams] = useSearchParams();
+
+  useEffect(() => {
+    setVisibleReviewsCount(3);
+  }, [id]);
 
   const isRented = isItemRented(item);
   const available = isRented
@@ -126,6 +274,22 @@ export default function ItemDetails() {
       }
     };
     checkCartStatus();
+
+    // Fetch review stats for this item
+    if (id) {
+      fetch(`${API_URL}/api/reviews/item/${id}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setItemReviewStats({
+              avgRating: data.avgRating || 0,
+              totalReviews: data.totalReviews || 0,
+              reviews: data.reviews || [],
+            });
+          }
+        })
+        .catch(() => null);
+    }
   }, [currentUser, id]);
 
   const handleOpenChat = () => {
@@ -521,6 +685,31 @@ export default function ItemDetails() {
             <span className="details-eyebrow">RENT-HUB MARKETPLACE</span>
 
             <h1>{item.title}</h1>
+            {itemReviewStats.totalReviews > 0 ? (
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", margin: "6px 0 14px 0" }}>
+                <div style={{ display: "flex", gap: "2px" }}>
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star
+                      key={s}
+                      size={16}
+                      color="#eab308"
+                      fill={s <= Math.round(itemReviewStats.avgRating) ? "#eab308" : "none"}
+                    />
+                  ))}
+                </div>
+                <span style={{ fontSize: "14px", fontWeight: "700", color: "#a16207" }}>
+                  {Number(itemReviewStats.avgRating).toFixed(1)}
+                </span>
+                <span style={{ fontSize: "13px", color: "#64748b" }}>
+                  ({itemReviewStats.totalReviews} {itemReviewStats.totalReviews === 1 ? "review" : "reviews"})
+                </span>
+              </div>
+            ) : (
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", margin: "6px 0 14px 0", fontSize: "13px", color: "#94a3b8" }}>
+                <Star size={15} color="#cbd5e1" />
+                <span>No reviews yet</span>
+              </div>
+            )}
 
             <div className="details-badges">
               <span className="details-category">
@@ -595,6 +784,397 @@ export default function ItemDetails() {
             </div>
           </div>
         </div>
+
+        {/* Customer Reviews & Comments Section */}
+        <section className="item-reviews-section">
+          {/* Section Header */}
+          <div className="item-reviews-header">
+            <div className="item-reviews-header-left">
+              <div className="item-reviews-rating-badge">
+                <span className="item-reviews-avg-number">
+                  {itemReviewStats.totalReviews > 0
+                    ? Number(itemReviewStats.avgRating).toFixed(1)
+                    : "0.0"}
+                </span>
+                <div className="item-reviews-stars-mini">
+                  {[1, 2, 3, 4, 5].map((s) => (
+                    <Star
+                      key={s}
+                      size={11}
+                      color="#eab308"
+                      fill={
+                        s <= Math.round(itemReviewStats.avgRating)
+                          ? "#eab308"
+                          : "none"
+                      }
+                    />
+                  ))}
+                </div>
+              </div>
+              <div>
+                <h3 className="item-reviews-title">Customer Reviews & Ratings</h3>
+                <p className="item-reviews-subtitle">
+                  {itemReviewStats.totalReviews > 0
+                    ? `Based on ${itemReviewStats.totalReviews} ${
+                        itemReviewStats.totalReviews === 1 ? "review" : "reviews"
+                      } from verified renters`
+                    : "Real feedback from renters who used this item"}
+                </p>
+              </div>
+            </div>
+          </div>
+
+          {/* Reviews List */}
+          {itemReviewStats.reviews.length === 0 ? (
+            <div className="item-reviews-empty">
+              <Star size={38} color="#cbd5e1" style={{ marginBottom: "10px" }} />
+              <h4>No reviews yet</h4>
+              <p>Be the first customer to rent and review this item!</p>
+            </div>
+          ) : (
+            <>
+              <div className="item-reviews-list">
+                {itemReviewStats.reviews
+                  .slice(0, visibleReviewsCount)
+                  .map((rev) => {
+                    const buyerPic = rev.buyerPic
+                      ? rev.buyerPic.startsWith("http")
+                        ? rev.buyerPic
+                        : `${API_URL}${
+                            rev.buyerPic.startsWith("/") ? "" : "/"
+                          }${rev.buyerPic}`
+                      : null;
+                    const isMyReview =
+                      currentUser &&
+                      Number(currentUser.id || currentUser.user_id) ===
+                        Number(rev.buyerId);
+
+                    return (
+                      <div key={rev.id} className="item-review-card">
+                        {/* Review Header: User info + Star rating */}
+                        <div className="item-review-card-header">
+                          <div className="item-review-user-info">
+                            {buyerPic ? (
+                              <img
+                                src={buyerPic}
+                                alt={rev.buyerName || "User"}
+                                className="item-review-avatar"
+                                onError={(e) => {
+                                  e.currentTarget.style.display = "none";
+                                }}
+                              />
+                            ) : (
+                              <div className="item-review-avatar-fallback">
+                                {rev.buyerName
+                                  ? rev.buyerName.trim()[0].toUpperCase()
+                                  : "U"}
+                              </div>
+                            )}
+                            <div>
+                              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                                <h5 className="item-review-user-name">
+                                  {rev.buyerName || "Verified Renter"}
+                                </h5>
+                                {isMyReview && (
+                                  <span
+                                    style={{
+                                      fontSize: "11px",
+                                      fontWeight: "700",
+                                      color: "#0369a1",
+                                      backgroundColor: "#e0f2fe",
+                                      padding: "1px 6px",
+                                      borderRadius: "10px",
+                                    }}
+                                  >
+                                    You
+                                  </span>
+                                )}
+                              </div>
+                              <span className="item-review-date">
+                                {rev.createdAt
+                                  ? new Date(rev.createdAt).toLocaleDateString(
+                                      "en-US",
+                                      {
+                                        month: "short",
+                                        day: "numeric",
+                                        year: "numeric",
+                                      }
+                                    )
+                                  : "Recent Review"}
+                                {rev.buyerCity ? ` • ${rev.buyerCity}` : ""}
+                              </span>
+                            </div>
+                          </div>
+
+                          <div
+                            style={{
+                              display: "flex",
+                              flexDirection: "column",
+                              alignItems: "flex-end",
+                              gap: "6px",
+                            }}
+                          >
+                            <div className="item-review-stars-row">
+                              <div className="item-review-stars">
+                                {[1, 2, 3, 4, 5].map((star) => (
+                                  <Star
+                                    key={star}
+                                    size={15}
+                                    color="#eab308"
+                                    fill={
+                                      star <= Math.round(Number(rev.rating))
+                                        ? "#eab308"
+                                        : "none"
+                                    }
+                                  />
+                                ))}
+                              </div>
+                              <span className="item-review-rating-num">
+                                {Number(rev.rating).toFixed(1)}
+                              </span>
+                            </div>
+
+                            {/* Customer Actions: Edit / Delete own review */}
+                            {isMyReview && (
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "6px",
+                                }}
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() =>
+                                    setEditingReview({
+                                      ...rev,
+                                      title: item?.title || rev.itemTitle,
+                                      itemTitle: item?.title || rev.itemTitle,
+                                      image:
+                                        item?.image_url ||
+                                        item?.images?.[0] ||
+                                        rev.itemImage,
+                                      itemImage:
+                                        item?.image_url ||
+                                        item?.images?.[0] ||
+                                        rev.itemImage,
+                                    })
+                                  }
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "3px",
+                                    background: "#f0f9ff",
+                                    border: "1px solid #bae6fd",
+                                    color: "#0284c7",
+                                    borderRadius: "6px",
+                                    padding: "2px 7px",
+                                    fontSize: "11px",
+                                    fontWeight: "600",
+                                    cursor: "pointer",
+                                  }}
+                                  title="Edit your review"
+                                >
+                                  <Edit3 size={12} />
+                                  <span>Edit</span>
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handleDeleteCustomerReview(rev.id)}
+                                  style={{
+                                    display: "inline-flex",
+                                    alignItems: "center",
+                                    gap: "3px",
+                                    background: "#fef2f2",
+                                    border: "1px solid #fecaca",
+                                    color: "#ef4444",
+                                    borderRadius: "6px",
+                                    padding: "2px 7px",
+                                    fontSize: "11px",
+                                    fontWeight: "600",
+                                    cursor: "pointer",
+                                  }}
+                                  title="Delete your review"
+                                >
+                                  <Trash2 size={12} />
+                                  <span>Delete</span>
+                                </button>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+
+                        {/* Review Comment */}
+                        {rev.comment && (
+                          <p className="item-review-comment">{rev.comment}</p>
+                        )}
+
+                        {/* Seller Response Display */}
+                        {rev.sellerReply && editingReplyId !== rev.id && (
+                          <div className="item-review-seller-reply">
+                            <div className="item-review-seller-reply-header">
+                              <div className="item-review-seller-reply-title-row">
+                                <CornerDownRight size={15} color="#15803d" />
+                                <span className="item-review-seller-reply-badge">
+                                  Response from {rev.sellerName || "Shop Owner"}
+                                </span>
+                                {rev.sellerReplyAt && (
+                                  <span className="item-review-seller-reply-date">
+                                    • {new Date(rev.sellerReplyAt).toLocaleDateString("en-US", {
+                                        month: "short",
+                                        day: "numeric",
+                                        year: "numeric",
+                                      })}
+                                  </span>
+                                )}
+                              </div>
+
+                              {isItemSeller && (
+                                <div style={{ display: "flex", gap: "8px" }}>
+                                  <button
+                                    type="button"
+                                    onClick={() => {
+                                      setEditingReplyId(rev.id);
+                                      setReplyText(rev.sellerReply);
+                                    }}
+                                    style={{
+                                      background: "none",
+                                      border: "none",
+                                      color: "#16a34a",
+                                      fontSize: "12px",
+                                      fontWeight: "600",
+                                      cursor: "pointer",
+                                      padding: "2px 6px",
+                                    }}
+                                    title="Edit your reply"
+                                  >
+                                    Edit
+                                  </button>
+                                  <button
+                                    type="button"
+                                    onClick={() => handleDeleteReply(rev.id)}
+                                    style={{
+                                      background: "none",
+                                      border: "none",
+                                      color: "#ef4444",
+                                      fontSize: "12px",
+                                      fontWeight: "600",
+                                      cursor: "pointer",
+                                      padding: "2px 6px",
+                                    }}
+                                    title="Delete your reply"
+                                  >
+                                    Delete
+                                  </button>
+                                </div>
+                              )}
+                            </div>
+                            <p className="item-review-seller-reply-text">
+                              {rev.sellerReply}
+                            </p>
+                          </div>
+                        )}
+
+                        {/* Reply Form (When Shop Owner clicks Reply or Edit) */}
+                        {isItemSeller && (replyingReviewId === rev.id || editingReplyId === rev.id) && (
+                          <div className="item-review-reply-form">
+                            <label style={{ display: "block", fontSize: "12px", fontWeight: "700", color: "#334155", marginBottom: "6px" }}>
+                              {editingReplyId === rev.id ? "Edit your response:" : "Write a response to this customer:"}
+                            </label>
+                            <textarea
+                              rows={3}
+                              value={replyText}
+                              onChange={(e) => setReplyText(e.target.value)}
+                              placeholder="Thank the customer or address their feedback..."
+                              className="item-review-reply-textarea"
+                            />
+                            <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "10px" }}>
+                              <button
+                                type="button"
+                                onClick={() => {
+                                  setReplyingReviewId(null);
+                                  setEditingReplyId(null);
+                                  setReplyText("");
+                                }}
+                                disabled={submittingReply}
+                                style={{
+                                  padding: "6px 14px",
+                                  borderRadius: "6px",
+                                  border: "1px solid #cbd5e1",
+                                  backgroundColor: "#ffffff",
+                                  color: "#475569",
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  cursor: "pointer",
+                                }}
+                              >
+                                Cancel
+                              </button>
+                              <button
+                                type="button"
+                                onClick={() => handlePostReply(rev.id)}
+                                disabled={submittingReply || !replyText.trim()}
+                                style={{
+                                  padding: "6px 16px",
+                                  borderRadius: "6px",
+                                  border: "none",
+                                  backgroundColor: "#00aa5b",
+                                  color: "#ffffff",
+                                  fontSize: "12px",
+                                  fontWeight: "600",
+                                  cursor: submittingReply || !replyText.trim() ? "not-allowed" : "pointer",
+                                  opacity: submittingReply || !replyText.trim() ? 0.6 : 1,
+                                }}
+                              >
+                                {submittingReply ? "Posting..." : "Post Reply"}
+                              </button>
+                            </div>
+                          </div>
+                        )}
+
+                        {/* Reply Button (When no reply yet and owner is viewing) */}
+                        {isItemSeller && !rev.sellerReply && replyingReviewId !== rev.id && (
+                          <div style={{ marginTop: "12px", display: "flex", justifyContent: "flex-end" }}>
+                            <button
+                              type="button"
+                              onClick={() => {
+                                setReplyingReviewId(rev.id);
+                                setEditingReplyId(null);
+                                setReplyText("");
+                              }}
+                              className="item-review-reply-btn"
+                            >
+                              <CornerDownRight size={14} />
+                              <span>Reply to Review</span>
+                            </button>
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+              </div>
+
+              {/* See More Reviews Button (Loads 3 more each time) */}
+              {itemReviewStats.reviews.length > visibleReviewsCount && (
+                <div className="item-reviews-load-more-wrap">
+                  <button
+                    type="button"
+                    className="item-reviews-load-more-btn"
+                    onClick={() =>
+                      setVisibleReviewsCount((prev) => prev + 3)
+                    }
+                  >
+                    <span>See more reviews</span>
+                    <span className="item-reviews-remaining-count">
+                      ({itemReviewStats.reviews.length - visibleReviewsCount} remaining)
+                    </span>
+                    <ChevronDown size={16} />
+                  </button>
+                </div>
+              )}
+            </>
+          )}
+        </section>
       </div>
 
       {showRequestForm && (
@@ -644,6 +1224,60 @@ export default function ItemDetails() {
           sellerName={item.seller_name || "Seller"}
           currentUser={currentUser}
           onClose={() => setShowChat(false)}
+        />
+      )}
+
+      {/* EDIT REVIEW MODAL FOR CUSTOMER */}
+      {editingReview && (
+        <LeaveReviewModal
+          isOpen={Boolean(editingReview)}
+          onClose={() => setEditingReview(null)}
+          item={editingReview}
+          currentUser={currentUser}
+          onReviewSubmitted={(updated) => {
+            setItemReviewStats((prev) => {
+              const updatedList = prev.reviews.map((r) =>
+                r.id === updated.reviewId
+                  ? { ...r, rating: updated.rating, comment: updated.comment }
+                  : r
+              );
+              const total = updatedList.length;
+              const avg =
+                total > 0
+                  ? (
+                      updatedList.reduce((acc, curr) => acc + Number(curr.rating), 0) /
+                      total
+                    ).toFixed(1)
+                  : 0;
+              return {
+                ...prev,
+                avgRating: Number(avg),
+                reviews: updatedList,
+              };
+            });
+          }}
+          onReviewDeleted={(deleted) => {
+            setItemReviewStats((prev) => {
+              const updatedList = prev.reviews.filter(
+                (r) => r.id !== deleted.reviewId
+              );
+              const total = updatedList.length;
+              const avg =
+                total > 0
+                  ? (
+                      updatedList.reduce((acc, curr) => acc + Number(curr.rating), 0) /
+                      total
+                    ).toFixed(1)
+                  : 0;
+              return {
+                ...prev,
+                totalReviews: total,
+                avgRating: Number(avg),
+                reviews: updatedList,
+              };
+            });
+          }}
+          API_URL={API_URL}
         />
       )}
     </main>

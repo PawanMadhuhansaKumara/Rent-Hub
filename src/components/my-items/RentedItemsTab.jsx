@@ -17,6 +17,7 @@ export default function RentedItemsTab({
   onStatusChange,
   onReturnItem,
   returningItemId,
+  onRateItem,
   onNavigateTab,
   API_URL = "http://localhost:5001",
   hideRentedIn = false,
@@ -115,6 +116,7 @@ export default function RentedItemsTab({
                 String(returningItemId) === String(item.itemId || item.id) ||
                 String(returningItemId) === String(item.requestId)
               }
+              onRateItem={onRateItem}
               API_URL={API_URL}
             />
           ))}

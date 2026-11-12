@@ -235,7 +235,7 @@ exports.createRentRequest = async (req, res) => {
         itemId: item_id,
         requestId: insertId,
         imageUrl: itemImage,
-        linkUrl: "/rents?tab=requests",
+        linkUrl: "/my-items?tab=rent-requests&filter=received",
       });
     } catch (notifErr) {
       console.warn("Could not dispatch notification for new rent request:", notifErr.message);
@@ -327,11 +327,15 @@ exports.getBuyerRequests = async (req, res) => {
           u.full_name AS sellerName,
           u.phone_no AS sellerPhone,
           u.profile_pic_url AS sellerPic,
-          u.nearest_city AS sellerCity
+          u.nearest_city AS sellerCity,
+          rev.id AS reviewId,
+          rev.rating AS reviewRating,
+          rev.comment AS reviewComment
         FROM rent_requests r
         LEFT JOIN rental_verifications v ON r.id = v.request_id
         LEFT JOIN items i ON r.item_id = i.id
         LEFT JOIN users_details u ON r.seller_id = u.user_id
+        LEFT JOIN reviews rev ON r.id = rev.request_id
         WHERE r.buyer_id = ? AND LOWER(r.status) NOT IN ('declined', 'cancelled')
         ORDER BY r.id DESC, r.created_at DESC
       `;
@@ -497,7 +501,7 @@ exports.updateRequestStatus = async (req, res) => {
           itemId: requestDetails.item_id,
           requestId,
           imageUrl: requestDetails.item_image,
-          linkUrl: "/rents?tab=requests",
+          linkUrl: "/my-items?tab=rent-requests&filter=sent",
         });
       }
 
@@ -523,7 +527,7 @@ exports.updateRequestStatus = async (req, res) => {
         itemId: requestDetails.item_id,
         requestId,
         imageUrl: requestDetails.item_image,
-        linkUrl: "/rents?tab=requests",
+        linkUrl: "/my-items?tab=rent-requests&filter=sent",
       });
     }
 
@@ -554,6 +558,24 @@ exports.updateRequestStatus = async (req, res) => {
         status?.toLowerCase() === "available" ||
         status?.toLowerCase() === "returned"
       ) {
+        // When rental is completed/returned, send review prompt notification to buyer
+        if (requestDetails && (status?.toLowerCase() === "completed" || status?.toLowerCase() === "returned")) {
+          try {
+            await sendNotification({
+              userId: requestDetails.buyer_id,
+              title: "Rental Completed ⭐",
+              message: `Your rental for "${requestDetails.item_title || 'Item'}" has ended! Please rate your experience.`,
+              type: "review_request",
+              itemId: requestDetails.item_id,
+              requestId: requestId,
+              imageUrl: requestDetails.item_image,
+              linkUrl: "/my-items?tab=rented-items&subtab=rented-in",
+            });
+          } catch (notifErr) {
+            console.warn("Could not dispatch review prompt notification:", notifErr.message);
+          }
+        }
+
         // If rental completed/returned, mark item available again
         try {
           await db.execute(
@@ -743,7 +765,7 @@ exports.confirmHandover = async (req, res) => {
         itemId,
         requestId,
         imageUrl: itemImage,
-        linkUrl: "/rents?tab=rented",
+        linkUrl: "/my-items?tab=rented-items&subtab=rented-in",
       });
     } catch (notifErr) {
       console.warn("Notification error in confirmHandover:", notifErr.message);

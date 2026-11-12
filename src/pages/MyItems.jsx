@@ -4,6 +4,7 @@ import { Clock, Inbox, ShoppingCart, Package } from "lucide-react";
 
 import RentRequestForm from "../components/RentRequestForm";
 import RentRequestSuccessModal from "../components/RentRequestSuccessModal";
+import LeaveReviewModal from "../components/LeaveReviewModal";
 import RentedItemsTab from "../components/my-items/RentedItemsTab";
 import RentRequestsTab from "../components/my-items/RentRequestsTab";
 import RentCartTab from "../components/my-items/RentCartTab";
@@ -638,6 +639,7 @@ export default function MyItems({ user }) {
   };
 
   const [returningItemId, setReturningItemId] = useState(null);
+  const [selectedReviewItem, setSelectedReviewItem] = useState(null);
 
   const handleReturnItem = async (rentedItem) => {
     if (!rentedItem) return;
@@ -958,10 +960,12 @@ export default function MyItems({ user }) {
       const isConfirmed =
         r.status?.toLowerCase() === "rented" ||
         r.status === "Approved" ||
-        r.status?.toLowerCase() === "approved";
+        r.status?.toLowerCase() === "approved" ||
+        r.status?.toLowerCase() === "completed" ||
+        r.status?.toLowerCase() === "returned";
       if (!isBuyer || !isConfirmed) return false;
 
-      const itemKey = String(r.itemId || r.item_id || r.id);
+      const itemKey = String(r.id || r.requestId || `${r.itemId}-${r.id}`);
       if (seenRentedInItemIds.has(itemKey)) {
         return false;
       }
@@ -973,11 +977,11 @@ export default function MyItems({ user }) {
       id: r.itemId || r.item_id || r.id,
       itemId: r.itemId || r.item_id,
       requestId: r.id,
-      title: r.itemTitle || "Rented Item",
-      image: r.itemImage,
+      title: r.itemTitle || r.item_title || "Rented Item",
+      image: r.itemImage || r.item_image,
       category: "Rented In",
-      price: r.itemPrice,
-      priceType: r.priceType,
+      price: r.itemPrice || r.item_price,
+      priceType: r.priceType || r.price_type,
       rentType: "rented-in",
       isInventoryItem: false,
       sellerId: r.sellerId || r.seller_id || r.userId || r.user_id,
@@ -989,9 +993,12 @@ export default function MyItems({ user }) {
       startDate: r.startDate || r.start_date,
       endDate: r.endDate || r.end_date,
       quantity: r.quantity,
-      totalPrice: r.totalPrice,
+      totalPrice: r.totalPrice || r.total_price,
       requestStatus: r.status,
       createdAt: r.createdAt || r.created_at,
+      reviewId: r.reviewId || r.review_id,
+      reviewRating: r.reviewRating || r.review_rating,
+      reviewComment: r.reviewComment || r.review_comment,
     }))
     .sort(
       (a, b) =>
@@ -1094,6 +1101,7 @@ export default function MyItems({ user }) {
             onStatusChange={handleStatusChange}
             onReturnItem={handleReturnItem}
             returningItemId={returningItemId}
+            onRateItem={(it) => setSelectedReviewItem(it)}
             onNavigateTab={(tab) => setActiveTab(tab)}
             API_URL={API_URL}
             hideRentedIn={isFromBusinessHub}
@@ -1110,6 +1118,7 @@ export default function MyItems({ user }) {
             loadingRequests={loadingRequests}
             updatingReqId={updatingReqId}
             onAction={handleRequestAction}
+            onRateItem={(it) => setSelectedReviewItem(it)}
             API_URL={API_URL}
             hideSentByMe={isFromBusinessHub}
           />
@@ -1167,6 +1176,23 @@ export default function MyItems({ user }) {
             setRequestFilter("sent");
           }}
           itemTitle={successModalTitle}
+        />
+      )}
+
+      {/* LEAVE REVIEW MODAL */}
+      {selectedReviewItem && (
+        <LeaveReviewModal
+          isOpen={!!selectedReviewItem}
+          onClose={() => setSelectedReviewItem(null)}
+          item={selectedReviewItem}
+          currentUser={currentUser}
+          onReviewSubmitted={() => {
+            fetchBuyerRequests();
+          }}
+          onReviewDeleted={() => {
+            fetchBuyerRequests();
+          }}
+          API_URL={API_URL}
         />
       )}
     </div>

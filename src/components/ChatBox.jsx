@@ -349,7 +349,7 @@ export default function ChatBox({
     : conversation?.buyer_pic;
 
   return (
-    <div style={styles.overlay}>
+    <div style={styles.overlay} className="chatbox-overlay">
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; }
@@ -376,8 +376,23 @@ export default function ChatBox({
         .chat-confirm-delete-btn:hover {
           background-color: #dc2626 !important;
         }
+        @media (max-width: 640px) {
+          .chatbox-overlay {
+            padding: 8px 8px 75px 8px !important;
+            align-items: flex-end !important;
+            justify-content: center !important;
+          }
+          .chatbox-container {
+            width: 100% !important;
+            max-width: 100% !important;
+            height: calc(100dvh - 85px) !important;
+            max-height: calc(100vh - 85px) !important;
+            border-radius: 18px 18px 0 0 !important;
+            border-bottom: none !important;
+          }
+        }
       `}</style>
-      <div style={styles.chatContainer}>
+      <div style={styles.chatContainer} className="chatbox-container">
         {/* IN-CHATBOX CONFIRMATION MODAL */}
         {confirmModal && (
           <div
