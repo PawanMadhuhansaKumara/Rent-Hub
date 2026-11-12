@@ -9,7 +9,8 @@ exports.getAllItems = async (req, res) => {
         u.full_name AS user_name,
         u.profile_pic_url AS user_profile_pic,
         u.nearest_city AS nearest_city,
-        (SELECT COUNT(*) FROM rent_requests WHERE rent_requests.item_id = items.id AND LOWER(rent_requests.status) = 'rented') AS is_rented_count
+        (SELECT COUNT(*) FROM rent_requests WHERE rent_requests.item_id = items.id AND LOWER(rent_requests.status) = 'rented') AS is_rented_count,
+        (SELECT COUNT(*) FROM rent_requests WHERE rent_requests.item_id = items.id) AS bookings_count
       FROM items
       LEFT JOIN users_details u ON items.user_id = u.user_id
       ORDER BY items.created_at DESC
@@ -32,6 +33,8 @@ exports.getAllItems = async (req, res) => {
           ? "Rented Out"
           : item.available_qty,
       available_quantity: item.available_quantity ?? 1,
+      bookings: Number(item.bookings_count || 0),
+      views: Number(item.views || 0),
       userId: item.user_id,
       user_id: item.user_id,
       userName: item.user_name || null,
@@ -53,14 +56,15 @@ exports.getAllItems = async (req, res) => {
   }
 };
 
-// GET USER'S ITEMS BY USER ID
+// GET USER'S ITEMS BY USER ID (Profile page)
 exports.getUserItems = async (req, res) => {
   const userId = req.params.userId;
   try {
     const [rows] = await db.execute(`
       SELECT 
         items.*,
-        (SELECT COUNT(*) FROM rent_requests WHERE rent_requests.item_id = items.id AND LOWER(rent_requests.status) = 'rented') AS is_rented_count
+        (SELECT COUNT(*) FROM rent_requests WHERE rent_requests.item_id = items.id AND LOWER(rent_requests.status) = 'rented') AS is_rented_count,
+        (SELECT COUNT(*) FROM rent_requests WHERE rent_requests.item_id = items.id) AS bookings_count
       FROM items 
       WHERE user_id = ? 
       ORDER BY created_at DESC
@@ -83,12 +87,29 @@ exports.getUserItems = async (req, res) => {
           ? "Rented Out"
           : item.available_qty,
       available_quantity: item.available_quantity ?? 1,
+      bookings: Number(item.bookings_count || 0),
+      views: Number(item.views || 0),
     }));
 
     res.status(200).json(formattedItems);
   } catch (error) {
     console.error("Fetch User Items Error:", error);
     res.status(500).json({ success: false, message: "Failed to fetch items." });
+  }
+};
+
+// INCREMENT ITEM VIEWS COUNT
+exports.incrementViews = async (req, res) => {
+  const itemId = req.params.id;
+  try {
+    await db.execute(
+      "UPDATE items SET views = COALESCE(views, 0) + 1 WHERE id = ?",
+      [itemId]
+    );
+    res.status(200).json({ success: true, message: "View recorded" });
+  } catch (error) {
+    console.error("Increment Views Error:", error);
+    res.status(500).json({ success: false, message: "Failed to record view." });
   }
 };
 
@@ -171,7 +192,6 @@ exports.updateStatus = async (req, res) => {
       ]);
     }
 
-    // Sync rent_requests when item availability changes
     const isAvail =
       available === "Available" || available === 1 || available === "1";
     if (isAvail) {

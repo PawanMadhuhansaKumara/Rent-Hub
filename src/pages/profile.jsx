@@ -595,12 +595,12 @@ export default function Profile({ user, setUser }) {
                           </p>
 
                           {/* Bookings & Views Indicators + Delete Button */}
-                          <div style={styles.cardFooterMeta}>
+                            <div style={styles.cardFooterMeta}>
                             <span style={styles.metaBadgeText}>
-                              <Calendar size={13} color="#00aa5b" /> {item.bookings || 2} bookings
+                            <Calendar size={13} color="#00aa5b" /> {item.bookings ?? 0} {item.bookings === 1 ? "booking" : "bookings"}
                             </span>
                             <span style={styles.metaBadgeText}>
-                              <Eye size={13} color="#666" /> {item.views || 124}
+                              <Eye size={13} color="#666" /> {item.views ?? 0} views
                             </span>
                           </div>
 

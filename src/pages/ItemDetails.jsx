@@ -83,13 +83,17 @@ export default function ItemDetails() {
     : item?.available === "Available"
       ? 1
       : Number(item?.available) || 0;
-
+    // Record view count once per session (Prevents double counting in React StrictMode)
   useEffect(() => {
-    if (searchParams.get("rent") === "true" && item && !isItemRented(item)) {
-      setShowRequestForm(true);
+    if (!id) return;
+    const sessionKey = `viewed_item_${id}`;
+    
+    // මේ session එකේදී තවම view එක count කර නැත්නම් පමණක් API එකට යවන්න
+    if (!sessionStorage.getItem(sessionKey)) {
+      sessionStorage.setItem(sessionKey, "true");
+      fetch(`${API_URL}/api/items/${id}/view`, { method: "POST" }).catch(() => {});
     }
-  }, [searchParams, item]);
-
+  }, [id]);
   useEffect(() => {
     const savedUser = localStorage.getItem("user");
     if (savedUser) {

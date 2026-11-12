@@ -1,10 +1,28 @@
-import { Link } from "react-router-dom";
+import React from "react";
+import { Link, useNavigate } from "react-router-dom";
 import { User, MapPin } from "lucide-react";
 import "./components.css";
 import { useTranslation } from "react-i18next";
 
 export default function ItemCard({ item }) {
   const { t } = useTranslation();
+  const navigate = useNavigate();
+
+  // Card එක click කළ විට views වැඩි කර details page එකට යාම
+  const handleCardClick = (e) => {
+    // Seller profile link එක click කළ විට details page එකට යාම වළක්වන්න
+    if (e.target.closest(".item-author-header")) {
+      return;
+    }
+
+    // Card එක click කළ සැනින් view එකක් record කිරීම
+    fetch(`http://localhost:5001/api/items/${item.id}/view`, {
+      method: "POST",
+    }).catch(() => {});
+
+    navigate(`/item/${item.id}`);
+  };
+
   const imageUrl = item.image
     ? item.image.startsWith("http")
       ? item.image
@@ -61,7 +79,11 @@ export default function ItemCard({ item }) {
   })();
 
   return (
-    <article className="item-card">
+    <article
+      className="item-card"
+      onClick={handleCardClick}
+      style={{ cursor: "pointer" }}
+    >
       {/* Facebook-style Author Header at the Very Top */}
       <Link to={authorProfileLink} className="item-author-header">
         <div className="item-author-avatar-wrapper">
@@ -136,8 +158,6 @@ export default function ItemCard({ item }) {
           <h3 className="item-title" title={item.title}>
             {item.title}
           </h3>
-
-        
         </div>
 
         <div className="item-meta-row">
@@ -161,14 +181,8 @@ export default function ItemCard({ item }) {
           <strong>
             {t("item.currency")} {Number(item.price).toFixed(2)}
           </strong>
-
           <span>/ {t(`item.${item.priceType || "day"}`)}</span>
         </div>
-
-        <Link to={`/item/${item.id}`} className="view-details-button">
-          {t("item.viewDetails")} <span>→</span>
-        </Link>
-        
       </div>
     </article>
   );
