@@ -112,7 +112,15 @@ export default function NotificationCard({
     }
 
     if (linkUrl) {
-      navigate(linkUrl);
+      let targetUrl = linkUrl;
+      if (targetUrl.startsWith("/rents")) {
+        if (targetUrl.includes("tab=rented")) {
+          targetUrl = "/my-items?tab=rented-items&subtab=rented-in";
+        } else {
+          targetUrl = "/my-items?tab=rent-requests";
+        }
+      }
+      navigate(targetUrl);
     }
   };
 

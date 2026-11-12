@@ -5,6 +5,7 @@ import {
   Routes,
   Route,
   Navigate,
+  useLocation,
 } from "react-router-dom";
 import Navbar from "./pages/Navbar";
 import Register from "./pages/Register";
@@ -17,6 +18,15 @@ import ItemDetails from "./pages/ItemDetails";
 import MyItems from "./pages/MyItems";
 import BusinessHub from "./pages/BusinessHub";
 import Notifications from "./pages/Notifications";
+
+function RentsRedirect() {
+  const location = useLocation();
+  const search = location.search || "";
+  if (search.includes("tab=rented")) {
+    return <Navigate to="/my-items?tab=rented-items&subtab=rented-in" replace />;
+  }
+  return <Navigate to="/my-items?tab=rent-requests" replace />;
+}
 
 
 
@@ -80,6 +90,9 @@ export default function App() {
           path="/add-post"
           element={<Navigate to="/add-item" replace />}
         />
+        <Route path="/rents" element={<RentsRedirect />} />
+        <Route path="/rents/*" element={<RentsRedirect />} />
+        <Route path="*" element={<Navigate to="/" replace />} />
       </Routes>
 
       {/* Show Bottom Navigation only when user is logged in */}

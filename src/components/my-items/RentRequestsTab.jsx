@@ -22,6 +22,7 @@ export default function RentRequestsTab({
   loadingRequests,
   updatingReqId,
   onAction,
+  onRateItem,
   API_URL = "http://localhost:5001",
   hideSentByMe = false,
 }) {
@@ -202,6 +203,7 @@ export default function RentRequestsTab({
                 updatingReqId={updatingReqId}
                 onAction={handleAction}
                 onInitiateHandover={handleInitiateHandover}
+                onRateItem={onRateItem}
                 API_URL={API_URL}
               />
             );
