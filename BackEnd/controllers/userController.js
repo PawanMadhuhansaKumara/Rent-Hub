@@ -32,6 +32,38 @@ exports.getUser = async (req, res) => {
       publicUser.reviews_count = publicUser.reviews_count || 0;
     }
 
+    // Compute live Trust Score and Max Rental Limit
+    try {
+      const createdAt = rows[0].created_at ? new Date(rows[0].created_at) : new Date();
+      const now = new Date();
+      const accountDays = Math.max(0, Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)));
+      const weeksActive = Math.floor(accountDays / 7);
+
+      const [reqRows] = await db.execute(
+        `SELECT COUNT(*) AS count FROM rent_requests 
+         WHERE buyer_id = ? AND LOWER(status) = 'completed'`,
+        [userId]
+      );
+      const completedCount = reqRows[0]?.count || 0;
+
+      const baseLimit = 1000;
+      const rentalBonus = completedCount * 1500;
+      const tenureBonus = Math.min(3000, weeksActive * 250);
+      const maxRentalLimit = baseLimit + rentalBonus + tenureBonus;
+
+      const rentalScore = Math.min(30, completedCount * 6);
+      const tenureScore = Math.min(20, weeksActive * 2);
+      const trustScore = Math.min(100, 50 + rentalScore + tenureScore);
+
+      publicUser.trust_score = trustScore;
+      publicUser.max_rental_limit = maxRentalLimit;
+      publicUser.completed_rentals = completedCount;
+    } catch (tErr) {
+      publicUser.trust_score = 50;
+      publicUser.max_rental_limit = 1000;
+      publicUser.completed_rentals = 0;
+    }
+
     res.status(200).json({ success: true, user: publicUser });
   } catch (error) {
     console.error('Fetch User Error:', error);
@@ -121,5 +153,62 @@ exports.deleteUser = async (req, res) => {
   } catch (error) {
     console.error('Delete Profile Error:', error);
     res.status(500).json({ success: false, message: 'Server error while deleting profile: ' + error.message });
+  }
+};
+
+// GET USER TRUST SCORE & RENTAL LIMIT
+exports.getUserTrustScore = async (req, res) => {
+  const userId = req.params.id;
+  try {
+    const [userRows] = await db.execute(
+      'SELECT user_id, created_at, full_name FROM users_details WHERE user_id = ?',
+      [userId]
+    );
+
+    if (userRows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const user = userRows[0];
+    const createdAt = user.created_at ? new Date(user.created_at) : new Date();
+    const now = new Date();
+    const accountDays = Math.max(0, Math.floor((now.getTime() - createdAt.getTime()) / (1000 * 60 * 60 * 24)));
+    const weeksActive = Math.floor(accountDays / 7);
+
+    // Completed rentals as buyer
+    let completedCount = 0;
+    try {
+      const [reqRows] = await db.execute(
+        `SELECT COUNT(*) AS count FROM rent_requests 
+         WHERE buyer_id = ? AND LOWER(status) = 'completed'`,
+        [userId]
+      );
+      completedCount = reqRows[0]?.count || 0;
+    } catch (e) {
+      console.error('Error fetching completed rent requests for trust score:', e);
+    }
+
+    // Formula calculation
+    const baseLimit = 1000;
+    const rentalBonus = completedCount * 1500;
+    const tenureBonus = Math.min(3000, weeksActive * 250);
+    const maxRentalLimit = baseLimit + rentalBonus + tenureBonus;
+
+    const rentalScore = Math.min(30, completedCount * 6);
+    const tenureScore = Math.min(20, weeksActive * 2);
+    const trustScore = Math.min(100, 50 + rentalScore + tenureScore);
+
+    res.status(200).json({
+      success: true,
+      trustScore,
+      maxRentalLimit,
+      completedRentals: completedCount,
+      accountDays,
+      baseLimit,
+      weeksActive,
+    });
+  } catch (error) {
+    console.error('Trust Score Calculation Error:', error);
+    res.status(500).json({ success: false, message: 'Server error calculating trust score' });
   }
 };

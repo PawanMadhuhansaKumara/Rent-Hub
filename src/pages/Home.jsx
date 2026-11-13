@@ -18,6 +18,7 @@ import {
   Handshake,
   DollarSign,
   ArrowDown,
+  Lock,
 } from "lucide-react";
 import "./Home.css";
 import SearchBar from "../components/SearchBar";
@@ -161,6 +162,18 @@ export default function Home({ user }) {
     return result;
   }, [items, searchTerm, selectedCategory, availableOnly, sortBy]);
 
+  // --- RENTAL LIMIT COMPUTATION ---
+  const userLimit = currentUser ? Number(currentUser.rental_limit || 1000) : 1000;
+
+  // Split items into Affordable (Within Limit) vs Locked (Exceeds Limit)
+  const affordableItems = useMemo(() => {
+    return filteredAndSortedItems.filter((item) => (Number(item.price) || 0) <= userLimit);
+  }, [filteredAndSortedItems, userLimit]);
+
+  const lockedItems = useMemo(() => {
+    return filteredAndSortedItems.filter((item) => (Number(item.price) || 0) > userLimit);
+  }, [filteredAndSortedItems, userLimit]);
+
   const handleResetFilters = () => {
     setSearchTerm("");
     setSelectedCategory("All");
@@ -188,10 +201,9 @@ export default function Home({ user }) {
 
   return (
     <main className="items-page">
-      {/* 1. HERO SECTION (Shown ONLY for new/guest users; automatically hidden when exploring or dismissed) */}
+      {/* 1. HERO SECTION */}
       {showHero && !searchTerm.trim() && selectedCategory === "All" && (
         <section className="hero-section">
-          {/* Close / Dismiss button */}
           <button
             type="button"
             className="hero-dismiss-btn"
@@ -266,6 +278,18 @@ export default function Home({ user }) {
 
       {/* 2. RENTAL ITEMS & DISCOVERY SECTION */}
       <section id="rental-items" className="rental-section">
+        {/* --- GREEN THEME RENTAL LIMIT TOP BAR (NO SCORE) --- */}
+        <div style={styles.trustBar}>
+          <div style={styles.trustBarInfo}>
+            <span>🛡️ Current Rental Limit: <strong style={{ color: "#00aa5b" }}>LKR {userLimit.toLocaleString()}</strong></span>
+          </div>
+          <p style={styles.trustBarDesc}>
+            {currentUser 
+              ? "Complete rentals successfully to automatically unlock higher-priced items (+25% limit per successful rental)!"
+              : "Log in to track your rental limit and unlock more items."}
+          </p>
+        </div>
+
         {/* Search Bar Container */}
         <div className="home-search-wrapper">
           <SearchBar
@@ -282,7 +306,7 @@ export default function Home({ user }) {
           itemCounts={itemCounts}
         />
 
-        {/* Section Header Controls (Filter bar, sort, active count) */}
+        {/* Section Header Controls */}
         <div className="home-results-header">
           <div className="home-results-title-group">
             <h2>
@@ -295,7 +319,6 @@ export default function Home({ user }) {
               {filteredAndSortedItems.length === 1 ? "item" : "items"}
             </span>
 
-            {/* Active search filter tag */}
             {searchTerm.trim() && (
               <span className="home-active-filter-tag">
                 <span>"{searchTerm}"</span>
@@ -311,7 +334,6 @@ export default function Home({ user }) {
           </div>
 
           <div className="home-results-actions">
-            {/* Toggle Available Only */}
             <button
               type="button"
               className={`home-filter-toggle-btn ${availableOnly ? "active" : ""}`}
@@ -321,7 +343,6 @@ export default function Home({ user }) {
               <span>Available Only</span>
             </button>
 
-            {/* Sort Options Dropdown */}
             <div className="home-sort-wrapper">
               <label htmlFor="home-sort-select" className="home-sort-label">
                 <SlidersHorizontal size={14} />
@@ -389,15 +410,51 @@ export default function Home({ user }) {
             </button>
           </div>
         ) : (
-          <div className="items-grid">
-            {filteredAndSortedItems.map((item) => (
-              <ItemCard key={item.id} item={item} />
-            ))}
+          <div>
+            {/* --- SECTION 1: AFFORDABLE ITEMS (Within Limit) --- */}
+            {affordableItems.length > 0 && (
+              <div style={{ marginBottom: lockedItems.length > 0 ? "40px" : "0" }}>
+                <h3 style={styles.subSectionTitle}>
+                  <CheckCircle2 size={18} color="#00aa5b" style={{ marginRight: "6px" }} />
+                  Available For You (Within Your Limit)
+                </h3>
+                <div className="items-grid">
+                  {affordableItems.map((item) => (
+                    <ItemCard key={item.id} item={item} />
+                  ))}
+                </div>
+              </div>
+            )}
+
+            {/* --- SECTION 2: LOCKED ITEMS (Exceeds Limit) --- */}
+            {lockedItems.length > 0 && (
+              <div>
+                <div style={styles.lockedHeader}>
+                  <h3 style={{ ...styles.subSectionTitle, color: "#d97706", margin: 0 }}>
+                    <Lock size={18} color="#d97706" style={{ marginRight: "6px" }} />
+                    Locked Items (Exceeds Your Limit)
+                  </h3>
+                  <span style={styles.lockedSubnote}>
+                    Complete more rentals to increase your LKR {userLimit.toLocaleString()} limit!
+                  </span>
+                </div>
+                <div className="items-grid" style={{ opacity: 0.85 }}>
+                  {lockedItems.map((item) => (
+                    <div key={item.id} style={{ position: "relative" }}>
+                      <div style={styles.lockBadgeOverlay}>
+                        <Lock size={12} /> Exceeds Limit
+                      </div>
+                      <ItemCard item={item} />
+                    </div>
+                  ))}
+                </div>
+              </div>
+            )}
           </div>
         )}
       </section>
 
-      {/* 3. HOW IT WORKS SECTION (Simple 3-step guide for users) */}
+      {/* 3. HOW IT WORKS SECTION */}
       <section className="how-it-works-section">
         <div className="how-it-works-header">
           <span className="how-it-works-tag">Simple & Transparent</span>
@@ -434,7 +491,6 @@ export default function Home({ user }) {
           </div>
         </div>
 
-        {/* Callout Card for Owners */}
         <div className="owner-cta-banner">
           <div className="owner-cta-text">
             <h3>Have items sitting idle at home?</h3>
@@ -449,3 +505,67 @@ export default function Home({ user }) {
     </main>
   );
 }
+
+// --- GREEN THEME STYLES ---
+const styles = {
+  trustBar: {
+    backgroundColor: "#e8f8f0",
+    border: "1px solid #c7e9d7",
+    padding: "16px 20px",
+    borderRadius: "16px",
+    marginBottom: "24px",
+    boxShadow: "0 4px 12px rgba(0, 170, 91, 0.05)",
+  },
+  trustBarInfo: {
+    display: "flex",
+    alignItems: "center",
+    fontSize: "15px",
+    color: "#111",
+    marginBottom: "6px",
+  },
+  trustBarDesc: {
+    margin: 0,
+    fontSize: "13px",
+    color: "#555",
+  },
+  subSectionTitle: {
+    fontSize: "18px",
+    fontWeight: "700",
+    color: "#111",
+    display: "flex",
+    alignItems: "center",
+    marginBottom: "14px",
+  },
+  lockedHeader: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    flexWrap: "wrap",
+    gap: "10px",
+    marginTop: "30px",
+    marginBottom: "14px",
+    borderTop: "1px solid #eaeaea",
+    paddingTop: "24px",
+  },
+  lockedSubnote: {
+    fontSize: "12.5px",
+    color: "#666",
+    fontWeight: "600",
+  },
+  lockBadgeOverlay: {
+    position: "absolute",
+    top: "10px",
+    right: "10px",
+    zIndex: 5,
+    backgroundColor: "rgba(217, 119, 6, 0.95)",
+    color: "#fff",
+    padding: "4px 10px",
+    borderRadius: "20px",
+    fontSize: "11px",
+    fontWeight: "bold",
+    display: "flex",
+    alignItems: "center",
+    gap: "4px",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+  },
+};

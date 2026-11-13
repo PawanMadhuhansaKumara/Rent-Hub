@@ -44,6 +44,9 @@ app.use('/api/rent-requests', rentRequestRoutes);
 app.use('/api/notifications', notificationRoutes);
 app.use('/api/reviews', reviewRoutes);
 
+// Trust Score & Limit Routes සම්බන්ධ කිරීම
+const trustScoreRoutes = require('./routes/trustScore');
+app.use('/api', trustScoreRoutes); // මෙහිදී /api/rent-requests/:id/complete ලෙස ක්‍රියාත්මක වේ
 // Server Listening
 const PORT = process.env.PORT || 5001;
 app.listen(PORT, () => {

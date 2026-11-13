@@ -40,6 +40,9 @@ export default function Navbar({ user, setUser }) {
 
   const userId = user?.user_id || user?.id;
 
+  // Rental Limit එක ලබා ගැනීම (Login නැත්නම් 1000 යි)
+  const userLimit = user ? Number(user.rental_limit || 1000) : 1000;
+
   // Fetch unread messages count
   const fetchUnreadCount = async () => {
     if (!userId) {
@@ -126,7 +129,6 @@ export default function Navbar({ user, setUser }) {
         date = new Date(dateStr);
       } else {
         let s = String(dateStr).trim();
-        // If MySQL datetime lacks timezone indicator, treat as UTC
         if (!s.endsWith("Z") && !s.includes("+") && !s.match(/-\d{2}:\d{2}$/)) {
           s = s.replace(" ", "T") + "Z";
         }
@@ -208,9 +210,9 @@ export default function Navbar({ user, setUser }) {
         <img src={logo} alt="Rent-Hub Logo" className="navbar-logo" />
       </Link>
 
-      {/* Right Side Actions: Home, Language/Chat, Profile/Login */}
+      {/* Right Side Actions */}
       <div className="navbar-actions">
-        {/* Home Link (Moved to Right Side) */}
+        {/* Home Link */}
         {!user && (
           <Link
             to="/"
@@ -219,11 +221,21 @@ export default function Navbar({ user, setUser }) {
             {t("appbar.home") || "Home"}
           </Link>
         )}
+
+        {/* --- GREEN RENTAL LIMIT BADGE (Placed near Cart & Message icons) --- */}
+        {user && (
+          <div className="nav-rental-limit-badge" title="Your current max rental limit">
+            <span className="limit-label">Limit:</span>
+            <span className="limit-amount">LKR {userLimit.toLocaleString()}</span>
+          </div>
+        )}
+
         {user && <CartIcon />}
-        {/* Language Selector - shown when not logged in */}
+
+        {/* Language Selector */}
         {!user && <LanguageSelecter />}
 
-        {/* Chat Icon & Dropdown - ONLY shown when logged in */}
+        {/* Chat Icon & Dropdown */}
         {user && (
           <div className="navbar-chat-wrapper" ref={dropdownRef}>
             <button
