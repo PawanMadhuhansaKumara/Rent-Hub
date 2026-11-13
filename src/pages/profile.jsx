@@ -2,27 +2,7 @@ import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  Camera,
-  CheckCircle2,
-  Phone,
-  MapPin,
-  Clock,
-  Mail,
-  Star,
-  Heart,
-  Plus,
-  Edit3,
-  Settings,
-  X,
-  User,
-  AtSign,
-  ArrowLeft,
-  Package,
-  Calendar,
-  Eye,
-  Trash2,
-  ChevronDown,
-  CornerDownRight,
+  Camera,CheckCircle2, Phone,MapPin, Clock, Mail, Star, Heart, Plus, Edit3, Settings, X, User,AtSign, ArrowLeft, Package, Calendar, Eye, Trash2, ChevronDown, CornerDownRight,
 } from "lucide-react";
 import SettingsPopup from "../components/SettingsPopup";
 import LeaveReviewModal from "../components/LeaveReviewModal";
@@ -30,24 +10,21 @@ import LeaveReviewModal from "../components/LeaveReviewModal";
 const isItemRented = (item) => {
   if (!item) return false;
 
-  // Manual status එක Available නම් කෙලින්ම false (not rented) ලබා දෙන්න
-  if (item.available === "Available") return false;
+  const stock =
+    item.available_quantity !== undefined && item.available_quantity !== null
+      ? Number(item.available_quantity)
+      : null;
 
-  const directRented =
+  if (stock !== null) {
+    return stock <= 0;
+  }
+
+  return (
     item.available === "Rented Out" ||
     String(item.available).toLowerCase() === "rented out" ||
-    item.available_qty === "Rented Out" ||
-    String(item.available_qty).toLowerCase() === "rented out" ||
     item.available === 0 ||
-    item.available === "0" ||
-    String(item.status).toLowerCase() === "rented" ||
-    (item.available !== undefined &&
-      item.available !== null &&
-      item.available !== "" &&
-      !isNaN(Number(item.available)) &&
-      Number(item.available) < 1);
-
-  return Boolean(directRented);
+    item.available === "0"
+  );
 };
 
 export default function Profile({ user, setUser }) {

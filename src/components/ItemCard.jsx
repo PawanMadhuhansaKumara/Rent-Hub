@@ -45,37 +45,25 @@ export default function ItemCard({ item }) {
   const authorId = item.userId || item.user_id;
   const authorProfileLink = authorId ? `/profile/${authorId}` : "/profile";
 
-  const isRented = (() => {
+   const isRented = (() => {
     if (!item) return false;
-    const directRented =
+
+    // Database එකේ available_quantity එක 0 හෝ ඊට අඩු නම් පමණක් Rented Out වේ!
+    const stock =
+      item.available_quantity !== undefined && item.available_quantity !== null
+        ? Number(item.available_quantity)
+        : null;
+
+    if (stock !== null) {
+      return stock <= 0;
+    }
+
+    return (
       item.available === "Rented Out" ||
       String(item.available).toLowerCase() === "rented out" ||
-      String(item.available).toLowerCase() === "rented" ||
       item.available === 0 ||
-      item.available === "0" ||
-      String(item.status).toLowerCase() === "rented" ||
-      (item.available !== undefined &&
-        item.available !== null &&
-        item.available !== "" &&
-        !isNaN(Number(item.available)) &&
-        Number(item.available) < 1);
-    if (directRented) return true;
-
-    try {
-      const saved = localStorage.getItem("rent_hub_requests");
-      if (saved) {
-        const requests = JSON.parse(saved);
-        if (Array.isArray(requests)) {
-          return requests.some((r) => {
-            const matchItem =
-              String(r.itemId || r.item_id) === String(item.id);
-            const isRentedStatus = String(r.status).toLowerCase() === "rented";
-            return matchItem && isRentedStatus;
-          });
-        }
-      }
-    } catch {}
-    return false;
+      item.available === "0"
+    );
   })();
 
   return (
@@ -164,8 +152,7 @@ export default function ItemCard({ item }) {
           <span className="item-condition">
             {t("item.condition")}: {item.condition || "Good"}
           </span>
-          <span
-            className="item-availability"
+                    <span className="item-availability"
             style={{
               color: isRented ? "#b91c1c" : "inherit",
               fontWeight: isRented ? "700" : "inherit",
@@ -173,8 +160,9 @@ export default function ItemCard({ item }) {
           >
             {isRented
               ? "Rented Out"
-              : `${t("item.availability")}: ${item.available ?? 1}`}
+              : `${t("item.availability")}: ${item.available_quantity ?? item.available ?? 1}`}
           </span>
+
         </div>
 
         <div className="item-price">

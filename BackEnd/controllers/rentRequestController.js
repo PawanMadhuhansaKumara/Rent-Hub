@@ -853,13 +853,13 @@ exports.confirmHandover = async (req, res) => {
 
       await sendNotification({
         userId: buyerId,
-        title: "Item Picked Up 📦",
-        message: `Shop has confirmed handover for "${itemTitle}". Please confirm you picked up the item.`,
+        title: "Item Handed Over 📦",
+        message: `Shop has handed over "${itemTitle}" to you. Enjoy your rental! When you return the item to the shop, click "Mark as Returned".`,
         type: "item_picked_up",
         itemId,
         requestId,
         imageUrl: itemImage,
-        linkUrl: "/my-items?tab=rent-requests&filter=sent",
+        linkUrl: "/my-items?tab=rented-items&subtab=rented-in",
       });
     } catch (notifErr) {
       console.warn("Notification error in confirmHandover:", notifErr.message);

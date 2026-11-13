@@ -32,39 +32,21 @@ const API_URL = "http://localhost:5001";
 export const isItemRented = (item) => {
   if (!item) return false;
 
-  // 1. Direct item availability check
-  const directRented =
+  const stock =
+    item.available_quantity !== undefined && item.available_quantity !== null
+      ? Number(item.available_quantity)
+      : null;
+
+  if (stock !== null) {
+    return stock <= 0;
+  }
+
+  return (
     item.available === "Rented Out" ||
     String(item.available).toLowerCase() === "rented out" ||
-    String(item.available).toLowerCase() === "rented" ||
     item.available === 0 ||
-    item.available === "0" ||
-    String(item.status).toLowerCase() === "rented" ||
-    (item.available !== undefined &&
-      item.available !== null &&
-      item.available !== "" &&
-      !isNaN(Number(item.available)) &&
-      Number(item.available) < 1);
-
-  if (directRented) return true;
-
-  // 2. Check if this item is marked as rented in local rent requests
-  try {
-    const saved = localStorage.getItem("rent_hub_requests");
-    if (saved) {
-      const requests = JSON.parse(saved);
-      if (Array.isArray(requests)) {
-        const hasRentedReq = requests.some((r) => {
-          const matchItem = String(r.itemId || r.item_id) === String(item.id);
-          const isRentedStatus = String(r.status).toLowerCase() === "rented";
-          return matchItem && isRentedStatus;
-        });
-        if (hasRentedReq) return true;
-      }
-    }
-  } catch {}
-
-  return false;
+    item.available === "0"
+  );
 };
 
 export default function ItemDetails() {

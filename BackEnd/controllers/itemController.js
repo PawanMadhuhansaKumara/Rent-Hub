@@ -16,35 +16,40 @@ exports.getAllItems = async (req, res) => {
       ORDER BY items.created_at DESC
     `);
 
-    const formattedItems = rows.map((item) => ({
-      id: item.id,
-      title: item.title,
-      category: item.category,
-      condition: item.condition,
-      price: item.price,
-      priceType: item.price_type,
-      description: item.description,
-      image: item.image_url,
-      available:
-        Number(item.is_rented_count) > 0 ||
-        item.available_qty === "Rented Out" ||
-        item.available_qty === 0 ||
-        item.available_qty === "0"
-          ? "Rented Out"
-          : item.available_qty,
-      available_quantity: item.available_quantity ?? 1,
-      bookings: Number(item.bookings_count || 0),
-      views: Number(item.views || 0),
-      userId: item.user_id,
-      user_id: item.user_id,
-      userName: item.user_name || null,
-      user_name: item.user_name || null,
-      userProfilePic: item.user_profile_pic || null,
-      user_profile_pic: item.user_profile_pic || null,
-      nearestCity: item.nearest_city || null,
-      nearest_city: item.nearest_city || null,
-      createdAt: item.created_at,
-    }));
+    const formattedItems = rows.map((item) => {
+      const stock = item.available_quantity !== undefined && item.available_quantity !== null
+        ? Number(item.available_quantity)
+        : null;
+
+      // Available ද Rented Out ද යන්න තීරණය වන්නේ stock එක 0 ද නැද්ද යන්න මත පමණි!
+      const isRented = stock !== null
+        ? stock <= 0
+        : item.available_qty === "Rented Out" || item.available_qty === 0 || item.available_qty === "0";
+
+      return {
+        id: item.id,
+        title: item.title,
+        category: item.category,
+        condition: item.condition,
+        price: item.price,
+        priceType: item.price_type,
+        description: item.description,
+        image: item.image_url,
+        available: isRented ? "Rented Out" : "Available",
+        available_quantity: Number(item.available_quantity ?? 1),
+        bookings: Number(item.bookings_count || 0),
+        views: Number(item.views || 0),
+        userId: item.user_id,
+        user_id: item.user_id,
+        userName: item.user_name || null,
+        user_name: item.user_name || null,
+        userProfilePic: item.user_profile_pic || null,
+        user_profile_pic: item.user_profile_pic || null,
+        nearestCity: item.nearest_city || null,
+        nearest_city: item.nearest_city || null,
+        createdAt: item.created_at,
+      };
+    });
 
     res.status(200).json(formattedItems);
   } catch (error) {
@@ -70,26 +75,30 @@ exports.getUserItems = async (req, res) => {
       ORDER BY created_at DESC
     `, [userId]);
 
-    const formattedItems = rows.map((item) => ({
-      id: item.id,
-      title: item.title,
-      category: item.category,
-      condition: item.condition,
-      price: item.price,
-      priceType: item.price_type,
-      description: item.description,
-      image: item.image_url,
-      available:
-        Number(item.is_rented_count) > 0 ||
-        item.available_qty === "Rented Out" ||
-        item.available_qty === 0 ||
-        item.available_qty === "0"
-          ? "Rented Out"
-          : item.available_qty,
-      available_quantity: item.available_quantity ?? 1,
-      bookings: Number(item.bookings_count || 0),
-      views: Number(item.views || 0),
-    }));
+    const formattedItems = rows.map((item) => {
+      const stock = item.available_quantity !== undefined && item.available_quantity !== null
+        ? Number(item.available_quantity)
+        : null;
+
+      const isRented = stock !== null
+        ? stock <= 0
+        : item.available_qty === "Rented Out" || item.available_qty === 0 || item.available_qty === "0";
+
+      return {
+        id: item.id,
+        title: item.title,
+        category: item.category,
+        condition: item.condition,
+        price: item.price,
+        priceType: item.price_type,
+        description: item.description,
+        image: item.image_url,
+        available: isRented ? "Rented Out" : "Available",
+        available_quantity: Number(item.available_quantity ?? 1),
+        bookings: Number(item.bookings_count || 0),
+        views: Number(item.views || 0),
+      };
+    });
 
     res.status(200).json(formattedItems);
   } catch (error) {
@@ -102,10 +111,23 @@ exports.getUserItems = async (req, res) => {
 exports.incrementViews = async (req, res) => {
   const itemId = req.params.id;
   try {
-    await db.execute(
-      "UPDATE items SET views = COALESCE(views, 0) + 1 WHERE id = ?",
-      [itemId]
-    );
+    try {
+      await db.execute(
+        "UPDATE items SET views = COALESCE(views, 0) + 1 WHERE id = ?",
+        [itemId]
+      );
+    } catch (sqlErr) {
+      if (
+        sqlErr.code === "ER_BAD_FIELD_ERROR" ||
+        sqlErr.errno === 1054 ||
+        String(sqlErr.message).includes("views")
+      ) {
+        await db.execute("ALTER TABLE items ADD COLUMN views INT DEFAULT 0");
+        await db.execute("UPDATE items SET views = 1 WHERE id = ?", [itemId]);
+      } else {
+        throw sqlErr;
+      }
+    }
     res.status(200).json({ success: true, message: "View recorded" });
   } catch (error) {
     console.error("Increment Views Error:", error);
@@ -176,41 +198,23 @@ exports.updateStatus = async (req, res) => {
   const { available } = req.body;
 
   try {
-    try {
-      await db.execute("UPDATE items SET available_qty = ? WHERE id = ?", [
-        available,
-        itemId,
-      ]);
-    } catch (e) {
-      const numVal =
-        available === "Rented Out" || available === 0 || available === "0"
-          ? 0
-          : 1;
-      await db.execute("UPDATE items SET available_qty = ? WHERE id = ?", [
-        numVal,
-        itemId,
-      ]);
-    }
-
-    const isAvail =
-      available === "Available" || available === 1 || available === "1";
+    const isAvail = available === "Available" || available === 1 || available === "1";
     if (isAvail) {
-      try {
-        await db.execute(
-          "UPDATE rent_requests SET status = 'Completed' WHERE item_id = ? AND LOWER(status) = 'rented'",
-          [itemId]
-        );
-      } catch (err) {}
+      await db.execute(
+        "UPDATE items SET available_qty = 'Available', available_quantity = GREATEST(COALESCE(available_quantity, 0), 1) WHERE id = ?",
+        [itemId]
+      );
+    } else {
+      await db.execute(
+        "UPDATE items SET available_qty = 'Rented Out', available_quantity = 0 WHERE id = ?",
+        [itemId]
+      );
     }
 
-    res
-      .status(200)
-      .json({ success: true, message: "Status updated successfully!" });
+    res.status(200).json({ success: true, message: "Status updated successfully!" });
   } catch (error) {
     console.error("Update Status Error:", error);
-    res
-      .status(500)
-      .json({ success: false, message: "Failed to update status." });
+    res.status(500).json({ success: false, message: "Failed to update status." });
   }
 };
 
@@ -219,9 +223,7 @@ exports.deleteItem = async (req, res) => {
   const itemId = req.params.id;
   try {
     await db.execute("DELETE FROM items WHERE id = ?", [itemId]);
-    res
-      .status(200)
-      .json({ success: true, message: "Item deleted successfully!" });
+    res.status(200).json({ success: true, message: "Item deleted successfully!" });
   } catch (error) {
     console.error("Delete Item Error:", error);
     res.status(500).json({ success: false, message: "Failed to delete item." });
