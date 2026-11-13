@@ -22,6 +22,7 @@ export default function RentRequestsTab({
   loadingRequests,
   updatingReqId,
   onAction,
+  onMarkPicked,
   onRateItem,
   API_URL = "http://localhost:5001",
   hideSentByMe = false,
@@ -87,14 +88,26 @@ export default function RentRequestsTab({
     onAction && onAction(reqId, newStatus);
   };
 
-  // Exclude declined, cancelled, completed, and already picked up / rented requests from Rent Requests tab
-  const activeRequests = requests.filter(
-    (r) =>
-      r.status?.toLowerCase() !== "declined" &&
-      r.status?.toLowerCase() !== "cancelled" &&
-      r.status?.toLowerCase() !== "completed" &&
-      (r.status?.toLowerCase() !== "rented" || pickedUpNotices[String(r.id)])
-  );
+  // Filter requests for Rent Requests tab:
+  // - For buyer (Sent by Me): keep Pending, Approved, Rented, and Completed visible so buyer can track their orders and Rate & Review
+  // - For seller (Received): once handed over (rented/completed), it moves to Sented Out tab
+  const activeRequests = requests.filter((r) => {
+    const status = r.status?.toLowerCase();
+    if (status === "declined" || status === "cancelled") return false;
+
+    const isSender =
+      Number(r.buyerId || r.buyer_id) === Number(userId) ||
+      (!r.sellerId && !r.seller_id) ||
+      r.reqType === "sent";
+
+    if (isSender) {
+      return true;
+    }
+
+    if (status === "completed") return false;
+    if (status === "rented" && !pickedUpNotices[String(r.id)]) return false;
+    return true;
+  });
 
   const sentCount = activeRequests.filter(
     (r) =>
@@ -153,7 +166,7 @@ export default function RentRequestsTab({
         </button>
       </div>
 
-      {loadingRequests ? (
+      {loadingRequests && (!requests || requests.length === 0) ? (
         <div className="my-items-loader">
           <div className="my-items-spinner" />
           <p>Loading rental requests...</p>
@@ -203,6 +216,7 @@ export default function RentRequestsTab({
                 updatingReqId={updatingReqId}
                 onAction={handleAction}
                 onInitiateHandover={handleInitiateHandover}
+                onMarkPicked={onMarkPicked}
                 onRateItem={onRateItem}
                 API_URL={API_URL}
               />

@@ -10,6 +10,7 @@ import {
   ExternalLink,
   Star,
   Edit3,
+  Clock,
 } from "lucide-react";
 import { formatRentalDate, formatRequestTime } from "../../utils/dateUtils";
 
@@ -23,6 +24,7 @@ export default function RentRequestCard({
   updatingReqId,
   onAction,
   onInitiateHandover,
+  onMarkPicked,
   onRateItem,
   API_URL = "http://localhost:5001",
 }) {
@@ -50,6 +52,11 @@ export default function RentRequestCard({
     req.status === "Pending" || req.status?.toLowerCase() === "pending";
   const isApproved =
     req.status === "Approved" || req.status?.toLowerCase() === "approved";
+  const isCustomerPicked =
+    Number(req.customerPicked ?? req.customer_picked ?? req.isCustomerPicked) === 1 ||
+    req.customerPicked === true ||
+    req.customer_picked === true ||
+    Boolean(req.customerPickedAt || req.customer_picked_at);
   const isRented = req.status?.toLowerCase() === "rented";
   const isDeclinedOrCancelled =
     req.status === "Declined" ||
@@ -224,9 +231,34 @@ export default function RentRequestCard({
         </div>
       )}
 
-      {/* PICKUP BUTTON: Shown for Shop's Approved Rent Requests */}
+      {/* 1. CUSTOMER SIDE: Approved Rent Request - Waiting for shop handover */}
+      {isSender && isApproved && (
+        <div className="rent-request-actions" style={{ marginTop: "12px" }}>
+          <div
+            style={{
+              width: "100%",
+              padding: "10px 14px",
+              backgroundColor: "#f0fdf4",
+              border: "1px solid #bbf7d0",
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              fontSize: "12px",
+              fontWeight: "600",
+              color: "#166534",
+              boxSizing: "border-box",
+            }}
+          >
+            <CheckCircle2 size={16} color="#16a34a" />
+            <span>Approved! Visit the shop to collect your item. Shop will mark as picked up upon handover.</span>
+          </div>
+        </div>
+      )}
+
+      {/* 2. SELLER / SHOP SIDE: Approved Rent Request - Mark as Picked Up button */}
       {!isSender && isApproved && (
-        <div className="rent-request-actions">
+        <div className="rent-request-actions" style={{ marginTop: "12px" }}>
           <button
             type="button"
             disabled={String(updatingReqId) === String(req.id)}
@@ -240,6 +272,22 @@ export default function RentRequestCard({
               }
             }}
             className="req-btn req-btn-pickup"
+            style={{
+              width: "100%",
+              padding: "10px 16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              backgroundColor: "#00aa5b",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "8px",
+              fontWeight: "600",
+              fontSize: "13px",
+              cursor: String(updatingReqId) === String(req.id) ? "not-allowed" : "pointer",
+            }}
+            title="Verify customer details and confirm handover"
           >
             {String(updatingReqId) === String(req.id) ? (
               <span className="req-btn-spinner" />
@@ -255,92 +303,223 @@ export default function RentRequestCard({
         </div>
       )}
 
-      {/* Review Action: Shown for Buyer when Request is Completed */}
-      {isSender && (String(req.status).toLowerCase() === "completed" || String(req.status).toLowerCase() === "returned") && (
+      {/* 3. CUSTOMER SIDE: Shop has marked as picked up (rented). Customer confirms pickup */}
+      {isSender && isRented && !isCustomerPicked && (
         <div className="rent-request-actions" style={{ marginTop: "12px" }}>
-          {req.reviewId || req.hasReviewed ? (
+          <div
+            style={{
+              marginBottom: "8px",
+              padding: "7px 12px",
+              backgroundColor: "#f0fdf4",
+              border: "1px solid #bbf7d0",
+              borderRadius: "6px",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              fontSize: "12px",
+              color: "#166534",
+              fontWeight: "600",
+            }}
+          >
+            <CheckCircle2 size={14} color="#16a34a" />
+            <span>Shop has handed over the item. Please confirm you picked it up.</span>
+          </div>
+          <button
+            type="button"
+            disabled={String(updatingReqId) === String(req.id)}
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onMarkPicked && onMarkPicked(req.id);
+            }}
+            className="req-btn req-btn-pickup"
+            style={{
+              width: "100%",
+              padding: "10px 16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              backgroundColor: "#00aa5b",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "8px",
+              fontWeight: "600",
+              fontSize: "13px",
+              cursor: String(updatingReqId) === String(req.id) ? "not-allowed" : "pointer",
+            }}
+            title="Confirm you have received and picked up this item"
+          >
+            {String(updatingReqId) === String(req.id) ? (
+              <span className="req-btn-spinner" />
+            ) : (
+              <PackageCheck size={16} />
+            )}
+            <span>
+              {String(updatingReqId) === String(req.id)
+                ? "Confirming Pickup..."
+                : "Mark as Picked"}
+            </span>
+          </button>
+        </div>
+      )}
+
+      {/* 4. SELLER / SHOP SIDE: Shop marked as picked up (rented) - Notice of customer confirmation status */}
+      {!isSender && isRented && (
+        <div className="rent-request-actions" style={{ marginTop: "12px" }}>
+          {!isCustomerPicked ? (
             <div
               style={{
                 width: "100%",
-                padding: "8px 12px",
+                padding: "9px 14px",
+                backgroundColor: "#fffbeb",
+                border: "1px solid #fde68a",
+                borderRadius: "8px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
-                backgroundColor: "#fefce8",
-                border: "1px solid #fef08a",
-                borderRadius: "8px",
-                fontSize: "13px",
+                fontSize: "12px",
                 fontWeight: "600",
-                color: "#a16207",
+                color: "#b45309",
                 boxSizing: "border-box",
               }}
             >
               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <Star size={15} color="#eab308" fill="#eab308" />
-                <span>You rated this: {req.reviewRating || "5.0"}★</span>
+                <Clock size={15} color="#d97706" />
+                <span>Marked as Picked Up</span>
               </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "11px", color: "#854d0e" }}>Reviewed</span>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onRateItem && onRateItem(req);
-                  }}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "4px",
-                    background: "#ffffff",
-                    border: "1px solid #fde047",
-                    color: "#854d0e",
-                    borderRadius: "6px",
-                    padding: "3px 8px",
-                    fontSize: "11px",
-                    fontWeight: "600",
-                    cursor: "pointer",
-                  }}
-                  title="Edit or delete your review"
-                >
-                  <Edit3 size={12} />
-                  <span>Edit</span>
-                </button>
-              </div>
+              <span style={{ fontSize: "11px", color: "#b45309", fontWeight: "500" }}>
+                Waiting for customer confirmation
+              </span>
             </div>
           ) : (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onRateItem && onRateItem(req);
-              }}
-              className="req-btn"
+            <div
               style={{
                 width: "100%",
-                padding: "10px 16px",
+                padding: "9px 14px",
+                backgroundColor: "#f0fdf4",
+                border: "1px solid #bbf7d0",
+                borderRadius: "8px",
                 display: "flex",
                 alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                backgroundColor: "#00aa5b",
-                color: "#ffffff",
-                border: "none",
-                borderRadius: "8px",
-                fontSize: "13px",
+                gap: "6px",
+                fontSize: "12px",
                 fontWeight: "600",
-                cursor: "pointer",
-                boxShadow: "0 2px 6px rgba(0, 170, 91, 0.25)",
+                color: "#166534",
+                boxSizing: "border-box",
               }}
-              title="Leave a review for this item and shop"
             >
-              <Star size={16} color="#ffffff" fill="#ffffff" />
-              <span>Rate & Review Item</span>
-            </button>
+              <CheckCircle2 size={15} color="#16a34a" />
+              <span>Customer confirmed pickup • Active Rental</span>
+            </div>
           )}
         </div>
       )}
+
+      {/* 5. Review Action: Shown for Buyer AFTER customer confirms pickup, or when completed/returned */}
+      {isSender && (
+        (isRented && isCustomerPicked) ||
+        String(req.status).toLowerCase() === "completed" ||
+        String(req.status).toLowerCase() === "returned"
+      ) && (() => {
+        const hasReview = Boolean(req.reviewId || req.review_id || req.hasReviewed);
+        const currentRating = hasReview ? (req.reviewRating || req.review_rating || 5) : 5;
+        const currentComment = hasReview ? (req.reviewComment || req.review_comment || "") : "";
+        const triggerRateItem = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onRateItem && onRateItem({
+            ...req,
+            requestId: req.id,
+            itemId: req.itemId || req.item_id,
+            sellerId: req.sellerId || req.seller_id,
+            title: req.itemTitle || req.item_title,
+            image: req.itemImage || req.item_image,
+            reviewId: hasReview ? (req.reviewId || req.review_id || null) : null,
+            reviewRating: currentRating,
+            reviewComment: currentComment,
+            hasReviewed: hasReview,
+          });
+        };
+
+        return (
+          <div className="rent-request-actions" style={{ marginTop: "12px" }}>
+            {hasReview ? (
+              <div
+                style={{
+                  width: "100%",
+                  padding: "8px 12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  backgroundColor: "#fefce8",
+                  border: "1px solid #fef08a",
+                  borderRadius: "8px",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                  color: "#a16207",
+                  boxSizing: "border-box",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <Star size={15} color="#eab308" fill="#eab308" />
+                  <span>You rated this: {currentRating}★</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "11px", color: "#854d0e" }}>Reviewed</span>
+                  <button
+                    type="button"
+                    onClick={triggerRateItem}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      background: "#ffffff",
+                      border: "1px solid #fde047",
+                      color: "#854d0e",
+                      borderRadius: "6px",
+                      padding: "3px 8px",
+                      fontSize: "11px",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                    }}
+                    title="Edit or delete your review"
+                  >
+                    <Edit3 size={12} />
+                    <span>Edit</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={triggerRateItem}
+                className="req-btn"
+                style={{
+                  width: "100%",
+                  padding: "10px 16px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  backgroundColor: "#00aa5b",
+                  color: "#ffffff",
+                  border: "none",
+                  borderRadius: "8px",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 6px rgba(0, 170, 91, 0.25)",
+                }}
+                title="Leave a review for this item and shop"
+              >
+                <Star size={16} color="#ffffff" fill="#ffffff" />
+                <span>Rate & Review Item</span>
+              </button>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }

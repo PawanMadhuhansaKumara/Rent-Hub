@@ -17,6 +17,7 @@ export default function RentedItemsTab({
   onStatusChange,
   onReturnItem,
   returningItemId,
+  onMarkPicked,
   onRateItem,
   onNavigateTab,
   API_URL = "http://localhost:5001",
@@ -52,7 +53,7 @@ export default function RentedItemsTab({
         )}
       </div>
 
-      {loading ? (
+      {loading && (!displayedRentedItems || displayedRentedItems.length === 0) ? (
         <div className="my-items-loader">
           <div className="my-items-spinner" />
           <p>Loading rented items...</p>
@@ -116,6 +117,7 @@ export default function RentedItemsTab({
                 String(returningItemId) === String(item.itemId || item.id) ||
                 String(returningItemId) === String(item.requestId)
               }
+              onMarkPicked={onMarkPicked}
               onRateItem={onRateItem}
               API_URL={API_URL}
             />

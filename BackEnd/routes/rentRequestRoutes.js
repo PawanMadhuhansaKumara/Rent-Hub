@@ -8,6 +8,7 @@ router.post("/handover", rentRequestController.confirmHandover);
 router.get("/buyer/:buyerId", rentRequestController.getBuyerRequests);
 router.get("/seller/:sellerId", rentRequestController.getSellerRequests);
 router.put("/:id/status", rentRequestController.updateRequestStatus);
+router.put("/:id/customer-picked", rentRequestController.markCustomerPicked);
 router.delete("/:id", rentRequestController.deleteRentRequest);
 
 module.exports = router;
