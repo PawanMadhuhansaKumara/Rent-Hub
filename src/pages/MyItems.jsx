@@ -56,9 +56,9 @@ export default function MyItems({ user }) {
   const subtabParam = searchParams.get("subtab");
   const initialRentedSubTab = isFromBusinessHub
     ? "sented-out"
-    : subtabParam === "rented-in"
-      ? "rented-in"
-      : "sented-out";
+    : subtabParam === "sented-out"
+      ? "sented-out"
+      : "rented-in";
 
   const [activeTab, setActiveTab] = useState(initialTab);
   const [requestFilter, setRequestFilter] = useState(initialFilter);
@@ -92,9 +92,11 @@ export default function MyItems({ user }) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
-  const fetchMyItems = async () => {
+  const fetchMyItems = async (showLoading = false) => {
     try {
-      setLoading(true);
+      if (showLoading) {
+        setLoading(true);
+      }
       setError("");
       const res = await fetch(`${API_URL}/api/items/${userId}`);
       if (res.ok) {
@@ -105,9 +107,13 @@ export default function MyItems({ user }) {
       }
     } catch (err) {
       console.error("Error fetching items:", err);
-      setError(err.message || "Failed to load items.");
+      if (showLoading) {
+        setError(err.message || "Failed to load items.");
+      }
     } finally {
-      setLoading(false);
+      if (showLoading) {
+        setLoading(false);
+      }
     }
   };
 
@@ -116,7 +122,7 @@ export default function MyItems({ user }) {
       setLoading(false);
       return;
     }
-    fetchMyItems();
+    fetchMyItems(items.length === 0);
   }, [userId]);
 
   // -------------------------------------------------------------
@@ -142,9 +148,11 @@ export default function MyItems({ user }) {
   const [loadingRequests, setLoadingRequests] = useState(false);
   const [updatingReqId, setUpdatingReqId] = useState(null);
 
-  const fetchBuyerRequests = async () => {
+  const fetchBuyerRequests = async (showLoading = false) => {
     try {
-      setLoadingRequests(true);
+      if (showLoading) {
+        setLoadingRequests(true);
+      }
       let localReqs = [];
       try {
         const saved = localStorage.getItem("rent_hub_requests");
@@ -214,7 +222,17 @@ export default function MyItems({ user }) {
               item.status?.toLowerCase() === "rented"
                 ? "rented"
                 : apiItem.status || item.status;
-            map.set(String(item.id), { ...item, ...apiItem, status });
+            const customerPicked =
+              apiItem.customerPicked !== undefined && apiItem.customerPicked !== null
+                ? apiItem.customerPicked
+                : (item.customerPicked || item.customer_picked || 0);
+            map.set(String(item.id), {
+              ...item,
+              ...apiItem,
+              status,
+              customerPicked,
+              customer_picked: customerPicked,
+            });
             return;
           }
 
@@ -239,10 +257,20 @@ export default function MyItems({ user }) {
 
         const merged = Array.from(map.values()).sort(
           (a, b) =>
-            new Date(b.createdAt || b.created_at || 0) -
-            new Date(a.createdAt || a.created_at || 0),
+            new Date(b.createdAt || b.created_at || 0).getTime() -
+            new Date(a.createdAt || a.created_at || 0).getTime() ||
+            Number(b.id || 0) - Number(a.id || 0),
         );
-        setRequests(merged);
+
+        setRequests((prev) => {
+          const prevStr = JSON.stringify(prev);
+          const newStr = JSON.stringify(merged);
+          if (prevStr === newStr) {
+            return prev;
+          }
+          return merged;
+        });
+
         try {
           localStorage.setItem("rent_hub_requests", JSON.stringify(merged));
         } catch {}
@@ -253,22 +281,36 @@ export default function MyItems({ user }) {
 
       setRequests(userFilteredLocal);
     } finally {
-      setLoadingRequests(false);
+      if (showLoading) {
+        setLoadingRequests(false);
+      }
     }
   };
 
   useEffect(() => {
-    fetchBuyerRequests();
+    fetchBuyerRequests(requests.length === 0);
 
+    let debounceTimer = null;
     const handleUpdate = () => {
-      fetchBuyerRequests();
-      fetchMyItems();
+      if (debounceTimer) clearTimeout(debounceTimer);
+      debounceTimer = setTimeout(() => {
+        fetchBuyerRequests(false);
+        fetchMyItems(false);
+      }, 50);
     };
 
     window.addEventListener("rent_requests_updated", handleUpdate);
     window.addEventListener("items_updated", handleUpdate);
     window.addEventListener("storage", handleUpdate);
+
+    // Silent background sync every 4 seconds (zero loaders, zero jumping)
+    const silentPoll = setInterval(() => {
+      fetchBuyerRequests(false);
+    }, 4000);
+
     return () => {
+      if (debounceTimer) clearTimeout(debounceTimer);
+      clearInterval(silentPoll);
       window.removeEventListener("rent_requests_updated", handleUpdate);
       window.removeEventListener("items_updated", handleUpdate);
       window.removeEventListener("storage", handleUpdate);
@@ -804,6 +846,51 @@ export default function MyItems({ user }) {
     }
   };
 
+  const handleCustomerMarkPicked = async (reqId) => {
+    setUpdatingReqId(reqId);
+
+    // 1. Optimistic instant state and localStorage update
+    setRequests((prev) => {
+      const updated = prev.map((r) =>
+        String(r.id) === String(reqId)
+          ? {
+              ...r,
+              customerPicked: 1,
+              customer_picked: 1,
+              customerPickedAt: new Date().toISOString(),
+            }
+          : r,
+      );
+      try {
+        localStorage.setItem("rent_hub_requests", JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    try {
+      // 2. Sync to backend
+      const res = await fetch(
+        `${API_URL}/api/rent-requests/${reqId}/customer-picked`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ buyerId: userId }),
+        },
+      );
+      const data = await res.json();
+      if (!res.ok || !data.success) {
+        console.warn("Backend mark customer picked message:", data?.message);
+      }
+
+      window.dispatchEvent(new Event("rent_requests_updated"));
+      window.dispatchEvent(new Event("storage"));
+    } catch (err) {
+      console.error("Error marking as customer picked:", err);
+    } finally {
+      setUpdatingReqId(null);
+    }
+  };
+
   // -------------------------------------------------------------
   // RENTED ITEMS DERIVED LISTS
   // -------------------------------------------------------------
@@ -995,6 +1082,7 @@ export default function MyItems({ user }) {
       quantity: r.quantity,
       totalPrice: r.totalPrice || r.total_price,
       requestStatus: r.status,
+      customerPicked: r.customerPicked || r.customer_picked,
       createdAt: r.createdAt || r.created_at,
       reviewId: r.reviewId || r.review_id,
       reviewRating: r.reviewRating || r.review_rating,
@@ -1101,6 +1189,7 @@ export default function MyItems({ user }) {
             onStatusChange={handleStatusChange}
             onReturnItem={handleReturnItem}
             returningItemId={returningItemId}
+            onMarkPicked={handleCustomerMarkPicked}
             onRateItem={(it) => setSelectedReviewItem(it)}
             onNavigateTab={(tab) => setActiveTab(tab)}
             API_URL={API_URL}
@@ -1118,6 +1207,7 @@ export default function MyItems({ user }) {
             loadingRequests={loadingRequests}
             updatingReqId={updatingReqId}
             onAction={handleRequestAction}
+            onMarkPicked={handleCustomerMarkPicked}
             onRateItem={(it) => setSelectedReviewItem(it)}
             API_URL={API_URL}
             hideSentByMe={isFromBusinessHub}
@@ -1186,11 +1276,54 @@ export default function MyItems({ user }) {
           onClose={() => setSelectedReviewItem(null)}
           item={selectedReviewItem}
           currentUser={currentUser}
-          onReviewSubmitted={() => {
-            fetchBuyerRequests();
+          onReviewSubmitted={(reviewData) => {
+            setRequests((prev) => {
+              const updated = prev.map((r) =>
+                String(r.id) === String(reviewData?.requestId) ||
+                String(r.requestId) === String(reviewData?.requestId)
+                  ? {
+                      ...r,
+                      reviewId: reviewData.reviewId,
+                      review_id: reviewData.reviewId,
+                      reviewRating: reviewData.rating,
+                      review_rating: reviewData.rating,
+                      reviewComment: reviewData.comment,
+                      review_comment: reviewData.comment,
+                      hasReviewed: true,
+                    }
+                  : r,
+              );
+              try {
+                localStorage.setItem("rent_hub_requests", JSON.stringify(updated));
+              } catch {}
+              return updated;
+            });
+            fetchBuyerRequests(false);
           }}
-          onReviewDeleted={() => {
-            fetchBuyerRequests();
+          onReviewDeleted={(delData) => {
+            setRequests((prev) => {
+              const updated = prev.map((r) =>
+                String(r.id) === String(delData?.requestId) ||
+                String(r.requestId) === String(delData?.requestId) ||
+                Number(r.reviewId) === Number(delData?.reviewId)
+                  ? {
+                      ...r,
+                      reviewId: null,
+                      review_id: null,
+                      reviewRating: null,
+                      review_rating: null,
+                      reviewComment: null,
+                      review_comment: null,
+                      hasReviewed: false,
+                    }
+                  : r,
+              );
+              try {
+                localStorage.setItem("rent_hub_requests", JSON.stringify(updated));
+              } catch {}
+              return updated;
+            });
+            fetchBuyerRequests(false);
           }}
           API_URL={API_URL}
         />

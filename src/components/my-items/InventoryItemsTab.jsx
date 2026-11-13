@@ -15,7 +15,7 @@ export default function InventoryItemsTab({
   onRetry,
   API_URL = "http://localhost:5001",
 }) {
-  if (loading) {
+  if (loading && (!items || items.length === 0)) {
     return (
       <div className="my-items-loader">
         <div className="my-items-spinner" />

@@ -10,10 +10,20 @@ export default function LeaveReviewModal({
   onReviewDeleted,
   API_URL = "http://localhost:5001",
 }) {
-  const isEdit = Boolean(
-    item?.reviewId || (item?.id && (item?.rating !== undefined || item?.reviewRating !== undefined))
+  // Review ID resolution:
+  // 1. Explicit review ID on rental item (item.reviewId or item.review_id)
+  // 2. Direct review object from ItemDetails / Profile (where item.id is the review ID and it has NO requestId/itemId)
+  const explicitReviewId = item?.reviewId || item?.review_id || null;
+  const isDirectReviewObject = Boolean(
+    !item?.requestId &&
+    !item?.request_id &&
+    item?.id &&
+    (item?.rating !== undefined || item?.comment !== undefined) &&
+    (item?.buyerName || item?.buyerPic || item?.sellerReply !== undefined)
   );
-  const reviewId = item?.reviewId || (isEdit ? item?.id : null);
+
+  const reviewId = explicitReviewId || (isDirectReviewObject ? item?.id : null);
+  const isEdit = Boolean(reviewId);
 
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
@@ -26,13 +36,18 @@ export default function LeaveReviewModal({
 
   useEffect(() => {
     if (item) {
-      setRating(Number(item.reviewRating || item.rating || 5));
-      setComment(item.reviewComment || item.comment || "");
+      if (isEdit) {
+        setRating(Number(item.reviewRating || item.rating || 5));
+        setComment(item.reviewComment || item.comment || "");
+      } else {
+        setRating(5);
+        setComment("");
+      }
       setErrorMsg("");
       setSuccess(false);
       setSuccessMsg("");
     }
-  }, [item]);
+  }, [item, isEdit]);
 
   if (!isOpen || !item) return null;
 

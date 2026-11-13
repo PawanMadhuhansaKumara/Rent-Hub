@@ -17,11 +17,21 @@ const initRentRequestsTable = async () => {
         total_days INT DEFAULT 1,
         total_price DECIMAL(10,2) DEFAULT 0.00,
         status VARCHAR(30) DEFAULT 'Pending',
+        customer_picked TINYINT(1) DEFAULT 0,
+        customer_picked_at TIMESTAMP NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
         updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
       )
     `;
     await db.execute(query);
+
+    try {
+      await db.execute(`ALTER TABLE rent_requests ADD COLUMN customer_picked TINYINT(1) DEFAULT 0`);
+    } catch (e) {}
+    try {
+      await db.execute(`ALTER TABLE rent_requests ADD COLUMN customer_picked_at TIMESTAMP NULL`);
+    } catch (e) {}
+
     isTableInitialized = true;
   } catch (err) {
     // If DB is offline or cloud credentials block table creation, log and continue
@@ -311,6 +321,8 @@ exports.getBuyerRequests = async (req, res) => {
           r.quantity,
           r.total_price AS totalPrice,
           r.status,
+          r.customer_picked AS customerPicked,
+          r.customer_picked_at AS customerPickedAt,
           r.created_at AS createdAt,
           v.id_card_checked AS idCardChecked,
           v.customer_details_verified AS customerDetailsVerified,
@@ -353,6 +365,8 @@ exports.getBuyerRequests = async (req, res) => {
           r.quantity,
           r.total_price AS totalPrice,
           r.status,
+          r.customer_picked AS customerPicked,
+          r.customer_picked_at AS customerPickedAt,
           r.created_at AS createdAt,
           i.title AS itemTitle,
           i.image_url AS itemImage,
@@ -361,10 +375,14 @@ exports.getBuyerRequests = async (req, res) => {
           u.full_name AS sellerName,
           u.phone_no AS sellerPhone,
           u.profile_pic_url AS sellerPic,
-          u.nearest_city AS sellerCity
+          u.nearest_city AS sellerCity,
+          rev.id AS reviewId,
+          rev.rating AS reviewRating,
+          rev.comment AS reviewComment
         FROM rent_requests r
         LEFT JOIN items i ON r.item_id = i.id
         LEFT JOIN users_details u ON r.seller_id = u.user_id
+        LEFT JOIN reviews rev ON r.id = rev.request_id
         WHERE r.buyer_id = ? AND LOWER(r.status) NOT IN ('declined', 'cancelled')
         ORDER BY r.id DESC, r.created_at DESC
       `;
@@ -396,6 +414,8 @@ exports.getSellerRequests = async (req, res) => {
           r.quantity,
           r.total_price AS totalPrice,
           r.status,
+          r.customer_picked AS customerPicked,
+          r.customer_picked_at AS customerPickedAt,
           r.created_at AS createdAt,
           v.id_card_checked AS idCardChecked,
           v.customer_details_verified AS customerDetailsVerified,
@@ -434,6 +454,8 @@ exports.getSellerRequests = async (req, res) => {
           r.quantity,
           r.total_price AS totalPrice,
           r.status,
+          r.customer_picked AS customerPicked,
+          r.customer_picked_at AS customerPickedAt,
           r.created_at AS createdAt,
           i.title AS itemTitle,
           i.image_url AS itemImage,
@@ -606,6 +628,67 @@ exports.updateRequestStatus = async (req, res) => {
   }
 };
 
+// MARK AS PICKED BY CUSTOMER (Customer confirms pickup from their end)
+exports.markCustomerPicked = async (req, res) => {
+  const requestId = req.params.id;
+
+  try {
+    await initRentRequestsTable();
+
+    const [rRows] = await db.execute(
+      `SELECT r.*, i.title AS item_title, i.image_url AS item_image, b.full_name AS buyer_name
+       FROM rent_requests r
+       LEFT JOIN items i ON r.item_id = i.id
+       LEFT JOIN users_details b ON r.buyer_id = b.user_id
+       WHERE r.id = ?`,
+      [requestId]
+    );
+
+    if (!rRows || rRows.length === 0) {
+      return res.status(404).json({ success: false, message: "Rental request not found." });
+    }
+
+    const rental = rRows[0];
+
+    await db.execute(
+      `UPDATE rent_requests SET customer_picked = 1, customer_picked_at = NOW() WHERE id = ?`,
+      [requestId]
+    );
+
+    // Send real notification to seller
+    try {
+      const buyerName = rental.buyer_name || "Customer";
+      const itemTitle = rental.item_title || "your item";
+      await sendNotification({
+        userId: rental.seller_id,
+        title: "Customer Confirmed Pickup 📦",
+        message: `${buyerName} confirmed they have picked up "${itemTitle}".`,
+        type: "customer_picked",
+        itemId: rental.item_id,
+        requestId: requestId,
+        imageUrl: rental.item_image,
+        linkUrl: "/my-items?tab=rent-requests&filter=received",
+      });
+    } catch (notifErr) {
+      console.warn("Could not dispatch customer picked notification:", notifErr.message);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Item marked as picked by customer successfully.",
+      requestId: Number(requestId),
+      customerPicked: 1,
+      customerPickedAt: new Date().toISOString(),
+    });
+  } catch (error) {
+    console.error("Mark Customer Picked Error:", error);
+    res.status(500).json({
+      success: false,
+      message: "Failed to mark as picked: " + error.message,
+    });
+  }
+};
+
 // CONFIRM HANDOVER & SAVE VERIFICATION DETAILS
 exports.confirmHandover = async (req, res) => {
   const requestId = req.params.id || req.body.requestId;
@@ -759,13 +842,13 @@ exports.confirmHandover = async (req, res) => {
 
       await sendNotification({
         userId: buyerId,
-        title: "Item Picked Up",
-        message: `Handover has been confirmed for "${itemTitle}". Enjoy your rental!`,
+        title: "Item Picked Up 📦",
+        message: `Shop has confirmed handover for "${itemTitle}". Please confirm you picked up the item.`,
         type: "item_picked_up",
         itemId,
         requestId,
         imageUrl: itemImage,
-        linkUrl: "/my-items?tab=rented-items&subtab=rented-in",
+        linkUrl: "/my-items?tab=rent-requests&filter=sent",
       });
     } catch (notifErr) {
       console.warn("Notification error in confirmHandover:", notifErr.message);

@@ -59,7 +59,7 @@ const sendNotification = async ({
   }
 };
 
-// Helper to recalculate and sync seller rating & count
+// Helper to recalculate and sync seller rating
 const updateSellerRatingStats = async (sellerId) => {
   try {
     const [stats] = await db.execute(
@@ -67,10 +67,9 @@ const updateSellerRatingStats = async (sellerId) => {
       [sellerId]
     );
     const avgRating = stats.length > 0 && stats[0].count > 0 ? Number(stats[0].avg_rating) : 0.00;
-    const count = stats.length > 0 ? Number(stats[0].count) : 0;
     await db.execute(
-      `UPDATE users_details SET user_rating = ?, reviews_count = ? WHERE user_id = ?`,
-      [avgRating, count, sellerId]
+      `UPDATE users_details SET user_rating = ? WHERE user_id = ?`,
+      [avgRating, sellerId]
     );
   } catch (statsErr) {
     console.warn("Could not update user_rating in users_details:", statsErr.message);
@@ -137,9 +136,26 @@ exports.createReview = async (req, res) => {
     );
 
     if (existing.length > 0) {
-      return res.status(400).json({
-        success: false,
-        message: "You have already submitted a review for this rental."
+      const existingId = existing[0].id;
+      const trimmedComment = comment ? comment.trim() : null;
+      await db.execute(
+        `UPDATE reviews SET rating = ?, comment = ?, updated_at = NOW() WHERE id = ?`,
+        [numRating, trimmedComment, existingId]
+      );
+      await updateSellerRatingStats(seller_id);
+      return res.status(200).json({
+        success: true,
+        message: "Review updated successfully!",
+        reviewId: existingId,
+        review: {
+          id: existingId,
+          requestId: request_id,
+          itemId: item_id,
+          buyerId: buyer_id,
+          sellerId: seller_id,
+          rating: numRating,
+          comment: trimmedComment,
+        },
       });
     }
 
@@ -507,12 +523,17 @@ exports.updateReview = async (req, res) => {
   }
 
   try {
-    const [rows] = await db.execute(`SELECT * FROM reviews WHERE id = ?`, [reviewId]);
+    let [rows] = await db.execute(`SELECT * FROM reviews WHERE id = ?`, [reviewId]);
+    if (rows.length === 0) {
+      // Fallback: check if the reviewId was passed as request_id
+      [rows] = await db.execute(`SELECT * FROM reviews WHERE request_id = ?`, [reviewId]);
+    }
     if (rows.length === 0) {
       return res.status(404).json({ success: false, message: "Review not found." });
     }
 
     const review = rows[0];
+    const actualReviewId = review.id;
     if (Number(review.buyer_id) !== Number(buyer_id)) {
       return res.status(403).json({
         success: false,
@@ -523,7 +544,7 @@ exports.updateReview = async (req, res) => {
     const trimmedComment = comment ? comment.trim() : null;
     await db.execute(
       `UPDATE reviews SET rating = ?, comment = ?, updated_at = NOW() WHERE id = ?`,
-      [numRating, trimmedComment, reviewId]
+      [numRating, trimmedComment, actualReviewId]
     );
 
     // Recalculate seller stats
@@ -532,7 +553,7 @@ exports.updateReview = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Review updated successfully!",
-      reviewId: Number(reviewId),
+      reviewId: Number(actualReviewId),
       rating: numRating,
       comment: trimmedComment,
     });
@@ -558,12 +579,16 @@ exports.deleteReview = async (req, res) => {
   }
 
   try {
-    const [rows] = await db.execute(`SELECT * FROM reviews WHERE id = ?`, [reviewId]);
+    let [rows] = await db.execute(`SELECT * FROM reviews WHERE id = ?`, [reviewId]);
+    if (rows.length === 0) {
+      [rows] = await db.execute(`SELECT * FROM reviews WHERE request_id = ?`, [reviewId]);
+    }
     if (rows.length === 0) {
       return res.status(404).json({ success: false, message: "Review not found." });
     }
 
     const review = rows[0];
+    const actualReviewId = review.id;
     if (Number(review.buyer_id) !== Number(buyerId)) {
       return res.status(403).json({
         success: false,
@@ -571,7 +596,7 @@ exports.deleteReview = async (req, res) => {
       });
     }
 
-    await db.execute(`DELETE FROM reviews WHERE id = ?`, [reviewId]);
+    await db.execute(`DELETE FROM reviews WHERE id = ?`, [actualReviewId]);
 
     // Recalculate seller stats
     await updateSellerRatingStats(review.seller_id);
@@ -579,7 +604,7 @@ exports.deleteReview = async (req, res) => {
     res.status(200).json({
       success: true,
       message: "Review deleted successfully.",
-      reviewId: Number(reviewId),
+      reviewId: Number(actualReviewId),
     });
   } catch (error) {
     console.error("Delete Review Error:", error);

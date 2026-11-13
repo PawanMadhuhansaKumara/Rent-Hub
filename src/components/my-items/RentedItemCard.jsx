@@ -8,6 +8,7 @@ import {
   CheckCircle2,
   Star,
   Edit3,
+  PackageCheck,
 } from "lucide-react";
 import { formatRentalDate } from "../../utils/dateUtils";
 
@@ -19,6 +20,7 @@ export default function RentedItemCard({
   item,
   onReturnItem,
   isReturning = false,
+  onMarkPicked,
   onRateItem,
   API_URL = "http://localhost:5001",
 }) {
@@ -28,6 +30,12 @@ export default function RentedItemCard({
     ? item.renterName || "Customer"
     : item.sellerName || "Item Owner";
   const targetPhone = isSentedOut ? item.renterPhone : item.sellerPhone;
+
+  const isCustomerPicked =
+    Number(item.customerPicked ?? item.customer_picked) === 1 ||
+    item.customerPicked === true ||
+    item.customer_picked === true ||
+    Boolean(item.customerPickedAt || item.customer_picked_at);
 
   const itemImg = item.image || item.image_url;
   const imageUrl = itemImg
@@ -228,92 +236,188 @@ export default function RentedItemCard({
         </div>
       )}
 
-      {/* Review Action: Displayed for Buyer on Rented In items */}
-      {!isSentedOut && (
+      {/* 1. Approved state on Rented In items: Shop hasn't marked picked up yet */}
+      {!isSentedOut && item.requestStatus?.toLowerCase() === "approved" && (
         <div className="rent-request-actions" style={{ marginTop: "14px" }}>
-          {item.reviewId || item.hasReviewed ? (
-            <div
-              style={{
-                width: "100%",
-                padding: "8px 12px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                backgroundColor: "#fefce8",
-                border: "1px solid #fef08a",
-                borderRadius: "8px",
-                fontSize: "13px",
-                fontWeight: "600",
-                color: "#a16207",
-                boxSizing: "border-box",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <Star size={15} color="#eab308" fill="#eab308" />
-                <span>You rated this: {item.reviewRating || "5.0"}★</span>
-              </div>
-              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <span style={{ fontSize: "11px", color: "#854d0e" }}>Reviewed</span>
-                <button
-                  type="button"
-                  onClick={(e) => {
-                    e.preventDefault();
-                    e.stopPropagation();
-                    onRateItem && onRateItem(item);
-                  }}
-                  style={{
-                    display: "inline-flex",
-                    alignItems: "center",
-                    gap: "4px",
-                    background: "#ffffff",
-                    border: "1px solid #fde047",
-                    color: "#854d0e",
-                    borderRadius: "6px",
-                    padding: "3px 8px",
-                    fontSize: "11px",
-                    fontWeight: "600",
-                    cursor: "pointer",
-                  }}
-                  title="Edit or delete your review"
-                >
-                  <Edit3 size={12} />
-                  <span>Edit</span>
-                </button>
-              </div>
-            </div>
-          ) : (
-            <button
-              type="button"
-              onClick={(e) => {
-                e.preventDefault();
-                e.stopPropagation();
-                onRateItem && onRateItem(item);
-              }}
-              className="req-btn"
-              style={{
-                width: "100%",
-                padding: "10px 16px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                gap: "8px",
-                backgroundColor: "#00aa5b",
-                color: "#ffffff",
-                border: "none",
-                borderRadius: "8px",
-                fontSize: "13px",
-                fontWeight: "600",
-                cursor: "pointer",
-                boxShadow: "0 2px 6px rgba(0, 170, 91, 0.25)",
-              }}
-              title="Leave a review for this item and shop"
-            >
-              <Star size={16} color="#ffffff" fill="#ffffff" />
-              <span>Rate & Review Item</span>
-            </button>
-          )}
+          <div
+            style={{
+              width: "100%",
+              padding: "9px 14px",
+              backgroundColor: "#f0fdf4",
+              border: "1px solid #bbf7d0",
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              fontSize: "12px",
+              fontWeight: "600",
+              color: "#166534",
+              boxSizing: "border-box",
+            }}
+          >
+            <CheckCircle2 size={15} color="#16a34a" />
+            <span>Approved! Ready for pickup at shop.</span>
+          </div>
         </div>
       )}
+
+      {/* 2. Shop has marked as picked up (rented): Customer confirms pickup */}
+      {!isSentedOut && item.requestStatus?.toLowerCase() === "rented" && !isCustomerPicked && (
+        <div className="rent-request-actions" style={{ marginTop: "14px" }}>
+          <div
+            style={{
+              marginBottom: "8px",
+              padding: "7px 12px",
+              backgroundColor: "#f0fdf4",
+              border: "1px solid #bbf7d0",
+              borderRadius: "6px",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              fontSize: "12px",
+              color: "#166534",
+              fontWeight: "600",
+            }}
+          >
+            <CheckCircle2 size={14} color="#16a34a" />
+            <span>Shop has handed over the item. Please confirm pickup.</span>
+          </div>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onMarkPicked && onMarkPicked(item.requestId || item.id);
+            }}
+            className="req-btn req-btn-pickup"
+            style={{
+              width: "100%",
+              padding: "10px 16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              backgroundColor: "#00aa5b",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "8px",
+              fontWeight: "600",
+              fontSize: "13px",
+              cursor: "pointer",
+            }}
+            title="Confirm you have received and picked up this item"
+          >
+            <PackageCheck size={16} />
+            <span>Mark as Picked</span>
+          </button>
+        </div>
+      )}
+
+      {/* 3. Review Action: Displayed for Buyer on Rented In items AFTER pickup is confirmed or completed */}
+      {!isSentedOut && (
+        (item.requestStatus?.toLowerCase() === "rented" && isCustomerPicked) ||
+        item.requestStatus?.toLowerCase() === "completed" ||
+        item.requestStatus?.toLowerCase() === "returned" ||
+        !item.requestStatus
+      ) && (() => {
+        const hasReview = Boolean(item.reviewId || item.review_id || item.hasReviewed);
+        const currentRating = hasReview ? (item.reviewRating || item.review_rating || 5) : 5;
+        const currentComment = hasReview ? (item.reviewComment || item.review_comment || "") : "";
+        const triggerRateItem = (e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          onRateItem && onRateItem({
+            ...item,
+            requestId: item.requestId || item.request_id || item.id,
+            itemId: item.itemId || item.item_id || item.id,
+            sellerId: item.sellerId || item.seller_id || item.userId || item.user_id,
+            title: item.title || item.itemTitle,
+            image: item.image || item.itemImage,
+            reviewId: hasReview ? (item.reviewId || item.review_id || null) : null,
+            reviewRating: currentRating,
+            reviewComment: currentComment,
+            hasReviewed: hasReview,
+          });
+        };
+
+        return (
+          <div className="rent-request-actions" style={{ marginTop: "14px" }}>
+            {hasReview ? (
+              <div
+                style={{
+                  width: "100%",
+                  padding: "8px 12px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "space-between",
+                  backgroundColor: "#fefce8",
+                  border: "1px solid #fef08a",
+                  borderRadius: "8px",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                  color: "#a16207",
+                  boxSizing: "border-box",
+                }}
+              >
+                <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                  <Star size={15} color="#eab308" fill="#eab308" />
+                  <span>You rated this: {currentRating}★</span>
+                </div>
+                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                  <span style={{ fontSize: "11px", color: "#854d0e" }}>Reviewed</span>
+                  <button
+                    type="button"
+                    onClick={triggerRateItem}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "4px",
+                      background: "#ffffff",
+                      border: "1px solid #fde047",
+                      color: "#854d0e",
+                      borderRadius: "6px",
+                      padding: "3px 8px",
+                      fontSize: "11px",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                    }}
+                    title="Edit or delete your review"
+                  >
+                    <Edit3 size={12} />
+                    <span>Edit</span>
+                  </button>
+                </div>
+              </div>
+            ) : (
+              <button
+                type="button"
+                onClick={triggerRateItem}
+                className="req-btn"
+                style={{
+                  width: "100%",
+                  padding: "10px 16px",
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "8px",
+                  backgroundColor: "#00aa5b",
+                  color: "#ffffff",
+                  border: "none",
+                  borderRadius: "8px",
+                  fontSize: "13px",
+                  fontWeight: "600",
+                  cursor: "pointer",
+                  boxShadow: "0 2px 6px rgba(0, 170, 91, 0.25)",
+                }}
+                title="Leave a review for this item and shop"
+              >
+                <Star size={16} color="#ffffff" fill="#ffffff" />
+                <span>Rate & Review Item</span>
+              </button>
+            )}
+          </div>
+        );
+      })()}
     </div>
   );
 }
