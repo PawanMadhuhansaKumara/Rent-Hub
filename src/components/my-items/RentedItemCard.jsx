@@ -9,6 +9,7 @@ import {
   Star,
   Edit3,
   PackageCheck,
+  Clock,
 } from "lucide-react";
 import { formatRentalDate } from "../../utils/dateUtils";
 
@@ -19,6 +20,7 @@ import { formatRentalDate } from "../../utils/dateUtils";
 export default function RentedItemCard({
   item,
   onReturnItem,
+  onCustomerReturn,
   isReturning = false,
   onMarkPicked,
   onRateItem,
@@ -29,7 +31,6 @@ export default function RentedItemCard({
   const targetUserName = isSentedOut
     ? item.renterName || "Customer"
     : item.sellerName || "Item Owner";
-  const targetPhone = isSentedOut ? item.renterPhone : item.sellerPhone;
 
   const isCustomerPicked =
     Number(item.customerPicked ?? item.customer_picked) === 1 ||
@@ -112,8 +113,9 @@ export default function RentedItemCard({
               isSentedOut ? "badge-rented" : "badge-approved"
             }`}
           >
-            {item.requestStatus ||
-              (isSentedOut ? "Rented Out" : "Active Rental")}
+            {item.requestStatus === "return_pending"
+              ? "Return Pending"
+              : item.requestStatus || (isSentedOut ? "Rented Out" : "Active Rental")}
           </span>
         </div>
       </div>
@@ -201,9 +203,27 @@ export default function RentedItemCard({
         </div>
       </div>
 
-      {/* Return Action: Displayed only for shop/owner on Sented Out items */}
+      {/* 1. SHOP OWNER VIEW (Sented Out): Customer ආපසු භාරදුන් විට අඩුපාඩු නැත්නම් බාරගැනීමට button එක */}
       {isSentedOut && (
         <div className="rent-request-actions" style={{ marginTop: "14px" }}>
+          {item.requestStatus?.toLowerCase() === "return_pending" && (
+            <div
+              style={{
+                width: "100%",
+                marginBottom: "8px",
+                padding: "8px 12px",
+                backgroundColor: "#fefce8",
+                border: "1px solid #fef08a",
+                borderRadius: "8px",
+                fontSize: "12px",
+                fontWeight: "600",
+                color: "#854d0e",
+              }}
+            >
+              🔔 Customer has returned the item! Please inspect for defects.
+            </div>
+          )}
+
           <button
             type="button"
             disabled={isReturning}
@@ -220,9 +240,14 @@ export default function RentedItemCard({
               alignItems: "center",
               justifyContent: "center",
               gap: "8px",
+              backgroundColor: item.requestStatus?.toLowerCase() === "return_pending" ? "#00aa5b" : "#2563eb",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "8px",
+              fontWeight: "600",
               cursor: isReturning ? "not-allowed" : "pointer",
             }}
-            title="Mark this item as returned and make it available again"
+            title="Inspect for defects and accept returned item"
           >
             {isReturning ? (
               <span className="req-btn-spinner" />
@@ -230,38 +255,17 @@ export default function RentedItemCard({
               <CheckCircle2 size={16} />
             )}
             <span>
-              {isReturning ? "Marking as Returned..." : "Mark as Returned"}
+              {isReturning
+                ? "Processing Acceptance..."
+                : item.requestStatus?.toLowerCase() === "return_pending"
+                ? "✅ Inspect & Accept Return (අඩුපාඩු නැත - භාරගන්න)"
+                : "Accept Return & Restore Stock"}
             </span>
           </button>
         </div>
       )}
 
-      {/* 1. Approved state on Rented In items: Shop hasn't marked picked up yet */}
-      {!isSentedOut && item.requestStatus?.toLowerCase() === "approved" && (
-        <div className="rent-request-actions" style={{ marginTop: "14px" }}>
-          <div
-            style={{
-              width: "100%",
-              padding: "9px 14px",
-              backgroundColor: "#f0fdf4",
-              border: "1px solid #bbf7d0",
-              borderRadius: "8px",
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              fontSize: "12px",
-              fontWeight: "600",
-              color: "#166534",
-              boxSizing: "border-box",
-            }}
-          >
-            <CheckCircle2 size={15} color="#16a34a" />
-            <span>Approved! Ready for pickup at shop.</span>
-          </div>
-        </div>
-      )}
-
-      {/* 2. Shop has marked as picked up (rented): Customer confirms pickup */}
+      {/* 2. CUSTOMER VIEW: Shop has marked as picked up (rented): Customer confirms pickup */}
       {!isSentedOut && item.requestStatus?.toLowerCase() === "rented" && !isCustomerPicked && (
         <div className="rent-request-actions" style={{ marginTop: "14px" }}>
           <div
@@ -313,12 +317,67 @@ export default function RentedItemCard({
         </div>
       )}
 
-      {/* 3. Review Action: Displayed for Buyer on Rented In items AFTER pickup is confirmed or completed */}
+      {/* 3. CUSTOMER VIEW: භාණ්ඩය ආපසු භාරදුන් බව සටහන් කිරීමට Customer ට ඇති Button එක */}
+      {!isSentedOut && item.requestStatus?.toLowerCase() === "rented" && isCustomerPicked && (
+        <div className="rent-request-actions" style={{ marginTop: "14px" }}>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onCustomerReturn && onCustomerReturn(item);
+            }}
+            style={{
+              width: "100%",
+              padding: "10px 16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              backgroundColor: "#f59e0b",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "8px",
+              fontWeight: "600",
+              fontSize: "13px",
+              cursor: "pointer",
+            }}
+            title="Mark that you have returned this item to the shop"
+          >
+            <CheckCircle2 size={16} />
+            <span>Mark as Returned (භාණ්ඩය ආපසු භාරදුන්නා)</span>
+          </button>
+        </div>
+      )}
+
+      {/* 4. CUSTOMER VIEW: භාරදුන් පසු කඩයෙන් accept කරන තෙක් පෙන්වන Notice එක */}
+      {!isSentedOut && item.requestStatus?.toLowerCase() === "return_pending" && (
+        <div className="rent-request-actions" style={{ marginTop: "14px" }}>
+          <div
+            style={{
+              width: "100%",
+              padding: "10px 14px",
+              backgroundColor: "#fefce8",
+              border: "1px solid #fef08a",
+              borderRadius: "8px",
+              fontSize: "12px",
+              fontWeight: "600",
+              color: "#854d0e",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <Clock size={16} color="#d97706" />
+            <span>Return Submitted! Waiting for shop owner to inspect and accept the item.</span>
+          </div>
+        </div>
+      )}
+
+      {/* 5. Review Action: Displayed for Buyer on Rented In items AFTER Completed */}
       {!isSentedOut && (
-        (item.requestStatus?.toLowerCase() === "rented" && isCustomerPicked) ||
         item.requestStatus?.toLowerCase() === "completed" ||
-        item.requestStatus?.toLowerCase() === "returned" ||
-        !item.requestStatus
+        item.requestStatus?.toLowerCase() === "returned"
       ) && (() => {
         const hasReview = Boolean(item.reviewId || item.review_id || item.hasReviewed);
         const currentRating = hasReview ? (item.reviewRating || item.review_rating || 5) : 5;

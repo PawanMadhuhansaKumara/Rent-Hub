@@ -236,7 +236,6 @@ export default function MyItems({ user }) {
             return;
           }
 
-          // If this local request refers to an item & buyer already returned from API, do not create duplicate
           const itemKey = String(item.itemId || item.item_id);
           const buyerKey = String(item.buyerId || item.buyer_id);
           const alreadyInApi = apiList.some((apiItem) => {
@@ -303,7 +302,6 @@ export default function MyItems({ user }) {
     window.addEventListener("items_updated", handleUpdate);
     window.addEventListener("storage", handleUpdate);
 
-    // Silent background sync every 4 seconds (zero loaders, zero jumping)
     const silentPoll = setInterval(() => {
       fetchBuyerRequests(false);
     }, 4000);
@@ -683,30 +681,66 @@ export default function MyItems({ user }) {
   const [returningItemId, setReturningItemId] = useState(null);
   const [selectedReviewItem, setSelectedReviewItem] = useState(null);
 
+  // 1. CUSTOMER MARKS ITEM AS RETURNED
+  const handleCustomerReturn = async (rentedItem) => {
+    if (!rentedItem) return;
+    const reqId = rentedItem.requestId || rentedItem.id;
+    if (!reqId) return;
+
+    // Optimistically update status to return_pending
+    setRequests((prev) => {
+      const updated = prev.map((r) =>
+        String(r.id) === String(reqId)
+          ? { ...r, status: "return_pending" }
+          : r
+      );
+      try {
+        localStorage.setItem("rent_hub_requests", JSON.stringify(updated));
+      } catch {}
+      return updated;
+    });
+
+    try {
+      await fetch(`${API_URL}/api/rent-requests/${reqId}/customer-return`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+      });
+      window.dispatchEvent(new Event("rent_requests_updated"));
+    } catch (err) {
+      console.error("Customer return error:", err);
+    }
+  };
+
+  // 2. SHOP OWNER INSPECTS & ACCEPTS RETURN (Restores quantity in DB)
   const handleReturnItem = async (rentedItem) => {
     if (!rentedItem) return;
     const itemId = rentedItem.itemId || rentedItem.id;
-    const reqId = rentedItem.requestId;
+    const reqId = rentedItem.requestId || rentedItem.id;
 
     setReturningItemId(String(itemId || reqId));
 
-    // 1. Optimistic instant state update
-    // Restore item availability in inventory state
+    // Optimistic inventory update (increase stock & set Available)
     setItems((prev) =>
       prev.map((it) =>
         String(it.id) === String(itemId)
-          ? { ...it, available: "Available" }
-          : it,
-      ),
+          ? {
+              ...it,
+              available: "Available",
+              available_quantity: (Number(it.available_quantity) || 0) + 1,
+            }
+          : it
+      )
     );
 
-    // Update requests to Completed so item leaves rented lists (for both shop & customer)
+    // Update requests to Completed
     setRequests((prev) => {
       const updated = prev.map((r) => {
         const isMatch =
           (reqId && String(r.id) === String(reqId)) ||
           (itemId && String(r.itemId || r.item_id) === String(itemId));
-        return isMatch && r.status?.toLowerCase() === "rented"
+        return isMatch &&
+          (r.status?.toLowerCase() === "rented" ||
+            r.status?.toLowerCase() === "return_pending")
           ? { ...r, status: "Completed" }
           : r;
       });
@@ -717,37 +751,32 @@ export default function MyItems({ user }) {
     });
 
     try {
-      // 2. Call backend APIs to restore availability and complete the rental request
       const calls = [];
+      if (reqId) {
+        calls.push(
+          fetch(`${API_URL}/api/rent-requests/${reqId}/accept-return`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+          }).catch(() => null)
+        );
+      }
       if (itemId) {
         calls.push(
           fetch(`${API_URL}/api/items/status/${itemId}`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ available: "Available" }),
-          }).catch((err) => console.warn("Item status update warning:", err)),
-        );
-      }
-      if (reqId) {
-        calls.push(
-          fetch(`${API_URL}/api/rent-requests/${reqId}/status`, {
-            method: "PUT",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ status: "Completed" }),
-          }).catch((err) =>
-            console.warn("Request status update warning:", err),
-          ),
+          }).catch(() => null)
         );
       }
 
       await Promise.all(calls);
 
-      // 3. Dispatch events to notify other views (Home, Profile, Item Details)
       window.dispatchEvent(new Event("items_updated"));
       window.dispatchEvent(new Event("rent_requests_updated"));
       window.dispatchEvent(new Event("storage"));
     } catch (err) {
-      console.error("Error returning item:", err);
+      console.error("Error accepting return:", err);
     } finally {
       setReturningItemId(null);
     }
@@ -765,7 +794,7 @@ export default function MyItems({ user }) {
     const targetReq = requests.find((r) => String(r.id) === String(reqId));
     const targetItemId = targetReq?.itemId || targetReq?.item_id;
 
-    // 1. Instantly update React state and localStorage FIRST so UI changes on single click immediately!
+    // 1. Instantly update React state and localStorage FIRST
     setRequests((prev) => {
       const updated = isRemoval
         ? prev.filter((r) => String(r.id) !== String(reqId))
@@ -811,7 +840,6 @@ export default function MyItems({ user }) {
           body: JSON.stringify({ status: newStatus }),
         }).catch(() => null);
       } else if (newStatus?.toLowerCase() === "rented" && verificationData) {
-        // Dedicated Handover Verification Endpoint
         await fetch(`${API_URL}/api/rent-requests/${reqId}/handover`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -835,7 +863,6 @@ export default function MyItems({ user }) {
         }
       }
 
-      // 3. Dispatch events AFTER backend has completed
       window.dispatchEvent(new Event("rent_requests_updated"));
       window.dispatchEvent(new Event("items_updated"));
       window.dispatchEvent(new Event("storage"));
@@ -849,7 +876,6 @@ export default function MyItems({ user }) {
   const handleCustomerMarkPicked = async (reqId) => {
     setUpdatingReqId(reqId);
 
-    // 1. Optimistic instant state and localStorage update
     setRequests((prev) => {
       const updated = prev.map((r) =>
         String(r.id) === String(reqId)
@@ -868,7 +894,6 @@ export default function MyItems({ user }) {
     });
 
     try {
-      // 2. Sync to backend
       const res = await fetch(
         `${API_URL}/api/rent-requests/${reqId}/customer-picked`,
         {
@@ -910,6 +935,7 @@ export default function MyItems({ user }) {
             Number(r.buyerId || r.buyer_id) !== Number(userId);
           const isConfirmed =
             r.status?.toLowerCase() === "rented" ||
+            r.status?.toLowerCase() === "return_pending" ||
             r.status?.toLowerCase() === "approved";
           return isItemMatch && isOwner && isConfirmed;
         }) ||
@@ -982,7 +1008,9 @@ export default function MyItems({ user }) {
         (!r.sellerId && !r.seller_id) ||
         r.reqType === "sent"
       );
-      const isConfirmed = r.status?.toLowerCase() === "rented";
+      const isConfirmed =
+        r.status?.toLowerCase() === "rented" ||
+        r.status?.toLowerCase() === "return_pending";
       if (!isOwner || !isConfirmed) return false;
 
       const itemKey = String(r.itemId || r.item_id || r.id);
@@ -1046,6 +1074,7 @@ export default function MyItems({ user }) {
         r.reqType === "sent";
       const isConfirmed =
         r.status?.toLowerCase() === "rented" ||
+        r.status?.toLowerCase() === "return_pending" ||
         r.status === "Approved" ||
         r.status?.toLowerCase() === "approved" ||
         r.status?.toLowerCase() === "completed" ||
@@ -1103,7 +1132,7 @@ export default function MyItems({ user }) {
       : rentedInList;
 
   // -------------------------------------------------------------
-  // FIXED NAVIGATION TABS HEADER (Rent Requests -> Rented Items -> Rent Items Cart)
+  // FIXED NAVIGATION TABS HEADER
   // -------------------------------------------------------------
   const tabsConfig = [
     {
@@ -1188,6 +1217,7 @@ export default function MyItems({ user }) {
             loading={loading}
             onStatusChange={handleStatusChange}
             onReturnItem={handleReturnItem}
+            onCustomerReturn={handleCustomerReturn}
             returningItemId={returningItemId}
             onMarkPicked={handleCustomerMarkPicked}
             onRateItem={(it) => setSelectedReviewItem(it)}

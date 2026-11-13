@@ -6,6 +6,7 @@ import {
   CheckCircle2,
   Phone,
   MapPin,
+  Clock,
   Mail,
   Star,
   Heart,
@@ -29,10 +30,14 @@ import LeaveReviewModal from "../components/LeaveReviewModal";
 const isItemRented = (item) => {
   if (!item) return false;
 
+  // Manual status එක Available නම් කෙලින්ම false (not rented) ලබා දෙන්න
+  if (item.available === "Available") return false;
+
   const directRented =
     item.available === "Rented Out" ||
     String(item.available).toLowerCase() === "rented out" ||
-    String(item.available).toLowerCase() === "rented" ||
+    item.available_qty === "Rented Out" ||
+    String(item.available_qty).toLowerCase() === "rented out" ||
     item.available === 0 ||
     item.available === "0" ||
     String(item.status).toLowerCase() === "rented" ||
@@ -42,23 +47,7 @@ const isItemRented = (item) => {
       !isNaN(Number(item.available)) &&
       Number(item.available) < 1);
 
-  if (directRented) return true;
-
-  try {
-    const saved = localStorage.getItem("rent_hub_requests");
-    if (saved) {
-      const requests = JSON.parse(saved);
-      if (Array.isArray(requests)) {
-        return requests.some((r) => {
-          const matchItem = String(r.itemId || r.item_id) === String(item.id);
-          const isRentedStatus = String(r.status).toLowerCase() === "rented";
-          return matchItem && isRentedStatus;
-        });
-      }
-    }
-  } catch {}
-
-  return false;
+  return Boolean(directRented);
 };
 
 export default function Profile({ user, setUser }) {
@@ -410,6 +399,44 @@ export default function Profile({ user, setUser }) {
     }
   };
 
+    // Profile එකෙන් Item Status එක (Available <-> Rented Out) මාරු කිරීම
+  const handleToggleStatus = async (itemId, currentIsRented) => {
+    const newStatus = currentIsRented ? "Available" : "Rented Out";
+
+    // 1. Profile state එකේ ක්ෂණිකව වෙනස් කිරීම
+    setItems((prevItems) =>
+      prevItems.map((it) =>
+        String(it.id) === String(itemId)
+          ? {
+              ...it,
+              available: newStatus,
+              available_qty: newStatus,
+              available_quantity:
+                newStatus === "Available"
+                  ? Math.max(1, Number(it.available_quantity) || 1)
+                  : 0,
+            }
+          : it
+      )
+    );
+
+    // 2. Database එකට sync කිරීම
+    try {
+      await fetch(`http://localhost:5001/api/items/status/${itemId}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ available: newStatus }),
+      });
+
+      // අනෙකුත් පිටු (Home, Details, MyItems) වලටද update වීම දැනුම් දීම
+      window.dispatchEvent(new Event("items_updated"));
+      window.dispatchEvent(new Event("rent_requests_updated"));
+      window.dispatchEvent(new Event("storage"));
+    } catch (err) {
+      console.error("Error toggling status:", err);
+    }
+  };
+
   // Delete Item Functionality
   const handleDeleteItem = async (itemId) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
@@ -743,8 +770,20 @@ export default function Profile({ user, setUser }) {
                             style={styles.desktopItemImg}
                           />
 
-                          {/* Availability Status Badge */}
-                          <div style={styles.badgeOverlay}>
+                                                    {/* Availability Status Badge (Click to toggle) */}
+                          <div
+                            style={{
+                              ...styles.badgeOverlay,
+                              cursor: isOwnProfile ? "pointer" : "default",
+                            }}
+                            onClick={(e) => {
+                              if (isOwnProfile) {
+                                e.stopPropagation();
+                                handleToggleStatus(item.id, isRented);
+                              }
+                            }}
+                            title={isOwnProfile ? "Click to toggle availability" : ""}
+                          >
                             <span
                               style={{
                                 fontSize: "11px",
@@ -757,6 +796,7 @@ export default function Profile({ user, setUser }) {
                                 display: "inline-flex",
                                 alignItems: "center",
                                 gap: "5px",
+                                transition: "all 0.2s",
                               }}
                             >
                               <span
@@ -771,6 +811,7 @@ export default function Profile({ user, setUser }) {
                               {isRented ? "Rented Out" : "Available"}
                             </span>
                           </div>
+
                         </div>
 
                         <div style={{ padding: "14px" }}>
@@ -808,13 +849,56 @@ export default function Profile({ user, setUser }) {
                             </span>
                           </div>
 
-                          {isOwnProfile && (
-                            <button
-                              onClick={() => handleDeleteItem(item.id)}
-                              style={styles.deleteBtn}
-                            >
-                              <Trash2 size={13} /> Delete Item
-                            </button>
+                                                    {isOwnProfile && (
+                            <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "12px" }}>
+                              {/* Status Toggle Button (Available <-> Rented Out) */}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleToggleStatus(item.id, isRented);
+                                }}
+                                style={{
+                                  width: "100%",
+                                  backgroundColor: isRented ? "#f0fdf4" : "#fef2f2",
+                                  color: isRented ? "#16a34a" : "#dc2626",
+                                  border: `1px solid ${isRented ? "#bbf7d0" : "#fecaca"}`,
+                                  padding: "7px 10px",
+                                  borderRadius: "8px",
+                                  fontSize: "12px",
+                                  fontWeight: "bold",
+                                  cursor: "pointer",
+                                  display: "flex",
+                                  alignItems: "center",
+                                  justifyContent: "center",
+                                  gap: "6px",
+                                  transition: "all 0.2s",
+                                }}
+                                title="Click to change availability status"
+                              >
+                                {isRented ? (
+                                  <>
+                                    <CheckCircle2 size={14} color="#16a34a" /> Mark as Available
+                                  </>
+                                ) : (
+                                  <>
+                                    <Clock size={14} color="#dc2626" /> Mark as Rented Out
+                                  </>
+                                )}
+                              </button>
+
+                              {/* Delete Item Button */}
+                              <button
+                                type="button"
+                                onClick={(e) => {
+                                  e.stopPropagation();
+                                  handleDeleteItem(item.id);
+                                }}
+                                style={styles.deleteBtn}
+                              >
+                                <Trash2 size={13} /> Delete Item
+                              </button>
+                            </div>
                           )}
                         </div>
                       </div>

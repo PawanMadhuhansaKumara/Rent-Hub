@@ -1,7 +1,7 @@
 const db = require("../config/db");
 
 let isTableInitialized = false;
-// Ensure table exists
+// Ensure tables exist
 const initRentRequestsTable = async () => {
   if (isTableInitialized) return;
   try {
@@ -16,7 +16,7 @@ const initRentRequestsTable = async () => {
         quantity INT DEFAULT 1,
         total_days INT DEFAULT 1,
         total_price DECIMAL(10,2) DEFAULT 0.00,
-        status VARCHAR(30) DEFAULT 'Pending',
+        status VARCHAR(50) DEFAULT 'Pending',
         customer_picked TINYINT(1) DEFAULT 0,
         customer_picked_at TIMESTAMP NULL,
         created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -26,6 +26,9 @@ const initRentRequestsTable = async () => {
     await db.execute(query);
 
     try {
+      await db.execute(`ALTER TABLE rent_requests MODIFY COLUMN status VARCHAR(50) DEFAULT 'Pending'`);
+    } catch (e) {}
+    try {
       await db.execute(`ALTER TABLE rent_requests ADD COLUMN customer_picked TINYINT(1) DEFAULT 0`);
     } catch (e) {}
     try {
@@ -34,7 +37,6 @@ const initRentRequestsTable = async () => {
 
     isTableInitialized = true;
   } catch (err) {
-    // If DB is offline or cloud credentials block table creation, log and continue
     console.warn("rent_requests table init warning:", err.message);
   }
 };
@@ -102,6 +104,60 @@ const sendNotification = async ({
   }
 };
 
+// =========================================================================
+// HELPER FUNCTIONS: QUANTITY DEDUCT & RESTORE
+// =========================================================================
+
+// 1. Item එකක් rent වූ විට quantity අඩු කර, 0 වුවහොත් 'Rented Out' කිරීම
+async function deductItemQuantity(itemId, rentQty = 1) {
+  try {
+    const [rows] = await db.execute(
+      "SELECT id, available_quantity, available_qty FROM items WHERE id = ?",
+      [itemId]
+    );
+    if (!rows || rows.length === 0) return;
+
+    const currentStock = Number(rows[0].available_quantity ?? 1);
+    const deductCount = Number(rentQty || 1);
+    const newStock = Math.max(0, currentStock - deductCount);
+    const newAvailability = newStock > 0 ? "Available" : "Rented Out";
+
+    await db.execute(
+      "UPDATE items SET available_quantity = ?, available_qty = ? WHERE id = ?",
+      [newStock, newAvailability, itemId]
+    );
+  } catch (err) {
+    console.error("Error deducting item quantity:", err);
+  }
+}
+
+// 2. Item එකක් ආපසු භාරගත් විට quantity වැඩි කර 'Available' කිරීම
+async function restoreItemQuantity(itemId, returnQty = 1) {
+  try {
+    const [rows] = await db.execute(
+      "SELECT id, available_quantity, available_qty FROM items WHERE id = ?",
+      [itemId]
+    );
+    if (!rows || rows.length === 0) return;
+
+    const currentStock = Number(rows[0].available_quantity ?? 0);
+    const addCount = Number(returnQty || 1);
+    const newStock = currentStock + addCount;
+    const newAvailability = "Available";
+
+    await db.execute(
+      "UPDATE items SET available_quantity = ?, available_qty = ? WHERE id = ?",
+      [newStock, newAvailability, itemId]
+    );
+  } catch (err) {
+    console.error("Error restoring item quantity:", err);
+  }
+}
+
+// =========================================================================
+// API CONTROLLERS
+// =========================================================================
+
 // CREATE RENT REQUEST
 exports.createRentRequest = async (req, res) => {
   const {
@@ -144,24 +200,21 @@ exports.createRentRequest = async (req, res) => {
   }
 
   try {
-    // Check if the item is already rented out
+    // Check if the item is already rented out (stock <= 0 or status is Rented Out)
     try {
-      // 1. Check item availability in items table
       const [items] = await db.execute(
-        "SELECT id, available_qty FROM items WHERE id = ?",
+        "SELECT id, available_qty, available_quantity FROM items WHERE id = ?",
         [item_id]
       );
       if (items.length > 0) {
         const it = items[0];
+        const stock = Number(it.available_quantity ?? 1);
         const isRented =
+          stock <= 0 ||
           it.available_qty === "Rented Out" ||
           String(it.available_qty).toLowerCase() === "rented out" ||
-          String(it.available_qty).toLowerCase() === "rented" ||
           it.available_qty === 0 ||
-          it.available_qty === "0" ||
-          (it.available_qty !== null &&
-            !isNaN(Number(it.available_qty)) &&
-            Number(it.available_qty) < 1);
+          it.available_qty === "0";
 
         if (isRented) {
           return res.status(400).json({
@@ -169,18 +222,6 @@ exports.createRentRequest = async (req, res) => {
             message: "This item is currently rented out and cannot be rented.",
           });
         }
-      }
-
-      // 2. Check if there are active rental requests for this item marked as 'rented'
-      const [activeRentals] = await db.execute(
-        "SELECT id FROM rent_requests WHERE item_id = ? AND LOWER(status) = 'rented'",
-        [item_id]
-      );
-      if (activeRentals.length > 0) {
-        return res.status(400).json({
-          success: false,
-          message: "This item is currently rented out and cannot be rented.",
-        });
       }
     } catch (checkErr) {
       console.warn("Item availability check error:", checkErr.message);
@@ -207,7 +248,6 @@ exports.createRentRequest = async (req, res) => {
       ]);
       insertId = result.insertId;
     } catch (insertErr) {
-      // Fallback in case total_days is not in the table
       const fallbackQuery = `
         INSERT INTO rent_requests (item_id, buyer_id, seller_id, start_date, end_date, quantity, total_price, status, created_at)
         VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
@@ -230,7 +270,10 @@ exports.createRentRequest = async (req, res) => {
       let itemTitle = "an item";
       let itemImage = null;
       try {
-        const [itRows] = await db.execute("SELECT title, image_url FROM items WHERE id = ?", [item_id]);
+        const [itRows] = await db.execute(
+          "SELECT title, image_url FROM items WHERE id = ?",
+          [item_id]
+        );
         if (itRows && itRows.length > 0) {
           itemTitle = itRows[0].title || "an item";
           itemImage = itRows[0].image_url || null;
@@ -302,7 +345,7 @@ const sanitizeRequestRow = (r) => {
   };
 };
 
-// GET BUYER'S SENT RENT REQUESTS (Rents page -> Rent Requests tab)
+// GET BUYER'S SENT RENT REQUESTS
 exports.getBuyerRequests = async (req, res) => {
   const buyerId = req.params.buyerId;
 
@@ -395,7 +438,7 @@ exports.getBuyerRequests = async (req, res) => {
   }
 };
 
-// GET SELLER'S RECEIVED RENT REQUESTS (Business Hub -> Rental Requests)
+// GET SELLER'S RECEIVED RENT REQUESTS
 exports.getSellerRequests = async (req, res) => {
   const sellerId = req.params.sellerId;
 
@@ -480,7 +523,7 @@ exports.getSellerRequests = async (req, res) => {
   }
 };
 
-// UPDATE RENT REQUEST STATUS (Approve / Decline / Mark Picked Up as rented)
+// UPDATE RENT REQUEST STATUS
 exports.updateRequestStatus = async (req, res) => {
   const requestId = req.params.id;
   const { status } = req.body;
@@ -494,11 +537,11 @@ exports.updateRequestStatus = async (req, res) => {
   try {
     await initRentRequestsTable();
 
-    // Fetch request details for notifications
+    // Fetch request details for notifications & item stock update
     let requestDetails = null;
     try {
       const [rRows] = await db.execute(
-        `SELECT r.id, r.buyer_id, r.seller_id, r.item_id, i.title AS item_title, i.image_url AS item_image
+        `SELECT r.id, r.buyer_id, r.seller_id, r.item_id, r.quantity, i.title AS item_title, i.image_url AS item_image
          FROM rent_requests r
          LEFT JOIN items i ON r.item_id = i.id
          WHERE r.id = ?`,
@@ -553,62 +596,36 @@ exports.updateRequestStatus = async (req, res) => {
       });
     }
 
-    // Find the item associated with this request
-    const [reqRows] = await db.execute(
-      `SELECT item_id FROM rent_requests WHERE id = ?`,
-      [requestId]
-    );
+    // Update item stock quantity & availability status
+    if (requestDetails?.item_id) {
+      const itemId = requestDetails.item_id;
+      const reqQty = Number(requestDetails.quantity || 1);
 
-    if (reqRows && reqRows.length > 0) {
-      const itemId = reqRows[0].item_id;
-
-      // If status is marked "rented", update the item in items table to "Rented Out"
       if (status?.toLowerCase() === "rented") {
-        try {
-          await db.execute(
-            `UPDATE items SET available_qty = 'Rented Out' WHERE id = ?`,
-            [itemId]
-          );
-        } catch (err) {
-          await db.execute(
-            `UPDATE items SET available_qty = 0 WHERE id = ?`,
-            [itemId]
-          ).catch(() => null);
-        }
+        // Deduct quantity from database and set to Rented Out only if 0
+        await deductItemQuantity(itemId, reqQty);
       } else if (
         status?.toLowerCase() === "completed" ||
         status?.toLowerCase() === "available" ||
         status?.toLowerCase() === "returned"
       ) {
-        // When rental is completed/returned, send review prompt notification to buyer
-        if (requestDetails && (status?.toLowerCase() === "completed" || status?.toLowerCase() === "returned")) {
-          try {
-            await sendNotification({
-              userId: requestDetails.buyer_id,
-              title: "Rental Completed ⭐",
-              message: `Your rental for "${requestDetails.item_title || 'Item'}" has ended! Please rate your experience.`,
-              type: "review_request",
-              itemId: requestDetails.item_id,
-              requestId: requestId,
-              imageUrl: requestDetails.item_image,
-              linkUrl: "/my-items?tab=rented-items&subtab=rented-in",
-            });
-          } catch (notifErr) {
-            console.warn("Could not dispatch review prompt notification:", notifErr.message);
-          }
-        }
+        // Add quantity back to database and set to Available
+        await restoreItemQuantity(itemId, reqQty);
 
-        // If rental completed/returned, mark item available again
+        // Send review prompt notification to buyer
         try {
-          await db.execute(
-            `UPDATE items SET available_qty = 'Available' WHERE id = ?`,
-            [itemId]
-          );
-        } catch (err) {
-          await db.execute(
-            `UPDATE items SET available_qty = 1 WHERE id = ?`,
-            [itemId]
-          ).catch(() => null);
+          await sendNotification({
+            userId: requestDetails.buyer_id,
+            title: "Rental Completed ⭐",
+            message: `Your rental for "${requestDetails.item_title || 'Item'}" has ended! Please rate your experience.`,
+            type: "review_request",
+            itemId: requestDetails.item_id,
+            requestId: requestId,
+            imageUrl: requestDetails.item_image,
+            linkUrl: "/my-items?tab=rented-items&subtab=rented-in",
+          });
+        } catch (notifErr) {
+          console.warn("Could not dispatch review prompt notification:", notifErr.message);
         }
       }
     }
@@ -628,7 +645,7 @@ exports.updateRequestStatus = async (req, res) => {
   }
 };
 
-// MARK AS PICKED BY CUSTOMER (Customer confirms pickup from their end)
+// MARK AS PICKED BY CUSTOMER
 exports.markCustomerPicked = async (req, res) => {
   const requestId = req.params.id;
 
@@ -739,6 +756,7 @@ exports.confirmHandover = async (req, res) => {
     const itemId = currentReq.item_id;
     const buyerId = currentReq.buyer_id;
     const sellerId = currentReq.seller_id;
+    const reqQty = Number(currentReq.quantity || 1);
 
     // 2. Prevent duplicate handover if already rented
     if (String(currentReq.status).toLowerCase() === "rented") {
@@ -802,7 +820,7 @@ exports.confirmHandover = async (req, res) => {
     } catch (statusErr) {
       try {
         await db.execute(
-          `ALTER TABLE rent_requests MODIFY COLUMN status VARCHAR(50) DEFAULT 'pending'`
+          `ALTER TABLE rent_requests MODIFY COLUMN status VARCHAR(50) DEFAULT 'Pending'`
         );
         await db.execute(
           `UPDATE rent_requests SET status = 'rented' WHERE id = ?`,
@@ -813,19 +831,9 @@ exports.confirmHandover = async (req, res) => {
       }
     }
 
-    // 5. Update items table available_qty to 'Rented Out' (0)
+    // 5. Deduct item stock quantity and set available_qty to 'Rented Out' ONLY if quantity reaches 0
     if (itemId) {
-      try {
-        await db.execute(
-          `UPDATE items SET available_qty = 'Rented Out' WHERE id = ?`,
-          [itemId]
-        );
-      } catch (itemErr) {
-        await db.execute(
-          `UPDATE items SET available_qty = 0 WHERE id = ?`,
-          [itemId]
-        ).catch(() => null);
-      }
+      await deductItemQuantity(itemId, reqQty);
     }
 
     // Send real notification to buyer
@@ -833,7 +841,10 @@ exports.confirmHandover = async (req, res) => {
       let itemTitle = "Item";
       let itemImage = null;
       try {
-        const [itRows] = await db.execute("SELECT title, image_url FROM items WHERE id = ?", [itemId]);
+        const [itRows] = await db.execute(
+          "SELECT title, image_url FROM items WHERE id = ?",
+          [itemId]
+        );
         if (itRows && itRows.length > 0) {
           itemTitle = itRows[0].title || "Item";
           itemImage = itRows[0].image_url || null;
@@ -880,6 +891,118 @@ exports.confirmHandover = async (req, res) => {
       success: false,
       message: "Failed to confirm handover in database: " + error.message,
     });
+  }
+};
+
+// CUSTOMER MARKS ITEM AS RETURNED
+exports.markCustomerReturned = async (req, res) => {
+  const requestId = req.params.id;
+  try {
+    const [rRows] = await db.execute(
+      `SELECT r.*, i.title AS item_title, i.image_url AS item_image, b.full_name AS buyer_name
+       FROM rent_requests r
+       LEFT JOIN items i ON r.item_id = i.id
+       LEFT JOIN users_details b ON r.buyer_id = b.user_id
+       WHERE r.id = ?`,
+      [requestId]
+    );
+
+    if (!rRows || rRows.length === 0) {
+      return res.status(404).json({ success: false, message: "Rental request not found." });
+    }
+
+    const rental = rRows[0];
+    await db.execute(
+      `UPDATE rent_requests SET status = 'return_pending' WHERE id = ?`,
+      [requestId]
+    );
+
+    // Send notification to seller (shop owner)
+    try {
+      const buyerName = rental.buyer_name || "Customer";
+      const itemTitle = rental.item_title || "item";
+      await sendNotification({
+        userId: rental.seller_id,
+        title: "Item Returned by Customer 📦",
+        message: `${buyerName} marked "${itemTitle}" as returned. Please inspect for defects and accept return.`,
+        type: "customer_returned",
+        itemId: rental.item_id,
+        requestId: requestId,
+        imageUrl: rental.item_image,
+        linkUrl: "/my-items?tab=rented-items&subtab=sented-out",
+      });
+    } catch (notifErr) {
+      console.warn("Could not dispatch return notification:", notifErr.message);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Item marked as returned. Waiting for shop owner verification.",
+      requestId: Number(requestId),
+      status: "return_pending",
+    });
+  } catch (error) {
+    console.error("Mark Customer Returned Error:", error);
+    res.status(500).json({ success: false, message: "Failed: " + error.message });
+  }
+};
+
+// SHOP OWNER INSPECTS & ACCEPTS RETURN (Restores Stock Quantity)
+exports.acceptReturnedItem = async (req, res) => {
+  const requestId = req.params.id;
+  try {
+    const [rRows] = await db.execute(
+      `SELECT r.*, i.title AS item_title, i.image_url AS item_image
+       FROM rent_requests r
+       LEFT JOIN items i ON r.item_id = i.id
+       WHERE r.id = ?`,
+      [requestId]
+    );
+
+    if (!rRows || rRows.length === 0) {
+      return res.status(404).json({ success: false, message: "Rental request not found." });
+    }
+
+    const rental = rRows[0];
+    const itemId = rental.item_id;
+    const returnQty = Number(rental.quantity || 1);
+
+    // 1. Mark request as Completed
+    await db.execute(
+      `UPDATE rent_requests SET status = 'Completed' WHERE id = ?`,
+      [requestId]
+    );
+
+    // 2. Restore quantity in items table & set available_qty = 'Available'
+    if (itemId) {
+      await restoreItemQuantity(itemId, returnQty);
+    }
+
+    // 3. Send review prompt notification to buyer
+    try {
+      await sendNotification({
+        userId: rental.buyer_id,
+        title: "Rental Completed ⭐",
+        message: `Your return for "${rental.item_title || 'Item'}" was accepted! Please rate your experience.`,
+        type: "review_request",
+        itemId: rental.item_id,
+        requestId: requestId,
+        imageUrl: rental.item_image,
+        linkUrl: "/my-items?tab=rented-items&subtab=rented-in",
+      });
+    } catch (notifErr) {
+      console.warn("Could not dispatch review prompt:", notifErr.message);
+    }
+
+    res.status(200).json({
+      success: true,
+      message: "Return accepted and quantity restored successfully!",
+      requestId: Number(requestId),
+      status: "Completed",
+    });
+  } catch (error) {
+    console.error("Accept Returned Item Error:", error);
+    res.status(500).json({ success: false, message: "Failed: " + error.message });
   }
 };
 

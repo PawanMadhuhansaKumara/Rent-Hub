@@ -1,10 +1,10 @@
 import React from "react";
-import { Clock, ArrowUpRight, ArrowDownLeft, Inbox } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Clock, Inbox } from "lucide-react";
 import RentedItemCard from "./RentedItemCard";
 
 /**
  * RentedItemsTab
- * Renders the Rented Items section with subtabs, empty states, and grid.
+ * Modern and responsive Rented Items tab rendering Sented Out & Rented In items.
  */
 export default function RentedItemsTab({
   displayedRentedItems,
@@ -16,6 +16,7 @@ export default function RentedItemsTab({
   loading,
   onStatusChange,
   onReturnItem,
+  onCustomerReturn,
   returningItemId,
   onMarkPicked,
   onRateItem,
@@ -113,6 +114,7 @@ export default function RentedItemsTab({
               key={item.uniqueKey || item.id}
               item={item}
               onReturnItem={onReturnItem}
+              onCustomerReturn={onCustomerReturn}
               isReturning={
                 String(returningItemId) === String(item.itemId || item.id) ||
                 String(returningItemId) === String(item.requestId)
