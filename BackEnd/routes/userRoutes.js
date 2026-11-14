@@ -5,6 +5,7 @@ const { userUpdateUpload } = require('../middleware/upload');
 
 router.get('/:id', userController.getUser);
 router.put('/:id', userUpdateUpload, userController.updateUser);
+router.put('/:id/map-location', userController.updateMapLocation);
 router.delete('/:id', userController.deleteUser);
 
 module.exports = router;

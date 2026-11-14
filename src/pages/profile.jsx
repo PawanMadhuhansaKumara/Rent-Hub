@@ -6,6 +6,9 @@ import {
 } from "lucide-react";
 import SettingsPopup from "../components/SettingsPopup";
 import LeaveReviewModal from "../components/LeaveReviewModal";
+import GoogleMapIcon from "../components/GoogleMapIcon";
+import MapLocationPickerModal from "../components/MapLocationPickerModal";
+import ShopDistanceModal from "../components/ShopDistanceModal";
 
 const isItemRented = (item) => {
   if (!item) return false;
@@ -38,6 +41,8 @@ export default function Profile({ user, setUser }) {
 
   const [activeTab, setActiveTab] = useState("shop");
   const [showEditProfile, setShowEditProfile] = useState(false);
+  const [showMapPicker, setShowMapPicker] = useState(false);
+  const [showDistanceModal, setShowDistanceModal] = useState(false);
 
   // Hidden File Input References for Modal (Profile & Cover)
   const profileInputRef = useRef(null);
@@ -56,6 +61,9 @@ export default function Profile({ user, setUser }) {
     email: user?.email || "renthub@gmail.com",
     address: user?.address || "Colombo, Sri Lanka",
     nearest_city: user?.nearest_city || "Colombo",
+    map_latitude: user?.map_latitude ? parseFloat(user.map_latitude) : null,
+    map_longitude: user?.map_longitude ? parseFloat(user.map_longitude) : null,
+    map_location_name: user?.map_location_name || "",
     about:
       user?.about ||
       "Rent smarter. Live better.",
@@ -247,6 +255,9 @@ export default function Profile({ user, setUser }) {
               email: u.email || "",
               address: u.address || "",
               nearest_city: u.nearest_city || "",
+              map_latitude: u.map_latitude ? parseFloat(u.map_latitude) : null,
+              map_longitude: u.map_longitude ? parseFloat(u.map_longitude) : null,
+              map_location_name: u.map_location_name || "",
               about: u.about || "Rent smarter. Live better.",
               trust_score: u.user_rating ? u.user_rating * 20 : 80,
               reviews_count: u.reviews_count || 0,
@@ -276,6 +287,9 @@ export default function Profile({ user, setUser }) {
         email: user.email || prev.email,
         address: user.address || prev.address,
         nearest_city: user.nearest_city || prev.nearest_city,
+        map_latitude: user.map_latitude !== undefined ? (user.map_latitude ? parseFloat(user.map_latitude) : null) : prev.map_latitude,
+        map_longitude: user.map_longitude !== undefined ? (user.map_longitude ? parseFloat(user.map_longitude) : null) : prev.map_longitude,
+        map_location_name: user.map_location_name !== undefined ? user.map_location_name : prev.map_location_name,
         about: user.about || prev.about,
         trust_score: user.user_rating
           ? user.user_rating * 20
@@ -464,6 +478,15 @@ export default function Profile({ user, setUser }) {
     formData.append("email", profile.email || "");
     formData.append("address", profile.address || "");
     formData.append("nearest_city", profile.nearest_city || "");
+    if (profile.map_latitude !== null && profile.map_latitude !== undefined) {
+      formData.append("map_latitude", profile.map_latitude);
+    }
+    if (profile.map_longitude !== null && profile.map_longitude !== undefined) {
+      formData.append("map_longitude", profile.map_longitude);
+    }
+    if (profile.map_location_name) {
+      formData.append("map_location_name", profile.map_location_name);
+    }
 
     if (profilePicFile) {
       formData.append("profile_pic", profilePicFile);
@@ -563,6 +586,63 @@ export default function Profile({ user, setUser }) {
                   {profile.nearest_city} &nbsp;|&nbsp; <Mail size={14} color="#666" />{" "}
                   {profile.email}
                 </p>
+
+                {/* Google Map Location Badge right below the address line */}
+                <div style={{ marginTop: "6px", display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
+                  <button
+                    type="button"
+                    onClick={() => {
+                      if (isOwnProfile && !profile.map_latitude) {
+                        setShowMapPicker(true);
+                      } else {
+                        setShowDistanceModal(true);
+                      }
+                    }}
+                    style={{
+                      display: "inline-flex",
+                      alignItems: "center",
+                      gap: "7px",
+                      padding: "5px 12px",
+                      borderRadius: "20px",
+                      backgroundColor: "#f0fdf4",
+                      border: "1px solid #bbf7d0",
+                      color: "#166534",
+                      fontSize: "12px",
+                      fontWeight: "600",
+                      cursor: "pointer",
+                      boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
+                      transition: "all 0.2s ease",
+                    }}
+                    title="Click to view shop location, route & distance on map"
+                  >
+                    <GoogleMapIcon size={16} />
+                    <span>
+                      {profile.map_location_name || (profile.nearest_city ? `${profile.nearest_city} Shop Location` : "View Shop on Map")}
+                    </span>
+                    <span style={{ fontSize: "11px", color: "#15803d", fontWeight: "700" }}>
+                      • View Distance & Route
+                    </span>
+                  </button>
+
+                  {isOwnProfile && (
+                    <button
+                      type="button"
+                      onClick={() => setShowMapPicker(true)}
+                      style={{
+                        background: "none",
+                        border: "none",
+                        color: "#00aa5b",
+                        fontSize: "12px",
+                        fontWeight: "600",
+                        cursor: "pointer",
+                        textDecoration: "underline",
+                        padding: "2px 4px",
+                      }}
+                    >
+                      {profile.map_latitude ? "Change Map Pin" : "Set Map Location"}
+                    </button>
+                  )}
+                </div>
               </div>
             </div>
 
@@ -580,7 +660,7 @@ export default function Profile({ user, setUser }) {
                 >
                   <Edit3 size={16} /> {t("profile.editProfile")}
                 </button>
-                <SettingsPopup />
+                <SettingsPopup onOpenMapLocation={() => setShowMapPicker(true)} />
               </div>
             )}
           </div>
@@ -1620,6 +1700,56 @@ export default function Profile({ user, setUser }) {
                   </div>
                 </div>
 
+                {/* Shop Map Location Picker Section */}
+                <div
+                  style={{
+                    backgroundColor: "#f0fdf4",
+                    border: "1px solid #bbf7d0",
+                    borderRadius: "10px",
+                    padding: "12px 14px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    gap: "10px",
+                    flexWrap: "wrap",
+                    marginBottom: "12px",
+                  }}
+                >
+                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                    <GoogleMapIcon size={22} />
+                    <div>
+                      <div style={{ fontSize: "13px", fontWeight: "700", color: "#166534" }}>
+                        Shop Map Location
+                      </div>
+                      <div style={{ fontSize: "11px", color: "#4b5563" }}>
+                        {profile.map_location_name || (profile.map_latitude ? `${profile.map_latitude.toFixed(4)}, ${profile.map_longitude.toFixed(4)}` : "No map location set yet")}
+                      </div>
+                    </div>
+                  </div>
+
+                  <button
+                    type="button"
+                    onClick={() => setShowMapPicker(true)}
+                    style={{
+                      padding: "6px 14px",
+                      borderRadius: "8px",
+                      backgroundColor: "#00aa5b",
+                      color: "#ffffff",
+                      border: "none",
+                      fontSize: "12px",
+                      fontWeight: "700",
+                      cursor: "pointer",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                      boxShadow: "0 2px 4px rgba(0, 170, 91, 0.2)",
+                    }}
+                  >
+                    <MapPin size={14} />
+                    {profile.map_latitude ? "Update Map Pin" : "Set on Map"}
+                  </button>
+                </div>
+
                 <div>
                   <label style={styles.fieldLabel}>
                     {t("profile.aboutMe")}
@@ -1692,6 +1822,40 @@ export default function Profile({ user, setUser }) {
               });
             }}
             API_URL="http://localhost:5001"
+          />
+        )}
+
+        {/* SHOP OWNER MAP LOCATION PICKER MODAL */}
+        {showMapPicker && (
+          <MapLocationPickerModal
+            isOpen={showMapPicker}
+            onClose={() => setShowMapPicker(false)}
+            initialLat={profile.map_latitude}
+            initialLng={profile.map_longitude}
+            initialName={profile.map_location_name || profile.address}
+            userId={profile.user_id}
+            onLocationSaved={(newLoc) => {
+              setProfile((prev) => ({
+                ...prev,
+                ...newLoc,
+              }));
+            }}
+          />
+        )}
+
+        {/* CUSTOMER/VISITOR SHOP DISTANCE & ROUTE MODAL (UBER STYLE) */}
+        {showDistanceModal && (
+          <ShopDistanceModal
+            isOpen={showDistanceModal}
+            onClose={() => setShowDistanceModal(false)}
+            shopData={{
+              map_latitude: profile.map_latitude,
+              map_longitude: profile.map_longitude,
+              map_location_name: profile.map_location_name,
+              name: profile.full_name,
+              address: profile.address,
+              nearest_city: profile.nearest_city,
+            }}
           />
         )}
       </div>

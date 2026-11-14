@@ -26,6 +26,8 @@ import RentRequestButton from "../components/RentRequestButton";
 import RentRequestForm from "../components/RentRequestForm";
 import RentRequestSuccessModal from "../components/RentRequestSuccessModal";
 import LeaveReviewModal from "../components/LeaveReviewModal";
+import GoogleMapIcon from "../components/GoogleMapIcon";
+import ShopDistanceModal from "../components/ShopDistanceModal";
 
 const API_URL = "http://localhost:5001";
 
@@ -58,6 +60,7 @@ export default function ItemDetails() {
   const [error, setError] = useState("");
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
+  const [showDistanceModal, setShowDistanceModal] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [isInCart, setIsInCart] = useState(false);
@@ -344,6 +347,34 @@ export default function ItemDetails() {
       window.removeEventListener("rent_requests_updated", fetchItem);
     };
   }, [id]);
+
+  // Synchronize latest seller map location if available
+  useEffect(() => {
+    const sellerId = item?.user_id || item?.userId;
+    if (sellerId && (!item.seller_map_latitude || !item.seller_map_location_name)) {
+      fetch(`${API_URL}/api/users/${sellerId}`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success && data.user) {
+            setItem((prev) => {
+              if (!prev) return prev;
+              return {
+                ...prev,
+                seller_map_latitude: data.user.map_latitude
+                  ? parseFloat(data.user.map_latitude)
+                  : prev.seller_map_latitude,
+                seller_map_longitude: data.user.map_longitude
+                  ? parseFloat(data.user.map_longitude)
+                  : prev.seller_map_longitude,
+                seller_map_location_name:
+                  data.user.map_location_name || prev.seller_map_location_name,
+              };
+            });
+          }
+        })
+        .catch(() => {});
+    }
+  }, [item?.user_id, item?.userId]);
 
   const handleOpenRentForm = () => {
     if (!currentUser) {
@@ -701,6 +732,19 @@ export default function ItemDetails() {
               <span className="details-condition">
                 Condition: {item.condition || "Not specified"}
               </span>
+
+              <button
+                type="button"
+                className="details-map-badge"
+                onClick={() => setShowDistanceModal(true)}
+                title="View Store Location, Distance & Route on Map"
+              >
+                <GoogleMapIcon size={16} />
+                <span>
+                  {item.seller_map_location_name || item.sellerMapLocationName || item.nearest_city || item.nearestCity || "Shop Location"}
+                </span>
+                <span className="details-map-badge-dist">Route & Distance</span>
+              </button>
             </div>
 
             <div className="details-price-box">
@@ -1260,6 +1304,21 @@ export default function ItemDetails() {
             });
           }}
           API_URL={API_URL}
+        />
+      )}
+
+      {showDistanceModal && item && (
+        <ShopDistanceModal
+          isOpen={showDistanceModal}
+          onClose={() => setShowDistanceModal(false)}
+          shopData={{
+            map_latitude: item.seller_map_latitude || item.sellerMapLatitude,
+            map_longitude: item.seller_map_longitude || item.sellerMapLongitude,
+            map_location_name: item.seller_map_location_name || item.sellerMapLocationName,
+            name: item.user_name || item.userName || "Shop",
+            address: item.seller_address || item.sellerAddress,
+            nearest_city: item.nearest_city || item.nearestCity,
+          }}
         />
       )}
     </main>
