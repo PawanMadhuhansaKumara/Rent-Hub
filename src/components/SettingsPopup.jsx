@@ -4,11 +4,31 @@ import "./SettingsPopup.css";
 import LanguageSelecter from "./LanguageSelecter";
 import LogoutButton from "./LogoutButton";
 import { useNavigate } from "react-router-dom";
+import GoogleMapIcon from "./GoogleMapIcon";
+import MapLocationPickerModal from "./MapLocationPickerModal";
 
-export default function SettingsPopup({ handleLogout }) {
+export default function SettingsPopup({ handleLogout, onOpenMapLocation }) {
   const [isOpen, setIsOpen] = useState(false);
   const [showLanguage, setShowLanguage] = useState(false);
+  const [showLocalMapPicker, setShowLocalMapPicker] = useState(false);
   const navigate = useNavigate();
+
+  const handleMapLocationClick = () => {
+    setIsOpen(false);
+    if (onOpenMapLocation) {
+      onOpenMapLocation();
+    } else {
+      setShowLocalMapPicker(true);
+    }
+  };
+
+  const storedUser = (() => {
+    try {
+      return JSON.parse(localStorage.getItem("user")) || {};
+    } catch {
+      return {};
+    }
+  })();
 
   // ගිණුම ඉවත් කිරීමේ (Delete Account) ක්‍රියාවලිය
   const handleDeleteAccount = async () => {
@@ -88,6 +108,16 @@ export default function SettingsPopup({ handleLogout }) {
               <span>Privacy & Security</span>
             </button>
 
+            {/* Map Location Option */}
+            <button
+              className="settings-item"
+              onClick={handleMapLocationClick}
+              style={{ display: "flex", alignItems: "center", gap: "10px" }}
+            >
+              <GoogleMapIcon size={18} />
+              <span>Map Location</span>
+            </button>
+
             <div className="settings-item">
               <LogOut size={18} color="red" />
               <LogoutButton handleLogout={handleLogout} />
@@ -104,6 +134,20 @@ export default function SettingsPopup({ handleLogout }) {
             </div>
           </div>
         </div>
+      )}
+
+      {showLocalMapPicker && (
+        <MapLocationPickerModal
+          isOpen={showLocalMapPicker}
+          onClose={() => setShowLocalMapPicker(false)}
+          initialLat={storedUser.map_latitude}
+          initialLng={storedUser.map_longitude}
+          initialName={storedUser.map_location_name || storedUser.address}
+          userId={storedUser.id || storedUser.user_id}
+          onLocationSaved={() => {
+            setShowLocalMapPicker(false);
+          }}
+        />
       )}
     </div>
   );

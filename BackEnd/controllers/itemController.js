@@ -9,6 +9,10 @@ exports.getAllItems = async (req, res) => {
         u.full_name AS user_name,
         u.profile_pic_url AS user_profile_pic,
         u.nearest_city AS nearest_city,
+        u.address AS seller_address,
+        u.map_latitude AS seller_map_latitude,
+        u.map_longitude AS seller_map_longitude,
+        u.map_location_name AS seller_map_location_name,
         (SELECT COUNT(*) FROM rent_requests WHERE rent_requests.item_id = items.id AND LOWER(rent_requests.status) = 'rented') AS is_rented_count,
         (SELECT COUNT(*) FROM rent_requests WHERE rent_requests.item_id = items.id) AS bookings_count
       FROM items
@@ -47,6 +51,14 @@ exports.getAllItems = async (req, res) => {
         user_profile_pic: item.user_profile_pic || null,
         nearestCity: item.nearest_city || null,
         nearest_city: item.nearest_city || null,
+        sellerAddress: item.seller_address || null,
+        seller_address: item.seller_address || null,
+        sellerMapLatitude: item.seller_map_latitude ? parseFloat(item.seller_map_latitude) : null,
+        seller_map_latitude: item.seller_map_latitude ? parseFloat(item.seller_map_latitude) : null,
+        sellerMapLongitude: item.seller_map_longitude ? parseFloat(item.seller_map_longitude) : null,
+        seller_map_longitude: item.seller_map_longitude ? parseFloat(item.seller_map_longitude) : null,
+        sellerMapLocationName: item.seller_map_location_name || null,
+        seller_map_location_name: item.seller_map_location_name || null,
         createdAt: item.created_at,
       };
     });

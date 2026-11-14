@@ -74,7 +74,7 @@ exports.getUser = async (req, res) => {
 // UPDATE USER PROFILE WITH IMAGES
 exports.updateUser = async (req, res) => {
   const userId = req.params.id;
-  const { full_name, phone_no, email, address, nearest_city } = req.body;
+  const { full_name, phone_no, email, address, nearest_city, map_latitude, map_longitude, map_location_name } = req.body;
 
   try {
     const profile_pic_url = req.files && req.files['profile_pic'] ? `/uploads/${req.files['profile_pic'][0].filename}` : null;
@@ -85,6 +85,19 @@ exports.updateUser = async (req, res) => {
       SET full_name = ?, phone_no = ?, email = ?, address = ?, nearest_city = ?
     `;
     let values = [full_name, phone_no, email || null, address || null, nearest_city || null];
+
+    if (map_latitude !== undefined) {
+      query += `, map_latitude = ?`;
+      values.push(map_latitude !== null && map_latitude !== '' ? parseFloat(map_latitude) : null);
+    }
+    if (map_longitude !== undefined) {
+      query += `, map_longitude = ?`;
+      values.push(map_longitude !== null && map_longitude !== '' ? parseFloat(map_longitude) : null);
+    }
+    if (map_location_name !== undefined) {
+      query += `, map_location_name = ?`;
+      values.push(map_location_name || null);
+    }
 
     if (profile_pic_url) {
       query += `, profile_pic_url = ?`;
@@ -117,6 +130,41 @@ exports.updateUser = async (req, res) => {
   } catch (error) {
     console.error('Profile Update Error:', error);
     res.status(500).json({ success: false, message: 'Server error during profile update.' });
+  }
+};
+
+// UPDATE SPECIFICALLY MAP LOCATION
+exports.updateMapLocation = async (req, res) => {
+  const userId = req.params.id;
+  const { map_latitude, map_longitude, map_location_name } = req.body;
+
+  try {
+    const lat = map_latitude !== null && map_latitude !== undefined && map_latitude !== '' ? parseFloat(map_latitude) : null;
+    const lng = map_longitude !== null && map_longitude !== undefined && map_longitude !== '' ? parseFloat(map_longitude) : null;
+    const locName = map_location_name || null;
+
+    await db.execute(
+      `UPDATE users_details 
+       SET map_latitude = ?, map_longitude = ?, map_location_name = ?
+       WHERE user_id = ?`,
+      [lat, lng, locName, userId]
+    );
+
+    const [rows] = await db.execute('SELECT * FROM users_details WHERE user_id = ?', [userId]);
+    if (rows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const { password_hash, ...updatedUser } = rows[0];
+
+    res.status(200).json({
+      success: true,
+      message: 'Map location updated successfully!',
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error('Map Location Update Error:', error);
+    res.status(500).json({ success: false, message: 'Server error while updating map location.' });
   }
 };
 
