@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { useTranslation } from "react-i18next";
 import {
   X,
   MapPin,
@@ -37,7 +38,6 @@ const SRI_LANKA_CITIES = {
   malabe: { lat: 6.9044, lng: 79.9542, name: "Malabe" },
 };
 
-// Haversine distance
 function getHaversineDistanceKm(lat1, lon1, lat2, lon2) {
   const R = 6371;
   const dLat = (lat2 - lat1) * (Math.PI / 180);
@@ -53,7 +53,7 @@ function getHaversineDistanceKm(lat1, lon1, lat2, lon2) {
 }
 
 // User (Visitor) Pulsing Blue Dot Marker (Uber Style)
-const createUserDotIcon = () => {
+const createUserDotIcon = (youLabel = "You") => {
   return L.divIcon({
     className: "uber-user-marker",
     html: `
@@ -86,7 +86,7 @@ const createUserDotIcon = () => {
           border-radius: 4px;
           white-space: nowrap;
           box-shadow: 0 2px 4px rgba(0,0,0,0.2);
-        ">You</span>
+        ">${youLabel}</span>
       </div>
       <style>
         @keyframes uberPulse {
@@ -135,11 +135,8 @@ const createShopMarkerIcon = (shopName = "Shop") => {
   });
 };
 
-export default function ShopDistanceModal({
-  isOpen,
-  onClose,
-  shopData, // { map_latitude, map_longitude, map_location_name, name, address, nearest_city }
-}) {
+export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
+  const { t } = useTranslation();
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const userMarkerRef = useRef(null);
@@ -153,7 +150,6 @@ export default function ShopDistanceModal({
   const [etaMins, setEtaMins] = useState(null);
   const [locationError, setLocationError] = useState("");
 
-  // Determine shop coordinates
   useEffect(() => {
     if (!shopData) return;
 
@@ -176,7 +172,6 @@ export default function ShopDistanceModal({
       }
     }
 
-    // Default fallback to Colombo if not found
     if (!lat || !lng) {
       lat = 6.9271;
       lng = 79.8612;
@@ -185,7 +180,6 @@ export default function ShopDistanceModal({
     setShopCoords({ lat, lng });
   }, [shopData]);
 
-  // Request user GPS location
   const requestUserLocation = () => {
     if (!navigator.geolocation) {
       setLocationError("Geolocation is not supported by your browser.");
@@ -206,21 +200,18 @@ export default function ShopDistanceModal({
       (err) => {
         console.warn("Geolocation permission error:", err);
         setLocationError("GPS location access was not granted.");
-        // Fallback default user location: nearby Colombo / Kandy
         setLoadingUserLocation(false);
       },
       { enableHighAccuracy: true, timeout: 8000 }
     );
   };
 
-  // Auto-request location when modal opens
   useEffect(() => {
     if (isOpen) {
       requestUserLocation();
     }
   }, [isOpen]);
 
-  // Compute distance and ETA
   useEffect(() => {
     if (userCoords && shopCoords) {
       const directKm = getHaversineDistanceKm(
@@ -229,12 +220,10 @@ export default function ShopDistanceModal({
         shopCoords.lat,
         shopCoords.lng
       );
-      // Realistic road distance ~ 1.25x
       const roadKm = directKm * 1.25;
       const formattedDistance = roadKm < 1 ? "< 1 km" : `${roadKm.toFixed(1)} km`;
       setDistanceKm(formattedDistance);
 
-      // Estimated driving time (~35 km/h in Sri Lankan city traffic)
       const minutes = Math.max(2, Math.round((roadKm / 35) * 60));
       setEtaMins(minutes);
     } else {
@@ -243,7 +232,6 @@ export default function ShopDistanceModal({
     }
   }, [userCoords, shopCoords]);
 
-  // Render Leaflet map
   useEffect(() => {
     if (!isOpen || !shopCoords) return;
 
@@ -263,14 +251,12 @@ export default function ShopDistanceModal({
 
         L.control.zoom({ position: "bottomright" }).addTo(map);
 
-        // OpenStreetMap clean tiles
         L.tileLayer("https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png", {
           attribution: '&copy; OpenStreetMap contributors',
           maxZoom: 19,
         }).addTo(map);
 
-        // Shop Marker
-        const shopLabel = shopData?.map_location_name || shopData?.name || "Shop";
+        const shopLabel = shopData?.map_location_name || shopData?.name || t("map.shop");
         const shopMarker = L.marker([shopCoords.lat, shopCoords.lng], {
           icon: createShopMarkerIcon(shopLabel),
         }).addTo(map);
@@ -283,17 +269,15 @@ export default function ShopDistanceModal({
 
       const map = mapInstanceRef.current;
 
-      // Update or add User Marker
       if (userCoords) {
         if (userMarkerRef.current) {
           userMarkerRef.current.setLatLng([userCoords.lat, userCoords.lng]);
         } else {
           userMarkerRef.current = L.marker([userCoords.lat, userCoords.lng], {
-            icon: createUserDotIcon(),
+            icon: createUserDotIcon(t("map.you")),
           }).addTo(map);
         }
 
-        // Draw Uber-style polyline route connecting User and Shop
         if (routeLineRef.current) {
           routeLineRef.current.setLatLngs([
             [userCoords.lat, userCoords.lng],
@@ -315,12 +299,11 @@ export default function ShopDistanceModal({
           ).addTo(map);
         }
 
-        // Fit bounds to show both pins comfortably
         const bounds = L.latLngBounds([
           [userCoords.lat, userCoords.lng],
           [shopCoords.lat, shopCoords.lng],
         ]);
-        map.fitBounds(bounds, { padding: [60, 60], maxZoom: 16 });
+        map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
       } else {
         map.setView([shopCoords.lat, shopCoords.lng], 14);
       }
@@ -329,7 +312,6 @@ export default function ShopDistanceModal({
     return () => clearTimeout(timer);
   }, [isOpen, shopCoords, userCoords]);
 
-  // Clean up map instance on modal close
   useEffect(() => {
     return () => {
       if (mapInstanceRef.current) {
@@ -348,7 +330,7 @@ export default function ShopDistanceModal({
     shopData?.map_location_name ||
     shopData?.name ||
     shopData?.full_name ||
-    "Shop Location";
+    t("map.shop");
 
   const shopAddressText =
     shopData?.address ||
@@ -356,7 +338,6 @@ export default function ShopDistanceModal({
     shopData?.map_location_name ||
     "Sri Lanka";
 
-  // Google Maps turn-by-turn navigation URL
   const googleMapsNavUrl =
     userCoords && shopCoords
       ? `https://www.google.com/maps/dir/?api=1&origin=${userCoords.lat},${userCoords.lng}&destination=${shopCoords.lat},${shopCoords.lng}&travelmode=driving`
@@ -375,7 +356,7 @@ export default function ShopDistanceModal({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "16px",
+        padding: "10px",
       }}
       onClick={onClose}
     >
@@ -389,7 +370,7 @@ export default function ShopDistanceModal({
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
-          maxHeight: "92vh",
+          maxHeight: "94vh",
           animation: "modalFadeIn 0.2s ease-out",
         }}
         onClick={(e) => e.stopPropagation()}
@@ -397,7 +378,7 @@ export default function ShopDistanceModal({
         {/* Header */}
         <div
           style={{
-            padding: "16px 20px",
+            padding: "14px 18px",
             borderBottom: "1px solid #e2e8f0",
             display: "flex",
             alignItems: "center",
@@ -405,15 +386,18 @@ export default function ShopDistanceModal({
             background: "linear-gradient(to right, #f8fafc, #ffffff)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
             <GoogleMapIcon size={26} />
-            <div>
+            <div style={{ minWidth: 0 }}>
               <h3
                 style={{
                   margin: 0,
-                  fontSize: "17px",
+                  fontSize: "clamp(15px, 2.5vw, 17px)",
                   fontWeight: 700,
                   color: "#0f172a",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
                 }}
               >
                 {shopTitle}
@@ -421,12 +405,12 @@ export default function ShopDistanceModal({
               <p
                 style={{
                   margin: 0,
-                  fontSize: "12px",
+                  fontSize: "11px",
                   color: "#64748b",
                   marginTop: "2px",
                 }}
               >
-                Live distance and route to store
+                {t("map.liveDistanceRoute")}
               </p>
             </div>
           </div>
@@ -444,57 +428,60 @@ export default function ShopDistanceModal({
               justifyContent: "center",
               cursor: "pointer",
               color: "#475569",
+              flexShrink: 0,
+              marginLeft: "8px",
             }}
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Distance & ETA Banner (Uber Style) */}
+        {/* Distance & ETA Banner (Uber Style, Responsive Flex) */}
         <div
           style={{
-            padding: "14px 20px",
+            padding: "12px 18px",
             background: "#f0fdf4",
             borderBottom: "1px solid #bbf7d0",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             flexWrap: "wrap",
-            gap: "12px",
+            gap: "10px",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "14px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: 0 }}>
             <div
               style={{
-                width: "42px",
-                height: "42px",
-                borderRadius: "12px",
+                width: "40px",
+                height: "40px",
+                borderRadius: "10px",
                 background: "#00aa5b",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 color: "#ffffff",
                 boxShadow: "0 4px 10px rgba(0, 170, 91, 0.3)",
+                flexShrink: 0,
               }}
             >
-              <Car size={22} />
+              <Car size={20} />
             </div>
 
-            <div>
-              <div style={{ display: "flex", alignItems: "baseline", gap: "8px" }}>
+            <div style={{ minWidth: 0 }}>
+              <div style={{ display: "flex", alignItems: "baseline", gap: "8px", flexWrap: "wrap" }}>
                 <span
                   style={{
-                    fontSize: "20px",
+                    fontSize: "clamp(17px, 3vw, 20px)",
                     fontWeight: 800,
                     color: "#166534",
                   }}
                 >
-                  {distanceKm || (loadingUserLocation ? "Calculating..." : "Select Location")}
+                  {distanceKm || (loadingUserLocation ? t("map.calculating") : "—")}
                 </span>
                 {etaMins && (
                   <span
                     style={{
-                      fontSize: "13px",
+                      fontSize: "12px",
                       fontWeight: 600,
                       color: "#15803d",
                       display: "flex",
@@ -502,24 +489,28 @@ export default function ShopDistanceModal({
                       gap: "4px",
                     }}
                   >
-                    <Clock size={13} /> ~{etaMins} mins drive
+                    <Clock size={12} /> ~{etaMins} {t("map.minsDrive")}
                   </span>
                 )}
               </div>
               <p
                 style={{
                   margin: 0,
-                  fontSize: "12px",
+                  fontSize: "11px",
                   color: "#475569",
                   marginTop: "2px",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 1,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
                 }}
               >
-                From your location to: <strong>{shopAddressText}</strong>
+                {t("map.fromYourLocationTo")} <strong>{shopAddressText}</strong>
               </p>
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "8px", flexShrink: 0 }}>
             {!userCoords && (
               <button
                 type="button"
@@ -537,21 +528,22 @@ export default function ShopDistanceModal({
                   display: "flex",
                   alignItems: "center",
                   gap: "6px",
+                  whiteSpace: "nowrap",
                 }}
               >
                 {loadingUserLocation ? (
-                  <Loader2 size={14} className="spin-animation" />
+                  <Loader2 size={13} className="spin-animation" />
                 ) : (
-                  <LocateFixed size={14} />
+                  <LocateFixed size={13} />
                 )}
-                Enable My GPS
+                {t("map.enableMyGps")}
               </button>
             )}
           </div>
         </div>
 
         {/* Interactive Map View */}
-        <div style={{ position: "relative", width: "100%", height: "360px" }}>
+        <div style={{ position: "relative", width: "100%", height: "clamp(240px, 38vh, 360px)" }}>
           <div
             ref={mapContainerRef}
             style={{ width: "100%", height: "100%", zIndex: 1 }}
@@ -561,63 +553,63 @@ export default function ShopDistanceModal({
           <div
             style={{
               position: "absolute",
-              top: "12px",
-              left: "12px",
+              top: "10px",
+              left: "10px",
               zIndex: 10,
               background: "rgba(255, 255, 255, 0.95)",
-              padding: "8px 12px",
-              borderRadius: "10px",
+              padding: "6px 10px",
+              borderRadius: "8px",
               boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
               display: "flex",
               alignItems: "center",
-              gap: "12px",
+              gap: "8px",
               fontSize: "11px",
               fontWeight: 600,
               color: "#334155",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
               <span
                 style={{
-                  width: "10px",
-                  height: "10px",
+                  width: "9px",
+                  height: "9px",
                   borderRadius: "50%",
                   background: "#2563eb",
                   display: "inline-block",
                 }}
               />
-              <span>You</span>
+              <span>{t("map.you")}</span>
             </div>
-            <ArrowRight size={12} color="#94a3b8" />
-            <div style={{ display: "flex", alignItems: "center", gap: "5px" }}>
+            <ArrowRight size={11} color="#94a3b8" />
+            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
               <span
                 style={{
-                  width: "10px",
-                  height: "10px",
+                  width: "9px",
+                  height: "9px",
                   borderRadius: "50%",
                   background: "#00aa5b",
                   display: "inline-block",
                 }}
               />
-              <span>Shop</span>
+              <span>{t("map.shop")}</span>
             </div>
           </div>
         </div>
 
-        {/* Bottom Navigation Call to Action */}
+        {/* Bottom Navigation CTA Bar */}
         <div
           style={{
-            padding: "16px 20px",
+            padding: "14px 18px",
             background: "#ffffff",
             borderTop: "1px solid #e2e8f0",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
             flexWrap: "wrap",
-            gap: "12px",
+            gap: "10px",
           }}
         >
-          <div>
+          <div style={{ minWidth: 0, flex: "1 1 200px" }}>
             <div
               style={{
                 display: "flex",
@@ -626,33 +618,48 @@ export default function ShopDistanceModal({
                 fontSize: "13px",
                 fontWeight: 600,
                 color: "#1e293b",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
               }}
             >
-              <Store size={15} color="#00aa5b" />
+              <Store size={14} color="#00aa5b" />
               <span>{shopTitle}</span>
             </div>
             <div
               style={{
-                fontSize: "12px",
+                fontSize: "11px",
                 color: "#64748b",
                 marginTop: "2px",
                 display: "flex",
                 alignItems: "center",
                 gap: "4px",
+                whiteSpace: "nowrap",
+                overflow: "hidden",
+                textOverflow: "ellipsis",
               }}
             >
-              <MapPin size={13} color="#94a3b8" />
+              <MapPin size={12} color="#94a3b8" />
               <span>{shopAddressText}</span>
             </div>
           </div>
 
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div
+            style={{
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              flexWrap: "wrap",
+              justifyContent: "flex-end",
+              flex: "1 1 auto",
+            }}
+          >
             <button
               type="button"
               onClick={onClose}
               style={{
-                padding: "10px 18px",
-                borderRadius: "10px",
+                padding: "8px 16px",
+                borderRadius: "8px",
                 border: "1px solid #cbd5e1",
                 background: "#ffffff",
                 fontSize: "13px",
@@ -661,7 +668,7 @@ export default function ShopDistanceModal({
                 cursor: "pointer",
               }}
             >
-              Close
+              {t("map.close")}
             </button>
 
             <a
@@ -669,8 +676,8 @@ export default function ShopDistanceModal({
               target="_blank"
               rel="noreferrer"
               style={{
-                padding: "10px 20px",
-                borderRadius: "10px",
+                padding: "8px 18px",
+                borderRadius: "8px",
                 border: "none",
                 background: "linear-gradient(135deg, #00aa5b 0%, #166534 100%)",
                 fontSize: "13px",
@@ -678,15 +685,17 @@ export default function ShopDistanceModal({
                 color: "#ffffff",
                 textDecoration: "none",
                 cursor: "pointer",
-                display: "flex",
+                display: "inline-flex",
                 alignItems: "center",
-                gap: "8px",
+                justifyContent: "center",
+                gap: "7px",
                 boxShadow: "0 3px 8px rgba(0, 170, 91, 0.3)",
+                whiteSpace: "nowrap",
               }}
             >
-              <GoogleMapIcon size={18} />
-              <span>Open in Google Maps</span>
-              <ExternalLink size={14} />
+              <GoogleMapIcon size={17} />
+              <span>{t("map.openInGoogleMaps")}</span>
+              <ExternalLink size={13} />
             </a>
           </div>
         </div>

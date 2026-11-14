@@ -1,6 +1,7 @@
 import React, { useEffect, useRef, useState } from "react";
 import L from "leaflet";
 import "leaflet/dist/leaflet.css";
+import { useTranslation } from "react-i18next";
 import {
   X,
   MapPin,
@@ -20,7 +21,7 @@ const DEFAULT_LAT = 6.9271;
 const DEFAULT_LNG = 79.8612;
 
 // Custom Leaflet DivIcon for the Shop Pin
-const createShopPinIcon = () => {
+const createShopPinIcon = (pinText = "Drag Me") => {
   return L.divIcon({
     className: "custom-shop-pin-marker",
     html: `
@@ -34,7 +35,7 @@ const createShopPinIcon = () => {
           <path d="M14 19v-4h12v4M16 23h8M17 12h6" stroke="#00aa5b" stroke-width="2" stroke-linecap="round"/>
         </svg>
         <span style="position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); background: #111827; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.25);">
-          Drag Me
+          ${pinText}
         </span>
       </div>
     `,
@@ -52,6 +53,7 @@ export default function MapLocationPickerModal({
   userId,
   onLocationSaved,
 }) {
+  const { t } = useTranslation();
   const mapContainerRef = useRef(null);
   const mapInstanceRef = useRef(null);
   const markerRef = useRef(null);
@@ -135,7 +137,7 @@ export default function MapLocationPickerModal({
         }).addTo(map);
 
         const marker = L.marker([coords.lat, coords.lng], {
-          icon: createShopPinIcon(),
+          icon: createShopPinIcon(t("map.dragPinTip") ? "Shop Pin" : "Drag Me"),
           draggable: true,
         }).addTo(map);
 
@@ -206,7 +208,7 @@ export default function MapLocationPickerModal({
     }
 
     setLocatingUser(true);
-    setStatusMessage({ type: "info", text: "Acquiring your GPS location..." });
+    setStatusMessage({ type: "info", text: t("map.acquiringGps") });
 
     navigator.geolocation.getCurrentPosition(
       (pos) => {
@@ -216,14 +218,14 @@ export default function MapLocationPickerModal({
         setLocatingUser(false);
         setStatusMessage({
           type: "success",
-          text: "Current GPS location pinned! You can drag the pin to adjust.",
+          text: t("map.gpsSuccess"),
         });
       },
       (err) => {
         setLocatingUser(false);
         setStatusMessage({
           type: "error",
-          text: "Location permission denied or unavailable. Please search for your city or click on the map.",
+          text: t("map.gpsError"),
         });
       },
       { enableHighAccuracy: true, timeout: 10000 }
@@ -260,7 +262,6 @@ export default function MapLocationPickerModal({
           text: `Found: ${place.display_name.split(",").slice(0, 3).join(",")}`,
         });
       } else {
-        // Fallback search without Sri Lanka suffix
         const fallbackRes = await fetch(
           `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(
             searchQuery.trim()
@@ -273,7 +274,7 @@ export default function MapLocationPickerModal({
         } else {
           setStatusMessage({
             type: "error",
-            text: "Location not found. Try entering a nearby major town or landmark.",
+            text: t("map.locationNotFound"),
           });
         }
       }
@@ -308,7 +309,6 @@ export default function MapLocationPickerModal({
 
       const data = await res.json();
       if (res.ok && data.success) {
-        // Update local storage user if matching
         const storedUser = localStorage.getItem("user");
         if (storedUser) {
           try {
@@ -338,7 +338,7 @@ export default function MapLocationPickerModal({
           });
         }
 
-        alert("Shop map location saved successfully!");
+        alert(t("map.gpsSuccess") ? "Shop location saved successfully!" : "Saved!");
         onClose();
       } else {
         alert(data.message || "Failed to save location.");
@@ -364,7 +364,7 @@ export default function MapLocationPickerModal({
         display: "flex",
         alignItems: "center",
         justifyContent: "center",
-        padding: "16px",
+        padding: "10px",
       }}
       onClick={onClose}
     >
@@ -378,7 +378,7 @@ export default function MapLocationPickerModal({
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
-          maxHeight: "92vh",
+          maxHeight: "94vh",
           animation: "modalFadeIn 0.2s ease-out",
         }}
         onClick={(e) => e.stopPropagation()}
@@ -386,7 +386,7 @@ export default function MapLocationPickerModal({
         {/* Header */}
         <div
           style={{
-            padding: "16px 20px",
+            padding: "14px 18px",
             borderBottom: "1px solid #e2e8f0",
             display: "flex",
             alignItems: "center",
@@ -394,28 +394,35 @@ export default function MapLocationPickerModal({
             background: "linear-gradient(to right, #f8fafc, #ffffff)",
           }}
         >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
             <GoogleMapIcon size={24} />
-            <div>
+            <div style={{ minWidth: 0 }}>
               <h3
                 style={{
                   margin: 0,
-                  fontSize: "17px",
+                  fontSize: "clamp(15px, 2.5vw, 17px)",
                   fontWeight: 700,
                   color: "#0f172a",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
                 }}
               >
-                Set Shop Map Location
+                {t("map.setShopLocation")}
               </h3>
               <p
                 style={{
                   margin: 0,
-                  fontSize: "12px",
+                  fontSize: "11px",
                   color: "#64748b",
                   marginTop: "2px",
+                  display: "-webkit-box",
+                  WebkitLineClamp: 1,
+                  WebkitBoxOrient: "vertical",
+                  overflow: "hidden",
                 }}
               >
-                Help customers find your store and view distance & directions
+                {t("map.setShopLocationDesc")}
               </p>
             </div>
           </div>
@@ -432,33 +439,41 @@ export default function MapLocationPickerModal({
               justifyContent: "center",
               cursor: "pointer",
               color: "#475569",
+              flexShrink: 0,
+              marginLeft: "8px",
             }}
           >
             <X size={18} />
           </button>
         </div>
 
-        {/* Search & Actions Bar */}
+        {/* Search & Actions Bar (Fully responsive wrap) */}
         <div
           style={{
-            padding: "14px 20px",
+            padding: "12px 16px",
             background: "#f8fafc",
             borderBottom: "1px solid #e2e8f0",
             display: "flex",
             flexDirection: "column",
-            gap: "10px",
+            gap: "8px",
           }}
         >
           <form
             onSubmit={handleSearch}
-            style={{ display: "flex", gap: "8px", width: "100%" }}
+            style={{
+              display: "flex",
+              flexWrap: "wrap",
+              gap: "8px",
+              width: "100%",
+            }}
           >
             <div
               style={{
-                flex: 1,
+                flex: "1 1 200px",
                 position: "relative",
                 display: "flex",
                 alignItems: "center",
+                minWidth: "160px",
               }}
             >
               <Search
@@ -470,7 +485,7 @@ export default function MapLocationPickerModal({
                 type="text"
                 value={searchQuery}
                 onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder="Search city, town, or street (e.g. Maharagama, Kandy)..."
+                placeholder={t("map.searchPlaceholder")}
                 style={{
                   width: "100%",
                   padding: "9px 12px 9px 36px",
@@ -479,6 +494,7 @@ export default function MapLocationPickerModal({
                   fontSize: "13px",
                   outline: "none",
                   backgroundColor: "#ffffff",
+                  boxSizing: "border-box",
                 }}
               />
             </div>
@@ -490,13 +506,15 @@ export default function MapLocationPickerModal({
                 color: "#ffffff",
                 border: "none",
                 borderRadius: "10px",
-                padding: "0 16px",
+                padding: "9px 16px",
                 fontSize: "13px",
                 fontWeight: 600,
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
+                justifyContent: "center",
                 gap: "6px",
+                flexShrink: 0,
               }}
             >
               {searching ? (
@@ -504,7 +522,7 @@ export default function MapLocationPickerModal({
               ) : (
                 <Search size={16} />
               )}
-              Search
+              {t("map.searchBtn")}
             </button>
             <button
               type="button"
@@ -516,14 +534,16 @@ export default function MapLocationPickerModal({
                 color: "#0f172a",
                 border: "1px solid #cbd5e1",
                 borderRadius: "10px",
-                padding: "0 14px",
+                padding: "9px 14px",
                 fontSize: "13px",
                 fontWeight: 600,
                 cursor: "pointer",
                 display: "flex",
                 alignItems: "center",
+                justifyContent: "center",
                 gap: "6px",
                 whiteSpace: "nowrap",
+                flexShrink: 0,
               }}
             >
               {locatingUser ? (
@@ -531,7 +551,7 @@ export default function MapLocationPickerModal({
               ) : (
                 <Navigation size={16} color="#00aa5b" />
               )}
-              My GPS Location
+              {t("map.myGpsLocation")}
             </button>
           </form>
 
@@ -564,8 +584,8 @@ export default function MapLocationPickerModal({
           )}
         </div>
 
-        {/* Interactive Map */}
-        <div style={{ position: "relative", width: "100%", height: "350px" }}>
+        {/* Interactive Map (Responsive height) */}
+        <div style={{ position: "relative", width: "100%", height: "clamp(240px, 38vh, 340px)" }}>
           <div
             ref={mapContainerRef}
             style={{ width: "100%", height: "100%", zIndex: 1 }}
@@ -574,32 +594,34 @@ export default function MapLocationPickerModal({
           <div
             style={{
               position: "absolute",
-              top: "12px",
-              left: "12px",
+              top: "10px",
+              left: "10px",
+              right: "10px",
               zIndex: 10,
               background: "rgba(255, 255, 255, 0.95)",
-              padding: "6px 12px",
+              padding: "6px 10px",
               borderRadius: "8px",
               fontSize: "11px",
               fontWeight: 600,
               color: "#334155",
               boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
               pointerEvents: "none",
+              textAlign: "center",
             }}
           >
-            Tip: Click anywhere or drag the green pin to position
+            {t("map.dragPinTip")}
           </div>
         </div>
 
         {/* Location Details Form */}
         <div
           style={{
-            padding: "16px 20px",
+            padding: "14px 18px",
             borderTop: "1px solid #e2e8f0",
             backgroundColor: "#ffffff",
             display: "flex",
             flexDirection: "column",
-            gap: "12px",
+            gap: "10px",
           }}
         >
           <div>
@@ -612,16 +634,16 @@ export default function MapLocationPickerModal({
                 marginBottom: "4px",
               }}
             >
-              Shop / Landmark Display Name (visible to customers)
+              {t("map.shopLandmarkLabel")}
             </label>
             <input
               type="text"
               value={locationName}
               onChange={(e) => setLocationName(e.target.value)}
-              placeholder="e.g. Rent-Hub Store, Galle Road, Bambalapitiya"
+              placeholder={t("map.shopLandmarkPlaceholder")}
               style={{
                 width: "100%",
-                padding: "9px 12px",
+                padding: "8px 12px",
                 borderRadius: "8px",
                 border: "1px solid #cbd5e1",
                 fontSize: "13px",
@@ -636,17 +658,19 @@ export default function MapLocationPickerModal({
               display: "flex",
               alignItems: "center",
               justifyContent: "space-between",
-              fontSize: "12px",
+              flexWrap: "wrap",
+              gap: "6px",
+              fontSize: "11px",
               color: "#64748b",
               background: "#f8fafc",
-              padding: "8px 12px",
+              padding: "6px 10px",
               borderRadius: "8px",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <Compass size={14} color="#00aa5b" />
+              <Compass size={13} color="#00aa5b" />
               <span>
-                Coordinates: <strong>{coords.lat.toFixed(5)}</strong>,{" "}
+                {t("map.coordinates")}: <strong>{coords.lat.toFixed(5)}</strong>,{" "}
                 <strong>{coords.lng.toFixed(5)}</strong>
               </span>
             </div>
@@ -658,10 +682,9 @@ export default function MapLocationPickerModal({
                 color: "#2563eb",
                 textDecoration: "none",
                 fontWeight: 600,
-                fontSize: "11px",
               }}
             >
-              Preview on Google Maps ↗
+              {t("map.previewGoogleMaps")}
             </a>
           </div>
         </div>
@@ -669,7 +692,7 @@ export default function MapLocationPickerModal({
         {/* Footer */}
         <div
           style={{
-            padding: "14px 20px",
+            padding: "12px 18px",
             background: "#f8fafc",
             borderTop: "1px solid #e2e8f0",
             display: "flex",
@@ -683,7 +706,7 @@ export default function MapLocationPickerModal({
             onClick={onClose}
             disabled={saving}
             style={{
-              padding: "8px 18px",
+              padding: "8px 16px",
               borderRadius: "8px",
               border: "1px solid #cbd5e1",
               background: "#ffffff",
@@ -693,14 +716,14 @@ export default function MapLocationPickerModal({
               cursor: "pointer",
             }}
           >
-            Cancel
+            {t("map.cancel")}
           </button>
           <button
             type="button"
             onClick={handleSave}
             disabled={saving}
             style={{
-              padding: "8px 22px",
+              padding: "8px 20px",
               borderRadius: "8px",
               border: "none",
               background: "#00aa5b",
@@ -719,7 +742,7 @@ export default function MapLocationPickerModal({
             ) : (
               <Check size={16} />
             )}
-            Save Location
+            {t("map.saveLocation")}
           </button>
         </div>
       </div>

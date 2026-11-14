@@ -230,6 +230,92 @@ exports.updateStatus = async (req, res) => {
   }
 };
 
+// UPDATE ITEM DETAILS
+exports.updateItem = async (req, res) => {
+  const itemId = req.params.id;
+  const {
+    title,
+    category,
+    condition,
+    price,
+    priceType,
+    description,
+    available_quantity,
+    available,
+  } = req.body;
+
+  try {
+    const [existing] = await db.execute("SELECT * FROM items WHERE id = ?", [itemId]);
+    if (existing.length === 0) {
+      return res.status(404).json({ success: false, message: "Item not found." });
+    }
+
+    const currentItem = existing[0];
+    const newImageUrl = req.file ? `/uploads/${req.file.filename}` : currentItem.image_url;
+
+    const updatedTitle = title !== undefined ? title.trim() : currentItem.title;
+    const updatedCategory = category !== undefined ? category : currentItem.category;
+    const updatedCondition = condition !== undefined ? condition : currentItem.condition;
+    const updatedPrice = price !== undefined ? parseFloat(price) : currentItem.price;
+    const updatedPriceType = priceType !== undefined ? priceType : currentItem.price_type;
+    const updatedDescription = description !== undefined ? description.trim() : currentItem.description;
+    const updatedQty = available_quantity !== undefined ? parseInt(available_quantity, 10) : currentItem.available_quantity;
+    
+    let updatedAvail = currentItem.available_qty;
+    if (available !== undefined) {
+      updatedAvail = available;
+    } else if (updatedQty <= 0) {
+      updatedAvail = "Rented Out";
+    }
+
+    const query = `
+      UPDATE items 
+      SET title = ?, category = ?, \`condition\` = ?, price = ?, price_type = ?, description = ?, available_quantity = ?, available_qty = ?, image_url = ?
+      WHERE id = ?
+    `;
+
+    const values = [
+      updatedTitle,
+      updatedCategory,
+      updatedCondition,
+      updatedPrice,
+      updatedPriceType,
+      updatedDescription,
+      updatedQty,
+      updatedAvail,
+      newImageUrl,
+      itemId,
+    ];
+
+    await db.execute(query, values);
+
+    const [rows] = await db.execute("SELECT * FROM items WHERE id = ?", [itemId]);
+    const updated = rows[0];
+
+    res.status(200).json({
+      success: true,
+      message: "Item updated successfully!",
+      item: {
+        id: updated.id,
+        title: updated.title,
+        category: updated.category,
+        condition: updated.condition,
+        price: updated.price,
+        priceType: updated.price_type,
+        price_type: updated.price_type,
+        description: updated.description,
+        image: updated.image_url,
+        image_url: updated.image_url,
+        available: updated.available_qty,
+        available_quantity: updated.available_quantity,
+      },
+    });
+  } catch (error) {
+    console.error("Update Item Error:", error);
+    res.status(500).json({ success: false, message: "Server error while updating the item." });
+  }
+};
+
 // DELETE ITEM
 exports.deleteItem = async (req, res) => {
   const itemId = req.params.id;

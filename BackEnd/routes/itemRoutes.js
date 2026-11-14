@@ -8,6 +8,7 @@ router.get('/:userId', itemController.getUserItems);
 router.post('/', upload.single('image'), itemController.addItem);
 router.post('/:id/view', itemController.incrementViews); // 👈 අලුත් view counter route එක
 router.put('/status/:id', itemController.updateStatus);
+router.put('/:id', upload.single('image'), itemController.updateItem);
 router.delete('/:id', itemController.deleteItem);
 
 module.exports = router;

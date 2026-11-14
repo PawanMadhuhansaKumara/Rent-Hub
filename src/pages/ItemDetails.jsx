@@ -17,6 +17,8 @@ import {
   CornerDownRight,
   Edit3,
   Trash2,
+  CheckCircle2,
+  Clock,
 } from "lucide-react";
 import ChatBox from "../components/ChatBox";
 import "./ItemDetails.css";
@@ -28,6 +30,7 @@ import RentRequestSuccessModal from "../components/RentRequestSuccessModal";
 import LeaveReviewModal from "../components/LeaveReviewModal";
 import GoogleMapIcon from "../components/GoogleMapIcon";
 import ShopDistanceModal from "../components/ShopDistanceModal";
+import EditItemModal from "../components/EditItemModal";
 
 const API_URL = "http://localhost:5001";
 
@@ -61,6 +64,7 @@ export default function ItemDetails() {
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [showDistanceModal, setShowDistanceModal] = useState(false);
+  const [showEditItemModal, setShowEditItemModal] = useState(false);
   const [showChat, setShowChat] = useState(false);
   const [currentUser, setCurrentUser] = useState(null);
   const [isInCart, setIsInCart] = useState(false);
@@ -77,11 +81,42 @@ export default function ItemDetails() {
   const [submittingReply, setSubmittingReply] = useState(false);
   const navigate = useNavigate();
 
-  const isItemSeller =
-    currentUser &&
-    item &&
-    (Number(currentUser.id || currentUser.user_id) ===
-      Number(item.user_id || item.seller_id));
+  const currentUserId = currentUser
+    ? Number(currentUser.id || currentUser.user_id)
+    : null;
+  const itemSellerId = item
+    ? Number(item.user_id || item.userId || item.seller_id)
+    : null;
+  const isItemSeller = Boolean(
+    currentUserId && itemSellerId && currentUserId === itemSellerId
+  );
+
+  const handleToggleSellerStatus = async () => {
+    if (!item) return;
+    const newStatus = isRented ? "Available" : "Rented Out";
+    try {
+      const res = await fetch(`${API_URL}/api/items/status/${item.id}`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ available: newStatus }),
+      });
+      if (res.ok) {
+        setItem((prev) => ({
+          ...prev,
+          available: newStatus,
+          available_qty: newStatus,
+          available_quantity:
+            newStatus === "Available"
+              ? Math.max(1, Number(prev?.available_quantity) || 1)
+              : 0,
+        }));
+        window.dispatchEvent(new Event("items_updated"));
+        window.dispatchEvent(new Event("rent_requests_updated"));
+      }
+    } catch (e) {
+      console.error("Toggle status error:", e);
+    }
+  };
 
   const handlePostReply = async (reviewId) => {
     if (!replyText.trim()) return;
@@ -697,7 +732,20 @@ export default function ItemDetails() {
           <div className="details-content">
             <span className="details-eyebrow">RENT-HUB MARKETPLACE</span>
 
-            <h1>{item.title}</h1>
+            <div className="details-title-row">
+              <h1 className="details-title-text">{item.title}</h1>
+              {isItemSeller && (
+                <button
+                  type="button"
+                  className="details-edit-item-top-btn"
+                  onClick={() => setShowEditItemModal(true)}
+                  title="Edit this item listing"
+                >
+                  <Edit3 size={15} />
+                  <span>{t("itemEdit.editItem")}</span>
+                </button>
+              )}
+            </div>
             {itemReviewStats.totalReviews > 0 ? (
               <div style={{ display: "flex", alignItems: "center", gap: "6px", margin: "6px 0 14px 0" }}>
                 <div style={{ display: "flex", gap: "2px" }}>
@@ -741,9 +789,9 @@ export default function ItemDetails() {
               >
                 <GoogleMapIcon size={16} />
                 <span>
-                  {item.seller_map_location_name || item.sellerMapLocationName || item.nearest_city || item.nearestCity || "Shop Location"}
+                  {item.seller_map_location_name || item.sellerMapLocationName || item.nearest_city || item.nearestCity || t("map.shop")}
                 </span>
-                <span className="details-map-badge-dist">Route & Distance</span>
+                <span className="details-map-badge-dist">{t("map.viewDistanceRoute")}</span>
               </button>
             </div>
 
@@ -790,23 +838,59 @@ export default function ItemDetails() {
             {/* button section */}
 
             <div className="details-actions">
-              <button
-                type="button"
-                className="chat-seller-button"
-                onClick={handleOpenChat}
-              >
-                <MessageCircle size={18} />
-              </button>
-              <AddToRentCartButton
-                available={available}
-                isAdded={isInCart}
-                loading={addingToCart}
-                onClick={handleAddToCart}
-              />
-              <RentRequestButton
-                available={available}
-                onClick={handleOpenRentForm}
-              />
+              {isItemSeller ? (
+                <div className="details-owner-actions-wrap">
+                  <button
+                    type="button"
+                    className="details-owner-edit-main-btn"
+                    onClick={() => setShowEditItemModal(true)}
+                  >
+                    <Edit3 size={18} />
+                    <span>{t("itemEdit.editItemListing")}</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    className={`details-owner-status-btn ${
+                      isRented ? "status-rented" : "status-avail"
+                    }`}
+                    onClick={handleToggleSellerStatus}
+                    title="Click to toggle availability status"
+                  >
+                    {isRented ? (
+                      <>
+                        <CheckCircle2 size={16} />
+                        <span>{t("itemEdit.markAsAvailable")}</span>
+                      </>
+                    ) : (
+                      <>
+                        <Clock size={16} />
+                        <span>{t("itemEdit.markAsRentedOut")}</span>
+                      </>
+                    )}
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <button
+                    type="button"
+                    className="chat-seller-button"
+                    onClick={handleOpenChat}
+                  >
+                    <MessageCircle size={18} />
+                  </button>
+                  <AddToRentCartButton
+                    available={available}
+                    isAdded={isInCart}
+                    loading={addingToCart}
+                    onClick={handleAddToCart}
+                  />
+                  <RentRequestButton
+                    available={available}
+                    onClick={handleOpenRentForm}
+                  />
+                </>
+              )}
             </div>
           </div>
         </div>
@@ -1318,6 +1402,20 @@ export default function ItemDetails() {
             name: item.user_name || item.userName || "Shop",
             address: item.seller_address || item.sellerAddress,
             nearest_city: item.nearest_city || item.nearestCity,
+          }}
+        />
+      )}
+
+      {showEditItemModal && item && (
+        <EditItemModal
+          isOpen={showEditItemModal}
+          onClose={() => setShowEditItemModal(false)}
+          item={item}
+          onItemUpdated={(updated) => {
+            setItem((prev) => ({
+              ...prev,
+              ...updated,
+            }));
           }}
         />
       )}

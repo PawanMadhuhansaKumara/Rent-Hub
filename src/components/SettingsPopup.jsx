@@ -4,10 +4,12 @@ import "./SettingsPopup.css";
 import LanguageSelecter from "./LanguageSelecter";
 import LogoutButton from "./LogoutButton";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import GoogleMapIcon from "./GoogleMapIcon";
 import MapLocationPickerModal from "./MapLocationPickerModal";
 
 export default function SettingsPopup({ handleLogout, onOpenMapLocation }) {
+  const { t } = useTranslation();
   const [isOpen, setIsOpen] = useState(false);
   const [showLanguage, setShowLanguage] = useState(false);
   const [showLocalMapPicker, setShowLocalMapPicker] = useState(false);
@@ -115,7 +117,7 @@ export default function SettingsPopup({ handleLogout, onOpenMapLocation }) {
               style={{ display: "flex", alignItems: "center", gap: "10px" }}
             >
               <GoogleMapIcon size={18} />
-              <span>Map Location</span>
+              <span>{t("map.mapLocation")}</span>
             </button>
 
             <div className="settings-item">

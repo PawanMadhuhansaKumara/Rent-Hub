@@ -617,10 +617,10 @@ export default function Profile({ user, setUser }) {
                   >
                     <GoogleMapIcon size={16} />
                     <span>
-                      {profile.map_location_name || (profile.nearest_city ? `${profile.nearest_city} Shop Location` : "View Shop on Map")}
+                      {profile.map_location_name || (profile.nearest_city ? `${profile.nearest_city}` : t("map.viewOnMap"))}
                     </span>
                     <span style={{ fontSize: "11px", color: "#15803d", fontWeight: "700" }}>
-                      • View Distance & Route
+                      {t("map.viewDistanceRoute")}
                     </span>
                   </button>
 
@@ -639,7 +639,7 @@ export default function Profile({ user, setUser }) {
                         padding: "2px 4px",
                       }}
                     >
-                      {profile.map_latitude ? "Change Map Pin" : "Set Map Location"}
+                      {profile.map_latitude ? t("map.changeMapPin") : t("map.setMapLocation")}
                     </button>
                   )}
                 </div>
@@ -813,7 +813,12 @@ export default function Profile({ user, setUser }) {
                   {items.map((item, idx) => {
                     const isRented = isItemRented(item);
                     return (
-                      <div key={item.id || idx} style={styles.desktopItemCard}>
+                      <div
+                        key={item.id || idx}
+                        style={{ ...styles.desktopItemCard, cursor: "pointer" }}
+                        onClick={() => navigate(`/item/${item.id}`)}
+                        title="Click to view & manage this item"
+                      >
                         <div style={styles.itemImgContainer}>
                           <img
                             src={
@@ -1719,10 +1724,10 @@ export default function Profile({ user, setUser }) {
                     <GoogleMapIcon size={22} />
                     <div>
                       <div style={{ fontSize: "13px", fontWeight: "700", color: "#166534" }}>
-                        Shop Map Location
+                        {t("map.shopMapLocation")}
                       </div>
                       <div style={{ fontSize: "11px", color: "#4b5563" }}>
-                        {profile.map_location_name || (profile.map_latitude ? `${profile.map_latitude.toFixed(4)}, ${profile.map_longitude.toFixed(4)}` : "No map location set yet")}
+                        {profile.map_location_name || (profile.map_latitude ? `${profile.map_latitude.toFixed(4)}, ${profile.map_longitude.toFixed(4)}` : t("map.noMapLocationSet"))}
                       </div>
                     </div>
                   </div>
@@ -1746,7 +1751,7 @@ export default function Profile({ user, setUser }) {
                     }}
                   >
                     <MapPin size={14} />
-                    {profile.map_latitude ? "Update Map Pin" : "Set on Map"}
+                    {profile.map_latitude ? t("map.updateMapPin") : t("map.setMapLocation")}
                   </button>
                 </div>
 
