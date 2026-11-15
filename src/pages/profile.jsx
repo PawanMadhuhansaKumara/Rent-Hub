@@ -67,7 +67,8 @@ export default function Profile({ user, setUser }) {
     about:
       user?.about ||
       "Rent smarter. Live better.",
-    trust_score: user?.user_rating ? user.user_rating * 20 : 92,
+    trust_score: user?.trust_score !== undefined ? user.trust_score : (user?.user_rating ? user.user_rating * 20 : 50),
+    max_rental_limit: user?.rental_limit || user?.max_rental_limit || 1000,
     reviews_count: user?.reviews_count || 12,
     likes_count: user?.likes_count || 68,
     profile_pic_url: user?.profile_pic_url
@@ -259,7 +260,9 @@ export default function Profile({ user, setUser }) {
               map_longitude: u.map_longitude ? parseFloat(u.map_longitude) : null,
               map_location_name: u.map_location_name || "",
               about: u.about || "Rent smarter. Live better.",
-              trust_score: u.user_rating ? u.user_rating * 20 : 80,
+              trust_score: u.trust_score !== undefined ? u.trust_score : (u.user_rating ? u.user_rating * 20 : 50),
+              max_rental_limit: u.max_rental_limit || 1000,
+              avg_trust_rating: u.avg_trust_rating || 10,
               reviews_count: u.reviews_count || 0,
               likes_count: u.likes_count || 0,
               profile_pic_url: u.profile_pic_url
@@ -291,9 +294,8 @@ export default function Profile({ user, setUser }) {
         map_longitude: user.map_longitude !== undefined ? (user.map_longitude ? parseFloat(user.map_longitude) : null) : prev.map_longitude,
         map_location_name: user.map_location_name !== undefined ? user.map_location_name : prev.map_location_name,
         about: user.about || prev.about,
-        trust_score: user.user_rating
-          ? user.user_rating * 20
-          : prev.trust_score,
+        trust_score: user.trust_score !== undefined ? user.trust_score : prev.trust_score,
+        max_rental_limit: user.rental_limit || user.max_rental_limit || prev.max_rental_limit || 1000,
         reviews_count: user.reviews_count || prev.reviews_count,
         likes_count: user.likes_count || prev.likes_count,
         profile_pic_url: user.profile_pic_url
@@ -310,6 +312,27 @@ export default function Profile({ user, setUser }) {
       }));
     }
   }, [paramUserId, isOwnProfile, user]);
+
+  // Live Trust Score loader from backend (ensures accurate calculation)
+  useEffect(() => {
+    const targetId = paramUserId || user?.user_id || user?.id;
+    if (targetId) {
+      fetch(`http://localhost:5001/api/users/${targetId}/trust-score`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data.success) {
+            setProfile((prev) => ({
+              ...prev,
+              trust_score: data.trustScore,
+              max_rental_limit: data.maxRentalLimit,
+              completed_rentals: data.completedRentals,
+              avg_trust_rating: data.avgTrustRating,
+            }));
+          }
+        })
+        .catch(() => {});
+    }
+  }, [paramUserId, user]);
 
   useEffect(() => {
     if (profile.user_id) {
@@ -519,6 +542,9 @@ export default function Profile({ user, setUser }) {
         localStorage.setItem("user", JSON.stringify(data.user));
         if (setUser) setUser(data.user);
         setShowEditProfile(false);
+        window.dispatchEvent(new Event("items_updated"));
+        window.dispatchEvent(new Event("user_updated"));
+        window.dispatchEvent(new Event("storage"));
         alert("Profile updated successfully!");
       } else {
         alert(data.message || "Failed to update profile.");
@@ -697,12 +723,15 @@ export default function Profile({ user, setUser }) {
 
             <div style={styles.statBoxDivider}></div>
 
-            <div style={styles.statBox}>
+            <div 
+              style={styles.statBox} 
+              title={`Trust Score: ${profile.trust_score || 50}% | Max Rental Limit: LKR ${(profile.max_rental_limit || 1000).toLocaleString()}`}
+            >
               <div style={styles.statIconBg}>
                 <CheckCircle2 size={22} color="#00aa5b" />
               </div>
               <div>
-                <span style={styles.statBoxVal}>{profile.trust_score}%</span>
+                <span style={styles.statBoxVal}>{profile.trust_score || 50}%</span>
                 <span style={styles.statBoxLbl}>Trust Score</span>
               </div>
             </div>

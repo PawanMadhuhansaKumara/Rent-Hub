@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Link, useLocation, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { MessageCircle, X, Clock, Trash2 } from "lucide-react";
+import { MessageCircle, X, Clock, Trash2, Bell } from "lucide-react";
 import ChatBox from "../components/ChatBox";
 import "./Navbar.css";
 import "../responsive.css";
@@ -40,8 +40,9 @@ export default function Navbar({ user, setUser }) {
 
   const userId = user?.user_id || user?.id;
 
-  // Rental Limit එක ලබා ගැනීම (Login නැත්නම් 1000 යි)
-  const userLimit = user ? Number(user.rental_limit || 1000) : 1000;
+  // Rental Limit සහ Trust Score ලබා ගැනීම (Login නැත්නම් Limit 1000, Trust 50%)
+  const userLimit = user ? Number(user.rental_limit || user.max_rental_limit || 1000) : 1000;
+  const userTrustScore = user ? Number(user.trust_score || 50) : 50;
 
   // Fetch unread messages count
   const fetchUnreadCount = async () => {
@@ -84,11 +85,42 @@ export default function Navbar({ user, setUser }) {
     }
   };
 
-  // Poll unread count every 5 seconds
+  // Notification Unread State & Real-time Fetcher
+  const [unreadNotifCount, setUnreadNotifCount] = useState(0);
+
+  const fetchUnreadNotifs = async () => {
+    if (!userId) {
+      setUnreadNotifCount(0);
+      return;
+    }
+    try {
+      const res = await fetch(`http://localhost:5001/api/notifications/${userId}`);
+      if (res.ok) {
+        const data = await res.json();
+        setUnreadNotifCount(data.unreadCount || 0);
+      }
+    } catch {}
+  };
+
+  // Poll unread messages and notifications in real-time every 3.5 seconds
   useEffect(() => {
     fetchUnreadCount();
-    const interval = setInterval(fetchUnreadCount, 5000);
-    return () => clearInterval(interval);
+    fetchUnreadNotifs();
+    const interval = setInterval(() => {
+      fetchUnreadCount();
+      fetchUnreadNotifs();
+    }, 3500);
+
+    window.addEventListener("focus", fetchUnreadNotifs);
+    window.addEventListener("notifications_updated", fetchUnreadNotifs);
+    window.addEventListener("rent_requests_updated", fetchUnreadNotifs);
+
+    return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", fetchUnreadNotifs);
+      window.removeEventListener("notifications_updated", fetchUnreadNotifs);
+      window.removeEventListener("rent_requests_updated", fetchUnreadNotifs);
+    };
   }, [userId]);
 
   // When dropdown opens, fetch conversations
@@ -222,15 +254,45 @@ export default function Navbar({ user, setUser }) {
           </Link>
         )}
 
-        {/* --- GREEN RENTAL LIMIT BADGE (Placed near Cart & Message icons) --- */}
+        {/* --- GREEN RENTAL LIMIT & TRUST SCORE BADGE (Placed near Cart & Message icons) --- */}
         {user && (
-          <div className="nav-rental-limit-badge" title="Your current max rental limit">
+          <div 
+            className="nav-rental-limit-badge" 
+            title={`Trust Score: ${userTrustScore}% | Maximum Rental Limit: LKR ${userLimit.toLocaleString()}`}
+          >
+            <span style={{ fontSize: "12px", fontWeight: "700", color: "#fef08a", display: "inline-flex", alignItems: "center", gap: "2px" }}>
+              🛡️ {userTrustScore}%
+            </span>
+            <span style={{ opacity: 0.5, margin: "0 2px" }}>|</span>
             <span className="limit-label">Limit:</span>
             <span className="limit-amount">LKR {userLimit.toLocaleString()}</span>
           </div>
         )}
 
         {user && <CartIcon />}
+
+        {/* Notification Bell Icon */}
+        {user && (
+          <Link
+            to="/notifications"
+            className="navbar-chat-btn"
+            title="Notifications"
+            aria-label="Notifications"
+            style={{
+              textDecoration: "none",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            <Bell size={20} color="#ffffff" />
+            {unreadNotifCount > 0 && (
+              <span className="navbar-chat-badge">
+                {unreadNotifCount > 9 ? "9+" : unreadNotifCount}
+              </span>
+            )}
+          </Link>
+        )}
 
         {/* Language Selector */}
         {!user && <LanguageSelecter />}

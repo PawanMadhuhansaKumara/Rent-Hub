@@ -255,7 +255,7 @@ export default function RentedItemCard({
               {isReturning
                 ? "Processing Acceptance..."
                 : item.requestStatus?.toLowerCase() === "return_pending"
-                ? "✅ Inspect & Accept Return (Stock Restored)"
+                ? "✅ Inspect & Accept Return (Rate 0-10)"
                 : "Accept Return & Restore Stock"}
             </span>
           </button>

@@ -91,6 +91,13 @@ export default function ItemDetails() {
     currentUserId && itemSellerId && currentUserId === itemSellerId
   );
 
+  const userRentalLimit = currentUser
+    ? Number(currentUser.rental_limit || currentUser.max_rental_limit || 1000)
+    : 1000;
+  const userTrustScore = currentUser ? Number(currentUser.trust_score || 50) : 50;
+  const itemPrice = Number(item?.price) || 0;
+  const isLimitExceeded = !isItemSeller && itemPrice > userRentalLimit;
+
   const handleToggleSellerStatus = async () => {
     if (!item) return;
     const newStatus = isRented ? "Available" : "Rented Out";
@@ -418,6 +425,13 @@ export default function ItemDetails() {
       return;
     }
 
+    if (isLimitExceeded) {
+      alert(
+        `Trust Limit Exceeded!\n\nYour current maximum rental limit is LKR ${userRentalLimit.toLocaleString()}, but this item costs LKR ${itemPrice.toLocaleString()}.\n\nComplete and return previous rentals safely on RentHub to build your Trust Score and unlock higher-priced items!`
+      );
+      return;
+    }
+
     if (isRented || available < 1) {
       alert("This item is currently rented out and cannot be rented.");
       return;
@@ -440,6 +454,13 @@ export default function ItemDetails() {
     if (!currentUser) {
       alert("Please login to request a rental.");
       navigate("/login");
+      return;
+    }
+
+    if (isLimitExceeded) {
+      alert(
+        `Trust Limit Exceeded!\n\nYour current maximum rental limit is LKR ${userRentalLimit.toLocaleString()}, but this item costs LKR ${itemPrice.toLocaleString()}.\n\nComplete and return previous rentals safely on RentHub to build your Trust Score and unlock higher-priced items!`
+      );
       return;
     }
 
@@ -563,6 +584,13 @@ export default function ItemDetails() {
     if (!currentUser) {
       alert("Please login to add items to your rent cart.");
       navigate("/login");
+      return;
+    }
+
+    if (isLimitExceeded) {
+      alert(
+        `Trust Limit Exceeded!\n\nYour current maximum rental limit is LKR ${userRentalLimit.toLocaleString()}, but this item costs LKR ${itemPrice.toLocaleString()}.\n\nComplete and return previous rentals safely on RentHub to build your Trust Score and unlock higher-priced items!`
+      );
       return;
     }
 
@@ -837,6 +865,45 @@ export default function ItemDetails() {
 
             {/* button section */}
 
+            {isLimitExceeded && (
+              <div
+                style={{
+                  backgroundColor: "#fffbeb",
+                  border: "1.5px solid #fde68a",
+                  borderRadius: "14px",
+                  padding: "12px 16px",
+                  marginBottom: "16px",
+                  display: "flex",
+                  alignItems: "flex-start",
+                  gap: "12px",
+                }}
+              >
+                <span style={{ fontSize: "20px" }}>🔒</span>
+                <div>
+                  <strong
+                    style={{
+                      color: "#b45309",
+                      fontSize: "13.5px",
+                      display: "block",
+                      marginBottom: "3px",
+                    }}
+                  >
+                    Trust Limit Exceeded (Your Limit: LKR {userRentalLimit.toLocaleString()})
+                  </strong>
+                  <span
+                    style={{
+                      color: "#78350f",
+                      fontSize: "12.5px",
+                      lineHeight: "1.4",
+                      display: "block",
+                    }}
+                  >
+                    Your Trust Score allows rentals up to <strong>LKR {userRentalLimit.toLocaleString()}</strong>. This item costs <strong>LKR {itemPrice.toLocaleString()}</strong>. Rent and return more items safely on RentHub to unlock this item!
+                  </span>
+                </div>
+              </div>
+            )}
+
             <div className="details-actions">
               {isItemSeller ? (
                 <div className="details-owner-actions-wrap">
@@ -883,12 +950,16 @@ export default function ItemDetails() {
                     available={available}
                     isAdded={isInCart}
                     loading={addingToCart}
+                    disabled={isLimitExceeded}
                     onClick={handleAddToCart}
                   />
                   <RentRequestButton
                     available={available}
+                    disabled={isLimitExceeded}
                     onClick={handleOpenRentForm}
-                  />
+                  >
+                    {isLimitExceeded ? `Limit: LKR ${userRentalLimit.toLocaleString()}` : undefined}
+                  </RentRequestButton>
                 </>
               )}
             </div>

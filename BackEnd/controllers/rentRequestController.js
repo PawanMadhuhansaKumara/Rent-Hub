@@ -34,6 +34,9 @@ const initRentRequestsTable = async () => {
     try {
       await db.execute(`ALTER TABLE rent_requests ADD COLUMN customer_picked_at TIMESTAMP NULL`);
     } catch (e) {}
+    try {
+      await db.execute(`ALTER TABLE rent_requests ADD COLUMN trust_rating INT DEFAULT 10`);
+    } catch (e) {}
 
     isTableInitialized = true;
   } catch (err) {
@@ -947,9 +950,17 @@ exports.markCustomerReturned = async (req, res) => {
   }
 };
 
-// SHOP OWNER INSPECTS & ACCEPTS RETURN (Restores Stock Quantity)
+// SHOP OWNER INSPECTS & ACCEPTS RETURN (Restores Stock Quantity & Records Trust Rating)
 exports.acceptReturnedItem = async (req, res) => {
   const requestId = req.params.id;
+  const { trust_rating } = req.body || {};
+
+  // Normalize trust_rating (0-10, default 10)
+  let numericRating = 10;
+  if (trust_rating !== undefined && trust_rating !== null && !isNaN(Number(trust_rating))) {
+    numericRating = Math.max(0, Math.min(10, Math.round(Number(trust_rating))));
+  }
+
   try {
     const [rRows] = await db.execute(
       `SELECT r.*, i.title AS item_title, i.image_url AS item_image
@@ -967,23 +978,32 @@ exports.acceptReturnedItem = async (req, res) => {
     const itemId = rental.item_id;
     const returnQty = Number(rental.quantity || 1);
 
-    // 1. Mark request as Completed
-    await db.execute(
-      `UPDATE rent_requests SET status = 'Completed' WHERE id = ?`,
-      [requestId]
-    );
+    // 1. Mark request as Completed & Save Trust Rating
+    try {
+      await db.execute(
+        `UPDATE rent_requests SET status = 'Completed', trust_rating = ? WHERE id = ?`,
+        [numericRating, requestId]
+      );
+    } catch (uErr) {
+      // If column doesn't exist yet, add it
+      await db.execute(`ALTER TABLE rent_requests ADD COLUMN trust_rating INT DEFAULT 10`).catch(() => {});
+      await db.execute(
+        `UPDATE rent_requests SET status = 'Completed', trust_rating = ? WHERE id = ?`,
+        [numericRating, requestId]
+      );
+    }
 
     // 2. Restore quantity in items table & set available_qty = 'Available'
     if (itemId) {
       await restoreItemQuantity(itemId, returnQty);
     }
 
-    // 3. Send review prompt notification to buyer
+    // 3. Send review prompt notification to buyer with the trust rating feedback
     try {
       await sendNotification({
         userId: rental.buyer_id,
         title: "Rental Completed ⭐",
-        message: `Your return for "${rental.item_title || 'Item'}" was accepted! Please rate your experience.`,
+        message: `Your return for "${rental.item_title || 'Item'}" was accepted! Owner rated return trust: ${numericRating}/10. Please rate your experience.`,
         type: "review_request",
         itemId: rental.item_id,
         requestId: requestId,
@@ -996,9 +1016,10 @@ exports.acceptReturnedItem = async (req, res) => {
 
     res.status(200).json({
       success: true,
-      message: "Return accepted and quantity restored successfully!",
+      message: "Return accepted, trust rating saved, and quantity restored successfully!",
       requestId: Number(requestId),
       status: "Completed",
+      trust_rating: numericRating,
     });
   } catch (error) {
     console.error("Accept Returned Item Error:", error);

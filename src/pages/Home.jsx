@@ -100,11 +100,15 @@ export default function Home({ user }) {
     loadItems();
     window.addEventListener("items_updated", loadItems);
     window.addEventListener("rent_requests_updated", loadItems);
+    window.addEventListener("user_updated", loadItems);
+    window.addEventListener("focus", loadItems);
     return () => {
       window.removeEventListener("items_updated", loadItems);
       window.removeEventListener("rent_requests_updated", loadItems);
+      window.removeEventListener("user_updated", loadItems);
+      window.removeEventListener("focus", loadItems);
     };
-  }, []);
+  }, [location.pathname, location.key]);
 
   // Compute item counts per category
   const itemCounts = useMemo(() => {
@@ -162,8 +166,13 @@ export default function Home({ user }) {
     return result;
   }, [items, searchTerm, selectedCategory, availableOnly, sortBy]);
 
-  // --- RENTAL LIMIT COMPUTATION ---
-  const userLimit = currentUser ? Number(currentUser.rental_limit || 1000) : 1000;
+  // --- RENTAL LIMIT & TRUST SCORE COMPUTATION ---
+  const userLimit = currentUser
+    ? Number(currentUser.rental_limit || currentUser.max_rental_limit || 1000)
+    : 1000;
+  const userTrustScore = currentUser ? Number(currentUser.trust_score || 50) : 50;
+  const completedRentals = currentUser ? Number(currentUser.completed_rentals || 0) : 0;
+  const accountDays = currentUser ? Number(currentUser.account_days || 0) : 0;
 
   // Split items into Affordable (Within Limit) vs Locked (Exceeds Limit)
   const affordableItems = useMemo(() => {
@@ -278,15 +287,54 @@ export default function Home({ user }) {
 
       {/* 2. RENTAL ITEMS & DISCOVERY SECTION */}
       <section id="rental-items" className="rental-section">
-        {/* --- GREEN THEME RENTAL LIMIT TOP BAR (NO SCORE) --- */}
+        {/* --- TRUST SCORE & RENTAL LIMIT TOP BAR --- */}
         <div style={styles.trustBar}>
-          <div style={styles.trustBarInfo}>
-            <span>🛡️ Current Rental Limit: <strong style={{ color: "#00aa5b" }}>LKR {userLimit.toLocaleString()}</strong></span>
+          <div style={styles.trustBarHeader}>
+            <div style={styles.trustScorePill}>
+              <ShieldCheck size={20} color="#00aa5b" />
+              <div>
+                <div style={styles.trustScoreLabel}>Trust Score</div>
+                <strong style={styles.trustScoreValue}>{userTrustScore}%</strong>
+              </div>
+            </div>
+
+            <div style={styles.limitPill}>
+              <DollarSign size={20} color="#00aa5b" />
+              <div>
+                <div style={styles.trustScoreLabel}>Max Rental Limit</div>
+                <strong style={styles.limitValue}>LKR {userLimit.toLocaleString()}</strong>
+              </div>
+            </div>
+
+            {currentUser && (
+              <div style={styles.statsPillsGroup}>
+                <span style={styles.statMiniBadge}>
+                  📦 Safe Returns: <strong>{completedRentals}</strong>
+                </span>
+                {accountDays > 0 && (
+                  <span style={styles.statMiniBadge}>
+                    ⏳ Member: <strong>{accountDays} days</strong>
+                  </span>
+                )}
+              </div>
+            )}
           </div>
+
+          {/* Trust Score Progress Bar */}
+          <div style={styles.progressBarWrapper} title={`Trust Score: ${userTrustScore}%`}>
+            <div style={{ ...styles.progressBarFill, width: `${Math.min(100, Math.max(5, userTrustScore))}%` }} />
+          </div>
+
           <p style={styles.trustBarDesc}>
-            {currentUser 
-              ? "Complete rentals successfully to automatically unlock higher-priced items (+25% limit per successful rental)!"
-              : "Log in to track your rental limit and unlock more items."}
+            {currentUser ? (
+              <span>
+                💡 <strong>How it works:</strong> Brand new members start with an initial <strong>LKR 1,000</strong> limit. Every safely returned rental (+LKR 1,500) and your account age on RentHub increase your Trust Score and unlock higher-priced items!
+              </span>
+            ) : (
+              <span>
+                💡 <strong>Guest limit is LKR 1,000:</strong> Log in to RentHub to build your Trust Score and unlock higher-priced tools and equipment.
+              </span>
+            )}
           </p>
         </div>
 
@@ -416,7 +464,7 @@ export default function Home({ user }) {
               <div style={{ marginBottom: lockedItems.length > 0 ? "40px" : "0" }}>
                 <h3 style={styles.subSectionTitle}>
                   <CheckCircle2 size={18} color="#00aa5b" style={{ marginRight: "6px" }} />
-                  Available For You (Within Your Limit)
+                  Available For You (Within Your LKR {userLimit.toLocaleString()} Limit)
                 </h3>
                 <div className="items-grid">
                   {affordableItems.map((item) => (
@@ -432,17 +480,17 @@ export default function Home({ user }) {
                 <div style={styles.lockedHeader}>
                   <h3 style={{ ...styles.subSectionTitle, color: "#d97706", margin: 0 }}>
                     <Lock size={18} color="#d97706" style={{ marginRight: "6px" }} />
-                    Locked Items (Exceeds Your Limit)
+                    Higher Trust Score Required (Exceeds LKR {userLimit.toLocaleString()})
                   </h3>
                   <span style={styles.lockedSubnote}>
-                    Complete more rentals to increase your LKR {userLimit.toLocaleString()} limit!
+                    Complete more rentals and return on time to increase your LKR {userLimit.toLocaleString()} limit!
                   </span>
                 </div>
-                <div className="items-grid" style={{ opacity: 0.85 }}>
+                <div className="items-grid" style={{ opacity: 0.9 }}>
                   {lockedItems.map((item) => (
                     <div key={item.id} style={{ position: "relative" }}>
                       <div style={styles.lockBadgeOverlay}>
-                        <Lock size={12} /> Exceeds Limit
+                        <Lock size={12} /> Requires LKR {Number(item.price).toLocaleString()}
                       </div>
                       <ItemCard item={item} />
                     </div>
@@ -509,24 +557,95 @@ export default function Home({ user }) {
 // --- GREEN THEME STYLES ---
 const styles = {
   trustBar: {
-    backgroundColor: "#e8f8f0",
-    border: "1px solid #c7e9d7",
-    padding: "16px 20px",
-    borderRadius: "16px",
-    marginBottom: "24px",
-    boxShadow: "0 4px 12px rgba(0, 170, 91, 0.05)",
+    backgroundColor: "#f0fdf4",
+    border: "1.5px solid #bbf7d0",
+    padding: "18px 22px",
+    borderRadius: "18px",
+    marginBottom: "26px",
+    boxShadow: "0 6px 20px rgba(0, 170, 91, 0.08)",
   },
-  trustBarInfo: {
+  trustBarHeader: {
     display: "flex",
     alignItems: "center",
-    fontSize: "15px",
-    color: "#111",
-    marginBottom: "6px",
+    justifyContent: "flex-start",
+    flexWrap: "wrap",
+    gap: "14px",
+    marginBottom: "12px",
+  },
+  trustScorePill: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #86efac",
+    padding: "8px 16px",
+    borderRadius: "12px",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.04)",
+  },
+  limitPill: {
+    display: "flex",
+    alignItems: "center",
+    gap: "10px",
+    backgroundColor: "#ffffff",
+    border: "1px solid #86efac",
+    padding: "8px 16px",
+    borderRadius: "12px",
+    boxShadow: "0 2px 6px rgba(0,0,0,0.04)",
+  },
+  trustScoreLabel: {
+    fontSize: "11px",
+    color: "#6b7280",
+    textTransform: "uppercase",
+    fontWeight: "700",
+    letterSpacing: "0.5px",
+    lineHeight: 1,
+    marginBottom: "2px",
+  },
+  trustScoreValue: {
+    fontSize: "18px",
+    color: "#15803d",
+    fontWeight: "800",
+  },
+  limitValue: {
+    fontSize: "18px",
+    color: "#166534",
+    fontWeight: "800",
+  },
+  statsPillsGroup: {
+    display: "flex",
+    alignItems: "center",
+    gap: "8px",
+    flexWrap: "wrap",
+    marginLeft: "auto",
+  },
+  statMiniBadge: {
+    fontSize: "12px",
+    backgroundColor: "#dcfce7",
+    color: "#166534",
+    padding: "6px 12px",
+    borderRadius: "20px",
+    fontWeight: "500",
+    border: "1px solid #bbf7d0",
+  },
+  progressBarWrapper: {
+    width: "100%",
+    height: "8px",
+    backgroundColor: "#dcfce7",
+    borderRadius: "10px",
+    overflow: "hidden",
+    marginBottom: "10px",
+  },
+  progressBarFill: {
+    height: "100%",
+    background: "linear-gradient(90deg, #22c55e 0%, #15803d 100%)",
+    borderRadius: "10px",
+    transition: "width 0.4s ease",
   },
   trustBarDesc: {
     margin: 0,
     fontSize: "13px",
-    color: "#555",
+    color: "#374151",
+    lineHeight: 1.5,
   },
   subSectionTitle: {
     fontSize: "18px",

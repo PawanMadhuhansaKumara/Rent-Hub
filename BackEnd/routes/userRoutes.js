@@ -4,6 +4,7 @@ const userController = require('../controllers/userController');
 const { userUpdateUpload } = require('../middleware/upload');
 
 router.get('/:id', userController.getUser);
+router.get('/:id/trust-score', userController.getUserTrustScore);
 router.put('/:id', userUpdateUpload, userController.updateUser);
 router.put('/:id/map-location', userController.updateMapLocation);
 router.delete('/:id', userController.deleteUser);

@@ -49,9 +49,14 @@ export default function BottomNav({ user }) {
     };
 
     fetchCount();
+    // Poll notifications every 3.5 seconds for real-time badge updates
+    const interval = setInterval(fetchCount, 3500);
+    window.addEventListener("focus", fetchCount);
     window.addEventListener("notifications_updated", fetchCount);
     window.addEventListener("rent_requests_updated", fetchCount);
     return () => {
+      clearInterval(interval);
+      window.removeEventListener("focus", fetchCount);
       window.removeEventListener("notifications_updated", fetchCount);
       window.removeEventListener("rent_requests_updated", fetchCount);
     };

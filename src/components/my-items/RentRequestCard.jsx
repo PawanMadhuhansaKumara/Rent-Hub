@@ -11,6 +11,7 @@ import {
   Star,
   Edit3,
   Clock,
+  RotateCcw,
 } from "lucide-react";
 import { formatRentalDate, formatRequestTime } from "../../utils/dateUtils";
 
@@ -25,6 +26,8 @@ export default function RentRequestCard({
   onAction,
   onInitiateHandover,
   onMarkPicked,
+  onCustomerReturn,
+  onReturnItem,
   onRateItem,
   API_URL = "http://localhost:5001",
 }) {
@@ -303,34 +306,73 @@ export default function RentRequestCard({
         </div>
       )}
 
-      {/* 3. CUSTOMER SIDE: Shop has marked as picked up (rented). Customer confirms pickup */}
-      {isSender && isRented && !isCustomerPicked && (
+      {/* 3. CUSTOMER SIDE: Item is active/rented -> Customer can Mark as Returned */}
+      {isSender && isRented && (
         <div className="rent-request-actions" style={{ marginTop: "12px" }}>
-          <div
-            style={{
-              marginBottom: "8px",
-              padding: "7px 12px",
-              backgroundColor: "#f0fdf4",
-              border: "1px solid #bbf7d0",
-              borderRadius: "6px",
-              display: "flex",
-              alignItems: "center",
-              gap: "6px",
-              fontSize: "12px",
-              color: "#166534",
-              fontWeight: "600",
-            }}
-          >
-            <CheckCircle2 size={14} color="#16a34a" />
-            <span>Shop has handed over the item. Please confirm you picked it up.</span>
-          </div>
           <button
             type="button"
-            disabled={String(updatingReqId) === String(req.id)}
             onClick={(e) => {
               e.preventDefault();
               e.stopPropagation();
-              onMarkPicked && onMarkPicked(req.id);
+              onCustomerReturn && onCustomerReturn(req);
+            }}
+            className="req-btn req-btn-pickup"
+            style={{
+              width: "100%",
+              padding: "10px 16px",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+              gap: "8px",
+              backgroundColor: "#f59e0b",
+              color: "#ffffff",
+              border: "none",
+              borderRadius: "8px",
+              fontWeight: "600",
+              fontSize: "13px",
+              cursor: "pointer",
+            }}
+            title="Click when you have returned this item to the shop"
+          >
+            <RotateCcw size={16} />
+            <span>Mark as Returned</span>
+          </button>
+        </div>
+      )}
+
+      {/* 4. CUSTOMER SIDE: Return Submitted, waiting for shop owner */}
+      {isSender && req.status?.toLowerCase() === "return_pending" && (
+        <div className="rent-request-actions" style={{ marginTop: "12px" }}>
+          <div
+            style={{
+              width: "100%",
+              padding: "10px 14px",
+              backgroundColor: "#fefce8",
+              border: "1px solid #fef08a",
+              borderRadius: "8px",
+              fontSize: "12px",
+              fontWeight: "600",
+              color: "#854d0e",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+            }}
+          >
+            <Clock size={16} color="#d97706" />
+            <span>Return Submitted! Waiting for shop owner to inspect and accept the item.</span>
+          </div>
+        </div>
+      )}
+
+      {/* 5. SELLER / SHOP SIDE: Customer has returned item, inspect and accept */}
+      {!isSender && req.status?.toLowerCase() === "return_pending" && (
+        <div className="rent-request-actions" style={{ marginTop: "12px" }}>
+          <button
+            type="button"
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              onReturnItem && onReturnItem(req);
             }}
             className="req-btn req-btn-pickup"
             style={{
@@ -346,79 +388,43 @@ export default function RentRequestCard({
               borderRadius: "8px",
               fontWeight: "600",
               fontSize: "13px",
-              cursor: String(updatingReqId) === String(req.id) ? "not-allowed" : "pointer",
+              cursor: "pointer",
             }}
-            title="Confirm you have received and picked up this item"
+            title="Inspect for defects and accept returned item"
           >
-            {String(updatingReqId) === String(req.id) ? (
-              <span className="req-btn-spinner" />
-            ) : (
-              <PackageCheck size={16} />
-            )}
-            <span>
-              {String(updatingReqId) === String(req.id)
-                ? "Confirming Pickup..."
-                : "Mark as Picked"}
-            </span>
+            <CheckCircle2 size={16} />
+            <span>✅ Inspect & Accept Return (Rate 0-10)</span>
           </button>
         </div>
       )}
 
-      {/* 4. SELLER / SHOP SIDE: Shop marked as picked up (rented) - Notice of customer confirmation status */}
+      {/* 6. SELLER / SHOP SIDE: Item active with customer */}
       {!isSender && isRented && (
         <div className="rent-request-actions" style={{ marginTop: "12px" }}>
-          {!isCustomerPicked ? (
-            <div
-              style={{
-                width: "100%",
-                padding: "9px 14px",
-                backgroundColor: "#fffbeb",
-                border: "1px solid #fde68a",
-                borderRadius: "8px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                fontSize: "12px",
-                fontWeight: "600",
-                color: "#b45309",
-                boxSizing: "border-box",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                <Clock size={15} color="#d97706" />
-                <span>Marked as Picked Up</span>
-              </div>
-              <span style={{ fontSize: "11px", color: "#b45309", fontWeight: "500" }}>
-                Waiting for customer confirmation
-              </span>
-            </div>
-          ) : (
-            <div
-              style={{
-                width: "100%",
-                padding: "9px 14px",
-                backgroundColor: "#f0fdf4",
-                border: "1px solid #bbf7d0",
-                borderRadius: "8px",
-                display: "flex",
-                alignItems: "center",
-                gap: "6px",
-                fontSize: "12px",
-                fontWeight: "600",
-                color: "#166534",
-                boxSizing: "border-box",
-              }}
-            >
-              <CheckCircle2 size={15} color="#16a34a" />
-              <span>Customer confirmed pickup • Active Rental</span>
-            </div>
-          )}
+          <div
+            style={{
+              width: "100%",
+              padding: "9px 14px",
+              backgroundColor: "#f0fdf4",
+              border: "1px solid #bbf7d0",
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              gap: "6px",
+              fontSize: "12px",
+              fontWeight: "600",
+              color: "#166534",
+              boxSizing: "border-box",
+            }}
+          >
+            <CheckCircle2 size={15} color="#16a34a" />
+            <span>Item Handed Over • Currently with Customer</span>
+          </div>
         </div>
       )}
 
-      {/* 5. Review Action: Shown for Buyer AFTER customer confirms pickup, or when completed/returned */}
+      {/* 7. Review Action: Shown for Buyer AFTER item is completed/returned */}
       {isSender && (
-        (isRented && isCustomerPicked) ||
         String(req.status).toLowerCase() === "completed" ||
         String(req.status).toLowerCase() === "returned"
       ) && (() => {

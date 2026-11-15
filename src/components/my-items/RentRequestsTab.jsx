@@ -23,6 +23,8 @@ export default function RentRequestsTab({
   updatingReqId,
   onAction,
   onMarkPicked,
+  onCustomerReturn,
+  onReturnItem,
   onRateItem,
   API_URL = "http://localhost:5001",
   hideSentByMe = false,
@@ -217,6 +219,8 @@ export default function RentRequestsTab({
                 onAction={handleAction}
                 onInitiateHandover={handleInitiateHandover}
                 onMarkPicked={onMarkPicked}
+                onCustomerReturn={onCustomerReturn}
+                onReturnItem={onReturnItem}
                 onRateItem={onRateItem}
                 API_URL={API_URL}
               />

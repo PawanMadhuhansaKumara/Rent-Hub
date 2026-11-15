@@ -5,6 +5,7 @@ import { Clock, Inbox, ShoppingCart, Package } from "lucide-react";
 import RentRequestForm from "../components/RentRequestForm";
 import RentRequestSuccessModal from "../components/RentRequestSuccessModal";
 import LeaveReviewModal from "../components/LeaveReviewModal";
+import AcceptReturnModal from "../components/my-items/AcceptReturnModal";
 import RentedItemsTab from "../components/my-items/RentedItemsTab";
 import RentRequestsTab from "../components/my-items/RentRequestsTab";
 import RentCartTab from "../components/my-items/RentCartTab";
@@ -711,9 +712,18 @@ export default function MyItems({ user }) {
     }
   };
 
-  // 2. SHOP OWNER INSPECTS & ACCEPTS RETURN (Restores quantity in DB)
-  const handleReturnItem = async (rentedItem) => {
+  // State for inspecting return & rating buyer trust
+  const [inspectReturnModalItem, setInspectReturnModalItem] = useState(null);
+
+  // 2. SHOP OWNER INSPECTS & ACCEPTS RETURN (Opens Inspection Modal with 0-10 Trust Rating)
+  const handleReturnItem = (rentedItem) => {
     if (!rentedItem) return;
+    setInspectReturnModalItem(rentedItem);
+  };
+
+  const handleConfirmAcceptReturn = async (rating = 10) => {
+    if (!inspectReturnModalItem) return;
+    const rentedItem = inspectReturnModalItem;
     const itemId = rentedItem.itemId || rentedItem.id;
     const reqId = rentedItem.requestId || rentedItem.id;
 
@@ -732,7 +742,7 @@ export default function MyItems({ user }) {
       )
     );
 
-    // Update requests to Completed
+    // Update requests to Completed & trust_rating
     setRequests((prev) => {
       const updated = prev.map((r) => {
         const isMatch =
@@ -741,7 +751,7 @@ export default function MyItems({ user }) {
         return isMatch &&
           (r.status?.toLowerCase() === "rented" ||
             r.status?.toLowerCase() === "return_pending")
-          ? { ...r, status: "Completed" }
+          ? { ...r, status: "Completed", trust_rating: rating }
           : r;
       });
       try {
@@ -757,6 +767,7 @@ export default function MyItems({ user }) {
           fetch(`${API_URL}/api/rent-requests/${reqId}/accept-return`, {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ trust_rating: rating }),
           }).catch(() => null)
         );
       }
@@ -772,8 +783,10 @@ export default function MyItems({ user }) {
 
       await Promise.all(calls);
 
+      setInspectReturnModalItem(null);
       window.dispatchEvent(new Event("items_updated"));
       window.dispatchEvent(new Event("rent_requests_updated"));
+      window.dispatchEvent(new Event("user_trust_updated"));
       window.dispatchEvent(new Event("storage"));
     } catch (err) {
       console.error("Error accepting return:", err);
@@ -1238,6 +1251,8 @@ export default function MyItems({ user }) {
             updatingReqId={updatingReqId}
             onAction={handleRequestAction}
             onMarkPicked={handleCustomerMarkPicked}
+            onCustomerReturn={handleCustomerReturn}
+            onReturnItem={handleReturnItem}
             onRateItem={(it) => setSelectedReviewItem(it)}
             API_URL={API_URL}
             hideSentByMe={isFromBusinessHub}
@@ -1296,6 +1311,17 @@ export default function MyItems({ user }) {
             setRequestFilter("sent");
           }}
           itemTitle={successModalTitle}
+        />
+      )}
+
+      {/* INSPECT & ACCEPT RETURN WITH 0-10 TRUST RATING MODAL */}
+      {inspectReturnModalItem && (
+        <AcceptReturnModal
+          isOpen={!!inspectReturnModalItem}
+          onClose={() => setInspectReturnModalItem(null)}
+          item={inspectReturnModalItem}
+          onConfirm={handleConfirmAcceptReturn}
+          submitting={!!returningItemId}
         />
       )}
 
