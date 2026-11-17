@@ -1,0 +1,192 @@
+
+.buyer-location-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.55);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  padding: 15px;
+  z-index: 9999;
+}
+
+.buyer-location-modal {
+  width: 100%;
+  max-width: 650px;
+  max-height: 95vh;
+  overflow-y: auto;
+  background: #fff;
+  border-radius: 16px;
+  padding: 22px;
+}
+
+.buyer-location-header {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 12px;
+  margin-bottom: 18px;
+}
+
+.buyer-location-header h2 {
+  margin: 0 0 5px;
+  color: #222;
+}
+
+.buyer-location-header p {
+  margin: 0;
+  color: #777;
+  font-size: 14px;
+}
+
+.buyer-close-btn {
+  border: none;
+  background: #f1f1f1;
+  border-radius: 50%;
+  width: 38px;
+  height: 38px;
+  cursor: pointer;
+}
+
+.buyer-gps-btn,
+.buyer-confirm-btn,
+.buyer-cancel-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  padding: 12px 16px;
+  border-radius: 8px;
+  cursor: pointer;
+  font-weight: 600;
+}
+
+.buyer-gps-btn {
+  width: 100%;
+  border: 1px solid #2563eb;
+  background: #eff6ff;
+  color: #2563eb;
+  margin-bottom: 12px;
+}
+
+.buyer-location-search {
+  display: flex;
+  gap: 8px;
+  margin-bottom: 12px;
+}
+
+.buyer-location-search input {
+  flex: 1;
+  min-width: 0;
+  padding: 12px;
+  border: 1px solid #ddd;
+  border-radius: 8px;
+}
+
+.buyer-location-search button {
+  width: 45px;
+  border: none;
+  border-radius: 8px;
+  background: #2563eb;
+  color: white;
+  cursor: pointer;
+}
+
+.buyer-location-message {
+  color: #c0392b;
+  font-size: 13px;
+}
+
+.buyer-map-instruction {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+  font-size: 14px;
+  margin: 15px 0 10px;
+  color: #555;
+}
+
+.buyer-map-container {
+  width: 100%;
+  height: 330px;
+  border-radius: 10px;
+  overflow: hidden;
+}
+
+.buyer-leaflet-map {
+  width: 100%;
+  height: 100%;
+}
+
+.buyer-selected-location {
+  display: flex;
+  gap: 12px;
+  padding: 13px;
+  margin-top: 14px;
+  background: #f5f7fa;
+  border-radius: 9px;
+  overflow-wrap: anywhere;
+}
+
+.buyer-selected-location p {
+  margin: 5px 0;
+  font-size: 13px;
+  color: #555;
+}
+
+.buyer-selected-location small {
+  color: #777;
+}
+
+.buyer-location-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 10px;
+  margin-top: 18px;
+}
+
+.buyer-cancel-btn {
+  border: 1px solid #ddd;
+  background: white;
+  color: #444;
+}
+
+.buyer-confirm-btn {
+  border: none;
+  background: #2563eb;
+  color: white;
+}
+
+.buyer-gps-btn:disabled,
+.buyer-location-search button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.spin {
+  animation: buyer-spin 1s linear infinite;
+}
+
+@keyframes buyer-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+@media (max-width: 500px) {
+  .buyer-location-modal {
+    padding: 15px;
+  }
+
+  .buyer-map-container {
+    height: 280px;
+  }
+
+  .buyer-location-actions {
+    flex-direction: column-reverse;
+  }
+
+  .buyer-location-actions button {
+    width: 100%;
+  }
+}
