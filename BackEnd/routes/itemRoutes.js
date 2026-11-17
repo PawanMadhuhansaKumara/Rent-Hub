@@ -3,6 +3,10 @@ const router = express.Router();
 const itemController = require('../controllers/itemController');
 const { upload } = require('../middleware/upload');
 
+router.get('/nearby', itemController.getNearbyItems);
+router.get('/', itemController.getAllItems);
+router.get('/:userId', itemController.getUserItems);
+
 router.get('/', itemController.getAllItems);
 router.get('/:userId', itemController.getUserItems);
 router.post('/', upload.single('image'), itemController.addItem);

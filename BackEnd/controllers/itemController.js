@@ -333,3 +333,200 @@ exports.deleteItem = async (req, res) => {
     res.status(500).json({ success: false, message: "Failed to delete item." });
   }
 };
+
+
+// GET NEARBY ITEMS (Distance-based Marketplace)
+exports.getNearbyItems = async (req, res) => {
+  try {
+    const latitude = Number(req.query.lat);
+    const longitude = Number(req.query.lng);
+    const radiusValue = req.query.radius || "all";
+
+    // Validate buyer location
+    if (
+      req.query.lat === undefined ||
+      req.query.lng === undefined ||
+      !Number.isFinite(latitude) ||
+      !Number.isFinite(longitude) ||
+      latitude < -90 ||
+      latitude > 90 ||
+      longitude < -180 ||
+      longitude > 180
+    ) {
+      return res.status(400).json({
+        success: false,
+        message: "Valid latitude and longitude are required.",
+      });
+    }
+
+    // Validate radius
+    let radius = null;
+
+    if (String(radiusValue).toLowerCase() !== "all") {
+      radius = Number(radiusValue);
+
+      if (!Number.isFinite(radius) || radius <= 0 || radius > 20000) {
+        return res.status(400).json({
+          success: false,
+          message: "Invalid distance radius.",
+        });
+      }
+    }
+
+    // Haversine formula: calculate distance in kilometers
+    const distanceExpression = `
+      (
+        6371 * 2 * ASIN(
+          SQRT(
+            LEAST(1,
+              POWER(SIN(RADIANS(u.map_latitude - ?) / 2), 2) +
+              COS(RADIANS(?)) *
+              COS(RADIANS(u.map_latitude)) *
+              POWER(SIN(RADIANS(u.map_longitude - ?) / 2), 2)
+            )
+          )
+        )
+      )
+    `;
+
+    let query = `
+      SELECT
+        items.*,
+        u.full_name AS user_name,
+        u.phone_no AS user_phone,
+        u.profile_pic_url AS user_profile_pic,
+        u.nearest_city AS nearest_city,
+        u.address AS seller_address,
+        u.map_latitude AS seller_map_latitude,
+        u.map_longitude AS seller_map_longitude,
+        u.map_location_name AS seller_map_location_name,
+
+        ${distanceExpression} AS distance_km,
+
+        (SELECT COUNT(*)
+          FROM rent_requests
+          WHERE rent_requests.item_id = items.id
+          AND LOWER(rent_requests.status) = 'rented'
+        ) AS is_rented_count,
+
+        (SELECT COUNT(*)
+          FROM rent_requests
+          WHERE rent_requests.item_id = items.id
+        ) AS bookings_count
+
+      FROM items
+      LEFT JOIN users_details u
+        ON items.user_id = u.user_id
+
+      WHERE
+        u.map_latitude IS NOT NULL
+        AND u.map_longitude IS NOT NULL
+    `;
+
+    const values = [latitude, latitude, longitude];
+
+    // Apply selected radius
+    if (radius !== null) {
+      query += ` HAVING distance_km <= ? `;
+      values.push(radius);
+    }
+
+    // Nearest items first
+    query += `
+      ORDER BY distance_km ASC, items.created_at DESC
+    `;
+
+    const [rows] = await db.execute(query, values);
+
+    const formattedItems = rows.map((item) => {
+      const stock =
+        item.available_quantity !== undefined &&
+        item.available_quantity !== null
+          ? Number(item.available_quantity)
+          : null;
+
+      const isRented =
+        stock !== null
+          ? stock <= 0
+          : item.available_qty === "Rented Out" ||
+            item.available_qty === 0 ||
+            item.available_qty === "0";
+
+      return {
+        id: item.id,
+        title: item.title,
+        category: item.category,
+        condition: item.condition,
+        price: item.price,
+        priceType: item.price_type,
+        description: item.description,
+        image: item.image_url,
+
+        available: isRented ? "Rented Out" : "Available",
+        available_quantity: Number(item.available_quantity ?? 1),
+
+        bookings: Number(item.bookings_count || 0),
+        views: Number(item.views || 0),
+
+        userId: item.user_id,
+        user_id: item.user_id,
+
+        userName: item.user_name || null,
+        user_name: item.user_name || null,
+
+        userPhone: item.user_phone || null,
+        user_phone: item.user_phone || null,
+        sellerPhone: item.user_phone || null,
+        seller_phone: item.user_phone || null,
+        phone_no: item.user_phone || null,
+
+        userProfilePic: item.user_profile_pic || null,
+        user_profile_pic: item.user_profile_pic || null,
+
+        nearestCity: item.nearest_city || null,
+        nearest_city: item.nearest_city || null,
+
+        sellerAddress: item.seller_address || null,
+        seller_address: item.seller_address || null,
+
+        sellerMapLatitude:
+          item.seller_map_latitude !== null
+            ? Number(item.seller_map_latitude)
+            : null,
+
+        seller_map_latitude:
+          item.seller_map_latitude !== null
+            ? Number(item.seller_map_latitude)
+            : null,
+
+        sellerMapLongitude:
+          item.seller_map_longitude !== null
+            ? Number(item.seller_map_longitude)
+            : null,
+
+        seller_map_longitude:
+          item.seller_map_longitude !== null
+            ? Number(item.seller_map_longitude)
+            : null,
+
+        sellerMapLocationName: item.seller_map_location_name || null,
+        seller_map_location_name: item.seller_map_location_name || null,
+
+        distanceKm: Number(item.distance_km),
+        distance_km: Number(item.distance_km),
+
+        createdAt: item.created_at,
+      };
+    });
+
+    res.status(200).json(formattedItems);
+
+  } catch (error) {
+    console.error("Nearby Items Error:", error);
+
+    res.status(500).json({
+      success: false,
+      message: "Failed to fetch nearby items.",
+    });
+  }
+};

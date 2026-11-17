@@ -18,6 +18,7 @@ import ItemDetails from "./pages/ItemDetails";
 import MyItems from "./pages/MyItems";
 import BusinessHub from "./pages/BusinessHub";
 import Notifications from "./pages/Notifications";
+import BuyerLocationTest from "./BuyerLocationTest";
 
 function RentsRedirect() {
   const location = useLocation();
@@ -114,6 +115,7 @@ export default function App() {
 
       <Routes>
         <Route path="/" element={<Home user={user} setUser={setUser} />} />
+        <Route path="/buyer-location-test"element={<BuyerLocationTest />}/>
         <Route path="/login" element={<Login onLoginSuccess={setUser} />} />
         <Route path="/register" element={<Register />} />
         <Route path="/forgot-password" element={<ForgotPW />} />
