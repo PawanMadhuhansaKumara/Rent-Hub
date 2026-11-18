@@ -253,11 +253,10 @@ export default function ItemDetails() {
   }, [id]);
 
   const isRented = isItemRented(item);
+
   const available = isRented
-    ? 0
-    : item?.available === "Available"
-      ? 1
-      : Number(item?.available) || 0;
+  ? 0
+  : Number(item?.available_quantity ?? item?.available ?? 0);
     // Record view count once per session (Prevents double counting in React StrictMode)
   useEffect(() => {
     if (!id) return;
@@ -479,7 +478,7 @@ export default function ItemDetails() {
       return;
     }
 
-    if (quantity < 1 || quantity > Number(item.available ?? 0)) {
+    if (quantity < 1 || quantity > available)  {
       alert("Please select a valid quantity.");
       return;
     }
