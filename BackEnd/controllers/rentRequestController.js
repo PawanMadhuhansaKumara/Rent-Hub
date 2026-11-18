@@ -1045,3 +1045,84 @@ exports.deleteRentRequest = async (req, res) => {
     });
   }
 };
+
+
+// GET LOGGED-IN USER'S RENTAL HISTORY
+exports.getRentalHistory = async (req, res) => {
+  const userId = req.user.userId;
+  const { role } = req.params;
+
+  if (!["buyer", "seller"].includes(role)) {
+    return res.status(400).json({
+      success: false,
+      message: "Invalid history role.",
+    });
+  }
+
+  try {
+    await initRentRequestsTable();
+
+    const userColumn =
+      role === "buyer" ? "r.buyer_id" : "r.seller_id";
+
+    const otherUserColumn =
+      role === "buyer" ? "r.seller_id" : "r.buyer_id";
+
+    const otherUserAlias =
+      role === "buyer" ? "renter" : "customer";
+
+    const query = `
+      SELECT
+        r.id AS transactionId,
+        r.item_id AS itemId,
+        r.buyer_id AS buyerId,
+        r.seller_id AS sellerId,
+        r.start_date AS startDate,
+        r.end_date AS endDate,
+        r.quantity,
+        r.total_days AS totalDays,
+        r.total_price AS totalPrice,
+        r.trust_rating AS trustRating,
+        r.status,
+        r.created_at AS createdAt,
+        r.updated_at AS completedAt,
+
+        i.title AS itemTitle,
+        i.image_url AS itemImage,
+
+        u.full_name AS otherUserName,
+        u.phone_no AS otherUserPhone,
+        u.profile_pic_url AS otherUserPic,
+        u.nearest_city AS otherUserCity
+
+      FROM rent_requests r
+
+      LEFT JOIN items i
+        ON r.item_id = i.id
+
+      LEFT JOIN users_details u
+        ON ${otherUserColumn} = u.user_id
+
+      WHERE ${userColumn} = ?
+        AND LOWER(r.status) = 'completed'
+
+      ORDER BY r.updated_at DESC
+    `;
+
+    const [rows] = await db.execute(query, [userId]);
+
+    return res.status(200).json({
+      success: true,
+      role,
+      history: rows,
+    });
+
+  } catch (error) {
+    console.error("Get Rental History Error:", error);
+
+    return res.status(500).json({
+      success: false,
+      message: "Failed to load rental history.",
+    });
+  }
+};
