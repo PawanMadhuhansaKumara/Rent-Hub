@@ -24,6 +24,8 @@ import "./Home.css";
 import SearchBar from "../components/SearchBar";
 import ItemCard from "../components/ItemCard";
 import CategorySlider from "../components/CategorySlider";
+import { MapPin } from "lucide-react";
+import BuyerLocationPicker from "../components/BuyerLocationPicker";
 
 const API_URL = "http://localhost:5001/api/items";
 
@@ -35,6 +37,9 @@ export default function Home({ user }) {
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("newest");
   const [availableOnly, setAvailableOnly] = useState(false);
+  const [showBuyerPicker, setShowBuyerPicker] = useState(false);
+  const [buyerLocation, setBuyerLocation] = useState(null);
+  const [radius, setRadius] = useState("all");
 
   // Check if current user is logged in
   const currentUser =
@@ -82,33 +87,56 @@ export default function Home({ user }) {
   }, [location.state]);
 
   const loadItems = () => {
-    setLoading(true);
-    setError("");
-    fetch(API_URL)
-      .then((response) => {
-        if (!response.ok) {
-          throw new Error("Could not load rental items");
-        }
-        return response.json();
-      })
-      .then((data) => setItems(data || []))
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  };
+  setLoading(true);
+  setError("");
 
-  useEffect(() => {
-    loadItems();
-    window.addEventListener("items_updated", loadItems);
-    window.addEventListener("rent_requests_updated", loadItems);
-    window.addEventListener("user_updated", loadItems);
-    window.addEventListener("focus", loadItems);
-    return () => {
-      window.removeEventListener("items_updated", loadItems);
-      window.removeEventListener("rent_requests_updated", loadItems);
-      window.removeEventListener("user_updated", loadItems);
-      window.removeEventListener("focus", loadItems);
-    };
-  }, [location.pathname, location.key]);
+  let requestURL = API_URL;
+
+  // Buyer location selected
+  if (buyerLocation) {
+    const params = new URLSearchParams({
+      lat: buyerLocation.latitude,
+      lng: buyerLocation.longitude,
+      radius: radius,
+    });
+
+    requestURL = `${API_URL}/nearby?${params.toString()}`;
+  }
+
+  fetch(requestURL)
+    .then((response) => {
+      if (!response.ok) {
+        throw new Error("Could not load rental items");
+      }
+      return response.json();
+    })
+    .then((data) => {
+      const itemList = Array.isArray(data)
+        ? data
+        : Array.isArray(data.items)
+          ? data.items
+          : [];
+
+      setItems(itemList);
+    })
+    .catch((err) => setError(err.message))
+    .finally(() => setLoading(false));
+};
+ useEffect(() => {
+  loadItems();
+
+  window.addEventListener("items_updated", loadItems);
+  window.addEventListener("rent_requests_updated", loadItems);
+  window.addEventListener("user_updated", loadItems);
+  window.addEventListener("focus", loadItems);
+
+  return () => {
+    window.removeEventListener("items_updated", loadItems);
+    window.removeEventListener("rent_requests_updated", loadItems);
+    window.removeEventListener("user_updated", loadItems);
+    window.removeEventListener("focus", loadItems);
+  };
+}, [location.pathname, location.key, buyerLocation, radius]);
 
   // Compute item counts per category
   const itemCounts = useMemo(() => {
@@ -346,6 +374,85 @@ export default function Home({ user }) {
             searchInputRef={searchInputRef}
           />
         </div>
+        
+{/* Buyer Location Selection */}
+<div
+  style={{
+    display: "flex",
+    alignItems: "center",
+    gap: "12px",
+    margin: "20px 0",
+    flexWrap: "wrap",
+  }}
+>
+  {/* Select Location Button */}
+  <button
+    type="button"
+    onClick={() => setShowBuyerPicker(true)}
+    style={{
+      padding: "12px 18px",
+      backgroundColor: "#15803d",
+      color: "white",
+      border: "none",
+      borderRadius: "8px",
+      cursor: "pointer",
+      display: "flex",
+      alignItems: "center",
+      gap: "8px",
+    }}
+  >
+    <MapPin size={18} />
+    {buyerLocation ? "Change Location" : "Select Location"}
+  </button>
+
+  {/* Selected Location Name */}
+  {buyerLocation && (
+    <>
+      <span style={{ fontSize: "14px", color: "#374151" }}>
+        📍 {buyerLocation.locationName}
+      </span>
+
+      {/* Radius Filter */}
+      <select
+        value={radius}
+        onChange={(e) => setRadius(e.target.value)}
+        style={{
+          padding: "10px 14px",
+          border: "1px solid #d1d5db",
+          borderRadius: "8px",
+          cursor: "pointer",
+          backgroundColor: "white",
+        }}
+      >
+        <option value="5">Within 5 km</option>
+        <option value="10">Within 10 km</option>
+        <option value="25">Within 25 km</option>
+        <option value="50">Within 50 km</option>
+        <option value="all">All Distances</option>
+      </select>
+
+      {/* Clear Location Button */}
+      <button
+        type="button"
+        onClick={() => {
+          setBuyerLocation(null);
+          setRadius("all");
+        }}
+        style={{
+          padding: "10px 14px",
+          backgroundColor: "#fee2e2",
+          color: "#b91c1c",
+          border: "none",
+          borderRadius: "8px",
+          cursor: "pointer",
+        }}
+      >
+        <X size={15} style={{ verticalAlign: "middle" }} /> Clear Location
+      </button>
+    </>
+  )}
+</div>
+
 
         {/* Categories Bar */}
         <CategorySlider
@@ -550,6 +657,17 @@ export default function Home({ user }) {
           </Link>
         </div>
       </section>
+       {/* Buyer Location Picker */}
+
+      <BuyerLocationPicker
+        isOpen={showBuyerPicker}
+        onClose={() => setShowBuyerPicker(false)}
+        onLocationSelect={(selectedLocation) => {
+  console.log("Selected Buyer Location:", selectedLocation);
+
+  setBuyerLocation(selectedLocation);
+        }}
+      />
     </main>
   );
 }
