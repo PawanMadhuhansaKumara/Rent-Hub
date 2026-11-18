@@ -375,83 +375,8 @@ export default function Home({ user }) {
           />
         </div>
         
-{/* Buyer Location Selection */}
-<div
-  style={{
-    display: "flex",
-    alignItems: "center",
-    gap: "12px",
-    margin: "20px 0",
-    flexWrap: "wrap",
-  }}
->
-  {/* Select Location Button */}
-  <button
-    type="button"
-    onClick={() => setShowBuyerPicker(true)}
-    style={{
-      padding: "12px 18px",
-      backgroundColor: "#15803d",
-      color: "white",
-      border: "none",
-      borderRadius: "8px",
-      cursor: "pointer",
-      display: "flex",
-      alignItems: "center",
-      gap: "8px",
-    }}
-  >
-    <MapPin size={18} />
-    {buyerLocation ? "Change Location" : "Select Location"}
-  </button>
 
-  {/* Selected Location Name */}
-  {buyerLocation && (
-    <>
-      <span style={{ fontSize: "14px", color: "#374151" }}>
-        📍 {buyerLocation.locationName}
-      </span>
 
-      {/* Radius Filter */}
-      <select
-        value={radius}
-        onChange={(e) => setRadius(e.target.value)}
-        style={{
-          padding: "10px 14px",
-          border: "1px solid #d1d5db",
-          borderRadius: "8px",
-          cursor: "pointer",
-          backgroundColor: "white",
-        }}
-      >
-        <option value="5">Within 5 km</option>
-        <option value="10">Within 10 km</option>
-        <option value="25">Within 25 km</option>
-        <option value="50">Within 50 km</option>
-        <option value="all">All Distances</option>
-      </select>
-
-      {/* Clear Location Button */}
-      <button
-        type="button"
-        onClick={() => {
-          setBuyerLocation(null);
-          setRadius("all");
-        }}
-        style={{
-          padding: "10px 14px",
-          backgroundColor: "#fee2e2",
-          color: "#b91c1c",
-          border: "none",
-          borderRadius: "8px",
-          cursor: "pointer",
-        }}
-      >
-        <X size={15} style={{ verticalAlign: "middle" }} /> Clear Location
-      </button>
-    </>
-  )}
-</div>
 
 
         {/* Categories Bar */}
@@ -460,6 +385,88 @@ export default function Home({ user }) {
           setSelectedCategory={setSelectedCategory}
           itemCounts={itemCounts}
         />
+
+        {/* Buyer Location Selection */}
+<div className="nearby-location-panel">
+
+  {/* Heading */}
+  <div className="nearby-top-section">
+    <div className="nearby-main-icon">
+      <MapPin size={38} />
+    </div>
+
+    <div className="nearby-heading-text">
+      <h2>Find Items Near You</h2>
+      <p>Select your location to see items nearby</p>
+    </div>
+
+    <div className="nearby-decoration">
+      <MapPin size={65} />
+    </div>
+  </div>
+
+  {/* Select Location Button */}
+  <div className="nearby-button-section">
+    <button
+      type="button"
+      className="nearby-select-btn"
+      onClick={() => setShowBuyerPicker(true)}
+    >
+      <MapPin size={22} />
+      {buyerLocation ? "Change Location" : "Select Location"}
+    </button>
+  </div>
+
+  {/* Selected Location Information */}
+  {buyerLocation && (
+    <div className="nearby-info-bar">
+
+      {/* Location Name */}
+      <div className="nearby-info-item nearby-place">
+        <MapPin size={22} />
+        <span>{buyerLocation.locationName}</span>
+      </div>
+
+      <div className="nearby-info-divider"></div>
+
+      {/* Radius */}
+      <div className="nearby-info-item nearby-radius">
+        <MapPin size={22} />
+        <div className="nearby-radius-content">
+          <label htmlFor="nearby-radius">Search Radius:</label>
+          <select
+            id="nearby-radius"
+            value={radius}
+            onChange={(e) => setRadius(e.target.value)}
+          >
+            <option value="5">5 km</option>
+            <option value="10">10 km</option>
+            <option value="25">25 km</option>
+            <option value="50">50 km</option>
+            <option value="all">All</option>
+          </select>
+        </div>
+      </div>
+
+      <div className="nearby-info-divider"></div>
+
+      {/* Clear Location */}
+      <button
+        type="button"
+        className="nearby-info-item nearby-clear-btn"
+        onClick={() => {
+          setBuyerLocation(null);
+          setRadius("all");
+        }}
+      >
+        <X size={22} />
+        <span>Clear Location</span>
+      </button>
+
+    </div>
+  )}
+</div>
+
 
         {/* Section Header Controls */}
         <div className="home-results-header">
