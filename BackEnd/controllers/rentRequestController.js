@@ -37,6 +37,12 @@ const initRentRequestsTable = async () => {
     try {
       await db.execute(`ALTER TABLE rent_requests ADD COLUMN trust_rating INT DEFAULT 10`);
     } catch (e) {}
+    try {
+      await db.execute(`ALTER TABLE rent_requests ADD COLUMN payment_method VARCHAR(50) DEFAULT 'cash'`);
+    } catch (e) {}
+    try {
+      await db.execute(`ALTER TABLE rent_requests ADD COLUMN payment_status VARCHAR(50) DEFAULT 'pending'`);
+    } catch (e) {}
 
     isTableInitialized = true;
   } catch (err) {
@@ -72,8 +78,36 @@ const initRentalVerificationsTable = async () => {
   }
 };
 
+const initPaymentsTable = async () => {
+  try {
+    const query = `
+      CREATE TABLE IF NOT EXISTS payments (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        request_id INT NOT NULL,
+        item_id INT NOT NULL,
+        buyer_id INT NOT NULL,
+        seller_id INT NOT NULL,
+        amount DECIMAL(10,2) NOT NULL DEFAULT 0.00,
+        payment_method VARCHAR(50) NOT NULL DEFAULT 'cash',
+        payment_status VARCHAR(50) NOT NULL DEFAULT 'pending',
+        transaction_ref VARCHAR(100) NULL,
+        payment_date TIMESTAMP NULL,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+        INDEX idx_request_id (request_id),
+        INDEX idx_buyer_id (buyer_id),
+        INDEX idx_seller_id (seller_id)
+      )
+    `;
+    await db.execute(query);
+  } catch (err) {
+    console.warn("payments table init warning:", err.message);
+  }
+};
+
 initRentRequestsTable();
 initRentalVerificationsTable();
+initPaymentsTable();
 
 // Real notifications helper
 const sendNotification = async ({
@@ -172,6 +206,8 @@ exports.createRentRequest = async (req, res) => {
     quantity,
     totalPrice,
     status = "Pending",
+    paymentMethod,
+    paymentStatus,
   } = req.body;
 
   const item_id = itemId || req.body.item_id;
@@ -185,6 +221,19 @@ exports.createRentRequest = async (req, res) => {
     endDate || req.body.end_date || tomorrow.toISOString().split("T")[0];
   const qty = Number(quantity || req.body.quantity) || 1;
   const total = Number(totalPrice || req.body.total_price) || 0;
+
+  const rawPaymentMethod = (
+    paymentMethod ||
+    req.body.payment_method ||
+    req.body.payment_type ||
+    "cash"
+  ).toString().toLowerCase();
+  const payment_method = rawPaymentMethod === "card" ? "card" : "cash";
+
+  const payment_status =
+    paymentStatus ||
+    req.body.payment_status ||
+    (payment_method === "card" && req.body.isPaid ? "paid" : "pending");
 
   let total_days = 1;
   try {
@@ -235,8 +284,8 @@ exports.createRentRequest = async (req, res) => {
 
     try {
       const query = `
-        INSERT INTO rent_requests (item_id, buyer_id, seller_id, start_date, end_date, quantity, total_days, total_price, status, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        INSERT INTO rent_requests (item_id, buyer_id, seller_id, start_date, end_date, quantity, total_days, total_price, payment_method, payment_status, status, created_at)
+        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
       `;
       const [result] = await db.execute(query, [
         item_id,
@@ -247,28 +296,62 @@ exports.createRentRequest = async (req, res) => {
         qty,
         total_days,
         total,
+        payment_method,
+        payment_status,
         status,
       ]);
       insertId = result.insertId;
     } catch (insertErr) {
-      const fallbackQuery = `
-        INSERT INTO rent_requests (item_id, buyer_id, seller_id, start_date, end_date, quantity, total_price, status, created_at)
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
-      `;
-      const [result] = await db.execute(fallbackQuery, [
-        item_id,
-        buyer_id,
-        seller_id,
-        start_date,
-        end_date,
-        qty,
-        total,
-        status,
-      ]);
-      insertId = result.insertId;
+      try {
+        const queryWithPayment = `
+          INSERT INTO rent_requests (item_id, buyer_id, seller_id, start_date, end_date, quantity, total_price, payment_method, payment_status, status, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        `;
+        const [result] = await db.execute(queryWithPayment, [
+          item_id,
+          buyer_id,
+          seller_id,
+          start_date,
+          end_date,
+          qty,
+          total,
+          payment_method,
+          payment_status,
+          status,
+        ]);
+        insertId = result.insertId;
+      } catch (err2) {
+        const fallbackQuery = `
+          INSERT INTO rent_requests (item_id, buyer_id, seller_id, start_date, end_date, quantity, total_price, status, created_at)
+          VALUES (?, ?, ?, ?, ?, ?, ?, ?, NOW())
+        `;
+        const [result] = await db.execute(fallbackQuery, [
+          item_id,
+          buyer_id,
+          seller_id,
+          start_date,
+          end_date,
+          qty,
+          total,
+          status,
+        ]);
+        insertId = result.insertId;
+      }
     }
 
-    // Send real notification to seller
+    // Record initial payment entry in payments table
+    try {
+      await initPaymentsTable();
+      await db.execute(
+        `INSERT INTO payments (request_id, item_id, buyer_id, seller_id, amount, payment_method, payment_status)
+         VALUES (?, ?, ?, ?, ?, ?, ?)`,
+        [insertId, item_id, buyer_id, seller_id, total, payment_method, payment_status]
+      );
+    } catch (payInitErr) {
+      console.warn("Could not record payment entry:", payInitErr.message);
+    }
+
+    // Send real notification to seller with payment method
     try {
       let itemTitle = "an item";
       let itemImage = null;
@@ -283,10 +366,11 @@ exports.createRentRequest = async (req, res) => {
         }
       } catch {}
 
+      const paymentMethodBadge = payment_method === "card" ? "💳 Card Payment" : "💵 Cash on Pickup";
       await sendNotification({
         userId: seller_id,
         title: "New Rental Request",
-        message: `You have received a new rental request for "${itemTitle}".`,
+        message: `You have received a new rental request for "${itemTitle}". Payment Method: ${paymentMethodBadge} (Total: LKR ${total.toLocaleString()}).`,
         type: "rental_request",
         itemId: item_id,
         requestId: insertId,
@@ -310,6 +394,8 @@ exports.createRentRequest = async (req, res) => {
         endDate: end_date,
         quantity: qty,
         totalPrice: total,
+        paymentMethod: payment_method,
+        paymentStatus: payment_status,
         status,
         createdAt: new Date().toISOString(),
       },
@@ -345,6 +431,8 @@ const sanitizeRequestRow = (r) => {
     ...r,
     startDate: sDate,
     endDate: eDate,
+    paymentMethod: r.paymentMethod || r.payment_method || "cash",
+    paymentStatus: r.paymentStatus || r.payment_status || "pending",
   };
 };
 
@@ -366,6 +454,8 @@ exports.getBuyerRequests = async (req, res) => {
           r.end_date AS endDate,
           r.quantity,
           r.total_price AS totalPrice,
+          r.payment_method AS paymentMethod,
+          r.payment_status AS paymentStatus,
           r.status,
           r.customer_picked AS customerPicked,
           r.customer_picked_at AS customerPickedAt,
@@ -410,6 +500,8 @@ exports.getBuyerRequests = async (req, res) => {
           r.end_date AS endDate,
           r.quantity,
           r.total_price AS totalPrice,
+          r.payment_method AS paymentMethod,
+          r.payment_status AS paymentStatus,
           r.status,
           r.customer_picked AS customerPicked,
           r.customer_picked_at AS customerPickedAt,
@@ -459,6 +551,8 @@ exports.getSellerRequests = async (req, res) => {
           r.end_date AS endDate,
           r.quantity,
           r.total_price AS totalPrice,
+          r.payment_method AS paymentMethod,
+          r.payment_status AS paymentStatus,
           r.status,
           r.customer_picked AS customerPicked,
           r.customer_picked_at AS customerPickedAt,
@@ -499,6 +593,8 @@ exports.getSellerRequests = async (req, res) => {
           r.end_date AS endDate,
           r.quantity,
           r.total_price AS totalPrice,
+          r.payment_method AS paymentMethod,
+          r.payment_status AS paymentStatus,
           r.status,
           r.customer_picked AS customerPicked,
           r.customer_picked_at AS customerPickedAt,
@@ -814,11 +910,13 @@ exports.confirmHandover = async (req, res) => {
       console.warn("Could not write to rental_verifications table:", vErr.message);
     }
 
-    // 4. Update rent_requests status to 'rented'
+    // 4. Update rent_requests status to 'rented' and payment_status
+    const updatedPaymentStatus =
+      rentalPaymentStatus?.toLowerCase() === "paid" ? "paid" : "pending";
     try {
       await db.execute(
-        `UPDATE rent_requests SET status = 'rented' WHERE id = ?`,
-        [requestId]
+        `UPDATE rent_requests SET status = 'rented', payment_status = ? WHERE id = ?`,
+        [updatedPaymentStatus, requestId]
       );
     } catch (statusErr) {
       try {
@@ -832,6 +930,25 @@ exports.confirmHandover = async (req, res) => {
       } catch (e2) {
         console.warn("Status update fallback:", e2.message);
       }
+    }
+
+    // 4.1 Update payments table
+    try {
+      await initPaymentsTable();
+      const txRef =
+        req.body.cardAuthCode ||
+        req.body.transactionRef ||
+        (rentalPaymentStatus?.toLowerCase() === "paid"
+          ? `TXN-${Date.now().toString().slice(-6)}`
+          : null);
+      await db.execute(
+        `UPDATE payments 
+         SET payment_status = ?, transaction_ref = COALESCE(?, transaction_ref), payment_date = NOW() 
+         WHERE request_id = ?`,
+        [updatedPaymentStatus, txRef, requestId]
+      );
+    } catch (payUpErr) {
+      console.warn("Payments update warning:", payUpErr.message);
     }
 
     // 5. Deduct item stock quantity and set available_qty to 'Rented Out' ONLY if quantity reaches 0
@@ -1047,6 +1164,33 @@ exports.deleteRentRequest = async (req, res) => {
 };
 
 
+// UPDATE PAYMENT STATUS / METHOD
+exports.updatePaymentStatus = async (req, res) => {
+  const requestId = req.params.id;
+  const { paymentStatus = "paid", paymentMethod } = req.body;
+  try {
+    await initRentRequestsTable();
+    let query = `UPDATE rent_requests SET payment_status = ?`;
+    const params = [paymentStatus];
+    if (paymentMethod) {
+      query += `, payment_method = ?`;
+      params.push(paymentMethod);
+    }
+    query += ` WHERE id = ?`;
+    params.push(requestId);
+    await db.execute(query, params);
+    res.status(200).json({
+      success: true,
+      message: "Payment updated successfully.",
+      requestId,
+      paymentStatus,
+      paymentMethod,
+    });
+  } catch (err) {
+    res.status(500).json({ success: false, message: err.message });
+  }
+};
+
 // GET LOGGED-IN USER'S RENTAL HISTORY
 exports.getRentalHistory = async (req, res) => {
   const userId = req.user.userId;
@@ -1082,6 +1226,8 @@ exports.getRentalHistory = async (req, res) => {
         r.quantity,
         r.total_days AS totalDays,
         r.total_price AS totalPrice,
+        r.payment_method AS paymentMethod,
+        r.payment_status AS paymentStatus,
         r.trust_rating AS trustRating,
         r.status,
         r.created_at AS createdAt,

@@ -14,6 +14,7 @@ router.get(
   authMiddleware,
   rentRequestController.getRentalHistory
 );
+router.put("/:id/payment", rentRequestController.updatePaymentStatus);
 router.put("/:id/status", rentRequestController.updateRequestStatus);
 router.put("/:id/customer-picked", rentRequestController.markCustomerPicked);
 router.put("/:id/customer-return", rentRequestController.markCustomerReturned); // 👈 Customer භාරදුන් විට

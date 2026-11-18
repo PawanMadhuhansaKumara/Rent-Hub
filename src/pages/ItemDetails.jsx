@@ -339,6 +339,7 @@ export default function ItemDetails() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [quantity, setQuantity] = useState(1);
+  const [paymentMethod, setPaymentMethod] = useState("cash");
 
   const today = new Date();
   const minDate = [
@@ -507,6 +508,7 @@ export default function ItemDetails() {
       endDate: endDate,
       quantity: numQty,
       totalPrice: calculatedTotal,
+      paymentMethod: paymentMethod || "cash",
       status: "Pending",
     };
 
@@ -524,6 +526,8 @@ export default function ItemDetails() {
         createdRequest = {
           id: data.requestId || data.request?.id || Date.now(),
           ...requestPayload,
+          paymentMethod: paymentMethod || "cash",
+          paymentStatus: "pending",
           createdAt: data.request?.createdAt || new Date().toISOString(),
           itemTitle: item.title,
           itemImage: item.image || item.image_url,
@@ -543,6 +547,8 @@ export default function ItemDetails() {
       createdRequest = {
         id: Date.now(),
         ...requestPayload,
+        paymentMethod: paymentMethod || "cash",
+        paymentStatus: "pending",
         createdAt: new Date().toISOString(),
         itemTitle: item.title,
         itemImage: item.image || item.image_url,
@@ -899,6 +905,107 @@ export default function ItemDetails() {
                   >
                     Your Trust Score allows rentals up to <strong>LKR {userRentalLimit.toLocaleString()}</strong>. This item costs <strong>LKR {itemPrice.toLocaleString()}</strong>. Rent and return more items safely on RentHub to unlock this item!
                   </span>
+                </div>
+              </div>
+            )}
+
+            {!isItemSeller && (
+              <div
+                style={{
+                  background: "#f8fafc",
+                  border: "1px solid #e2e8f0",
+                  borderRadius: "14px",
+                  padding: "12px 14px",
+                  marginBottom: "16px",
+                }}
+              >
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "space-between",
+                    marginBottom: "8px",
+                  }}
+                >
+                  <span
+                    style={{
+                      fontSize: "12.5px",
+                      fontWeight: "700",
+                      color: "#1e293b",
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "6px",
+                    }}
+                  >
+                    <span>Payment Method:</span>
+                  </span>
+                  <span style={{ fontSize: "11px", color: "#64748b" }}>
+                    (Pay at item pickup)
+                  </span>
+                </div>
+
+                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("cash")}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      padding: "10px 12px",
+                      borderRadius: "10px",
+                      border:
+                        paymentMethod === "cash"
+                          ? "2px solid #16a34a"
+                          : "1.5px solid #cbd5e1",
+                      backgroundColor:
+                        paymentMethod === "cash" ? "#f0fdf4" : "#ffffff",
+                      color: paymentMethod === "cash" ? "#15803d" : "#475569",
+                      fontWeight: paymentMethod === "cash" ? "700" : "500",
+                      fontSize: "13px",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      boxShadow:
+                        paymentMethod === "cash"
+                          ? "0 2px 6px rgba(22, 163, 74, 0.15)"
+                          : "none",
+                    }}
+                  >
+                    <span style={{ fontSize: "16px" }}>💵</span>
+                    <span>Cash on Pickup</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    onClick={() => setPaymentMethod("card")}
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      justifyContent: "center",
+                      gap: "8px",
+                      padding: "10px 12px",
+                      borderRadius: "10px",
+                      border:
+                        paymentMethod === "card"
+                          ? "2px solid #2563eb"
+                          : "1.5px solid #cbd5e1",
+                      backgroundColor:
+                        paymentMethod === "card" ? "#eff6ff" : "#ffffff",
+                      color: paymentMethod === "card" ? "#1d4ed8" : "#475569",
+                      fontWeight: paymentMethod === "card" ? "700" : "500",
+                      fontSize: "13px",
+                      cursor: "pointer",
+                      transition: "all 0.2s ease",
+                      boxShadow:
+                        paymentMethod === "card"
+                          ? "0 2px 6px rgba(37, 99, 235, 0.15)"
+                          : "none",
+                    }}
+                  >
+                    <span style={{ fontSize: "16px" }}>💳</span>
+                    <span>Card Payment</span>
+                  </button>
                 </div>
               </div>
             )}
@@ -1374,6 +1481,8 @@ export default function ItemDetails() {
           setEndDate={setEndDate}
           quantity={quantity}
           setQuantity={setQuantity}
+          paymentMethod={paymentMethod}
+          setPaymentMethod={setPaymentMethod}
           available={available}
           priceType={priceType}
           price={price}

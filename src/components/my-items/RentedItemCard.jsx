@@ -102,6 +102,31 @@ export default function RentedItemCard({
           </span>
 
           <span
+            style={{
+              fontSize: "11px",
+              fontWeight: "600",
+              padding: "3px 8px",
+              borderRadius: "12px",
+              backgroundColor:
+                (item.paymentMethod || item.payment_method)?.toLowerCase() === "card"
+                  ? "#eff6ff"
+                  : "#f0fdf4",
+              color:
+                (item.paymentMethod || item.payment_method)?.toLowerCase() === "card"
+                  ? "#1d4ed8"
+                  : "#15803d",
+              border:
+                (item.paymentMethod || item.payment_method)?.toLowerCase() === "card"
+                  ? "1px solid #bfdbfe"
+                  : "1px solid #bbf7d0",
+            }}
+          >
+            {(item.paymentMethod || item.payment_method)?.toLowerCase() === "card"
+              ? "💳 Card"
+              : "💵 Cash"}
+          </span>
+
+          <span
             className={`rent-request-status-badge ${
               isSentedOut ? "badge-rented" : "badge-approved"
             }`}

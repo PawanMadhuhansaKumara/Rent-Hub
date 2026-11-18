@@ -13,12 +13,21 @@ export default function RentRequestForm({
   setEndDate,
   quantity,
   setQuantity,
+  paymentMethod = "cash",
+  setPaymentMethod,
   available,
   priceType = "day",
   price = 0,
   itemTitle,
 }) {
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [localPaymentMethod, setLocalPaymentMethod] = useState(paymentMethod || "cash");
+
+  const currentPaymentMethod = paymentMethod || localPaymentMethod;
+  const handlePaymentSelect = (method) => {
+    setLocalPaymentMethod(method);
+    if (setPaymentMethod) setPaymentMethod(method);
+  };
 
   // ESC key listener to close modal
   useEffect(() => {
@@ -173,6 +182,93 @@ export default function RentRequestForm({
             required
           />
 
+          <div style={{ marginTop: "12px", marginBottom: "4px" }}>
+            <label
+              style={{
+                display: "block",
+                fontSize: "12px",
+                fontWeight: "600",
+                color: "#334155",
+                marginBottom: "6px",
+              }}
+            >
+              Payment Method (Pay upon pickup)
+            </label>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: "1fr 1fr",
+                gap: "10px",
+              }}
+            >
+              <button
+                type="button"
+                onClick={() => handlePaymentSelect("cash")}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                  padding: "9px 12px",
+                  borderRadius: "8px",
+                  border:
+                    currentPaymentMethod === "cash"
+                      ? "2px solid #16a34a"
+                      : "1.5px solid #cbd5e1",
+                  backgroundColor:
+                    currentPaymentMethod === "cash" ? "#f0fdf4" : "#ffffff",
+                  color:
+                    currentPaymentMethod === "cash" ? "#15803d" : "#475569",
+                  fontWeight: currentPaymentMethod === "cash" ? "700" : "500",
+                  fontSize: "12.5px",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                <span>💵 Cash on Pickup</span>
+              </button>
+
+              <button
+                type="button"
+                onClick={() => handlePaymentSelect("card")}
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  justifyContent: "center",
+                  gap: "6px",
+                  padding: "9px 12px",
+                  borderRadius: "8px",
+                  border:
+                    currentPaymentMethod === "card"
+                      ? "2px solid #2563eb"
+                      : "1.5px solid #cbd5e1",
+                  backgroundColor:
+                    currentPaymentMethod === "card" ? "#eff6ff" : "#ffffff",
+                  color:
+                    currentPaymentMethod === "card" ? "#1d4ed8" : "#475569",
+                  fontWeight: currentPaymentMethod === "card" ? "700" : "500",
+                  fontSize: "12.5px",
+                  cursor: "pointer",
+                  transition: "all 0.15s ease",
+                }}
+              >
+                <span>💳 Card Payment</span>
+              </button>
+            </div>
+            <p
+              style={{
+                fontSize: "11px",
+                color: "#64748b",
+                marginTop: "5px",
+                marginBottom: "0",
+              }}
+            >
+              {currentPaymentMethod === "card"
+                ? "💳 You will pay with your credit/debit card at item handover."
+                : "💵 You will pay cash directly to the shop owner at item handover."}
+            </p>
+          </div>
+
           <div className="request-price-summary">
             <div className="request-price-row">
               <span>Rate per {priceType}:</span>
@@ -182,6 +278,13 @@ export default function RentRequestForm({
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
+              </strong>
+            </div>
+
+            <div className="request-price-row">
+              <span>Payment Method:</span>
+              <strong style={{ color: currentPaymentMethod === "card" ? "#1d4ed8" : "#15803d" }}>
+                {currentPaymentMethod === "card" ? "💳 Card Payment" : "💵 Cash on Pickup"}
               </strong>
             </div>
 

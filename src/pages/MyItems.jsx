@@ -429,6 +429,7 @@ export default function MyItems({ user }) {
   const [rentStartDate, setRentStartDate] = useState("");
   const [rentEndDate, setRentEndDate] = useState("");
   const [rentQuantity, setRentQuantity] = useState(1);
+  const [rentPaymentMethod, setRentPaymentMethod] = useState("cash");
 
   const handleRentNow = async () => {
     if (selectedCartIds.length === 0) {
@@ -554,6 +555,7 @@ export default function MyItems({ user }) {
       endDate: rentEndDate,
       quantity: numQty,
       totalPrice: calculatedTotal,
+      paymentMethod: rentPaymentMethod || "cash",
       status: "Pending",
     };
 
@@ -624,6 +626,7 @@ export default function MyItems({ user }) {
     setRentStartDate("");
     setRentEndDate("");
     setRentQuantity(1);
+    setRentPaymentMethod("cash");
     setSuccessModalTitle(sentTitle);
     setShowSuccessModal(true);
     return true;
@@ -1285,6 +1288,7 @@ export default function MyItems({ user }) {
             setRentStartDate("");
             setRentEndDate("");
             setRentQuantity(1);
+            setRentPaymentMethod("cash");
           }}
           handleRequestSubmit={handleCartRentSubmit}
           startDate={rentStartDate}
@@ -1293,6 +1297,8 @@ export default function MyItems({ user }) {
           setEndDate={setRentEndDate}
           quantity={rentQuantity}
           setQuantity={setRentQuantity}
+          paymentMethod={rentPaymentMethod}
+          setPaymentMethod={setRentPaymentMethod}
           available={10}
           priceType={rentModalItem.priceType || "day"}
           price={rentModalItem.price || 0}

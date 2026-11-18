@@ -126,6 +126,31 @@ export default function RentRequestCard({
             {isSender ? "Sent Request" : "Received"}
           </span>
 
+          <span
+            style={{
+              fontSize: "11px",
+              fontWeight: "600",
+              padding: "3px 8px",
+              borderRadius: "12px",
+              backgroundColor:
+                (req.paymentMethod || req.payment_method)?.toLowerCase() === "card"
+                  ? "#eff6ff"
+                  : "#f0fdf4",
+              color:
+                (req.paymentMethod || req.payment_method)?.toLowerCase() === "card"
+                  ? "#1d4ed8"
+                  : "#15803d",
+              border:
+                (req.paymentMethod || req.payment_method)?.toLowerCase() === "card"
+                  ? "1px solid #bfdbfe"
+                  : "1px solid #bbf7d0",
+            }}
+          >
+            {(req.paymentMethod || req.payment_method)?.toLowerCase() === "card"
+              ? "💳 Card"
+              : "💵 Cash"}
+          </span>
+
           <span className={`rent-request-status-badge ${statusBadgeClass}`}>
             {req.status}
           </span>
