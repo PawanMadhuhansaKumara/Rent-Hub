@@ -1,8 +1,10 @@
 
+/* Buyer Location Picker - Rent-Hub Green Theme */
+
 .buyer-location-overlay {
   position: fixed;
   inset: 0;
-  background: rgba(0, 0, 0, 0.55);
+  background: rgba(15, 35, 24, 0.58);
   display: flex;
   justify-content: center;
   align-items: center;
@@ -15,9 +17,11 @@
   max-width: 650px;
   max-height: 95vh;
   overflow-y: auto;
-  background: #fff;
+  background: #ffffff;
+  border: 1px solid #dcfce7;
   border-radius: 16px;
   padding: 22px;
+  box-shadow: 0 15px 45px rgba(20, 83, 45, 0.16);
 }
 
 .buyer-location-header {
@@ -30,22 +34,29 @@
 
 .buyer-location-header h2 {
   margin: 0 0 5px;
-  color: #222;
+  color: #14532d;
 }
 
 .buyer-location-header p {
   margin: 0;
-  color: #777;
+  color: #64748b;
   font-size: 14px;
 }
 
 .buyer-close-btn {
   border: none;
-  background: #f1f1f1;
+  background: #f0fdf4;
+  color: #15803d;
   border-radius: 50%;
   width: 38px;
   height: 38px;
   cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.buyer-close-btn:hover {
+  background: #dcfce7;
+  color: #166534;
 }
 
 .buyer-gps-btn,
@@ -59,14 +70,20 @@
   border-radius: 8px;
   cursor: pointer;
   font-weight: 600;
+  transition: all 0.2s ease;
 }
 
 .buyer-gps-btn {
   width: 100%;
-  border: 1px solid #2563eb;
-  background: #eff6ff;
-  color: #2563eb;
+  border: 1px solid #86efac;
+  background: #f0fdf4;
+  color: #15803d;
   margin-bottom: 12px;
+}
+
+.buyer-gps-btn:hover {
+  background: #dcfce7;
+  border-color: #4ade80;
 }
 
 .buyer-location-search {
@@ -79,21 +96,33 @@
   flex: 1;
   min-width: 0;
   padding: 12px;
-  border: 1px solid #ddd;
+  border: 1px solid #d1d5db;
   border-radius: 8px;
+  outline: none;
+  transition: border 0.2s ease, box-shadow 0.2s ease;
+}
+
+.buyer-location-search input:focus {
+  border-color: #16a34a;
+  box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
 }
 
 .buyer-location-search button {
   width: 45px;
   border: none;
   border-radius: 8px;
-  background: #2563eb;
+  background: #15803d;
   color: white;
   cursor: pointer;
+  transition: background 0.2s ease;
+}
+
+.buyer-location-search button:hover {
+  background: #166534;
 }
 
 .buyer-location-message {
-  color: #c0392b;
+  color: #b91c1c;
   font-size: 13px;
 }
 
@@ -103,12 +132,13 @@
   gap: 7px;
   font-size: 14px;
   margin: 15px 0 10px;
-  color: #555;
+  color: #475569;
 }
 
 .buyer-map-container {
   width: 100%;
   height: 330px;
+  border: 1px solid #dcfce7;
   border-radius: 10px;
   overflow: hidden;
 }
@@ -123,19 +153,21 @@
   gap: 12px;
   padding: 13px;
   margin-top: 14px;
-  background: #f5f7fa;
+  background: #f0fdf4;
+  border: 1px solid #bbf7d0;
   border-radius: 9px;
   overflow-wrap: anywhere;
+  color: #166534;
 }
 
 .buyer-selected-location p {
   margin: 5px 0;
   font-size: 13px;
-  color: #555;
+  color: #365b45;
 }
 
 .buyer-selected-location small {
-  color: #777;
+  color: #64748b;
 }
 
 .buyer-location-actions {
@@ -146,19 +178,33 @@
 }
 
 .buyer-cancel-btn {
-  border: 1px solid #ddd;
+  border: 1px solid #d1d5db;
   background: white;
-  color: #444;
+  color: #475569;
+}
+
+.buyer-cancel-btn:hover {
+  background: #f8fafc;
 }
 
 .buyer-confirm-btn {
   border: none;
-  background: #2563eb;
+  background: #15803d;
   color: white;
+}
+
+.buyer-confirm-btn:hover {
+  background: #166534;
+  box-shadow: 0 3px 10px rgba(21, 128, 61, 0.2);
 }
 
 .buyer-gps-btn:disabled,
 .buyer-location-search button:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+.buyer-confirm-btn:disabled {
   opacity: 0.6;
   cursor: not-allowed;
 }
