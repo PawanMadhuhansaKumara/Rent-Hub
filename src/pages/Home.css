@@ -1032,3 +1032,194 @@
     min-width: 0;
   }
 }
+
+
+
+
+
+/* Facebook Marketplace Style Location Filter */
+
+.nearby-filter-bar {
+  width: 100%;
+  display: flex;
+  align-items: center;
+  gap: 20px;
+  padding: 14px 18px;
+  margin: 18px 0;
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.04);
+}
+
+.nearby-location-trigger {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex: 1;
+  min-width: 0;
+  padding: 5px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  color: #1877f2;
+  text-align: left;
+}
+
+.nearby-location-text {
+  display: flex;
+  flex-direction: column;
+  gap: 3px;
+  min-width: 0;
+}
+
+.nearby-filter-label {
+  color: #65676b;
+  font-size: 12px;
+}
+
+.nearby-location-text strong {
+  color: #1c1e21;
+  font-size: 14px;
+  font-weight: 600;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.nearby-change-text {
+  margin-left: auto;
+  color: #1877f2;
+  font-size: 13px;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+.nearby-filter-divider {
+  width: 1px;
+  height: 38px;
+  background: #e4e6eb;
+}
+
+.nearby-radius-control {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+  min-width: 145px;
+}
+
+.nearby-radius-control select {
+  width: 100%;
+  padding: 5px 24px 5px 0;
+  border: none;
+  outline: none;
+  background: transparent;
+  color: #1c1e21;
+  font-size: 14px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.nearby-radius-control select:disabled {
+  color: #9ca3af;
+  cursor: not-allowed;
+}
+
+.nearby-clear-filter {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 9px 12px;
+  border: 1px solid #e4e6eb;
+  border-radius: 8px;
+  background: #ffffff;
+  color: #65676b;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.nearby-clear-filter:hover {
+  background: #f0f2f5;
+  color: #d93025;
+}
+
+/* Mobile Responsive */
+
+@media (max-width: 600px) {
+  .nearby-filter-bar {
+    flex-wrap: wrap;
+    gap: 12px;
+    padding: 12px;
+  }
+
+  .nearby-location-trigger {
+    flex-basis: 100%;
+  }
+
+  .nearby-filter-divider {
+    display: none;
+  }
+
+  .nearby-radius-control {
+    flex: 1;
+  }
+
+  .nearby-clear-filter {
+    align-self: flex-end;
+  }
+}
+
+
+
+/* Rent-Hub Green Theme - Nearby Location Filter */
+
+.nearby-location-trigger {
+  border-radius: 9px;
+  transition: background 0.2s ease;
+}
+
+.nearby-location-trigger:hover {
+  background: #f0fdf4;
+}
+
+.nearby-location-trigger > svg {
+  flex-shrink: 0;
+  width: 42px;
+  height: 42px;
+  padding: 10px;
+  border-radius: 50%;
+  background: #dcfce7;
+  color: #15803d;
+}
+
+.nearby-filter-label {
+  color: #15803d;
+  font-size: 13px;
+  font-weight: 700;
+}
+
+.nearby-location-text strong {
+  color: #172b22;
+}
+
+.nearby-change-text {
+  color: #15803d;
+  font-weight: 600;
+  transition: color 0.2s ease;
+}
+
+.nearby-change-text:hover {
+  color: #166534;
+  text-decoration: underline;
+}
+
+.nearby-radius-control select:focus {
+  outline: none;
+  color: #15803d;
+}
+
+.nearby-clear-filter:hover {
+  border-color: #bbf7d0;
+  background: #f0fdf4;
+  color: #166534;
+}
