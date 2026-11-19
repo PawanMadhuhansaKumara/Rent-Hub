@@ -1272,3 +1272,65 @@ exports.getRentalHistory = async (req, res) => {
     });
   }
 };
+
+// ---------------------------------------------------------------------------
+// PROCESS PAYMENT (QR or Card) – mock implementation
+// ---------------------------------------------------------------------------
+/**
+ * POST /api/rent-requests/:id/pay
+ * Expected body: { payment_method: 'qr' | 'card', transaction_ref?: string }
+ * Updates the payments table and rent_requests.payment_status to 'paid'.
+ */
+exports.processPayment = async (req, res) => {
+  const requestId = req.params.id;
+  const { payment_method, transaction_ref } = req.body;
+
+  if (!requestId) {
+    return res.status(400).json({ success: false, message: 'Missing request id' });
+  }
+  const method = (payment_method || '').toString().toLowerCase();
+  if (!['qr', 'card'].includes(method)) {
+    return res.status(400).json({ success: false, message: 'Invalid payment_method' });
+  }
+
+  try {
+    // Ensure a payment record exists (created during request creation)
+    const [payRows] = await db.execute(
+      `SELECT id FROM payments WHERE request_id = ?`,
+      [requestId]
+    );
+    if (payRows.length === 0) {
+      // Insert a placeholder payment record if missing
+      await db.execute(
+        `INSERT INTO payments (request_id, item_id, buyer_id, seller_id, amount, payment_method, payment_status, transaction_ref, payment_date) VALUES (?, 0, 0, 0, 0, ?, 'paid', ?, NOW())`,
+        [requestId, method, transaction_ref || null]
+      );
+    } else {
+      await db.execute(
+        `UPDATE payments SET payment_method = ?, payment_status = 'paid', transaction_ref = ?, payment_date = NOW() WHERE request_id = ?`,
+        [method, transaction_ref || null, requestId]
+      );
+    }
+    // Update rent_requests status and payment_status
+    await db.execute(
+      `UPDATE rent_requests SET payment_status = 'paid', status = 'Rented' WHERE id = ?`,
+      [requestId]
+    );
+    // Notify buyer about successful payment
+    const [buyerRes] = await db.execute(`SELECT buyer_id FROM rent_requests WHERE id = ?`, [requestId]);
+    const buyerId = buyerRes[0]?.buyer_id;
+    if (buyerId) {
+      await sendNotification({
+        userId: buyerId,
+        title: 'Payment Received',
+        message: `Your ${method.toUpperCase()} payment for request #${requestId} was successful.`,
+        type: 'payment',
+        requestId,
+      });
+    }
+    return res.status(200).json({ success: true, message: 'Payment recorded' });
+  } catch (err) {
+    console.error('Process Payment Error:', err);
+    return res.status(500).json({ success: false, message: 'Server error processing payment' });
+  }
+};

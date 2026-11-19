@@ -16,6 +16,7 @@ router.get(
 );
 router.put("/:id/payment", rentRequestController.updatePaymentStatus);
 router.put("/:id/status", rentRequestController.updateRequestStatus);
+router.post("/:id/pay", rentRequestController.processPayment);
 router.put("/:id/customer-picked", rentRequestController.markCustomerPicked);
 router.put("/:id/customer-return", rentRequestController.markCustomerReturned); // 👈 Customer භාරදුන් විට
 router.put("/:id/accept-return", rentRequestController.acceptReturnedItem);     // 👈 කඩයේ අයිතිකරු බාරගත් විට

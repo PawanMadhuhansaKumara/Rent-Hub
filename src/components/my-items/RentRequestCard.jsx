@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { Link } from "react-router-dom";
 import {
   User,
@@ -14,6 +14,8 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { formatRentalDate, formatRequestTime } from "../../utils/dateUtils";
+import QRPaymentModal from "./QRPaymentModal";
+import CardPaymentModal from "./CardPaymentModal";
 
 /**
  * RentRequestCard
@@ -31,6 +33,9 @@ export default function RentRequestCard({
   onRateItem,
   API_URL = "http://localhost:5001",
 }) {
+  const [showQRModal, setShowQRModal] = useState(false);
+  const [showCardModal, setShowCardModal] = useState(false);
+  const [paymentStatus, setPaymentStatus] = useState(req.payment_status || req.paymentStatus || "pending");
   const isSender =
     Number(req.buyerId || req.buyer_id) === Number(userId) ||
     (!req.sellerId && !req.seller_id) ||
@@ -261,26 +266,24 @@ export default function RentRequestCard({
 
       {/* 1. CUSTOMER SIDE: Approved Rent Request - Waiting for shop handover */}
       {isSender && isApproved && (
-        <div className="rent-request-actions" style={{ marginTop: "12px" }}>
-          <div
-            style={{
-              width: "100%",
-              padding: "10px 14px",
-              backgroundColor: "#f0fdf4",
-              border: "1px solid #bbf7d0",
-              borderRadius: "8px",
-              display: "flex",
-              alignItems: "center",
-              gap: "8px",
-              fontSize: "12px",
-              fontWeight: "600",
-              color: "#166534",
-              boxSizing: "border-box",
-            }}
+        <div className="rent-request-actions" style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "8px" }}>
+          {/* QR Scan button */}
+          <button
+            type="button"
+            className="req-btn"
+            onClick={() => setShowQRModal(true)}
           >
-            <CheckCircle2 size={16} color="#16a34a" />
-            <span>Approved! Visit the shop to collect your item. Shop will mark as picked up upon handover.</span>
-          </div>
+            QR Scan to Pay
+          </button>
+
+          {/* Card Pay button */}
+          <button
+            type="button"
+            className="req-btn"
+            onClick={() => setShowCardModal(true)}
+          >
+            Pay with Card
+          </button>
         </div>
       )}
 
