@@ -1,0 +1,76 @@
+/* Action buttons container inside RentRequestCard */
+.rent-request-actions {
+  margin-top: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  width: 100%;
+}
+
+/* Base style for both QR and Card buttons */
+.rent-request-actions .req-btn {
+  width: 100%;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-size: 14px;
+  font-weight: 600;
+  line-height: 1.3;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  box-sizing: border-box;
+}
+
+/* 1st button: QR Scan to Pay (Clean Secondary Outlined Button) */
+.rent-request-actions .req-btn:first-of-type {
+  background-color: #f8fafc;
+  color: #0f172a;
+  border: 1.5px solid #cbd5e1;
+  box-shadow: 0 1px 2px rgba(15, 23, 42, 0.05);
+}
+
+.rent-request-actions .req-btn:first-of-type:hover {
+  background-color: #f0fdf4;
+  border-color: #15803d;
+  color: #15803d;
+  transform: translateY(-1px);
+}
+
+/* 2nd button: Pay with Card (Primary Emerald Gradient Button) */
+.rent-request-actions .req-btn:last-of-type {
+  background: linear-gradient(135deg, #15803d 0%, #166534 100%);
+  color: #ffffff;
+  border: 1.5px solid #15803d;
+  box-shadow: 0 4px 12px rgba(21, 128, 61, 0.22);
+}
+
+.rent-request-actions .req-btn:last-of-type:hover {
+  background: linear-gradient(135deg, #166534 0%, #14532d 100%);
+  box-shadow: 0 6px 16px rgba(21, 128, 61, 0.3);
+  transform: translateY(-1px);
+}
+
+.rent-request-actions .req-btn:active {
+  transform: translateY(0);
+}
+
+.rent-request-actions .req-btn:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+  transform: none;
+  box-shadow: none;
+}
+
+/* Side-by-side layout on wider screens (optional) */
+@media (min-width: 640px) {
+  .rent-request-actions.row {
+    flex-direction: row;
+  }
+
+  .rent-request-actions.row .req-btn {
+    flex: 1;
+  }
+}

@@ -554,6 +554,26 @@ export default function RentRequestCard({
           </div>
         );
       })()}
+{showQRModal && (
+        <QRPaymentModal
+          requestId={req.id}
+          onClose={() => setShowQRModal(false)}
+          onSuccess={() => {
+            setPaymentStatus('paid');
+            setShowQRModal(false);
+          }}
+        />
+      )}
+      {showCardModal && (
+        <CardPaymentModal
+          requestId={req.id}
+          onClose={() => setShowCardModal(false)}
+          onSuccess={() => {
+            setPaymentStatus('paid');
+            setShowCardModal(false);
+          }}
+        />
+      )}
     </div>
   );
 }

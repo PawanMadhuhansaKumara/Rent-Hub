@@ -10,6 +10,10 @@ import GoogleMapIcon from "../components/GoogleMapIcon";
 import MapLocationPickerModal from "../components/MapLocationPickerModal";
 import ShopDistanceModal from "../components/ShopDistanceModal";
 
+import { QRCodeCanvas } from "qrcode.react";
+// හෝ වෙනම file එකක හැදුවා නම්:
+// import ProfileQRSection from "../components/ProfileQRSection";
+
 const isItemRented = (item) => {
   if (!item) return false;
 
@@ -630,6 +634,47 @@ export default function Profile({ user, setUser }) {
     }
   };
 
+
+  const [showQRModal, setShowQRModal] = useState(false);
+const [bankName, setBankName] = useState("");
+const [accountName, setAccountName] = useState("");
+const [accountNumber, setAccountNumber] = useState("");
+const [qrValue, setQrValue] = useState("");
+
+const currentUserId = user?.id || user?.user_id || "default";
+
+useEffect(() => {
+  const saved = localStorage.getItem(`renthub_seller_qr_${currentUserId}`);
+  if (saved) {
+    try {
+      const parsed = JSON.parse(saved);
+      setBankName(parsed.bankName || "");
+      setAccountName(parsed.accountName || "");
+      setAccountNumber(parsed.accountNumber || "");
+      setQrValue(parsed.qrValue || "");
+    } catch (e) {
+      console.error("Failed to load saved QR data:", e);
+    }
+  }
+}, [currentUserId]);
+
+const handleGenerateQR = (e) => {
+  e.preventDefault();
+  const payLink = `${window.location.origin}/qr-pay?seller=${encodeURIComponent(
+    currentUserId
+  )}&bank=${encodeURIComponent(bankName)}&holder=${encodeURIComponent(
+    accountName
+  )}&acc=${encodeURIComponent(accountNumber)}`;
+
+  setQrValue(payLink);
+  localStorage.setItem(
+    `renthub_seller_qr_${currentUserId}`,
+    JSON.stringify({ bankName, accountName, accountNumber, qrValue: payLink })
+  );
+  setShowQRModal(false);
+};
+
+
   return (
     <div style={styles.desktopPageBackground}>
       <div style={styles.desktopContainer}>
@@ -880,7 +925,104 @@ export default function Profile({ user, setUser }) {
               </button>
             )}
           </div>
+          {/* --- Seller Payment QR Section --- */}
+<div className="profile-qr-section" style={{ marginTop: "18px", padding: "16px", borderRadius: "14px", border: "1px solid #e2e8f0", background: "#ffffff" }}>
+  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", flexWrap: "wrap" }}>
+    <div>
+      <h4 style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: "#0f172a" }}>
+        Seller Payment QR
+      </h4>
+      <p style={{ margin: "4px 0 0", fontSize: "12.5px", color: "#64748b" }}>
+        Add bank details to generate a QR. Customers scan it, enter the amount, and pay by card.
+      </p>
+    </div>
 
+    <button
+      type="button"
+      className="req-btn"
+      style={{ width: "auto", padding: "9px 14px" }}
+      onClick={() => setShowQRModal(true)}
+    >
+      {qrValue ? "Update Bank & QR" : "Generate QR"}
+    </button>
+  </div>
+
+  {qrValue && (
+    <div style={{ marginTop: "14px", paddingTop: "14px", borderTop: "1px solid #f1f5f9", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
+      <QRCodeCanvas value={qrValue} size={165} level="M" />
+      <div style={{ fontSize: "13px", fontWeight: 600, color: "#0f172a", textAlign: "center" }}>
+        {accountName} • {bankName} ({accountNumber})
+      </div>
+    </div>
+  )}
+</div>
+
+{/* --- Bank Details Modal --- */}
+{showQRModal && (
+  <div className="payment-modal-backdrop" onClick={() => setShowQRModal(false)}>
+    <div className="payment-modal-card" onClick={(e) => e.stopPropagation()}>
+      <div className="payment-modal-header">
+        <h3 className="payment-modal-title">Bank Details for QR</h3>
+        <button type="button" className="payment-modal-close" onClick={() => setShowQRModal(false)}>
+          ✕
+        </button>
+      </div>
+
+      <form onSubmit={handleGenerateQR}>
+        <div style={{ marginBottom: "10px" }}>
+          <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "4px" }}>
+            Bank Name
+          </label>
+          <input
+            type="text"
+            placeholder="e.g. Commercial Bank"
+            value={bankName}
+            onChange={(e) => setBankName(e.target.value)}
+            required
+            style={{ width: "100%", padding: "9px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+          />
+        </div>
+
+        <div style={{ marginBottom: "10px" }}>
+          <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "4px" }}>
+            Account Holder Name
+          </label>
+          <input
+            type="text"
+            placeholder="Account holder full name"
+            value={accountName}
+            onChange={(e) => setAccountName(e.target.value)}
+            required
+            style={{ width: "100%", padding: "9px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+          />
+        </div>
+
+        <div style={{ marginBottom: "14px" }}>
+          <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "4px" }}>
+            Account Number
+          </label>
+          <input
+            type="text"
+            placeholder="e.g. 8001234567"
+            value={accountNumber}
+            onChange={(e) => setAccountNumber(e.target.value)}
+            required
+            style={{ width: "100%", padding: "9px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+          />
+        </div>
+
+        <div className="payment-modal-actions">
+          <button type="button" className="payment-btn-cancel" onClick={() => setShowQRModal(false)}>
+            Cancel
+          </button>
+          <button type="submit" className="payment-btn-confirm">
+            Generate QR
+          </button>
+        </div>
+      </form>
+    </div>
+  </div>
+)}
           {activeTab === "shop" && (
             <div style={{ marginTop: "24px" }}>
               <div
