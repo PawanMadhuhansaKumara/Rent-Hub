@@ -4,9 +4,31 @@ import { useTranslation } from "react-i18next";
 import { UserPlus, Camera, CheckCircle2, ArrowLeft } from "lucide-react";
 import "../responsive.css";
 
-export default function Register() {
+export default function Register({ user }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  const isAlreadyLoggedIn = Boolean(
+    user ||
+    (() => {
+      try {
+        const saved = localStorage.getItem("user");
+        return saved ? JSON.parse(saved) : null;
+      } catch {
+        return null;
+      }
+    })()
+  );
+
+  React.useEffect(() => {
+    if (isAlreadyLoggedIn) {
+      navigate("/", { replace: true });
+    }
+  }, [isAlreadyLoggedIn, navigate]);
+
+  if (isAlreadyLoggedIn) {
+    return null;
+  }
 
   const [formData, setFormData] = useState({
     full_name: "",

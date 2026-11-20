@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from "react";
 import { useSearchParams } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { Clock, Inbox, ShoppingCart, Package } from "lucide-react";
 
 import RentRequestForm from "../components/RentRequestForm";
@@ -16,6 +17,7 @@ import "./MyItems.css";
 const API_URL = "http://localhost:5001";
 
 export default function MyItems({ user }) {
+  const { t } = useTranslation();
   const [searchParams] = useSearchParams();
 
   const currentUser =
@@ -1153,7 +1155,7 @@ export default function MyItems({ user }) {
   const tabsConfig = [
     {
       key: "rent-requests",
-      label: "Rent Requests",
+      label: t("rentsPage.tabs.requests", "Rent Requests"),
       icon: <Inbox size={17} />,
       count: isFromBusinessHub
         ? requests.filter(
@@ -1176,13 +1178,13 @@ export default function MyItems({ user }) {
     },
     {
       key: "rented-items",
-      label: "Rented Items",
+      label: t("rentsPage.tabs.rented", "Rented Items"),
       icon: <Clock size={17} />,
       count: isFromBusinessHub ? sentedOutList.length : allRentedCount,
     },
     {
       key: "rent-cart",
-      label: "Rent Items Cart",
+      label: t("rentsPage.tabs.cart", "Rent Items Cart"),
       icon: <ShoppingCart size={17} />,
       count: cartItems.length,
     },

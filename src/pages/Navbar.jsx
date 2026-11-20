@@ -38,11 +38,22 @@ export default function Navbar({ user, setUser }) {
   const [isDeletingChat, setIsDeletingChat] = useState(false);
   const dropdownRef = useRef(null);
 
-  const userId = user?.user_id || user?.id;
+  const activeUser =
+    user ||
+    (() => {
+      try {
+        const saved = localStorage.getItem("user");
+        return saved ? JSON.parse(saved) : null;
+      } catch {
+        return null;
+      }
+    })();
+
+  const userId = activeUser?.user_id || activeUser?.id;
 
   // Rental Limit සහ Trust Score ලබා ගැනීම (Login නැත්නම් Limit 1000, Trust 50%)
-  const userLimit = user ? Number(user.rental_limit || user.max_rental_limit || 1000) : 1000;
-  const userTrustScore = user ? Number(user.trust_score || 50) : 50;
+  const userLimit = activeUser ? Number(activeUser.rental_limit || activeUser.max_rental_limit || 1000) : 1000;
+  const userTrustScore = activeUser ? Number(activeUser.trust_score || 50) : 50;
 
   // Fetch unread messages count
   const fetchUnreadCount = async () => {
@@ -146,7 +157,7 @@ export default function Navbar({ user, setUser }) {
   }, []);
 
   const handleChatIconClick = () => {
-    if (!user) {
+    if (!activeUser) {
       navigate("/login");
       return;
     }
@@ -245,7 +256,7 @@ export default function Navbar({ user, setUser }) {
       {/* Right Side Actions */}
       <div className="navbar-actions">
         {/* Home Link */}
-        {!user && (
+        {!activeUser && (
           <Link
             to="/"
             className={`navbar-link ${isActive("/") ? "active" : ""}`}
@@ -254,51 +265,13 @@ export default function Navbar({ user, setUser }) {
           </Link>
         )}
 
-        {/* --- GREEN RENTAL LIMIT & TRUST SCORE BADGE (Placed near Cart & Message icons) --- */}
-        {user && (
-          <div 
-            className="nav-rental-limit-badge" 
-            title={`Trust Score: ${userTrustScore}% | Maximum Rental Limit: LKR ${userLimit.toLocaleString()}`}
-          >
-            <span style={{ fontSize: "12px", fontWeight: "700", color: "#fef08a", display: "inline-flex", alignItems: "center", gap: "2px" }}>
-              🛡️ {userTrustScore}%
-            </span>
-            <span style={{ opacity: 0.5, margin: "0 2px" }}>|</span>
-            <span className="limit-label">Limit:</span>
-            <span className="limit-amount">LKR {userLimit.toLocaleString()}</span>
-          </div>
-        )}
-
-        {user && <CartIcon />}
-
-        {/* Notification Bell Icon */}
-        {user && (
-          <Link
-            to="/notifications"
-            className="navbar-chat-btn"
-            title="Notifications"
-            aria-label="Notifications"
-            style={{
-              textDecoration: "none",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            <Bell size={20} color="#ffffff" />
-            {unreadNotifCount > 0 && (
-              <span className="navbar-chat-badge">
-                {unreadNotifCount > 9 ? "9+" : unreadNotifCount}
-              </span>
-            )}
-          </Link>
-        )}
+        {activeUser && <CartIcon />}
 
         {/* Language Selector */}
-        {!user && <LanguageSelecter />}
+        {!activeUser && <LanguageSelecter />}
 
         {/* Chat Icon & Dropdown */}
-        {user && (
+        {activeUser && (
           <div className="navbar-chat-wrapper" ref={dropdownRef}>
             <button
               type="button"
@@ -499,18 +472,18 @@ export default function Navbar({ user, setUser }) {
           </div>
         )}
 
-        {user ? (
+        {activeUser ? (
           <Link
             to="/profile"
             className="navbar-profile"
-            title={user.full_name || "Profile"}
+            title={activeUser.full_name || "Profile"}
           >
             <img
               src={
-                user.profile_pic_url
-                  ? user.profile_pic_url.startsWith("http")
-                    ? user.profile_pic_url
-                    : `http://localhost:5001${user.profile_pic_url}`
+                activeUser.profile_pic_url
+                  ? activeUser.profile_pic_url.startsWith("http")
+                    ? activeUser.profile_pic_url
+                    : `http://localhost:5001${activeUser.profile_pic_url}`
                   : "https://via.placeholder.com/40"
               }
               alt="Profile"

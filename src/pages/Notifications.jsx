@@ -211,8 +211,8 @@ export default function Notifications({ user }) {
                 title="Mark all notifications as read"
               >
                 <CheckCheck size={14} />
-                <span className="btn-label-desktop">Mark All as Read</span>
-                <span className="btn-label-mobile">Read All</span>
+                <span className="btn-label-desktop">{t("notificationsPage.markAllAsRead", "Mark All as Read")}</span>
+                <span className="btn-label-mobile">{t("notificationsPage.markAllAsRead", "Read All")}</span>
               </button>
             )}
             <button
@@ -222,7 +222,7 @@ export default function Notifications({ user }) {
               title="Clear notifications"
             >
               <Trash2 size={14} />
-              <span>Clear</span>
+              <span>{t("notificationsPage.clearAll", "Clear")}</span>
             </button>
           </div>
         )}
@@ -235,7 +235,7 @@ export default function Notifications({ user }) {
           className={`notifications-tab-btn ${activeTab === "all" ? "active" : ""}`}
           onClick={() => setActiveTab("all")}
         >
-          <span>All</span>
+          <span>{t("notificationsPage.all", "All")}</span>
           <span className="notifications-tab-count">{notifications.length}</span>
         </button>
 
@@ -245,7 +245,7 @@ export default function Notifications({ user }) {
           onClick={() => setActiveTab("requests")}
         >
           <Inbox size={14} />
-          <span>Rental Requests</span>
+          <span>{t("notificationsPage.requests", "Rental Requests")}</span>
           <span className="notifications-tab-count">{requestsCount}</span>
         </button>
 
@@ -255,7 +255,7 @@ export default function Notifications({ user }) {
           onClick={() => setActiveTab("messages")}
         >
           <MessageCircle size={14} />
-          <span>Messages</span>
+          <span>{t("notificationsPage.messages", "Messages")}</span>
           <span className="notifications-tab-count">{messagesCount}</span>
         </button>
       </div>
@@ -271,14 +271,13 @@ export default function Notifications({ user }) {
           <div className="notifications-empty-icon">
             <Bell size={36} />
           </div>
-          <h3>No notifications yet</h3>
+          <h3>{t("notificationsPage.noNotifications", "No notifications yet")}</h3>
           <p>
-            You are all caught up! When you receive rental requests, status updates, or
-            messages, they will show up here.
+            {t("notificationsPage.emptyDesc", "You are all caught up! When you receive rental requests, status updates, or messages, they will show up here.")}
           </p>
           <Link to="/" className="notifications-empty-btn">
             <ShoppingBag size={16} />
-            <span>Browse Rental Items</span>
+            <span>{t("rentsPage.browseItems", "Browse Rental Items")}</span>
           </Link>
         </div>
       ) : (

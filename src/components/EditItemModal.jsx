@@ -15,6 +15,7 @@ const API_URL = "http://localhost:5001";
 const CATEGORIES = [
   "Tools",
   "Electronics",
+  "Cameras",
   "Vehicles",
   "Party & Events",
   "Sports",

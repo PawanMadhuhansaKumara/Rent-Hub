@@ -1,5 +1,6 @@
 import React, { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { CheckCircle2, Inbox, ArrowRight, X } from "lucide-react";
 import "./components.css";
 
@@ -9,6 +10,7 @@ export default function RentRequestSuccessModal({
   onShowRequests,
   itemTitle,
 }) {
+  const { t } = useTranslation();
   const navigate = useNavigate();
 
   useEffect(() => {
@@ -65,11 +67,12 @@ export default function RentRequestSuccessModal({
               <CheckCircle2 size={36} color="#15803d" />
             </div>
 
-            <h2 className="rent-request-success-title">Rental Request Sent!</h2>
+            <h2 className="rent-request-success-title">
+              {t("rentRequest.requestSentTitle", "Rental Request Sent!")}
+            </h2>
 
             <p className="rent-request-success-message">
-              Your rental request has been sent! Once the owner accepts your
-              request, you can go and pick up the item.
+              {t("rentRequest.requestSentMsg", "Your rental request has been sent! Once the owner accepts your request, you can go and pick up the item.")}
             </p>
 
             {itemTitle && (
@@ -99,7 +102,7 @@ export default function RentRequestSuccessModal({
                 onClick={handleShowRequests}
               >
                 <Inbox size={16} />
-                <span>Show Requests</span>
+                <span>{t("rentRequest.showRequests", "Show Requests")}</span>
                 <ArrowRight size={16} />
               </button>
               <button
@@ -107,7 +110,7 @@ export default function RentRequestSuccessModal({
                 className="rent-request-done-btn"
                 onClick={onClose}
               >
-                Close
+                {t("map.close", "Close")}
               </button>
             </div>
           </div>

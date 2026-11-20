@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import "./components.css";
 
 function RentRequestButton({
@@ -10,6 +11,7 @@ function RentRequestButton({
   className = "",
   ...props
 }) {
+  const { t } = useTranslation();
   const isRentedOut =
     available === "Rented Out" ||
     String(available).toLowerCase() === "rented out" ||
@@ -28,8 +30,8 @@ function RentRequestButton({
   const buttonText =
     children ||
     (isRentedOut
-      ? "Rented Out"
-      : "Rent Now");
+      ? t("rentsPage.status.rented", "Rented Out")
+      : t("rentRequest.requestToRent", "Rent Now"));
 
   return (
     <button

@@ -5,14 +5,38 @@ import { Phone, Lock, CheckCircle2 } from "lucide-react";
 import "../responsive.css";
 import logo from "../assets/logo.png";
 
-export default function Login({ onLoginSuccess }) {
+export default function Login({ onLoginSuccess, user }) {
   const navigate = useNavigate();
+  const { t } = useTranslation();
+
+  // If already logged in, redirect immediately and NEVER show the login form
+  const isAlreadyLoggedIn = Boolean(
+    user ||
+    (() => {
+      try {
+        const saved = localStorage.getItem("user");
+        return saved ? JSON.parse(saved) : null;
+      } catch {
+        return null;
+      }
+    })()
+  );
+
+  React.useEffect(() => {
+    if (isAlreadyLoggedIn) {
+      navigate("/", { replace: true });
+    }
+  }, [isAlreadyLoggedIn, navigate]);
+
   const [phoneNo, setPhoneNo] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
 
-  const { t } = useTranslation();
+  // Under NO circumstance render the login form if logged in
+  if (isAlreadyLoggedIn) {
+    return null;
+  }
 
   // Standard Phone Number + Password Login
   const handleLogin = async (e) => {

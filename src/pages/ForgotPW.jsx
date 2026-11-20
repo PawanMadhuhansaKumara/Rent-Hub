@@ -5,9 +5,31 @@ import { CheckCircle2, ArrowLeft, MessageSquare } from "lucide-react";
 import "../responsive.css";
 import logo from "../assets/logo.png";
 
-export default function ForgotPW() {
+export default function ForgotPW({ user }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
+
+  const isAlreadyLoggedIn = Boolean(
+    user ||
+    (() => {
+      try {
+        const saved = localStorage.getItem("user");
+        return saved ? JSON.parse(saved) : null;
+      } catch {
+        return null;
+      }
+    })()
+  );
+
+  React.useEffect(() => {
+    if (isAlreadyLoggedIn) {
+      navigate("/", { replace: true });
+    }
+  }, [isAlreadyLoggedIn, navigate]);
+
+  if (isAlreadyLoggedIn) {
+    return null;
+  }
 
   // Step 1: 'phone' -> Step 2: 'otp_password' -> Step 3: 'success'
   const [step, setStep] = useState(1);

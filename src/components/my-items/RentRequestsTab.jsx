@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   Send,
   Inbox,
@@ -29,6 +30,7 @@ export default function RentRequestsTab({
   API_URL = "http://localhost:5001",
   hideSentByMe = false,
 }) {
+  const { t } = useTranslation();
   const [pickedUpNotices, setPickedUpNotices] = useState({});
   const [handoverModalReq, setHandoverModalReq] = useState(null);
   const [isSubmittingHandover, setIsSubmittingHandover] = useState(false);
@@ -151,7 +153,7 @@ export default function RentRequestsTab({
             onClick={() => setRequestFilter("sent")}
           >
             <ArrowUpRight size={14} />
-            <span>Sent by Me</span>
+            <span>{t("rentsPage.filters.sent", "Sent by Me")}</span>
             <span className="my-items-tab-count">{sentCount}</span>
           </button>
         )}
@@ -163,7 +165,7 @@ export default function RentRequestsTab({
           onClick={() => setRequestFilter("received")}
         >
           <ArrowDownLeft size={14} />
-          <span>Received</span>
+          <span>{t("rentsPage.filters.received", "Received")}</span>
           <span className="my-items-tab-count">{receivedCount}</span>
         </button>
       </div>

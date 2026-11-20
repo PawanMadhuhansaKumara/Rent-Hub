@@ -89,6 +89,7 @@ export default function RentRequestCard({
             <img
               src={imageUrl}
               alt={req.itemTitle}
+              className="rent-request-thumb"
               style={{
                 width: "48px",
                 height: "48px",
@@ -266,7 +267,7 @@ export default function RentRequestCard({
 
       {/* 1. CUSTOMER SIDE: Approved Rent Request - Waiting for shop handover */}
       {isSender && isApproved && (
-        <div className="rent-request-actions" style={{ marginTop: "12px", display: "flex", flexDirection: "column", gap: "8px" }}>
+        <div className="rent-request-actions">
           {/* QR Scan button */}
           <button
             type="button"

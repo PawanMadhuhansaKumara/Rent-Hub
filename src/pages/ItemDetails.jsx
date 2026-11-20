@@ -66,7 +66,14 @@ export default function ItemDetails() {
   const [showDistanceModal, setShowDistanceModal] = useState(false);
   const [showEditItemModal, setShowEditItemModal] = useState(false);
   const [showChat, setShowChat] = useState(false);
-  const [currentUser, setCurrentUser] = useState(null);
+  const [currentUser, setCurrentUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem("user");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  });
   const [isInCart, setIsInCart] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
   const [itemReviewStats, setItemReviewStats] = useState({

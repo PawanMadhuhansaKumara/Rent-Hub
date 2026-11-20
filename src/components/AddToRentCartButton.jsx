@@ -1,5 +1,6 @@
 
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { ShoppingCart } from "lucide-react";
 import "./components.css";
 
@@ -10,6 +11,7 @@ function AddToRentCartButton({
   disabled = false,
   onClick,
 }) {
+  const { t } = useTranslation();
   const isRentedOut =
     available === "Rented Out" ||
     String(available).toLowerCase() === "rented out" ||
@@ -34,7 +36,7 @@ function AddToRentCartButton({
       {isAdded ? (
         <>
           <ShoppingCart size={18} />
-          <span>View Cart</span>
+          <span>{t("rentsPage.tabs.cart", "View Cart")}</span>
         </>
       ) : (
         <>
@@ -45,8 +47,8 @@ function AddToRentCartButton({
               : disabled
               ? "Limit Exceeded"
               : isRentedOut
-              ? "Rented Out"
-              : "Add to Rent Cart"}
+              ? t("rentsPage.status.rented", "Rented Out")
+              : t("item.addToRentCart", "Add to Rent Cart")}
           </span>
         </>
       )}

@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import "./AddItem.css";
 
 const initialForm = {
@@ -13,6 +14,7 @@ const initialForm = {
 };
 
 export default function AddItem({ onItemAdded }) {
+  const { t } = useTranslation();
   const [form, setForm] = useState(initialForm);
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState("");
@@ -125,10 +127,9 @@ export default function AddItem({ onItemAdded }) {
       <div className="add-item-container">
         <div className="add-item-heading">
           <span className="add-item-eyebrow">RENT-HUB MARKETPLACE</span>
-          <h1>List Your Item</h1>
+          <h1>{t("addItemPage.title", "List Your Item")}</h1>
           <p>
-            Turn your unused items into opportunities.
-            Share them with the Rent-Hub community.
+            {t("addItemPage.subtitle", "Turn your unused items into opportunities. Share them with the Rent-Hub community.")}
           </p>
         </div>
 
@@ -136,20 +137,20 @@ export default function AddItem({ onItemAdded }) {
           <div className="add-item-card-heading">
             <div className="add-item-icon" aria-hidden="true">+</div>
             <div>
-              <h2>Item Information</h2>
-              <p>Enter the details of the item you want to rent out.</p>
+              <h2>{t("addItemPage.title", "Item Information")}</h2>
+              <p>{t("addItemPage.subtitle", "Enter the details of the item you want to rent out.")}</p>
             </div>
           </div>
 
           <form onSubmit={handleSubmit}>
             <div className="add-item-field">
-              <label htmlFor="title">Item Name <span>*</span></label>
+              <label htmlFor="title">{t("addItemPage.itemTitle", "Item Name *")}</label>
               <input
                 id="title"
                 name="title"
                 value={form.title}
                 onChange={handleChange}
-                placeholder="e.g. Electric Drill"
+                placeholder={t("addItemPage.titlePlaceholder", "e.g. Electric Drill")}
                 maxLength={100}
                 required
               />
@@ -157,7 +158,7 @@ export default function AddItem({ onItemAdded }) {
 
             <div className="add-item-row">
               <div className="add-item-field">
-                <label htmlFor="category">Category <span>*</span></label>
+                <label htmlFor="category">{t("addItemPage.category", "Category *")}</label>
                 <select
                   id="category"
                   name="category"
@@ -165,18 +166,19 @@ export default function AddItem({ onItemAdded }) {
                   onChange={handleChange}
                   required
                 >
-                  <option>Tools</option>
-                  <option>Electronics</option>
-                  <option>Vehicles</option>
-                  <option>Furniture</option>
-                  <option>Sports</option>
-                  <option>Camping</option>
-                  <option>Other</option>
+                  <option value="Tools">{t("categories.tools", "Tools")}</option>
+                  <option value="Electronics">{t("categories.electronics", "Electronics")}</option>
+                  <option value="Cameras">{t("categories.cameras", "Cameras")}</option>
+                  <option value="Vehicles">{t("categories.vehicles", "Vehicles")}</option>
+                  <option value="Furniture">{t("categories.furniture", "Furniture")}</option>
+                  <option value="Sports">{t("categories.sports", "Sports")}</option>
+                  <option value="Camping">{t("categories.camping", "Camping")}</option>
+                  <option value="Other">{t("categories.other", "Other")}</option>
                 </select>
               </div>
 
               <div className="add-item-field">
-                <label htmlFor="condition">Item Condition</label>
+                <label htmlFor="condition">{t("addItemPage.condition", "Item Condition")}</label>
                 <select
                   id="condition"
                   name="condition"
@@ -293,7 +295,7 @@ export default function AddItem({ onItemAdded }) {
                 className="publish-item-button"
                 disabled={loading}
               >
-                {loading ? "Publishing..." : "Publish Item"}
+                {loading ? t("addItemPage.submitting", "Publishing...") : t("addItemPage.submitBtn", "Publish Item")}
               </button>
 
               <button
@@ -302,7 +304,7 @@ export default function AddItem({ onItemAdded }) {
                 onClick={() => navigate("/profile")}
                 disabled={loading}
               >
-                Back
+                {t("map.cancel", "Back")}
               </button>
             </div>
 

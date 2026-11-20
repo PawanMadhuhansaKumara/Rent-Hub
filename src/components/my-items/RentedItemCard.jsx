@@ -51,6 +51,7 @@ export default function RentedItemCard({
             <img
               src={imageUrl}
               alt={item.title}
+              className="rent-request-thumb"
               style={{
                 width: "48px",
                 height: "48px",

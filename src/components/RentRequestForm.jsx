@@ -1,4 +1,5 @@
 import React, { useEffect, useMemo, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { X, Calendar, CheckCircle } from "lucide-react";
 import "./components.css";
 
@@ -20,6 +21,7 @@ export default function RentRequestForm({
   price = 0,
   itemTitle,
 }) {
+  const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [localPaymentMethod, setLocalPaymentMethod] = useState(paymentMethod || "cash");
 
@@ -120,9 +122,9 @@ export default function RentRequestForm({
               <CheckCircle size={22} color="#15803d" />
             </span>
             <div className="request-form-heading-text">
-              <h2>Rental Request</h2>
+              <h2>{t("rentRequest.requestToRent", "Rental Request")}</h2>
               <p>
-                {itemTitle ? itemTitle : "Choose your preferred rental dates."}
+                {itemTitle ? itemTitle : t("rentRequest.rentalPeriod", "Choose your preferred rental dates.")}
               </p>
             </div>
             {onClose && (
@@ -146,7 +148,7 @@ export default function RentRequestForm({
                 verticalAlign: "middle",
               }}
             />
-            Rental Start Date
+            {t("rentRequest.startDate", "Rental Start Date")}
           </label>
           <input
             id="startDate"
@@ -171,7 +173,7 @@ export default function RentRequestForm({
                 verticalAlign: "middle",
               }}
             />
-            Rental End Date
+            {t("rentRequest.endDate", "Rental End Date")}
           </label>
           <input
             id="endDate"
@@ -318,8 +320,8 @@ export default function RentRequestForm({
             {isRentedOut
               ? "Item Currently Rented Out"
               : isSubmitting
-              ? "Sending Request..."
-              : "Confirm & Send Request →"}
+              ? t("rentRequest.submitting", "Sending Request...")
+              : t("rentRequest.confirmAndSend", "Confirm & Send Request →")}
           </button>
 
           <p className="request-note">

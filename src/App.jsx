@@ -32,7 +32,14 @@ function RentsRedirect() {
 
 
 export default function App() {
-  const [user, setUser] = useState(null); 
+  const [user, setUser] = useState(() => {
+    try {
+      const saved = localStorage.getItem("user");
+      return saved ? JSON.parse(saved) : null;
+    } catch {
+      return null;
+    }
+  }); 
 
   // Function to refresh trust score & rental limit from backend
   const refreshUserTrustScore = async (currentU) => {
@@ -116,15 +123,24 @@ export default function App() {
       <Routes>
         <Route path="/" element={<Home user={user} setUser={setUser} />} />
         <Route path="/buyer-location-test"element={<BuyerLocationTest />}/>
-        <Route path="/login" element={<Login onLoginSuccess={setUser} />} />
-        <Route path="/register" element={<Register />} />
-        <Route path="/forgot-password" element={<ForgotPW />} />
+        <Route
+          path="/login"
+          element={user ? <Navigate to="/" replace /> : <Login onLoginSuccess={setUser} user={user} />}
+        />
+        <Route
+          path="/register"
+          element={user ? <Navigate to="/" replace /> : <Register user={user} />}
+        />
+        <Route
+          path="/forgot-password"
+          element={user ? <Navigate to="/" replace /> : <ForgotPW user={user} />}
+        />
 
         <Route path="/item/:id" element={<ItemDetails />} />
 
         <Route
           path="/profile"
-          element={user ? <Profile user={user} setUser={setUser} /> : <Navigate to="/login" />}
+          element={user ? <Profile user={user} setUser={setUser} /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/profile/:userId"
@@ -133,27 +149,27 @@ export default function App() {
 
         <Route
           path="/add-item"
-          element={user ? <AddItem /> : <Navigate to="/login" />}
+          element={user ? <AddItem /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/my-items"
-          element={user ? <MyItems user={user} /> : <Navigate to="/login" />}
+          element={user ? <MyItems user={user} /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/MyItems"
-          element={user ? <MyItems user={user} /> : <Navigate to="/login" />}
+          element={user ? <MyItems user={user} /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/business-hub"
-          element={user ? <BusinessHub user={user} /> : <Navigate to="/login" />}
+          element={user ? <BusinessHub user={user} /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/BusinessHub"
-          element={user ? <BusinessHub user={user} /> : <Navigate to="/login" />}
+          element={user ? <BusinessHub user={user} /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/notifications"
-          element={user ? <Notifications user={user} /> : <Navigate to="/login" />}
+          element={user ? <Notifications user={user} /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/add-post"
