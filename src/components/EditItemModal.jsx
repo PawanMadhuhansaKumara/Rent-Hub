@@ -174,12 +174,15 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
       onClick={onClose}
     >
       <div
+        className="edit-item-modal-box"
         style={{
-          backgroundColor: "#ffffff",
+          backgroundColor: "var(--bg-modal)",
+          color: "var(--text-main)",
           borderRadius: "20px",
           width: "100%",
           maxWidth: "650px",
           boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.28)",
+          border: "1px solid var(--border-light)",
           overflow: "hidden",
           display: "flex",
           flexDirection: "column",
@@ -192,11 +195,11 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
         <div
           style={{
             padding: "14px 18px",
-            borderBottom: "1px solid #e2e8f0",
+            borderBottom: "1px solid var(--border-light)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            background: "linear-gradient(to right, #f8fafc, #ffffff)",
+            background: "linear-gradient(to right, var(--bg-app-alt), var(--bg-modal, var(--bg-card)))",
           }}
         >
           <div style={{ minWidth: 0 }}>
@@ -205,20 +208,20 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                 margin: 0,
                 fontSize: "clamp(16px, 2.5vw, 18px)",
                 fontWeight: 700,
-                color: "#0f172a",
+                color: "var(--text-main)",
                 display: "flex",
                 alignItems: "center",
                 gap: "8px",
               }}
             >
-              <Sparkles size={18} color="#00aa5b" />
+              <Sparkles size={18} color="var(--primary)" />
               {t("itemEdit.editItemListing")}
             </h3>
             <p
               style={{
                 margin: 0,
                 fontSize: "11px",
-                color: "#64748b",
+                color: "var(--text-muted)",
                 marginTop: "2px",
               }}
             >
@@ -230,7 +233,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
             type="button"
             onClick={onClose}
             style={{
-              background: "#f1f5f9",
+              background: "var(--bg-card-hover)",
               border: "none",
               borderRadius: "50%",
               width: "32px",
@@ -239,7 +242,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
               alignItems: "center",
               justifyContent: "center",
               cursor: "pointer",
-              color: "#475569",
+              color: "var(--text-secondary)",
               flexShrink: 0,
               marginLeft: "8px",
             }}
@@ -262,8 +265,8 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
           {errorMessage && (
             <div
               style={{
-                backgroundColor: "#fee2e2",
-                color: "#991b1b",
+                backgroundColor: "var(--badge-red-bg)",
+                color: "var(--badge-red-text)",
                 padding: "9px 12px",
                 borderRadius: "8px",
                 fontSize: "12px",
@@ -284,7 +287,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                 display: "block",
                 fontSize: "12px",
                 fontWeight: 700,
-                color: "#334155",
+                color: "var(--text-secondary)",
                 marginBottom: "6px",
               }}
             >
@@ -304,9 +307,9 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                 alignItems: "center",
                 gap: "14px",
                 padding: "10px 14px",
-                border: "1px dashed #cbd5e1",
+                border: "1px dashed var(--border-light)",
                 borderRadius: "12px",
-                backgroundColor: "#f8fafc",
+                backgroundColor: "var(--bg-app-alt)",
                 flexWrap: "wrap",
               }}
             >
@@ -316,7 +319,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                   height: "80px",
                   borderRadius: "10px",
                   overflow: "hidden",
-                  backgroundColor: "#e2e8f0",
+                  backgroundColor: "var(--border-light)",
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
@@ -330,7 +333,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                     style={{ width: "100%", height: "100%", objectFit: "cover" }}
                   />
                 ) : (
-                  <Package size={28} color="#94a3b8" />
+                  <Package size={28} color="var(--text-muted)" />
                 )}
               </div>
 
@@ -339,20 +342,20 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                   type="button"
                   onClick={() => fileInputRef.current?.click()}
                   style={{
-                    backgroundColor: "#ffffff",
-                    border: "1px solid #cbd5e1",
+                    backgroundColor: "var(--bg-modal, var(--bg-card))",
+                    border: "1px solid var(--border-light)",
                     padding: "7px 14px",
                     borderRadius: "8px",
                     fontSize: "12px",
                     fontWeight: 600,
-                    color: "#0f172a",
+                    color: "var(--text-main)",
                     cursor: "pointer",
                     display: "inline-flex",
                     alignItems: "center",
                     gap: "6px",
                   }}
                 >
-                  <Camera size={14} color="#00aa5b" />
+                  <Camera size={14} color="var(--primary)" />
                   {imageFile
                     ? t("itemEdit.changeSelectedImage")
                     : t("itemEdit.uploadNewImage")}
@@ -360,7 +363,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                 <p
                   style={{
                     fontSize: "11px",
-                    color: "#64748b",
+                    color: "var(--text-muted)",
                     margin: "5px 0 0 0",
                   }}
                 >
@@ -377,7 +380,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                 display: "block",
                 fontSize: "12px",
                 fontWeight: 700,
-                color: "#334155",
+                color: "var(--text-secondary)",
                 marginBottom: "4px",
               }}
             >
@@ -393,7 +396,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                 width: "100%",
                 padding: "8px 12px",
                 borderRadius: "8px",
-                border: "1px solid #cbd5e1",
+                border: "1px solid var(--border-light)",
                 fontSize: "13px",
                 outline: "none",
                 boxSizing: "border-box",
@@ -415,7 +418,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                   display: "block",
                   fontSize: "12px",
                   fontWeight: 700,
-                  color: "#334155",
+                  color: "var(--text-secondary)",
                   marginBottom: "4px",
                 }}
               >
@@ -429,10 +432,10 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                   width: "100%",
                   padding: "8px 12px",
                   borderRadius: "8px",
-                  border: "1px solid #cbd5e1",
+                  border: "1px solid var(--border-light)",
                   fontSize: "13px",
                   outline: "none",
-                  backgroundColor: "#ffffff",
+                  backgroundColor: "var(--bg-modal, var(--bg-card))",
                   boxSizing: "border-box",
                 }}
               >
@@ -450,7 +453,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                   display: "block",
                   fontSize: "12px",
                   fontWeight: 700,
-                  color: "#334155",
+                  color: "var(--text-secondary)",
                   marginBottom: "4px",
                 }}
               >
@@ -464,10 +467,10 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                   width: "100%",
                   padding: "8px 12px",
                   borderRadius: "8px",
-                  border: "1px solid #cbd5e1",
+                  border: "1px solid var(--border-light)",
                   fontSize: "13px",
                   outline: "none",
-                  backgroundColor: "#ffffff",
+                  backgroundColor: "var(--bg-modal, var(--bg-card))",
                   boxSizing: "border-box",
                 }}
               >
@@ -494,7 +497,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                   display: "block",
                   fontSize: "12px",
                   fontWeight: 700,
-                  color: "#334155",
+                  color: "var(--text-secondary)",
                   marginBottom: "4px",
                 }}
               >
@@ -512,7 +515,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                   width: "100%",
                   padding: "8px 12px",
                   borderRadius: "8px",
-                  border: "1px solid #cbd5e1",
+                  border: "1px solid var(--border-light)",
                   fontSize: "13px",
                   outline: "none",
                   boxSizing: "border-box",
@@ -526,7 +529,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                   display: "block",
                   fontSize: "12px",
                   fontWeight: 700,
-                  color: "#334155",
+                  color: "var(--text-secondary)",
                   marginBottom: "4px",
                 }}
               >
@@ -540,10 +543,10 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                   width: "100%",
                   padding: "8px 12px",
                   borderRadius: "8px",
-                  border: "1px solid #cbd5e1",
+                  border: "1px solid var(--border-light)",
                   fontSize: "13px",
                   outline: "none",
-                  backgroundColor: "#ffffff",
+                  backgroundColor: "var(--bg-modal, var(--bg-card))",
                   boxSizing: "border-box",
                 }}
               >
@@ -559,7 +562,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                   display: "block",
                   fontSize: "12px",
                   fontWeight: 700,
-                  color: "#334155",
+                  color: "var(--text-secondary)",
                   marginBottom: "4px",
                 }}
               >
@@ -576,7 +579,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                   width: "100%",
                   padding: "8px 12px",
                   borderRadius: "8px",
-                  border: "1px solid #cbd5e1",
+                  border: "1px solid var(--border-light)",
                   fontSize: "13px",
                   outline: "none",
                   boxSizing: "border-box",
@@ -592,7 +595,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                 display: "block",
                 fontSize: "12px",
                 fontWeight: 700,
-                color: "#334155",
+                color: "var(--text-secondary)",
                 marginBottom: "4px",
               }}
             >
@@ -608,7 +611,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                 width: "100%",
                 padding: "8px 12px",
                 borderRadius: "8px",
-                border: "1px solid #cbd5e1",
+                border: "1px solid var(--border-light)",
                 fontSize: "13px",
                 outline: "none",
                 fontFamily: "inherit",
@@ -627,7 +630,7 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
               gap: "10px",
               marginTop: "4px",
               paddingTop: "14px",
-              borderTop: "1px solid #e2e8f0",
+              borderTop: "1px solid var(--border-light)",
               flexWrap: "wrap",
             }}
           >
@@ -638,11 +641,11 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
               style={{
                 padding: "8px 16px",
                 borderRadius: "8px",
-                border: "1px solid #cbd5e1",
-                background: "#ffffff",
+                border: "1px solid var(--border-light)",
+                background: "var(--bg-modal, var(--bg-card))",
                 fontSize: "13px",
                 fontWeight: 600,
-                color: "#475569",
+                color: "var(--text-secondary)",
                 cursor: "pointer",
               }}
             >
@@ -656,10 +659,10 @@ export default function EditItemModal({ isOpen, onClose, item, onItemUpdated }) 
                 padding: "8px 22px",
                 borderRadius: "8px",
                 border: "none",
-                background: "#00aa5b",
+                background: "var(--primary)",
                 fontSize: "13px",
                 fontWeight: 700,
-                color: "#ffffff",
+                color: "var(--text-inverse)",
                 cursor: "pointer",
                 display: "inline-flex",
                 alignItems: "center",

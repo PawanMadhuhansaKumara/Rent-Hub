@@ -69,8 +69,8 @@ const createUserDotIcon = (youLabel = "You") => {
           position: absolute;
           inset: 0;
           border-radius: 50%;
-          background: #2563eb;
-          border: 3px solid #ffffff;
+          background: var(--badge-blue-text);
+          border: 3px solid var(--border-light);
           box-shadow: 0 2px 8px rgba(0,0,0,0.3);
         "></div>
         <span style="
@@ -78,8 +78,8 @@ const createUserDotIcon = (youLabel = "You") => {
           bottom: -22px;
           left: 50%;
           transform: translateX(-50%);
-          background: #1e293b;
-          color: #ffffff;
+          background: var(--text-main);
+          color: var(--text-inverse);
           font-size: 10px;
           font-weight: 700;
           padding: 2px 6px;
@@ -110,17 +110,17 @@ const createShopMarkerIcon = (shopName = "Shop") => {
           <filter id="shopShadow" x="-20%" y="-10%" width="140%" height="130%">
             <feDropShadow dx="0" dy="3" stdDeviation="2.5" flood-opacity="0.3"/>
           </filter>
-          <path d="M18 0C8.06 0 0 8.06 0 18c0 13 16.2 24.5 16.9 25a2 2 0 0 0 2.2 0C19.8 42.5 36 31 36 18 36 8.06 27.94 0 18 0z" fill="#00aa5b" filter="url(#shopShadow)"/>
-          <circle cx="18" cy="16" r="11" fill="#ffffff"/>
-          <path d="M12 17v-3h12v3M14 20h8M15 11h6" stroke="#00aa5b" stroke-width="2" stroke-linecap="round"/>
+          <path d="M18 0C8.06 0 0 8.06 0 18c0 13 16.2 24.5 16.9 25a2 2 0 0 0 2.2 0C19.8 42.5 36 31 36 18 36 8.06 27.94 0 18 0z" fill="var(--primary)" filter="url(#shopShadow)"/>
+          <circle cx="18" cy="16" r="11" fill="var(--text-inverse)"/>
+          <path d="M12 17v-3h12v3M14 20h8M15 11h6" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"/>
         </svg>
         <span style="
           position: absolute;
           bottom: -22px;
           left: 50%;
           transform: translateX(-50%);
-          background: #00aa5b;
-          color: #ffffff;
+          background: var(--primary);
+          color: var(--text-inverse);
           font-size: 10px;
           font-weight: 700;
           padding: 2px 8px;
@@ -290,7 +290,7 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
               [shopCoords.lat, shopCoords.lng],
             ],
             {
-              color: "#00aa5b",
+              color: "var(--primary)",
               weight: 5,
               opacity: 0.85,
               dashArray: "8, 8",
@@ -362,7 +362,7 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
     >
       <div
         style={{
-          backgroundColor: "#ffffff",
+          backgroundColor: "var(--bg-modal, var(--bg-card))",
           borderRadius: "20px",
           width: "100%",
           maxWidth: "680px",
@@ -379,11 +379,11 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
         <div
           style={{
             padding: "14px 18px",
-            borderBottom: "1px solid #e2e8f0",
+            borderBottom: "1px solid var(--border-light)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            background: "linear-gradient(to right, #f8fafc, #ffffff)",
+            background: "linear-gradient(to right, var(--bg-app-alt), var(--bg-modal, var(--bg-card)))",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
@@ -394,7 +394,7 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
                   margin: 0,
                   fontSize: "clamp(15px, 2.5vw, 17px)",
                   fontWeight: 700,
-                  color: "#0f172a",
+                  color: "var(--text-main)",
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -406,7 +406,7 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
                 style={{
                   margin: 0,
                   fontSize: "11px",
-                  color: "#64748b",
+                  color: "var(--text-muted)",
                   marginTop: "2px",
                 }}
               >
@@ -418,7 +418,7 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
           <button
             onClick={onClose}
             style={{
-              background: "#f1f5f9",
+              background: "var(--bg-card-hover)",
               border: "none",
               borderRadius: "50%",
               width: "32px",
@@ -427,7 +427,7 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
               alignItems: "center",
               justifyContent: "center",
               cursor: "pointer",
-              color: "#475569",
+              color: "var(--text-secondary)",
               flexShrink: 0,
               marginLeft: "8px",
             }}
@@ -440,8 +440,8 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
         <div
           style={{
             padding: "12px 18px",
-            background: "#f0fdf4",
-            borderBottom: "1px solid #bbf7d0",
+            background: "var(--badge-green-bg)",
+            borderBottom: "1px solid var(--badge-green-bg)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -455,11 +455,11 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
                 width: "40px",
                 height: "40px",
                 borderRadius: "10px",
-                background: "#00aa5b",
+                background: "var(--primary)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
-                color: "#ffffff",
+                color: "var(--text-inverse)",
                 boxShadow: "0 4px 10px rgba(0, 170, 91, 0.3)",
                 flexShrink: 0,
               }}
@@ -473,7 +473,7 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
                   style={{
                     fontSize: "clamp(17px, 3vw, 20px)",
                     fontWeight: 800,
-                    color: "#166534",
+                    color: "var(--primary-hover)",
                   }}
                 >
                   {distanceKm || (loadingUserLocation ? t("map.calculating") : "—")}
@@ -483,7 +483,7 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
                     style={{
                       fontSize: "12px",
                       fontWeight: 600,
-                      color: "#15803d",
+                      color: "var(--primary)",
                       display: "flex",
                       alignItems: "center",
                       gap: "4px",
@@ -497,7 +497,7 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
                 style={{
                   margin: 0,
                   fontSize: "11px",
-                  color: "#475569",
+                  color: "var(--text-secondary)",
                   marginTop: "2px",
                   display: "-webkit-box",
                   WebkitLineClamp: 1,
@@ -517,13 +517,13 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
                 onClick={requestUserLocation}
                 disabled={loadingUserLocation}
                 style={{
-                  background: "#ffffff",
-                  border: "1px solid #86efac",
+                  background: "var(--bg-modal, var(--bg-card))",
+                  border: "1px solid var(--badge-green-bg)",
                   padding: "6px 12px",
                   borderRadius: "8px",
                   fontSize: "12px",
                   fontWeight: 600,
-                  color: "#166534",
+                  color: "var(--primary-hover)",
                   cursor: "pointer",
                   display: "flex",
                   alignItems: "center",
@@ -565,7 +565,7 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
               gap: "8px",
               fontSize: "11px",
               fontWeight: 600,
-              color: "#334155",
+              color: "var(--text-secondary)",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
@@ -574,20 +574,20 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
                   width: "9px",
                   height: "9px",
                   borderRadius: "50%",
-                  background: "#2563eb",
+                  background: "var(--badge-blue-text)",
                   display: "inline-block",
                 }}
               />
               <span>{t("map.you")}</span>
             </div>
-            <ArrowRight size={11} color="#94a3b8" />
+            <ArrowRight size={11} color="var(--text-muted)" />
             <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
               <span
                 style={{
                   width: "9px",
                   height: "9px",
                   borderRadius: "50%",
-                  background: "#00aa5b",
+                  background: "var(--primary)",
                   display: "inline-block",
                 }}
               />
@@ -600,8 +600,8 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
         <div
           style={{
             padding: "14px 18px",
-            background: "#ffffff",
-            borderTop: "1px solid #e2e8f0",
+            background: "var(--bg-modal, var(--bg-card))",
+            borderTop: "1px solid var(--border-light)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -617,19 +617,19 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
                 gap: "6px",
                 fontSize: "13px",
                 fontWeight: 600,
-                color: "#1e293b",
+                color: "var(--text-main)",
                 whiteSpace: "nowrap",
                 overflow: "hidden",
                 textOverflow: "ellipsis",
               }}
             >
-              <Store size={14} color="#00aa5b" />
+              <Store size={14} color="var(--primary)" />
               <span>{shopTitle}</span>
             </div>
             <div
               style={{
                 fontSize: "11px",
-                color: "#64748b",
+                color: "var(--text-muted)",
                 marginTop: "2px",
                 display: "flex",
                 alignItems: "center",
@@ -639,7 +639,7 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
                 textOverflow: "ellipsis",
               }}
             >
-              <MapPin size={12} color="#94a3b8" />
+              <MapPin size={12} color="var(--text-muted)" />
               <span>{shopAddressText}</span>
             </div>
           </div>
@@ -660,11 +660,11 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
               style={{
                 padding: "8px 16px",
                 borderRadius: "8px",
-                border: "1px solid #cbd5e1",
-                background: "#ffffff",
+                border: "1px solid var(--border-light)",
+                background: "var(--bg-modal, var(--bg-card))",
                 fontSize: "13px",
                 fontWeight: 600,
-                color: "#475569",
+                color: "var(--text-secondary)",
                 cursor: "pointer",
               }}
             >
@@ -679,10 +679,10 @@ export default function ShopDistanceModal({ isOpen, onClose, shopData }) {
                 padding: "8px 18px",
                 borderRadius: "8px",
                 border: "none",
-                background: "linear-gradient(135deg, #00aa5b 0%, #166534 100%)",
+                background: "linear-gradient(135deg, var(--primary) 0%, var(--primary-hover) 100%)",
                 fontSize: "13px",
                 fontWeight: 700,
-                color: "#ffffff",
+                color: "var(--text-inverse)",
                 textDecoration: "none",
                 cursor: "pointer",
                 display: "inline-flex",

@@ -120,8 +120,9 @@ export default function CashPointsTopupModal({
       onClick={handleClose}
     >
       <div
+        className="topup-modal-box"
         style={{
-          background: "#ffffff",
+          background: "var(--bg-modal)",
           borderRadius: "22px",
           width: "100%",
           maxWidth: "470px",
@@ -129,7 +130,8 @@ export default function CashPointsTopupModal({
             "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 30px rgba(22, 163, 74, 0.15)",
           overflow: "hidden",
           animation: "fadeIn 0.25s ease-out",
-          border: isSuccess ? "2px solid #86efac" : "1px solid #e2e8f0",
+          border: isSuccess ? "2px solid var(--badge-green-bg)" : "1px solid var(--border-light)",
+          color: "var(--text-main)",
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -144,7 +146,7 @@ export default function CashPointsTopupModal({
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              background: "linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%)",
+              background: "linear-gradient(180deg, var(--badge-green-bg) 0%, var(--bg-modal, var(--bg-card)) 100%)",
             }}
           >
             {/* Glowing Big Green Success Badge */}
@@ -153,7 +155,7 @@ export default function CashPointsTopupModal({
                 width: "92px",
                 height: "92px",
                 borderRadius: "50%",
-                background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
+                background: "linear-gradient(135deg, var(--text-accent) 0%, var(--primary) 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -161,7 +163,7 @@ export default function CashPointsTopupModal({
                 marginBottom: "16px",
               }}
             >
-              <CheckCircle2 size={56} color="#ffffff" strokeWidth={2.5} />
+              <CheckCircle2 size={56} color="var(--text-inverse)" strokeWidth={2.5} />
             </div>
 
             <span
@@ -169,8 +171,8 @@ export default function CashPointsTopupModal({
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "6px",
-                backgroundColor: "#dcfce7",
-                color: "#15803d",
+                backgroundColor: "var(--badge-green-bg)",
+                color: "var(--primary)",
                 fontSize: "12px",
                 fontWeight: "700",
                 padding: "4px 12px",
@@ -185,7 +187,7 @@ export default function CashPointsTopupModal({
               style={{
                 fontSize: "28px",
                 fontWeight: "900",
-                color: "#15803d",
+                color: "var(--primary)",
                 margin: "0 0 6px 0",
                 letterSpacing: "-0.5px",
               }}
@@ -196,7 +198,7 @@ export default function CashPointsTopupModal({
             <p
               style={{
                 fontSize: "14px",
-                color: "#166534",
+                color: "var(--primary-hover)",
                 margin: "0 0 20px 0",
                 maxWidth: "360px",
                 lineHeight: "1.4",
@@ -209,8 +211,8 @@ export default function CashPointsTopupModal({
             <div
               style={{
                 width: "100%",
-                background: "#ffffff",
-                border: "1.5px solid #bbf7d0",
+                background: "var(--bg-modal, var(--bg-card))",
+                border: "1.5px solid var(--badge-green-bg)",
                 borderRadius: "14px",
                 padding: "16px",
                 marginBottom: "24px",
@@ -225,12 +227,12 @@ export default function CashPointsTopupModal({
                   justifyContent: "space-between",
                   alignItems: "center",
                   paddingBottom: "10px",
-                  borderBottom: "1px solid #f1f5f9",
+                  borderBottom: "1px solid var(--bg-card-hover)",
                   marginBottom: "10px",
                 }}
               >
-                <span style={{ fontSize: "12.5px", color: "#64748b" }}>Amount Charged:</span>
-                <strong style={{ fontSize: "16px", color: "#15803d" }}>
+                <span style={{ fontSize: "12.5px", color: "var(--text-muted)" }}>Amount Charged:</span>
+                <strong style={{ fontSize: "16px", color: "var(--primary)" }}>
                   LKR {finalAmount.toLocaleString("en-LK", { minimumFractionDigits: 2 })}
                 </strong>
               </div>
@@ -241,12 +243,12 @@ export default function CashPointsTopupModal({
                   justifyContent: "space-between",
                   alignItems: "center",
                   paddingBottom: "10px",
-                  borderBottom: "1px solid #f1f5f9",
+                  borderBottom: "1px solid var(--bg-card-hover)",
                   marginBottom: "10px",
                 }}
               >
-                <span style={{ fontSize: "12.5px", color: "#64748b" }}>Points Added:</span>
-                <strong style={{ fontSize: "15px", color: "#ca8a04" }}>
+                <span style={{ fontSize: "12.5px", color: "var(--text-muted)" }}>Points Added:</span>
+                <strong style={{ fontSize: "15px", color: "var(--badge-yellow-text)" }}>
                   +{finalAmount.toLocaleString()} Points
                 </strong>
               </div>
@@ -257,19 +259,19 @@ export default function CashPointsTopupModal({
                   justifyContent: "space-between",
                   alignItems: "center",
                   paddingBottom: "10px",
-                  borderBottom: "1px solid #f1f5f9",
+                  borderBottom: "1px solid var(--bg-card-hover)",
                   marginBottom: "10px",
                 }}
               >
-                <span style={{ fontSize: "12.5px", color: "#64748b" }}>{t("topup.newBalance", "Updated Balance:")}</span>
-                <strong style={{ fontSize: "15px", color: "#1e293b" }}>
+                <span style={{ fontSize: "12.5px", color: "var(--text-muted)" }}>{t("topup.newBalance", "Updated Balance:")}</span>
+                <strong style={{ fontSize: "15px", color: "var(--text-main)" }}>
                   {Number(updatedBalance).toLocaleString()} Points
                 </strong>
               </div>
 
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: "12px", color: "#94a3b8" }}>Ref Number:</span>
-                <span style={{ fontSize: "12px", color: "#64748b", fontFamily: "monospace", fontWeight: "600" }}>
+                <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>Ref Number:</span>
+                <span style={{ fontSize: "12px", color: "var(--text-muted)", fontFamily: "monospace", fontWeight: "600" }}>
                   {txnRef}
                 </span>
               </div>
@@ -283,8 +285,8 @@ export default function CashPointsTopupModal({
                 width: "100%",
                 padding: "13px",
                 borderRadius: "12px",
-                backgroundColor: "#16a34a",
-                color: "#ffffff",
+                backgroundColor: "var(--primary)",
+                color: "var(--text-inverse)",
                 border: "none",
                 fontSize: "15px",
                 fontWeight: "700",
@@ -307,9 +309,9 @@ export default function CashPointsTopupModal({
             {/* Header */}
             <div
               style={{
-                background: "linear-gradient(135deg, #15803d 0%, #16a34a 100%)",
+                background: "linear-gradient(135deg, var(--primary) 0%, var(--primary) 100%)",
                 padding: "18px 20px",
-                color: "#ffffff",
+                color: "var(--text-inverse)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
@@ -327,7 +329,7 @@ export default function CashPointsTopupModal({
                     justifyContent: "center",
                   }}
                 >
-                  <Coins size={20} color="#ffffff" />
+                  <Coins size={20} color="var(--text-inverse)" />
                 </div>
                 <div>
                   <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "700" }}>
@@ -350,7 +352,7 @@ export default function CashPointsTopupModal({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: "#ffffff",
+                  color: "var(--text-inverse)",
                   cursor: "pointer",
                 }}
               >
@@ -363,15 +365,15 @@ export default function CashPointsTopupModal({
               {errorMsg && (
                 <div
                   style={{
-                    background: "#fef2f2",
-                    border: "1px solid #fecaca",
+                    background: "var(--badge-red-bg)",
+                    border: "1px solid var(--badge-red-border)",
                     borderRadius: "10px",
                     padding: "10px 14px",
                     marginBottom: "16px",
                     display: "flex",
                     alignItems: "center",
                     gap: "8px",
-                    color: "#b91c1c",
+                    color: "var(--badge-red-text)",
                     fontSize: "12.5px",
                     fontWeight: "600",
                   }}
@@ -388,7 +390,7 @@ export default function CashPointsTopupModal({
                     display: "block",
                     fontSize: "12.5px",
                     fontWeight: "700",
-                    color: "#334155",
+                    color: "var(--text-secondary)",
                     marginBottom: "8px",
                   }}
                 >
@@ -416,10 +418,10 @@ export default function CashPointsTopupModal({
                           padding: "8px 0",
                           borderRadius: "8px",
                           border: isSelected
-                            ? "2px solid #16a34a"
-                            : "1px solid #cbd5e1",
-                          backgroundColor: isSelected ? "#f0fdf4" : "#f8fafc",
-                          color: isSelected ? "#15803d" : "#475569",
+                            ? "2px solid var(--primary)"
+                            : "1px solid var(--border-light)",
+                          backgroundColor: isSelected ? "var(--badge-green-bg)" : "var(--bg-app-alt)",
+                          color: isSelected ? "var(--primary)" : "var(--text-secondary)",
                           fontWeight: isSelected ? "700" : "600",
                           fontSize: "13px",
                           cursor: "pointer",
@@ -441,7 +443,7 @@ export default function CashPointsTopupModal({
                       transform: "translateY(-50%)",
                       fontSize: "13px",
                       fontWeight: "700",
-                      color: "#64748b",
+                      color: "var(--text-muted)",
                     }}
                   >
                     LKR
@@ -456,7 +458,7 @@ export default function CashPointsTopupModal({
                       width: "100%",
                       padding: "9px 12px 9px 46px",
                       borderRadius: "8px",
-                      border: "1px solid #cbd5e1",
+                      border: "1px solid var(--border-light)",
                       fontSize: "13px",
                       fontWeight: "600",
                       boxSizing: "border-box",
@@ -468,8 +470,8 @@ export default function CashPointsTopupModal({
               {/* Gateway Card Payment Section */}
               <div
                 style={{
-                  background: "#f8fafc",
-                  border: "1.5px solid #e2e8f0",
+                  background: "var(--bg-app-alt)",
+                  border: "1.5px solid var(--border-light)",
                   borderRadius: "12px",
                   padding: "14px",
                   marginBottom: "18px",
@@ -484,12 +486,12 @@ export default function CashPointsTopupModal({
                   }}
                 >
                   <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                    <CreditCard size={16} color="#0284c7" />
+                    <CreditCard size={16} color="var(--badge-blue-text)" />
                     <span
                       style={{
                         fontSize: "12.5px",
                         fontWeight: "700",
-                        color: "#0f172a",
+                        color: "var(--text-main)",
                       }}
                     >
                       PayHere Gateway (Test Sandbox)
@@ -499,8 +501,8 @@ export default function CashPointsTopupModal({
                     style={{
                       fontSize: "10.5px",
                       fontWeight: "700",
-                      backgroundColor: "#e0f2fe",
-                      color: "#0369a1",
+                      backgroundColor: "var(--badge-blue-bg)",
+                      color: "var(--badge-blue-text)",
                       padding: "2px 6px",
                       borderRadius: "4px",
                     }}
@@ -516,7 +518,7 @@ export default function CashPointsTopupModal({
                         display: "block",
                         fontSize: "11px",
                         fontWeight: "600",
-                        color: "#64748b",
+                        color: "var(--text-muted)",
                         marginBottom: "3px",
                       }}
                     >
@@ -530,7 +532,7 @@ export default function CashPointsTopupModal({
                         width: "100%",
                         padding: "8px 10px",
                         borderRadius: "6px",
-                        border: "1px solid #cbd5e1",
+                        border: "1px solid var(--border-light)",
                         fontSize: "12.5px",
                         boxSizing: "border-box",
                       }}
@@ -544,7 +546,7 @@ export default function CashPointsTopupModal({
                           display: "block",
                           fontSize: "11px",
                           fontWeight: "600",
-                          color: "#64748b",
+                          color: "var(--text-muted)",
                           marginBottom: "3px",
                         }}
                       >
@@ -558,7 +560,7 @@ export default function CashPointsTopupModal({
                           width: "100%",
                           padding: "8px 10px",
                           borderRadius: "6px",
-                          border: "1px solid #cbd5e1",
+                          border: "1px solid var(--border-light)",
                           fontSize: "12.5px",
                           boxSizing: "border-box",
                         }}
@@ -570,7 +572,7 @@ export default function CashPointsTopupModal({
                           display: "block",
                           fontSize: "11px",
                           fontWeight: "600",
-                          color: "#64748b",
+                          color: "var(--text-muted)",
                           marginBottom: "3px",
                         }}
                       >
@@ -584,7 +586,7 @@ export default function CashPointsTopupModal({
                           width: "100%",
                           padding: "8px 10px",
                           borderRadius: "6px",
-                          border: "1px solid #cbd5e1",
+                          border: "1px solid var(--border-light)",
                           fontSize: "12.5px",
                           boxSizing: "border-box",
                         }}
@@ -602,8 +604,8 @@ export default function CashPointsTopupModal({
                   width: "100%",
                   padding: "12px",
                   borderRadius: "10px",
-                  backgroundColor: "#16a34a",
-                  color: "#ffffff",
+                  backgroundColor: "var(--primary)",
+                  color: "var(--text-inverse)",
                   border: "none",
                   fontSize: "14px",
                   fontWeight: "700",

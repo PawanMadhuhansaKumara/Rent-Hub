@@ -60,8 +60,8 @@ export default function RentRequestSuccessModal({
         style={{
           maxWidth: "460px",
           borderRadius: "22px",
-          background: "linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%)",
-          border: "2px solid #86efac",
+          background: "linear-gradient(180deg, var(--badge-green-bg) 0%, var(--bg-modal, var(--bg-card)) 100%)",
+          border: "2px solid var(--badge-green-bg)",
           boxShadow: "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 30px rgba(22, 163, 74, 0.2)",
           padding: "30px 24px",
           textAlign: "center",
@@ -98,7 +98,7 @@ export default function RentRequestSuccessModal({
               width: "88px",
               height: "88px",
               borderRadius: "50%",
-              background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
+              background: "linear-gradient(135deg, var(--text-accent) 0%, var(--primary) 100%)",
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
@@ -106,7 +106,7 @@ export default function RentRequestSuccessModal({
               marginBottom: "16px",
             }}
           >
-            <CheckCircle2 size={52} color="#ffffff" strokeWidth={2.5} />
+            <CheckCircle2 size={52} color="var(--text-inverse)" strokeWidth={2.5} />
           </div>
 
           <span
@@ -114,8 +114,8 @@ export default function RentRequestSuccessModal({
               display: "inline-flex",
               alignItems: "center",
               gap: "6px",
-              backgroundColor: "#dcfce7",
-              color: "#15803d",
+              backgroundColor: "var(--badge-green-bg)",
+              color: "var(--primary)",
               fontSize: "12px",
               fontWeight: "700",
               padding: "4px 12px",
@@ -130,7 +130,7 @@ export default function RentRequestSuccessModal({
             style={{
               fontSize: "26px",
               fontWeight: "900",
-              color: "#15803d",
+              color: "var(--primary)",
               margin: "0 0 8px 0",
               letterSpacing: "-0.5px",
             }}
@@ -141,7 +141,7 @@ export default function RentRequestSuccessModal({
           <p
             style={{
               fontSize: "14px",
-              color: "#166534",
+              color: "var(--primary-hover)",
               margin: "0 0 18px 0",
               lineHeight: "1.4",
               maxWidth: "360px",
@@ -156,13 +156,13 @@ export default function RentRequestSuccessModal({
           {itemTitle && (
             <div
               style={{
-                background: "#ffffff",
-                border: "1.5px solid #bbf7d0",
+                background: "var(--bg-modal, var(--bg-card))",
+                border: "1.5px solid var(--badge-green-bg)",
                 borderRadius: "12px",
                 padding: "10px 14px",
                 marginBottom: "20px",
                 fontSize: "13px",
-                color: "#15803d",
+                color: "var(--primary)",
                 fontWeight: "700",
                 width: "100%",
                 boxSizing: "border-box",
@@ -192,8 +192,8 @@ export default function RentRequestSuccessModal({
                 width: "100%",
                 padding: "13px",
                 borderRadius: "12px",
-                backgroundColor: "#16a34a",
-                color: "#ffffff",
+                backgroundColor: "var(--primary)",
+                color: "var(--text-inverse)",
                 border: "none",
                 fontSize: "14.5px",
                 fontWeight: "700",
@@ -218,8 +218,8 @@ export default function RentRequestSuccessModal({
                 padding: "10px",
                 borderRadius: "10px",
                 backgroundColor: "transparent",
-                color: "#64748b",
-                border: "1px solid #cbd5e1",
+                color: "var(--text-muted)",
+                border: "1px solid var(--border-light)",
                 fontSize: "13px",
                 fontWeight: "600",
                 cursor: "pointer",

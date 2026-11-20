@@ -29,9 +29,9 @@
   width: 36px;
   height: 36px;
   border-radius: 50%;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  color: #334155;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  color: var(--text-secondary);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -43,8 +43,8 @@
 }
 
 .notifications-back-btn:hover {
-  background: #f1f5f9;
-  color: #0f172a;
+  background: var(--bg-card-hover);
+  color: var(--text-main);
   transform: translateX(-2px);
 }
 
@@ -58,7 +58,7 @@
   margin: 0;
   font-size: 20px;
   font-weight: 700;
-  color: #0f172a;
+  color: var(--text-main);
   letter-spacing: -0.01em;
 }
 
@@ -70,8 +70,8 @@
   height: 19px;
   padding: 0 5px;
   border-radius: 9999px;
-  background: #e05260;
-  color: #ffffff;
+  background: var(--badge-notif-bg);
+  color: var(--text-inverse);
   font-size: 11px;
   font-weight: 700;
 }
@@ -91,18 +91,18 @@
   border-radius: 8px;
   font-size: 11.5px;
   font-weight: 600;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  color: #475569;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  color: var(--text-secondary);
   cursor: pointer;
   transition: all 0.15s ease;
   white-space: nowrap;
 }
 
 .notifications-action-btn:hover:not(:disabled) {
-  background: #f8fafc;
-  color: #0f172a;
-  border-color: #cbd5e1;
+  background: var(--bg-app-alt);
+  color: var(--text-main);
+  border-color: var(--border-light);
 }
 
 .btn-label-mobile {
@@ -134,9 +134,9 @@
   gap: 5px;
   padding: 6px 12px;
   border-radius: 18px;
-  border: 1px solid #e2e8f0;
-  background: #ffffff;
-  color: #64748b;
+  border: 1px solid var(--border-light);
+  background: var(--bg-card);
+  color: var(--text-muted);
   font-size: 12px;
   font-weight: 600;
   cursor: pointer;
@@ -146,14 +146,14 @@
 }
 
 .notifications-tab-btn:hover {
-  background: #f8fafc;
-  color: #1e293b;
+  background: var(--bg-app-alt);
+  color: var(--text-main);
 }
 
 .notifications-tab-btn.active {
-  background: #0f172a;
-  color: #ffffff;
-  border-color: #0f172a;
+  background: var(--bg-input);
+  color: var(--text-inverse);
+  border-color: var(--border-strong);
 }
 
 .notifications-tab-count {
@@ -166,13 +166,13 @@
   border-radius: 9999px;
   font-size: 9.5px;
   font-weight: 700;
-  background: #f1f5f9;
-  color: #475569;
+  background: var(--bg-card-hover);
+  color: var(--text-secondary);
 }
 
 .notifications-tab-btn.active .notifications-tab-count {
-  background: #334155;
-  color: #ffffff;
+  background: var(--border-strong);
+  color: var(--text-inverse);
 }
 
 /* Notifications List */
@@ -193,8 +193,8 @@
   align-items: flex-start;
   gap: 10px;
   padding: 10px 12px;
-  background: #ffffff;
-  border: 1px solid #e8ecf1;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
   border-radius: 10px;
   box-shadow: 0 1px 2px rgba(0, 0, 0, 0.02);
   cursor: pointer;
@@ -204,17 +204,17 @@
 }
 
 .notif-card:hover {
-  border-color: #cbd5e1;
+  border-color: var(--border-light);
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.04);
 }
 
 .notif-unread {
-  background: #ffffff;
-  border-left: 3.5px solid #e05260;
+  background: var(--bg-card);
+  border-left: 3.5px solid var(--badge-red-border);
 }
 
 .notif-read {
-  background: #fafbfc;
+  background: var(--bg-card-hover);
   opacity: 0.88;
 }
 
@@ -271,7 +271,7 @@
 .notif-title {
   font-size: 12.5px;
   font-weight: 600;
-  color: #0f172a;
+  color: var(--text-main);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -279,7 +279,7 @@
 
 .notif-time {
   font-size: 10.5px;
-  color: #94a3b8;
+  color: var(--text-muted);
   white-space: nowrap;
   flex-shrink: 0;
 }
@@ -288,7 +288,7 @@
   margin: 0;
   font-size: 12px;
   line-height: 1.35;
-  color: #475569;
+  color: var(--text-secondary);
   word-break: break-word;
 }
 
@@ -302,7 +302,7 @@
   height: 32px;
   border-radius: 5px;
   object-fit: cover;
-  border: 1px solid #e2e8f0;
+  border: 1px solid var(--border-light);
 }
 
 /* Right Column (Dot & Delete) */
@@ -319,7 +319,7 @@
   width: 7px;
   height: 7px;
   border-radius: 50%;
-  background: #e05260;
+  background: var(--badge-notif-bg);
   flex-shrink: 0;
 }
 
@@ -332,15 +332,15 @@
   border-radius: 6px;
   border: 1px solid transparent;
   background: transparent;
-  color: #94a3b8;
+  color: var(--text-muted);
   cursor: pointer;
   transition: all 0.15s ease;
   padding: 0;
 }
 
 .notif-del-btn:hover {
-  background: #fee2e2;
-  color: #e11d48;
+  background: var(--badge-red-bg);
+  color: var(--badge-notif-text);
 }
 
 /* Empty State */
@@ -350,8 +350,8 @@
   align-items: center;
   justify-content: center;
   padding: 40px 16px;
-  background: #ffffff;
-  border: 1px dashed #cbd5e1;
+  background: var(--bg-card);
+  border: 1px dashed var(--border-light);
   border-radius: 12px;
   text-align: center;
   margin-top: 8px;
@@ -364,8 +364,8 @@
   width: 52px;
   height: 52px;
   border-radius: 50%;
-  background: #f8fafc;
-  color: #94a3b8;
+  background: var(--bg-app-alt);
+  color: var(--text-muted);
   margin-bottom: 10px;
 }
 
@@ -373,13 +373,13 @@
   margin: 0 0 4px;
   font-size: 15px;
   font-weight: 700;
-  color: #1e293b;
+  color: var(--text-main);
 }
 
 .notifications-empty p {
   margin: 0 0 14px;
   font-size: 12px;
-  color: #64748b;
+  color: var(--text-muted);
   max-width: 280px;
   line-height: 1.4;
 }
@@ -390,8 +390,8 @@
   gap: 6px;
   padding: 8px 14px;
   border-radius: 7px;
-  background: #0f172a;
-  color: #ffffff;
+  background: var(--bg-input);
+  color: var(--text-inverse);
   text-decoration: none;
   font-size: 11.5px;
   font-weight: 600;
@@ -399,7 +399,7 @@
 }
 
 .notifications-empty-btn:hover {
-  background: #1e293b;
+  background: var(--bg-card);
 }
 
 /* Loader */
@@ -410,15 +410,15 @@
   justify-content: center;
   padding: 50px 16px;
   gap: 8px;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 12.5px;
 }
 
 .notifications-spinner {
   width: 24px;
   height: 24px;
-  border: 2px solid #e2e8f0;
-  border-top-color: #0f172a;
+  border: 2px solid var(--border-light);
+  border-top-color: var(--text-main);
   border-radius: 50%;
   animation: notifSpin 0.8s linear infinite;
 }

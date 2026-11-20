@@ -28,7 +28,7 @@ export default function BusinessRecentListings({
             style={{
               fontSize: "13px",
               fontWeight: "600",
-              color: "#15803d",
+              color: "var(--primary)",
               textDecoration: "none",
             }}
           >
@@ -101,7 +101,7 @@ export default function BusinessRecentListings({
                         justifyContent: "center",
                       }}
                     >
-                      <Package size={22} color="#94a3b8" />
+                      <Package size={22} color="var(--text-muted)" />
                     </div>
                   )}
 

@@ -184,10 +184,10 @@ export default function RentRequestsTab({
                   key={`picked-up-notice-${req.id}`}
                   style={{
                     padding: "12px 18px",
-                    backgroundColor: "#fff5f5",
-                    border: "1px solid #fee2e2",
+                    backgroundColor: "var(--badge-red-bg)",
+                    border: "1px solid var(--badge-red-bg)",
                     borderRadius: "10px",
-                    color: "#e05260",
+                    color: "var(--badge-notif-bg)",
                     fontSize: "13px",
                     fontWeight: "600",
                     display: "flex",
@@ -201,7 +201,7 @@ export default function RentRequestsTab({
                       width: "6px",
                       height: "6px",
                       borderRadius: "50%",
-                      backgroundColor: "#e05260",
+                      backgroundColor: "var(--badge-notif-bg)",
                       display: "inline-block",
                       opacity: 0.85,
                       flexShrink: 0,

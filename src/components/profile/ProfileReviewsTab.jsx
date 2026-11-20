@@ -56,10 +56,10 @@ export default function ProfileReviewsTab({
       {/* Reviews Summary Header Card */}
       <div
         style={{
-          backgroundColor: "#ffffff",
+          backgroundColor: "var(--bg-card)",
           borderRadius: "16px",
           padding: "24px 28px",
-          border: "1px solid #e2e8f0",
+          border: "1px solid var(--border-light)",
           display: "flex",
           alignItems: "center",
           justifyContent: "space-between",
@@ -75,19 +75,19 @@ export default function ProfileReviewsTab({
               width: "72px",
               height: "72px",
               borderRadius: "18px",
-              backgroundColor: "#fef9c3",
+              backgroundColor: "var(--badge-yellow-bg)",
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
               justifyContent: "center",
-              border: "1px solid #fef08a",
+              border: "1px solid var(--badge-yellow-border)",
             }}
           >
             <span
               style={{
                 fontSize: "24px",
                 fontWeight: "800",
-                color: "#a16207",
+                color: "var(--badge-yellow-text)",
                 lineHeight: 1,
               }}
             >
@@ -98,14 +98,14 @@ export default function ProfileReviewsTab({
                 <Star
                   key={s}
                   size={10}
-                  color="#eab308"
+                  color="var(--badge-yellow-text)"
                   fill={
                     s <=
                     Math.round(
                       profile?.user_rating ||
                         (profile?.reviews_count > 0 ? 5 : 0)
                     )
-                      ? "#eab308"
+                      ? "var(--badge-yellow-text)"
                       : "none"
                   }
                 />
@@ -118,12 +118,12 @@ export default function ProfileReviewsTab({
                 margin: "0 0 4px 0",
                 fontSize: "18px",
                 fontWeight: "700",
-                color: "#0f172a",
+                color: "var(--text-main)",
               }}
             >
               Customer Reviews & Ratings
             </h3>
-            <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>
+            <p style={{ margin: 0, fontSize: "13px", color: "var(--text-muted)" }}>
               Based on{" "}
               <strong>
                 {totalReviewsCount}{" "}
@@ -141,7 +141,7 @@ export default function ProfileReviewsTab({
           style={{
             padding: "40px",
             textAlign: "center",
-            color: "#64748b",
+            color: "var(--text-muted)",
           }}
         >
           <p>Loading reviews...</p>
@@ -151,26 +151,26 @@ export default function ProfileReviewsTab({
           style={{
             padding: "48px 24px",
             textAlign: "center",
-            backgroundColor: "#f8fafc",
+            backgroundColor: "var(--bg-app-alt)",
             borderRadius: "16px",
-            border: "1px dashed #cbd5e1",
+            border: "1px dashed var(--border-light)",
           }}
         >
           <Star
             size={40}
-            color="#cbd5e1"
+            color="var(--border-light)"
             style={{ marginBottom: "12px" }}
           />
           <h4
             style={{
               margin: "0 0 6px 0",
-              color: "#334155",
+              color: "var(--text-secondary)",
               fontSize: "16px",
             }}
           >
             No reviews yet
           </h4>
-          <p style={{ margin: 0, color: "#64748b", fontSize: "13px" }}>
+          <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "13px" }}>
             Reviews from customers who completed rentals will be featured here.
           </p>
         </div>
@@ -203,10 +203,10 @@ export default function ProfileReviewsTab({
               <div
                 key={rev.id}
                 style={{
-                  backgroundColor: "#ffffff",
+                  backgroundColor: "var(--bg-card)",
                   borderRadius: "16px",
                   padding: "20px 24px",
-                  border: "1px solid #e2e8f0",
+                  border: "1px solid var(--border-light)",
                   boxShadow: "0 1px 3px rgba(0,0,0,0.03)",
                 }}
               >
@@ -237,7 +237,7 @@ export default function ProfileReviewsTab({
                           height: "42px",
                           borderRadius: "50%",
                           objectFit: "cover",
-                          border: "1px solid #e2e8f0",
+                          border: "1px solid var(--border-light)",
                         }}
                       />
                     ) : (
@@ -246,8 +246,8 @@ export default function ProfileReviewsTab({
                           width: "42px",
                           height: "42px",
                           borderRadius: "50%",
-                          backgroundColor: "#00aa5b",
-                          color: "#ffffff",
+                          backgroundColor: "var(--primary)",
+                          color: "var(--text-inverse)",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
@@ -271,7 +271,7 @@ export default function ProfileReviewsTab({
                             margin: "0 0 2px 0",
                             fontSize: "14px",
                             fontWeight: "700",
-                            color: "#0f172a",
+                            color: "var(--text-main)",
                           }}
                         >
                           {rev.buyerName || "Verified Renter"}
@@ -281,8 +281,8 @@ export default function ProfileReviewsTab({
                             style={{
                               fontSize: "11px",
                               fontWeight: "700",
-                              color: "#0369a1",
-                              backgroundColor: "#e0f2fe",
+                              color: "var(--badge-blue-text)",
+                              backgroundColor: "var(--badge-blue-bg)",
                               padding: "1px 6px",
                               borderRadius: "10px",
                             }}
@@ -295,7 +295,7 @@ export default function ProfileReviewsTab({
                         style={{
                           margin: 0,
                           fontSize: "12px",
-                          color: "#64748b",
+                          color: "var(--text-muted)",
                         }}
                       >
                         {rev.createdAt
@@ -332,9 +332,9 @@ export default function ProfileReviewsTab({
                         <Star
                           key={star}
                           size={16}
-                          color="#eab308"
+                          color="var(--badge-yellow-text)"
                           fill={
-                            star <= Number(rev.rating) ? "#eab308" : "none"
+                            star <= Number(rev.rating) ? "var(--badge-yellow-text)" : "none"
                           }
                         />
                       ))}
@@ -343,7 +343,7 @@ export default function ProfileReviewsTab({
                           marginLeft: "4px",
                           fontSize: "13px",
                           fontWeight: "700",
-                          color: "#b45309",
+                          color: "var(--badge-yellow-text)",
                         }}
                       >
                         {Number(rev.rating || 0).toFixed(1)}
@@ -374,9 +374,9 @@ export default function ProfileReviewsTab({
                             display: "inline-flex",
                             alignItems: "center",
                             gap: "3px",
-                            background: "#f0f9ff",
-                            border: "1px solid #bae6fd",
-                            color: "#0284c7",
+                            background: "var(--badge-blue-bg)",
+                            border: "1px solid var(--badge-blue-border)",
+                            color: "var(--badge-blue-text)",
                             borderRadius: "6px",
                             padding: "2px 7px",
                             fontSize: "11px",
@@ -395,9 +395,9 @@ export default function ProfileReviewsTab({
                             display: "inline-flex",
                             alignItems: "center",
                             gap: "3px",
-                            background: "#fef2f2",
-                            border: "1px solid #fecaca",
-                            color: "#ef4444",
+                            background: "var(--badge-red-bg)",
+                            border: "1px solid var(--badge-red-border)",
+                            color: "var(--badge-red-text)",
                             borderRadius: "6px",
                             padding: "2px 7px",
                             fontSize: "11px",
@@ -421,13 +421,13 @@ export default function ProfileReviewsTab({
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "8px",
-                      backgroundColor: "#f8fafc",
+                      backgroundColor: "var(--bg-app-alt)",
                       padding: "4px 10px",
                       borderRadius: "8px",
-                      border: "1px solid #e2e8f0",
+                      border: "1px solid var(--border-light)",
                       marginBottom: "12px",
                       fontSize: "12px",
-                      color: "#475569",
+                      color: "var(--text-secondary)",
                     }}
                   >
                     {itemImg && (
@@ -454,7 +454,7 @@ export default function ProfileReviewsTab({
                     style={{
                       margin: 0,
                       fontSize: "14px",
-                      color: "#334155",
+                      color: "var(--text-secondary)",
                       lineHeight: "1.5",
                     }}
                   >
@@ -465,7 +465,7 @@ export default function ProfileReviewsTab({
                     style={{
                       margin: 0,
                       fontSize: "13px",
-                      color: "#94a3b8",
+                      color: "var(--text-muted)",
                       fontStyle: "italic",
                     }}
                   >
@@ -478,11 +478,11 @@ export default function ProfileReviewsTab({
                   <div
                     style={{
                       marginTop: "14px",
-                      backgroundColor: "#f0fdf4",
-                      border: "1px solid #bbf7d0",
+                      backgroundColor: "var(--badge-green-bg)",
+                      border: "1px solid var(--badge-green-bg)",
                       borderRadius: "12px",
                       padding: "14px 16px",
-                      borderLeft: "4px solid #16a34a",
+                      borderLeft: "4px solid var(--primary)",
                     }}
                   >
                     <div
@@ -500,12 +500,12 @@ export default function ProfileReviewsTab({
                           gap: "8px",
                         }}
                       >
-                        <CornerDownRight size={15} color="#15803d" />
+                        <CornerDownRight size={15} color="var(--primary)" />
                         <span
                           style={{
                             fontSize: "13px",
                             fontWeight: "700",
-                            color: "#166534",
+                            color: "var(--primary-hover)",
                           }}
                         >
                           Response from Shop Owner
@@ -514,7 +514,7 @@ export default function ProfileReviewsTab({
                           <span
                             style={{
                               fontSize: "11px",
-                              color: "#64748b",
+                              color: "var(--text-muted)",
                             }}
                           >
                             •{" "}
@@ -541,7 +541,7 @@ export default function ProfileReviewsTab({
                             style={{
                               background: "none",
                               border: "none",
-                              color: "#16a34a",
+                              color: "var(--primary)",
                               fontSize: "12px",
                               fontWeight: "600",
                               cursor: "pointer",
@@ -557,7 +557,7 @@ export default function ProfileReviewsTab({
                             style={{
                               background: "none",
                               border: "none",
-                              color: "#ef4444",
+                              color: "var(--badge-red-text)",
                               fontSize: "12px",
                               fontWeight: "600",
                               cursor: "pointer",
@@ -574,7 +574,7 @@ export default function ProfileReviewsTab({
                       style={{
                         margin: 0,
                         fontSize: "13px",
-                        color: "#1e293b",
+                        color: "var(--text-main)",
                         lineHeight: "1.5",
                       }}
                     >
@@ -590,8 +590,8 @@ export default function ProfileReviewsTab({
                     <div
                       style={{
                         marginTop: "14px",
-                        backgroundColor: "#f8fafc",
-                        border: "1px solid #cbd5e1",
+                        backgroundColor: "var(--bg-app-alt)",
+                        border: "1px solid var(--border-light)",
                         borderRadius: "12px",
                         padding: "14px",
                       }}
@@ -601,7 +601,7 @@ export default function ProfileReviewsTab({
                           display: "block",
                           fontSize: "12px",
                           fontWeight: "700",
-                          color: "#334155",
+                          color: "var(--text-secondary)",
                           marginBottom: "6px",
                         }}
                       >
@@ -619,7 +619,7 @@ export default function ProfileReviewsTab({
                           boxSizing: "border-box",
                           padding: "10px 12px",
                           borderRadius: "8px",
-                          border: "1px solid #cbd5e1",
+                          border: "1px solid var(--border-light)",
                           fontSize: "13px",
                           fontFamily: "inherit",
                           resize: "vertical",
@@ -645,9 +645,9 @@ export default function ProfileReviewsTab({
                           style={{
                             padding: "6px 14px",
                             borderRadius: "6px",
-                            border: "1px solid #cbd5e1",
-                            backgroundColor: "#ffffff",
-                            color: "#475569",
+                            border: "1px solid var(--border-light)",
+                            backgroundColor: "var(--bg-card)",
+                            color: "var(--text-secondary)",
                             fontSize: "12px",
                             fontWeight: "600",
                             cursor: "pointer",
@@ -663,8 +663,8 @@ export default function ProfileReviewsTab({
                             padding: "6px 16px",
                             borderRadius: "6px",
                             border: "none",
-                            backgroundColor: "#00aa5b",
-                            color: "#ffffff",
+                            backgroundColor: "var(--primary)",
+                            color: "var(--text-inverse)",
                             fontSize: "12px",
                             fontWeight: "600",
                             cursor:
@@ -705,9 +705,9 @@ export default function ProfileReviewsTab({
                           gap: "6px",
                           padding: "6px 12px",
                           borderRadius: "6px",
-                          border: "1px solid #bbf7d0",
-                          backgroundColor: "#f0fdf4",
-                          color: "#166534",
+                          border: "1px solid var(--badge-green-bg)",
+                          backgroundColor: "var(--badge-green-bg)",
+                          color: "var(--primary-hover)",
                           fontSize: "12px",
                           fontWeight: "600",
                           cursor: "pointer",
@@ -741,9 +741,9 @@ export default function ProfileReviewsTab({
                   display: "flex",
                   alignItems: "center",
                   gap: "8px",
-                  backgroundColor: "#f0fdf4",
-                  border: "1.5px solid #86efac",
-                  color: "#15803d",
+                  backgroundColor: "var(--badge-green-bg)",
+                  border: "1.5px solid var(--badge-green-bg)",
+                  color: "var(--primary)",
                   padding: "10px 24px",
                   borderRadius: "9999px",
                   fontSize: "14px",

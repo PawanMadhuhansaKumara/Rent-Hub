@@ -144,11 +144,11 @@ export default function Register({ user }) {
         {/* Top Header & Back Button */}
         <div style={styles.headerBox}>
           <button type="button" onClick={handleBack} style={styles.backBtn} title="Go Back" aria-label="Go Back">
-            <ArrowLeft size={18} color="#00aa5b" />
+            <ArrowLeft size={18} color="var(--primary)" />
           </button>
           <div style={styles.brandBadge}>
-            <CheckCircle2 size={16} color="#00aa5b" />
-            <span style={{ color: "#00aa5b", fontWeight: "bold", fontSize: "12px" }}>RentHub Community</span>
+            <CheckCircle2 size={16} color="var(--primary)" />
+            <span style={{ color: "var(--primary)", fontWeight: "bold", fontSize: "12px" }}>RentHub Community</span>
           </div>
         </div>
 
@@ -170,15 +170,15 @@ export default function Register({ user }) {
                   />
                 ) : (
                   <div style={styles.avatarPlaceholder}>
-                    <UserPlus size={36} color="#00aa5b" />
-                    <span style={{ fontSize: "11px", marginTop: "4px", fontWeight: "600", color: "#00aa5b" }}>
+                    <UserPlus size={36} color="var(--primary)" />
+                    <span style={{ fontSize: "11px", marginTop: "4px", fontWeight: "600", color: "var(--primary)" }}>
                       Add Photo
                     </span>
                   </div>
                 )}
 
                 <div style={styles.badgeOverlay}>
-                  <Camera size={13} color="#fff" />
+                  <Camera size={13} color="var(--text-inverse)" />
                 </div>
               </div>
             </label>
@@ -395,7 +395,7 @@ const styles = {
     alignItems: "center",
     minHeight: "100vh",
     padding: "40px 20px",
-    backgroundColor: "#f4f6f8",
+    backgroundColor: "var(--bg-app)",
   },
 
   card: {
@@ -404,8 +404,8 @@ const styles = {
     padding: "40px 36px",
     borderRadius: "24px",
     boxShadow: "0 6px 25px rgba(0,0,0,0.06)",
-    backgroundColor: "#ffffff",
-    border: "1px solid #eaeaea",
+    backgroundColor: "var(--bg-card)",
+    border: "1px solid var(--border-light)",
     boxSizing: "border-box",
   },
 
@@ -418,8 +418,9 @@ const styles = {
   },
 
   backBtn: {
-    backgroundColor: "#e8f8f0",
-    border: "1px solid #c7e9d7",
+    backgroundColor: "var(--bg-card-elevated)",
+    border: "1px solid var(--border-light)",
+    color: "var(--text-main)",
     borderRadius: "50%",
     width: "36px",
     height: "36px",
@@ -433,23 +434,24 @@ const styles = {
     display: "inline-flex",
     alignItems: "center",
     gap: "6px",
-    backgroundColor: "#e8f8f0",
-    border: "1px solid #c7e9d7",
+    backgroundColor: "var(--primary-light)",
+    border: "1px solid var(--primary-border)",
     padding: "5px 14px",
     borderRadius: "20px",
+    color: "var(--primary-text)",
   },
 
   title: {
     margin: "0 0 6px 0",
     fontSize: "24px",
     fontWeight: "700",
-    color: "#111",
+    color: "var(--text-main)",
     textAlign: "center",
   },
 
   subtitle: {
     marginBottom: "24px",
-    color: "#666",
+    color: "var(--text-muted)",
     fontSize: "13px",
     textAlign: "center",
   },
@@ -471,12 +473,12 @@ const styles = {
     height: "100px",
     borderRadius: "50%",
     overflow: "visible",
-    border: "3px solid #00aa5b",
-    backgroundColor: "#e8f8f0",
+    border: "3px solid var(--primary-border)",
+    backgroundColor: "var(--bg-card-elevated)",
     display: "flex",
     justifyContent: "center",
     alignItems: "center",
-    boxShadow: "0 4px 14px rgba(0, 170, 91, 0.2)",
+    boxShadow: "0 4px 14px rgba(0, 0, 0, 0.15)",
     transition: "all 0.25s ease",
   },
 
@@ -491,15 +493,15 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
-    color: "#00aa5b",
+    color: "var(--badge-green-text)",
   },
 
   badgeOverlay: {
     position: "absolute",
     bottom: "2px",
     right: "2px",
-    backgroundColor: "#00aa5b",
-    color: "#fff",
+    backgroundColor: "var(--primary)",
+    color: "var(--text-inverse)",
     borderRadius: "50%",
     width: "28px",
     height: "28px",
@@ -513,18 +515,18 @@ const styles = {
     marginTop: "8px",
     fontSize: "12px",
     fontWeight: "600",
-    color: "#555",
+    color: "var(--text-muted)",
   },
 
   errorAlert: {
-    backgroundColor: "#fee2e2",
-    color: "#dc2626",
+    backgroundColor: "var(--badge-red-bg)",
+    color: "var(--badge-red-text)",
     padding: "12px 16px",
     borderRadius: "10px",
     marginBottom: "18px",
     fontSize: "13px",
     textAlign: "center",
-    border: "1px solid #fecaca",
+    border: "1px solid var(--badge-red-border)",
     fontWeight: "600",
   },
 
@@ -551,20 +553,20 @@ const styles = {
     marginBottom: "5px",
     fontSize: "12px",
     fontWeight: "bold",
-    color: "#555",
+    color: "var(--text-secondary)",
   },
 
   input: {
     width: "100%",
     padding: "10px 12px",
     borderRadius: "10px",
-    border: "1px solid #ddd",
+    border: "1px solid var(--border-light)",
     boxSizing: "border-box",
     fontSize: "14px",
     fontFamily: "inherit",
     outline: "none",
-    color: "#222",
-    backgroundColor: "#fcfdfe",
+    color: "var(--text-main)",
+    backgroundColor: "var(--bg-input)",
     transition: "all 0.2s ease-in-out",
   },
 
@@ -572,10 +574,10 @@ const styles = {
     width: "100%",
     padding: "10px 12px",
     fontSize: "12px",
-    border: "1px dashed #00aa5b",
+    border: "1px dashed var(--primary-border)",
     borderRadius: "10px",
-    backgroundColor: "#e8f8f0",
-    color: "#00aa5b",
+    backgroundColor: "var(--bg-input)",
+    color: "var(--primary-text)",
     cursor: "pointer",
     boxSizing: "border-box",
   },
@@ -583,10 +585,10 @@ const styles = {
   sectionHeader: {
     fontSize: "12px",
     fontWeight: "bold",
-    color: "#00aa5b",
+    color: "var(--badge-green-text)",
     textTransform: "uppercase",
     letterSpacing: "0.6px",
-    borderBottom: "1px solid #eaeaea",
+    borderBottom: "1px solid var(--border-light)",
     paddingBottom: "6px",
     marginTop: "6px",
   },
@@ -597,32 +599,32 @@ const styles = {
     borderRadius: "8px",
     objectFit: "cover",
     marginTop: "8px",
-    border: "1px solid #c7e9d7",
+    border: "1px solid var(--border-light)",
   },
 
   submitBtn: {
     padding: "12px 20px",
-    backgroundColor: "#00aa5b",
-    color: "#ffffff",
-    border: "none",
+    backgroundColor: "var(--primary)",
+    color: "var(--text-main)",
+    border: "1px solid var(--border-focus)",
     borderRadius: "12px",
     fontSize: "14px",
     fontWeight: "bold",
     cursor: "pointer",
     marginTop: "10px",
-    boxShadow: "0 4px 12px rgba(0, 170, 91, 0.25)",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
     transition: "all 0.2s ease-in-out",
   },
 
   footerText: {
     marginTop: "20px",
     fontSize: "13px",
-    color: "#666",
+    color: "var(--text-muted)",
     textAlign: "center",
   },
 
   link: {
-    color: "#00aa5b",
+    color: "var(--badge-green-text)",
     fontWeight: "bold",
     textDecoration: "none",
     marginLeft: "4px",

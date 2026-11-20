@@ -5,12 +5,12 @@
 
 .home-sticky-bar {
   position: static !important;
-  background: #ffffff;
+  background: var(--bg-card);
   width: 100%;
   box-sizing: border-box;
   padding-top: 8px;
   padding-bottom: 6px;
-  border-bottom: 1px solid #f1f5f9;
+  border-bottom: 1px solid var(--border-light);
 }
 
 /* 1. Search Bar Slot */

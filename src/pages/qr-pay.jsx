@@ -36,10 +36,10 @@ export default function QRCustomerPayPage() {
 
   if (paidSuccess) {
     return (
-      <div style={{ maxWidth: "420px", margin: "40px auto", padding: "24px", background: "#fff", borderRadius: "14px", textAlign: "center", border: "1px solid #e2e8f0" }}>
-        <CheckCircle2 size={48} color="#15803d" style={{ marginBottom: "12px" }} />
-        <h3 style={{ color: "#15803d", margin: "0 0 8px 0" }}>Payment Successful!</h3>
-        <p style={{ color: "#475569" }}>Paid <strong>LKR {Number(amount).toLocaleString()}</strong> to <strong>{holder}</strong> ({bank}).</p>
+      <div style={{ maxWidth: "420px", margin: "40px auto", padding: "24px", background: "var(--bg-card)", borderRadius: "14px", textAlign: "center", border: "1px solid var(--border-light)" }}>
+        <CheckCircle2 size={48} color="var(--primary)" style={{ marginBottom: "12px" }} />
+        <h3 style={{ color: "var(--primary)", margin: "0 0 8px 0" }}>Payment Successful!</h3>
+        <p style={{ color: "var(--text-secondary)" }}>Paid <strong>LKR {Number(amount).toLocaleString()}</strong> to <strong>{holder}</strong> ({bank}).</p>
         <button
           type="button"
           onClick={handleBack}
@@ -47,8 +47,8 @@ export default function QRCustomerPayPage() {
             marginTop: "16px",
             padding: "9px 20px",
             borderRadius: "8px",
-            background: "#15803d",
-            color: "#fff",
+            background: "var(--primary)",
+            color: "var(--text-inverse)",
             border: "none",
             fontWeight: 600,
             cursor: "pointer",
@@ -61,7 +61,7 @@ export default function QRCustomerPayPage() {
   }
 
   return (
-    <div style={{ maxWidth: "420px", margin: "30px auto", padding: "20px", background: "#fff", borderRadius: "14px", border: "1px solid #e2e8f0" }}>
+    <div style={{ maxWidth: "420px", margin: "30px auto", padding: "20px", background: "var(--bg-card)", borderRadius: "14px", border: "1px solid var(--border-light)" }}>
       <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
         <button
           type="button"
@@ -70,8 +70,8 @@ export default function QRCustomerPayPage() {
             width: "36px",
             height: "36px",
             borderRadius: "50%",
-            border: "1px solid #e2e8f0",
-            background: "#ffffff",
+            border: "1px solid var(--border-light)",
+            background: "var(--bg-card)",
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
@@ -80,11 +80,11 @@ export default function QRCustomerPayPage() {
           title="Go Back"
           aria-label="Go Back"
         >
-          <ArrowLeft size={16} color="#334155" />
+          <ArrowLeft size={16} color="var(--text-secondary)" />
         </button>
         <h3 style={{ margin: 0 }}>Pay via Card (QR)</h3>
       </div>
-      <div style={{ background: "#f8fafc", padding: "10px", borderRadius: "8px", marginBottom: "14px", fontSize: "13px" }}>
+      <div style={{ background: "var(--bg-app-alt)", padding: "10px", borderRadius: "8px", marginBottom: "14px", fontSize: "13px" }}>
         <div><strong>To:</strong> {holder}</div>
         <div><strong>Bank:</strong> {bank}</div>
         <div><strong>Account:</strong> {acc}</div>
@@ -100,7 +100,7 @@ export default function QRCustomerPayPage() {
             value={amount}
             onChange={(e) => setAmount(e.target.value)}
             required
-            style={{ width: "100%", padding: "9px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+            style={{ width: "100%", padding: "9px", borderRadius: "8px", border: "1px solid var(--border-light)" }}
           />
         </div>
 
@@ -112,7 +112,7 @@ export default function QRCustomerPayPage() {
             value={cardNumber}
             onChange={(e) => setCardNumber(e.target.value)}
             required
-            style={{ width: "100%", padding: "9px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+            style={{ width: "100%", padding: "9px", borderRadius: "8px", border: "1px solid var(--border-light)" }}
           />
         </div>
 
@@ -123,7 +123,7 @@ export default function QRCustomerPayPage() {
             value={expiry}
             onChange={(e) => setExpiry(e.target.value)}
             required
-            style={{ flex: 1, padding: "9px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+            style={{ flex: 1, padding: "9px", borderRadius: "8px", border: "1px solid var(--border-light)" }}
           />
           <input
             type="password"
@@ -131,7 +131,7 @@ export default function QRCustomerPayPage() {
             value={cvv}
             onChange={(e) => setCvv(e.target.value)}
             required
-            style={{ flex: 1, padding: "9px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
+            style={{ flex: 1, padding: "9px", borderRadius: "8px", border: "1px solid var(--border-light)" }}
           />
         </div>
 

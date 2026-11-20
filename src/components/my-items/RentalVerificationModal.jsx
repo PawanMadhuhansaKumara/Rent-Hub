@@ -131,15 +131,15 @@ export default function RentalVerificationModal({
           <div className="request-form-heading" style={{ marginBottom: "0" }}>
             <div
               className="request-form-icon"
-              style={{ background: "#dcfce7", color: "#15803d" }}
+              style={{ background: "var(--badge-green-bg)", color: "var(--primary)" }}
             >
               <ClipboardCheck size={22} />
             </div>
             <div className="request-form-heading-text">
-              <h2 style={{ fontSize: "18px", color: "#0f172a" }}>
+              <h2 style={{ fontSize: "18px", color: "var(--text-main)" }}>
                 {t("rentModals.verifyHandover", "Rental Handover Verification")}
               </h2>
-              <p style={{ fontSize: "12px", color: "#64748b" }}>
+              <p style={{ fontSize: "12px", color: "var(--text-muted)" }}>
                 {t("rentModals.handoverDesc", "Verify customer & item condition before handover")}
               </p>
             </div>
@@ -154,7 +154,7 @@ export default function RentalVerificationModal({
                 border: "none",
                 cursor: "pointer",
                 padding: "4px",
-                color: "#64748b",
+                color: "var(--text-muted)",
               }}
             >
               <X size={20} />
@@ -165,8 +165,8 @@ export default function RentalVerificationModal({
           <div
             style={{
               padding: "12px 14px",
-              background: "#f8fafc",
-              border: "1px solid #e2e8f0",
+              background: "var(--bg-app-alt)",
+              border: "1px solid var(--border-light)",
               borderRadius: "12px",
               display: "flex",
               flexDirection: "column",
@@ -175,28 +175,28 @@ export default function RentalVerificationModal({
             }}
           >
             <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ color: "#64748b" }}>Item:</span>
-              <strong style={{ color: "#0f172a" }}>
+              <span style={{ color: "var(--text-muted)" }}>Item:</span>
+              <strong style={{ color: "var(--text-main)" }}>
                 {req.itemTitle || "Rental Item"}
               </strong>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ color: "#64748b" }}>Customer:</span>
-              <span style={{ fontWeight: "600", color: "#0f172a" }}>
+              <span style={{ color: "var(--text-muted)" }}>Customer:</span>
+              <span style={{ fontWeight: "600", color: "var(--text-main)" }}>
                 {customerName} {customerPhone ? `(${customerPhone})` : ""}
               </span>
             </div>
             <div style={{ display: "flex", justifyContent: "space-between" }}>
-              <span style={{ color: "#64748b" }}>Rental Period:</span>
-              <span style={{ color: "#1e293b", fontWeight: "600" }}>
+              <span style={{ color: "var(--text-muted)" }}>Rental Period:</span>
+              <span style={{ color: "var(--text-main)", fontWeight: "600" }}>
                 {formatRentalDate(req.startDate || req.start_date)} →{" "}
                 {formatRentalDate(req.endDate || req.end_date)}
               </span>
             </div>
             {req.totalPrice && (
               <div style={{ display: "flex", justifyContent: "space-between" }}>
-                <span style={{ color: "#64748b" }}>Total Amount:</span>
-                <strong style={{ color: "#15803d" }}>
+                <span style={{ color: "var(--text-muted)" }}>Total Amount:</span>
+                <strong style={{ color: "var(--primary)" }}>
                   Rs. {Number(req.totalPrice).toLocaleString()}
                 </strong>
               </div>
@@ -207,8 +207,8 @@ export default function RentalVerificationModal({
           {(req.paymentMethod || req.payment_method || "cash").toLowerCase().includes("cash") && (
             <div
               style={{
-                backgroundColor: "#fffbeb",
-                border: "1.5px solid #fde68a",
+                backgroundColor: "var(--badge-yellow-bg)",
+                border: "1.5px solid var(--badge-yellow-border)",
                 borderRadius: "12px",
                 padding: "11px 14px",
                 display: "flex",
@@ -216,8 +216,8 @@ export default function RentalVerificationModal({
                 gap: "10px",
               }}
             >
-              <Coins size={20} color="#b45309" style={{ flexShrink: 0, marginTop: "2px" }} />
-              <div style={{ fontSize: "12.5px", color: "#92400e", lineHeight: "1.4" }}>
+              <Coins size={20} color="var(--badge-yellow-text)" style={{ flexShrink: 0, marginTop: "2px" }} />
+              <div style={{ fontSize: "12.5px", color: "var(--badge-yellow-text)", lineHeight: "1.4" }}>
                 <strong>Cash on Pickup Payment:</strong> Collect <strong>Rs. {Number(req.totalPrice || req.total_price || 0).toLocaleString()}</strong> in cash from the customer.
                 Upon confirming handover, <strong>10% platform fee (Rs. {Number(((req.totalPrice || req.total_price || 0) * 0.10)).toLocaleString()})</strong> will be automatically deducted from your shop's earnings.
               </div>
@@ -232,10 +232,10 @@ export default function RentalVerificationModal({
                 alignItems: "center",
                 gap: "8px",
                 padding: "10px 12px",
-                background: "#fef2f2",
-                border: "1px solid #fecaca",
+                background: "var(--badge-red-bg)",
+                border: "1px solid var(--badge-red-border)",
                 borderRadius: "10px",
-                color: "#b91c1c",
+                color: "var(--badge-red-text)",
                 fontSize: "12px",
                 fontWeight: "600",
               }}
@@ -251,8 +251,8 @@ export default function RentalVerificationModal({
               display: "flex",
               flexDirection: "column",
               gap: "10px",
-              background: "#ffffff",
-              border: "1px solid #e2e8f0",
+              background: "var(--bg-modal, var(--bg-card))",
+              border: "1px solid var(--border-light)",
               borderRadius: "12px",
               padding: "14px",
             }}
@@ -262,7 +262,7 @@ export default function RentalVerificationModal({
                 fontSize: "12px",
                 fontWeight: "700",
                 textTransform: "uppercase",
-                color: "#475569",
+                color: "var(--text-secondary)",
                 letterSpacing: "0.5px",
               }}
             >
@@ -292,15 +292,15 @@ export default function RentalVerificationModal({
                   width: "18px",
                   height: "18px",
                   marginTop: "2px",
-                  accentColor: "#15803d",
+                  accentColor: "var(--primary)",
                   cursor: "pointer",
                 }}
               />
               <div>
-                <strong style={{ color: "#0f172a", display: "block" }}>
+                <strong style={{ color: "var(--text-main)", display: "block" }}>
                   ID Card / Driving License Checked *
                 </strong>
-                <span style={{ color: "#64748b", fontSize: "12px" }}>
+                <span style={{ color: "var(--text-muted)", fontSize: "12px" }}>
                   Physical or digital identification verified
                 </span>
               </div>
@@ -329,15 +329,15 @@ export default function RentalVerificationModal({
                   width: "18px",
                   height: "18px",
                   marginTop: "2px",
-                  accentColor: "#15803d",
+                  accentColor: "var(--primary)",
                   cursor: "pointer",
                 }}
               />
               <div>
-                <strong style={{ color: "#0f172a", display: "block" }}>
+                <strong style={{ color: "var(--text-main)", display: "block" }}>
                   Customer Details Verified *
                 </strong>
-                <span style={{ color: "#64748b", fontSize: "12px" }}>
+                <span style={{ color: "var(--text-muted)", fontSize: "12px" }}>
                   Name and phone number confirmed with renter
                 </span>
               </div>
@@ -352,7 +352,7 @@ export default function RentalVerificationModal({
                 cursor: "pointer",
                 fontSize: "13px",
                 paddingTop: "4px",
-                borderTop: "1px dashed #e2e8f0",
+                borderTop: "1px dashed var(--border-light)",
               }}
             >
               <input
@@ -363,15 +363,15 @@ export default function RentalVerificationModal({
                   width: "18px",
                   height: "18px",
                   marginTop: "2px",
-                  accentColor: "#15803d",
+                  accentColor: "var(--primary)",
                   cursor: "pointer",
                 }}
               />
               <div>
-                <strong style={{ color: "#0f172a", display: "block" }}>
+                <strong style={{ color: "var(--text-main)", display: "block" }}>
                   Accessories Included
                 </strong>
-                <span style={{ color: "#64748b", fontSize: "12px" }}>
+                <span style={{ color: "var(--text-muted)", fontSize: "12px" }}>
                   All standard cables, chargers, cases, and components provided
                 </span>
               </div>
@@ -393,7 +393,7 @@ export default function RentalVerificationModal({
                   display: "block",
                   fontSize: "12px",
                   fontWeight: "600",
-                  color: "#334155",
+                  color: "var(--text-secondary)",
                   marginBottom: "4px",
                 }}
               >
@@ -406,10 +406,10 @@ export default function RentalVerificationModal({
                   width: "100%",
                   padding: "9px 10px",
                   borderRadius: "8px",
-                  border: "1px solid #cbd5e1",
+                  border: "1px solid var(--border-light)",
                   fontSize: "13px",
-                  background: "#ffffff",
-                  color: "#0f172a",
+                  background: "var(--bg-modal, var(--bg-card))",
+                  color: "var(--text-main)",
                   outline: "none",
                 }}
               >
@@ -426,7 +426,7 @@ export default function RentalVerificationModal({
                   display: "block",
                   fontSize: "12px",
                   fontWeight: "600",
-                  color: "#334155",
+                  color: "var(--text-secondary)",
                   marginBottom: "4px",
                 }}
               >
@@ -439,10 +439,10 @@ export default function RentalVerificationModal({
                   width: "100%",
                   padding: "9px 10px",
                   borderRadius: "8px",
-                  border: "1px solid #cbd5e1",
+                  border: "1px solid var(--border-light)",
                   fontSize: "13px",
-                  background: "#ffffff",
-                  color: "#0f172a",
+                  background: "var(--bg-modal, var(--bg-card))",
+                  color: "var(--text-main)",
                   outline: "none",
                 }}
               >
@@ -459,7 +459,7 @@ export default function RentalVerificationModal({
                   display: "block",
                   fontSize: "12px",
                   fontWeight: "600",
-                  color: "#334155",
+                  color: "var(--text-secondary)",
                   marginBottom: "4px",
                 }}
               >
@@ -472,10 +472,10 @@ export default function RentalVerificationModal({
                   width: "100%",
                   padding: "9px 10px",
                   borderRadius: "8px",
-                  border: "1px solid #cbd5e1",
+                  border: "1px solid var(--border-light)",
                   fontSize: "13px",
-                  background: "#ffffff",
-                  color: "#0f172a",
+                  background: "var(--bg-modal, var(--bg-card))",
+                  color: "var(--text-main)",
                   outline: "none",
                 }}
               >
@@ -492,7 +492,7 @@ export default function RentalVerificationModal({
                   display: "block",
                   fontSize: "12px",
                   fontWeight: "600",
-                  color: "#334155",
+                  color: "var(--text-secondary)",
                   marginBottom: "4px",
                 }}
               >
@@ -507,7 +507,7 @@ export default function RentalVerificationModal({
                   width: "100%",
                   padding: "8px 10px",
                   borderRadius: "8px",
-                  border: "1px solid #cbd5e1",
+                  border: "1px solid var(--border-light)",
                   fontSize: "13px",
                   fontFamily: "inherit",
                   resize: "vertical",
@@ -526,7 +526,7 @@ export default function RentalVerificationModal({
               gap: "10px",
               marginTop: "4px",
               paddingTop: "12px",
-              borderTop: "1px solid #f1f5f9",
+              borderTop: "1px solid var(--bg-card-hover)",
             }}
           >
             {/* CANCEL BUTTON: Closes modal, does NOT touch database or status */}
@@ -537,9 +537,9 @@ export default function RentalVerificationModal({
               style={{
                 padding: "10px 18px",
                 borderRadius: "10px",
-                border: "1px solid #cbd5e1",
-                background: "#f8fafc",
-                color: "#475569",
+                border: "1px solid var(--border-light)",
+                background: "var(--bg-app-alt)",
+                color: "var(--text-secondary)",
                 fontSize: "14px",
                 fontWeight: "600",
                 cursor: isSubmitting ? "not-allowed" : "pointer",
@@ -557,8 +557,8 @@ export default function RentalVerificationModal({
                 padding: "10px 22px",
                 borderRadius: "10px",
                 border: "none",
-                background: isSubmitting ? "#86efac" : "#15803d",
-                color: "#ffffff",
+                background: isSubmitting ? "var(--badge-green-bg)" : "var(--primary)",
+                color: "var(--text-inverse)",
                 fontSize: "14px",
                 fontWeight: "600",
                 cursor: isSubmitting ? "not-allowed" : "pointer",
@@ -575,7 +575,7 @@ export default function RentalVerificationModal({
                     style={{
                       width: "14px",
                       height: "14px",
-                      border: "2px solid #ffffff",
+                      border: "2px solid var(--border-light)",
                       borderTopColor: "transparent",
                       borderRadius: "50%",
                       animation: "spin 0.6s linear infinite",

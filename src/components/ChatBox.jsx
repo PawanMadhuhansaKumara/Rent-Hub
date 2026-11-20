@@ -361,20 +361,20 @@ export default function ChatBox({
         }
         .chat-msg-del-btn:hover {
           opacity: 1 !important;
-          background-color: #fee2e2 !important;
+          background-color: var(--badge-red-bg) !important;
         }
         .chat-msg-del-btn:hover svg {
-          stroke: #ef4444 !important;
+          stroke: var(--badge-red-text) !important;
         }
         .chat-header-del-btn:hover {
-          background-color: #fee2e2 !important;
+          background-color: var(--badge-red-bg) !important;
           transform: scale(1.05);
         }
         .chat-confirm-cancel-btn:hover {
-          background-color: #e2e8f0 !important;
+          background-color: var(--border-light) !important;
         }
         .chat-confirm-delete-btn:hover {
-          background-color: #dc2626 !important;
+          background-color: var(--badge-red-text) !important;
         }
         @media (max-width: 640px) {
           .chatbox-overlay {
@@ -404,7 +404,7 @@ export default function ChatBox({
               onClick={(e) => e.stopPropagation()}
             >
               <div style={styles.confirmIconWrap}>
-                <Trash2 size={24} color="#ef4444" />
+                <Trash2 size={24} color="var(--badge-red-text)" />
               </div>
               <h4 style={styles.confirmTitle}>{confirmModal.title}</h4>
               <p style={styles.confirmText}>{confirmModal.text}</p>
@@ -447,7 +447,7 @@ export default function ChatBox({
               />
             ) : (
               <div style={styles.avatarPlaceholder}>
-                <User size={18} color="#fff" />
+                <User size={18} color="var(--text-inverse)" />
               </div>
             )}
             <div>
@@ -467,11 +467,11 @@ export default function ChatBox({
                 style={styles.headerDeleteBtn}
                 title={t("chat.deleteChat") || "Delete entire chat"}
               >
-                <Trash2 size={16} color="#ef4444" />
+                <Trash2 size={16} color="var(--badge-red-text)" />
               </button>
             )}
             <button onClick={onClose} style={styles.closeBtn} title="Close Chat">
-              <X size={20} color="#475569" />
+              <X size={20} color="var(--text-secondary)" />
             </button>
           </div>
         </div>
@@ -502,7 +502,7 @@ export default function ChatBox({
           {loading ? (
             <div style={styles.emptyNotice}>{t("chat.loadingConversation") || "Loading conversation..."}</div>
           ) : error ? (
-            <div style={{ ...styles.emptyNotice, color: "#dc2626", padding: "20px" }}>
+            <div style={{ ...styles.emptyNotice, color: "var(--badge-red-text)", padding: "20px" }}>
               <p style={{ margin: 0, fontWeight: "600", fontSize: "13px", lineHeight: "1.5" }}>
                 {error}
               </p>
@@ -516,9 +516,9 @@ export default function ChatBox({
                   gap: "6px",
                   padding: "8px 16px",
                   borderRadius: "8px",
-                  border: "1px solid #ef4444",
-                  background: "#fef2f2",
-                  color: "#dc2626",
+                  border: "1px solid var(--badge-red-text)",
+                  background: "var(--badge-red-bg)",
+                  color: "var(--badge-red-text)",
                   fontSize: "12px",
                   fontWeight: "bold",
                   cursor: "pointer",
@@ -529,9 +529,9 @@ export default function ChatBox({
             </div>
           ) : messages.length === 0 ? (
             <div style={styles.emptyNotice}>
-              <MessageCircle size={36} color="#cbd5e1" style={{ marginBottom: "8px" }} />
+              <MessageCircle size={36} color="var(--border-light)" style={{ marginBottom: "8px" }} />
               <p style={{ margin: 0, fontWeight: "600" }}>{t("chat.noMessagesYet") || "No messages yet"}</p>
-              <p style={{ margin: "4px 0 0 0", fontSize: "12px", color: "#94a3b8" }}>
+              <p style={{ margin: "4px 0 0 0", fontSize: "12px", color: "var(--text-muted)" }}>
                 {t("chat.inquireNotice") || "Send a message to start inquiring about this item!"}
               </p>
             </div>
@@ -557,7 +557,7 @@ export default function ChatBox({
                       title={t("chat.deleteMessage") || "Delete message"}
                       style={styles.msgDeleteBtn}
                     >
-                      <Trash2 size={13} color="#94a3b8" />
+                      <Trash2 size={13} color="var(--text-muted)" />
                     </button>
                   )}
 
@@ -575,9 +575,9 @@ export default function ChatBox({
                       {isMe && (
                         <span style={{ marginLeft: "4px" }}>
                           {msg.is_read ? (
-                            <CheckCheck size={14} color="#60a5fa" />
+                            <CheckCheck size={14} color="var(--badge-blue-text)" />
                           ) : (
-                            <Check size={14} color="#93c5fd" />
+                            <Check size={14} color="var(--badge-blue-border)" />
                           )}
                         </span>
                       )}
@@ -608,7 +608,7 @@ export default function ChatBox({
             }}
             disabled={!newMessage.trim() || sending}
           >
-            <Send size={18} color="#fff" />
+            <Send size={18} color="var(--text-inverse)" />
           </button>
         </form>
       </div>
@@ -634,13 +634,13 @@ const styles = {
     maxWidth: "420px",
     height: "530px",
     maxHeight: "calc(100vh - 105px)",
-    backgroundColor: "#ffffff",
+    backgroundColor: "var(--bg-card)",
     borderRadius: "20px",
     boxShadow: "0 10px 35px rgba(0,0,0,0.2)",
     display: "flex",
     flexDirection: "column",
     overflow: "hidden",
-    border: "1px solid #e2e8f0",
+    border: "1px solid var(--border-light)",
     animation: "slideUp 0.25s ease-out",
   },
   confirmOverlay: {
@@ -656,22 +656,22 @@ const styles = {
     animation: "fadeIn 0.18s ease-out",
   },
   confirmBox: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "var(--bg-card)",
     borderRadius: "18px",
     padding: "22px 20px",
     width: "100%",
     maxWidth: "300px",
     textAlign: "center",
     boxShadow: "0 20px 25px -5px rgba(0, 0, 0, 0.3), 0 8px 10px -6px rgba(0, 0, 0, 0.15)",
-    border: "1px solid #f1f5f9",
+    border: "1px solid var(--bg-card-hover)",
     animation: "scaleIn 0.2s cubic-bezier(0.16, 1, 0.3, 1)",
   },
   confirmIconWrap: {
     width: "46px",
     height: "46px",
     borderRadius: "50%",
-    backgroundColor: "#fef2f2",
-    border: "1px solid #fee2e2",
+    backgroundColor: "var(--badge-red-bg)",
+    border: "1px solid var(--badge-red-bg)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -681,12 +681,12 @@ const styles = {
     margin: "0 0 6px 0",
     fontSize: "16px",
     fontWeight: "700",
-    color: "#0f172a",
+    color: "var(--text-main)",
   },
   confirmText: {
     margin: "0 0 20px 0",
     fontSize: "13px",
-    color: "#64748b",
+    color: "var(--text-muted)",
     lineHeight: "1.45",
   },
   confirmBtnRow: {
@@ -698,9 +698,9 @@ const styles = {
     flex: 1,
     padding: "9px 14px",
     borderRadius: "10px",
-    border: "1px solid #cbd5e1",
-    backgroundColor: "#f8fafc",
-    color: "#334155",
+    border: "1px solid var(--border-light)",
+    backgroundColor: "var(--bg-app-alt)",
+    color: "var(--text-secondary)",
     fontSize: "13px",
     fontWeight: "600",
     cursor: "pointer",
@@ -711,8 +711,8 @@ const styles = {
     padding: "9px 14px",
     borderRadius: "10px",
     border: "none",
-    backgroundColor: "#ef4444",
-    color: "#ffffff",
+    backgroundColor: "var(--badge-red-text)",
+    color: "var(--text-inverse)",
     fontSize: "13px",
     fontWeight: "600",
     cursor: "pointer",
@@ -721,8 +721,8 @@ const styles = {
   },
   header: {
     padding: "14px 18px",
-    backgroundColor: "#ffffff",
-    borderBottom: "1px solid #f1f5f9",
+    backgroundColor: "var(--bg-card)",
+    borderBottom: "1px solid var(--bg-card-hover)",
     display: "flex",
     alignItems: "center",
     justifyContent: "space-between",
@@ -742,7 +742,7 @@ const styles = {
     width: "40px",
     height: "40px",
     borderRadius: "50%",
-    backgroundColor: "#2563eb",
+    backgroundColor: "var(--badge-blue-text)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -751,15 +751,15 @@ const styles = {
     margin: 0,
     fontSize: "15px",
     fontWeight: "bold",
-    color: "#0f172a",
+    color: "var(--text-main)",
   },
   headerSubtitle: {
     margin: "2px 0 0 0",
     fontSize: "12px",
-    color: "#64748b",
+    color: "var(--text-muted)",
   },
   closeBtn: {
-    background: "#f1f5f9",
+    background: "var(--bg-card-hover)",
     border: "none",
     borderRadius: "50%",
     width: "32px",
@@ -770,8 +770,8 @@ const styles = {
     cursor: "pointer",
   },
   headerDeleteBtn: {
-    background: "#fef2f2",
-    border: "1px solid #fee2e2",
+    background: "var(--badge-red-bg)",
+    border: "1px solid var(--badge-red-bg)",
     borderRadius: "50%",
     width: "32px",
     height: "32px",
@@ -798,21 +798,21 @@ const styles = {
     alignItems: "center",
     gap: "12px",
     padding: "10px 16px",
-    backgroundColor: "#f8fafc",
-    borderBottom: "1px solid #e2e8f0",
+    backgroundColor: "var(--bg-app-alt)",
+    borderBottom: "1px solid var(--border-light)",
   },
   itemImg: {
     width: "46px",
     height: "46px",
     borderRadius: "8px",
     objectFit: "cover",
-    border: "1px solid #e2e8f0",
+    border: "1px solid var(--border-light)",
   },
   itemTitle: {
     margin: 0,
     fontSize: "13px",
     fontWeight: "bold",
-    color: "#1e293b",
+    color: "var(--text-main)",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -820,7 +820,7 @@ const styles = {
   itemPrice: {
     margin: "2px 0 0 0",
     fontSize: "12px",
-    color: "#16a34a",
+    color: "var(--primary)",
     fontWeight: "bold",
   },
   messagesContainer: {
@@ -830,7 +830,7 @@ const styles = {
     display: "flex",
     flexDirection: "column",
     gap: "10px",
-    backgroundColor: "#f8fafc",
+    backgroundColor: "var(--bg-app-alt)",
   },
   emptyNotice: {
     height: "100%",
@@ -839,7 +839,7 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     textAlign: "center",
-    color: "#64748b",
+    color: "var(--text-muted)",
     fontSize: "14px",
   },
   messageRow: {
@@ -853,14 +853,14 @@ const styles = {
     boxShadow: "0 1px 2px rgba(0,0,0,0.05)",
   },
   myBubble: {
-    backgroundColor: "#2563eb",
-    color: "#ffffff",
+    backgroundColor: "var(--badge-blue-text)",
+    color: "var(--text-inverse)",
     borderBottomRightRadius: "4px",
   },
   otherBubble: {
-    backgroundColor: "#ffffff",
-    color: "#0f172a",
-    border: "1px solid #e2e8f0",
+    backgroundColor: "var(--bg-card)",
+    color: "var(--text-main)",
+    border: "1px solid var(--border-light)",
     borderBottomLeftRadius: "4px",
   },
   messageText: {
@@ -877,16 +877,16 @@ const styles = {
   },
   myMetaTime: {
     fontSize: "10px",
-    color: "#bfdbfe",
+    color: "var(--badge-blue-bg)",
   },
   otherMetaTime: {
     fontSize: "10px",
-    color: "#94a3b8",
+    color: "var(--text-muted)",
   },
   footer: {
     padding: "12px 16px",
-    backgroundColor: "#ffffff",
-    borderTop: "1px solid #e2e8f0",
+    backgroundColor: "var(--bg-card)",
+    borderTop: "1px solid var(--border-light)",
     display: "flex",
     gap: "10px",
     alignItems: "center",
@@ -895,15 +895,15 @@ const styles = {
     flex: 1,
     padding: "12px 18px",
     borderRadius: "24px",
-    border: "1px solid #cbd5e1",
+    border: "1px solid var(--border-light)",
     outline: "none",
     fontSize: "14px",
-    color: "#0f172a",
-    backgroundColor: "#ffffff",
+    color: "var(--text-main)",
+    backgroundColor: "var(--bg-card)",
     boxShadow: "inset 0 1px 2px rgba(0,0,0,0.04)",
   },
   sendBtn: {
-    backgroundColor: "#2563eb",
+    backgroundColor: "var(--badge-blue-text)",
     border: "none",
     borderRadius: "50%",
     width: "42px",

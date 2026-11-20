@@ -60,7 +60,7 @@ export default function ProfileHeader({
               </h1>
               {profile.is_verified ? (
                 <span className="profile-verified-chip" title="Verified Member">
-                  <CheckCircle2 size={14} color="#00aa5b" fill="#00aa5b" />
+                  <CheckCircle2 size={14} color="var(--primary)" fill="var(--primary)" />
                   <span>{t("profile.verified", "Verified")}</span>
                 </span>
               ) : null}
@@ -73,7 +73,7 @@ export default function ProfileHeader({
             <div className="profile-meta-list">
               {(profile.address || profile.nearest_city) && (
                 <span className="profile-meta-item">
-                  <MapPin size={14} color="#00aa5b" />
+                  <MapPin size={14} color="var(--primary)" />
                   <span>
                     {[profile.address, profile.nearest_city]
                       .filter(Boolean)
@@ -84,14 +84,14 @@ export default function ProfileHeader({
 
               {profile.email && (
                 <span className="profile-meta-item">
-                  <Mail size={14} color="#00aa5b" />
+                  <Mail size={14} color="var(--primary)" />
                   <span>{profile.email}</span>
                 </span>
               )}
 
               {profile.phone_no && (
                 <span className="profile-meta-item">
-                  <Phone size={14} color="#00aa5b" />
+                  <Phone size={14} color="var(--primary)" />
                   <span>{profile.phone_no}</span>
                 </span>
               )}

@@ -218,9 +218,9 @@ export default function LeaveReviewModal({
           <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
             <div style={styles.iconWrap}>
               {isEdit ? (
-                <Edit3 size={18} color="#0284c7" />
+                <Edit3 size={18} color="var(--badge-blue-text)" />
               ) : (
-                <Star size={18} color="#eab308" fill="#eab308" />
+                <Star size={18} color="var(--badge-yellow-text)" fill="var(--badge-yellow-text)" />
               )}
             </div>
             <div>
@@ -244,7 +244,7 @@ export default function LeaveReviewModal({
             style={styles.closeBtn}
             title="Close"
           >
-            <X size={18} color="#64748b" />
+            <X size={18} color="var(--text-muted)" />
           </button>
         </div>
 
@@ -263,7 +263,7 @@ export default function LeaveReviewModal({
               style={styles.itemImg}
             />
           ) : (
-            <div style={{ ...styles.itemImg, background: "#e2e8f0" }} />
+            <div style={{ ...styles.itemImg, background: "var(--border-light)" }} />
           )}
           <div style={{ minWidth: 0, flex: 1 }}>
             <h4 style={styles.itemName}>
@@ -281,11 +281,11 @@ export default function LeaveReviewModal({
         {/* Success Screen */}
         {success ? (
           <div style={styles.successBox}>
-            <CheckCircle2 size={48} color="#16a34a" />
-            <h4 style={{ margin: "12px 0 4px 0", color: "#16a34a", fontSize: "17px" }}>
+            <CheckCircle2 size={48} color="var(--primary)" />
+            <h4 style={{ margin: "12px 0 4px 0", color: "var(--primary)", fontSize: "17px" }}>
               {successMsg || (isEdit ? "Review Updated!" : "Review Submitted!")}
             </h4>
-            <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>
+            <p style={{ margin: 0, fontSize: "13px", color: "var(--text-muted)" }}>
               Thank you for helping others make confident rental choices.
             </p>
           </div>
@@ -316,8 +316,8 @@ export default function LeaveReviewModal({
                     >
                       <Star
                         size={32}
-                        color={isFilled ? "#eab308" : "#cbd5e1"}
-                        fill={isFilled ? "#eab308" : "none"}
+                        color={isFilled ? "var(--badge-yellow-text)" : "var(--border-light)"}
+                        fill={isFilled ? "var(--badge-yellow-text)" : "none"}
                         strokeWidth={1.5}
                       />
                     </button>
@@ -398,12 +398,13 @@ const styles = {
     animation: "fadeIn 0.2s ease-out",
   },
   modalBox: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "var(--bg-modal)",
     borderRadius: "20px",
     width: "100%",
     maxWidth: "480px",
     boxShadow: "0 20px 40px rgba(0, 0, 0, 0.2)",
-    border: "1px solid #e2e8f0",
+    border: "1px solid var(--border-light)",
+    color: "var(--text-main)",
     overflow: "hidden",
     animation: "scaleIn 0.2s ease-out",
   },
@@ -412,13 +413,13 @@ const styles = {
     alignItems: "center",
     justifyContent: "space-between",
     padding: "20px 24px 16px",
-    borderBottom: "1px solid #f1f5f9",
+    borderBottom: "1px solid var(--bg-card-hover)",
   },
   iconWrap: {
     width: "36px",
     height: "36px",
     borderRadius: "10px",
-    backgroundColor: "#fef9c3",
+    backgroundColor: "var(--badge-yellow-bg)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -427,12 +428,12 @@ const styles = {
     margin: 0,
     fontSize: "17px",
     fontWeight: "700",
-    color: "#0f172a",
+    color: "var(--text-main)",
   },
   subtitle: {
     margin: "2px 0 0 0",
     fontSize: "12px",
-    color: "#64748b",
+    color: "var(--text-muted)",
   },
   closeBtn: {
     background: "transparent",
@@ -449,22 +450,22 @@ const styles = {
     alignItems: "center",
     gap: "12px",
     padding: "12px 24px",
-    backgroundColor: "#f8fafc",
-    borderBottom: "1px solid #f1f5f9",
+    backgroundColor: "var(--bg-app-alt)",
+    borderBottom: "1px solid var(--bg-card-hover)",
   },
   itemImg: {
     width: "44px",
     height: "44px",
     borderRadius: "8px",
     objectFit: "cover",
-    border: "1px solid #e2e8f0",
+    border: "1px solid var(--border-light)",
     flexShrink: 0,
   },
   itemName: {
     margin: 0,
     fontSize: "14px",
     fontWeight: "600",
-    color: "#1e293b",
+    color: "var(--text-main)",
     whiteSpace: "nowrap",
     overflow: "hidden",
     textOverflow: "ellipsis",
@@ -472,7 +473,7 @@ const styles = {
   shopName: {
     margin: "2px 0 0 0",
     fontSize: "12px",
-    color: "#64748b",
+    color: "var(--text-muted)",
   },
   form: {
     padding: "20px 24px 24px",
@@ -480,14 +481,14 @@ const styles = {
   starSection: {
     textAlign: "center",
     padding: "12px 0 16px",
-    borderBottom: "1px solid #f1f5f9",
+    borderBottom: "1px solid var(--bg-card-hover)",
     marginBottom: "16px",
   },
   label: {
     display: "block",
     fontSize: "13px",
     fontWeight: "600",
-    color: "#334155",
+    color: "var(--text-secondary)",
     marginBottom: "8px",
   },
   starsRow: {
@@ -508,8 +509,8 @@ const styles = {
     marginTop: "8px",
     fontSize: "13px",
     fontWeight: "700",
-    color: "#a16207",
-    backgroundColor: "#fef9c3",
+    color: "var(--badge-yellow-text)",
+    backgroundColor: "var(--badge-yellow-bg)",
     padding: "3px 12px",
     borderRadius: "20px",
   },
@@ -521,7 +522,7 @@ const styles = {
     boxSizing: "border-box",
     padding: "12px 14px",
     borderRadius: "10px",
-    border: "1.5px solid #cbd5e1",
+    border: "1.5px solid var(--border-light)",
     fontSize: "13px",
     fontFamily: "inherit",
     lineHeight: "1.5",
@@ -539,10 +540,10 @@ const styles = {
   },
   cancelBtn: {
     padding: "10px 18px",
-    backgroundColor: "#f1f5f9",
-    border: "1px solid #cbd5e1",
+    backgroundColor: "var(--bg-card-hover)",
+    border: "1px solid var(--border-light)",
     borderRadius: "10px",
-    color: "#475569",
+    color: "var(--text-secondary)",
     fontSize: "13px",
     fontWeight: "600",
     cursor: "pointer",
@@ -550,10 +551,10 @@ const styles = {
   },
   submitBtn: {
     padding: "10px 22px",
-    backgroundColor: "#00aa5b",
+    backgroundColor: "var(--primary)",
     border: "none",
     borderRadius: "10px",
-    color: "#ffffff",
+    color: "var(--text-inverse)",
     fontSize: "13px",
     fontWeight: "600",
     cursor: "pointer",
@@ -562,10 +563,10 @@ const styles = {
   },
   deleteReviewBtn: {
     padding: "9px 14px",
-    backgroundColor: "#fff1f2",
-    border: "1px solid #fecdd3",
+    backgroundColor: "var(--badge-red-bg)",
+    border: "1px solid var(--badge-red-bg)",
     borderRadius: "10px",
-    color: "#e11d48",
+    color: "var(--badge-notif-bg)",
     fontSize: "13px",
     fontWeight: "600",
     cursor: "pointer",
@@ -579,10 +580,10 @@ const styles = {
     alignItems: "center",
     gap: "8px",
     padding: "10px 14px",
-    backgroundColor: "#fef2f2",
-    border: "1px solid #fee2e2",
+    backgroundColor: "var(--badge-red-bg)",
+    border: "1px solid var(--badge-red-bg)",
     borderRadius: "8px",
-    color: "#b91c1c",
+    color: "var(--badge-red-text)",
     fontSize: "12px",
     marginBottom: "14px",
   },

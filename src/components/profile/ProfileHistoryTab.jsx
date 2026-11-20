@@ -29,12 +29,12 @@ export default function ProfileHistoryTab({
             style={{
               margin: "0 0 5px",
               fontSize: "20px",
-              color: "#0f172a",
+              color: "var(--text-main)",
             }}
           >
             {t("profile.rentalHistory", "Rental History")}
           </h3>
-          <p style={{ margin: 0, color: "#64748b", fontSize: "13px" }}>
+          <p style={{ margin: 0, color: "var(--text-muted)", fontSize: "13px" }}>
             {t("profile.historySubtitle", "View your completed rental transactions.")}
           </p>
         </div>
@@ -46,11 +46,11 @@ export default function ProfileHistoryTab({
             styles.emptyState || {
               padding: "40px",
               textAlign: "center",
-              color: "#777",
+              color: "var(--text-muted)",
               fontSize: "14px",
-              backgroundColor: "#fafafa",
+              backgroundColor: "var(--bg-card)",
               borderRadius: "16px",
-              border: "1px dashed #ddd",
+              border: "1px dashed var(--border-light)",
             }
           }
         >
@@ -62,11 +62,11 @@ export default function ProfileHistoryTab({
             styles.emptyState || {
               padding: "40px",
               textAlign: "center",
-              color: "#ef4444",
+              color: "var(--badge-red-text)",
               fontSize: "14px",
-              backgroundColor: "#fafafa",
+              backgroundColor: "var(--bg-card)",
               borderRadius: "16px",
-              border: "1px dashed #ddd",
+              border: "1px dashed var(--border-light)",
             }
           }
         >
@@ -78,11 +78,11 @@ export default function ProfileHistoryTab({
             styles.emptyState || {
               padding: "40px",
               textAlign: "center",
-              color: "#777",
+              color: "var(--text-muted)",
               fontSize: "14px",
-              backgroundColor: "#fafafa",
+              backgroundColor: "var(--bg-card)",
               borderRadius: "16px",
-              border: "1px dashed #ddd",
+              border: "1px dashed var(--border-light)",
             }
           }
         >
@@ -121,13 +121,14 @@ export default function ProfileHistoryTab({
             return (
               <div
                 key={rental.transactionId}
+                className="profile-history-card-item"
                 style={{
                   display: "flex",
                   alignItems: "center",
                   gap: "16px",
                   flexWrap: "wrap",
-                  background: "#ffffff",
-                  border: "1px solid #e2e8f0",
+                  background: "var(--bg-card)",
+                  border: "1px solid var(--border-light)",
                   borderRadius: "14px",
                   padding: "16px",
                   boxShadow: "0 2px 8px rgba(0,0,0,0.03)",
@@ -141,14 +142,14 @@ export default function ProfileHistoryTab({
                     height: "104px",
                     objectFit: "cover",
                     borderRadius: "10px",
-                    background: "#f1f5f9",
+                    background: "var(--bg-input)",
                   }}
                 />
                 <div style={{ flex: "1 1 220px", minWidth: 0 }}>
                   <h4
                     style={{
                       margin: "0 0 8px",
-                      color: "#0f172a",
+                      color: "var(--text-main)",
                       fontSize: "16px",
                     }}
                   >
@@ -157,7 +158,7 @@ export default function ProfileHistoryTab({
                   <p
                     style={{
                       margin: "4px 0",
-                      color: "#64748b",
+                      color: "var(--text-muted)",
                       fontSize: "13px",
                     }}
                   >
@@ -173,7 +174,7 @@ export default function ProfileHistoryTab({
                   <p
                     style={{
                       margin: "4px 0",
-                      color: "#64748b",
+                      color: "var(--text-muted)",
                       fontSize: "13px",
                     }}
                   >
@@ -199,13 +200,13 @@ export default function ProfileHistoryTab({
                         }}
                       />
                     ) : (
-                      <User size={22} color="#64748b" />
+                      <User size={22} color="var(--text-muted)" />
                     )}
-                    <span style={{ color: "#475569", fontSize: "13px" }}>
+                    <span style={{ color: "var(--text-secondary)", fontSize: "13px" }}>
                       {rental.historyType === "buyer"
                         ? t("profile.rentedFrom", "Rented from")
                         : t("profile.rentedTo", "Rented to")}
-                      : <strong>{rental.otherUserName || "User"}</strong>
+                      : <strong style={{ color: "var(--text-main)" }}>{rental.otherUserName || "User"}</strong>
                     </span>
                   </div>
                 </div>
@@ -213,7 +214,7 @@ export default function ProfileHistoryTab({
                   <strong
                     style={{
                       display: "block",
-                      color: "#0f172a",
+                      color: "var(--text-main)",
                       fontSize: "17px",
                     }}
                   >
@@ -228,8 +229,8 @@ export default function ProfileHistoryTab({
                       marginTop: "5px",
                       color:
                         rental.historyType === "buyer"
-                          ? "#2563eb"
-                          : "#7c3aed",
+                          ? "var(--badge-blue-text)"
+                          : "var(--badge-purple-text)",
                       fontSize: "11px",
                       fontWeight: "700",
                     }}
@@ -244,8 +245,8 @@ export default function ProfileHistoryTab({
                       marginTop: "8px",
                       padding: "5px 10px",
                       borderRadius: "20px",
-                      background: "#dcfce7",
-                      color: "#15803d",
+                      background: "var(--badge-green-bg)",
+                      color: "var(--primary)",
                       fontSize: "11px",
                       fontWeight: "700",
                     }}
@@ -255,7 +256,7 @@ export default function ProfileHistoryTab({
                   <p
                     style={{
                       margin: "7px 0 0",
-                      color: "#94a3b8",
+                      color: "var(--text-muted)",
                       fontSize: "11px",
                     }}
                   >

@@ -891,7 +891,7 @@ export default function Profile({ user, setUser }) {
 
 const styles = {
   desktopPageBackground: {
-    backgroundColor: "#f4f6f8",
+    backgroundColor: "var(--bg-card-hover)",
     minHeight: "100vh",
     padding: "30px 20px",
     display: "flex",
@@ -902,17 +902,17 @@ const styles = {
     marginBottom: "50px",
     width: "100%",
     maxWidth: "1100px",
-    backgroundColor: "#ffffff",
+    backgroundColor: "var(--bg-card)",
     borderRadius: "24px",
     overflow: "hidden",
     boxShadow: "0 4px 25px rgba(0,0,0,0.06)",
-    border: "1px solid #eaeaea",
+    border: "1px solid var(--border-light)",
     paddingBottom: "30px",
   },
   desktopCoverWrapper: {
     position: "relative",
     height: "200px",
-    backgroundColor: "#00aa5b",
+    backgroundColor: "var(--primary)",
   },
   backBtn: {
     position: "absolute",
@@ -952,26 +952,26 @@ const styles = {
     width: "120px",
     height: "120px",
     borderRadius: "50%",
-    border: "4px solid #ffffff",
+    border: "4px solid var(--border-light)",
     objectFit: "cover",
-    backgroundColor: "#eee",
+    backgroundColor: "var(--bg-card-hover)",
     boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
   },
   desktopUserName: {
     margin: 0,
     fontSize: "24px",
     fontWeight: "bold",
-    color: "#111",
+    color: "var(--text-main)",
   },
   desktopUserTagline: {
     margin: "2px 0 4px 0",
     fontSize: "14px",
-    color: "#555",
+    color: "var(--text-secondary)",
   },
   locationText: {
     margin: 0,
     fontSize: "12px",
-    color: "#777",
+    color: "var(--text-muted)",
     display: "flex",
     alignItems: "center",
     gap: "4px",
@@ -984,9 +984,9 @@ const styles = {
     flexWrap: "wrap",
   },
   primaryBtn: {
-    backgroundColor: "#e8f8f0", // Stats box eke thiyena light green background eka
-    color: "#00aa5b", // Green color text
-    border: "1px solid #c7e9d7", // Stats box eke border eka wageema
+    backgroundColor: "var(--badge-green-bg)", // Stats box eke thiyena light green background eka
+    color: "var(--primary)", // Green color text
+    border: "1px solid var(--badge-green-border)", // Stats box eke border eka wageema
     padding: "10px 18px",
     borderRadius: "14px",
     fontWeight: "bold",
@@ -998,9 +998,9 @@ const styles = {
     boxShadow: "0 2px 6px rgba(0,0,0,0.02)",
   },
   secondaryBtn: {
-    backgroundColor: "#e8f8f0", // Eka wageema light green background eka
-    color: "#00aa5b", // Green color text
-    border: "1px solid #c7e9d7", // Border eka
+    backgroundColor: "var(--badge-green-bg)", // Eka wageema light green background eka
+    color: "var(--primary)", // Green color text
+    border: "1px solid var(--badge-green-border)", // Border eka
     padding: "10px 18px",
     borderRadius: "14px",
     fontWeight: "bold",
@@ -1017,8 +1017,8 @@ const styles = {
     gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
     gap: "12px",
     alignItems: "center",
-    backgroundColor: "#e8f8f0",
-    border: "1px solid #c7e9d7",
+    backgroundColor: "var(--badge-green-bg)",
+    border: "1px solid var(--badge-green-border)",
     borderRadius: "16px",
     padding: "14px 16px",
     marginTop: "25px",
@@ -1027,7 +1027,7 @@ const styles = {
   },
   statBox: { display: "flex", alignItems: "center", gap: "12px" },
   statIconBg: {
-    backgroundColor: "#ffffff",
+    backgroundColor: "var(--bg-card)",
     padding: "8px",
     borderRadius: "12px",
     boxShadow: "0 2px 6px rgba(0,0,0,0.04)",
@@ -1037,13 +1037,13 @@ const styles = {
     display: "block",
     fontSize: "17px",
     fontWeight: "bold",
-    color: "#111",
+    color: "var(--text-main)",
   },
-  statBoxLbl: { display: "block", fontSize: "12px", color: "#666" },
-  statBoxDivider: { width: "1px", height: "32px", backgroundColor: "#c7e9d7" },
+  statBoxLbl: { display: "block", fontSize: "12px", color: "var(--text-muted)" },
+  statBoxDivider: { width: "1px", height: "32px", backgroundColor: "var(--badge-green-border)" },
   desktopTabsRow: {
     display: "flex",
-    borderBottom: "2px solid #f0f0f0",
+    borderBottom: "2px solid var(--bg-card-hover)",
     gap: "20px",
     marginTop: "25px",
   },
@@ -1053,7 +1053,7 @@ const styles = {
     backgroundColor: "transparent",
     fontWeight: "bold",
     fontSize: "14px",
-    color: "#777",
+    color: "var(--text-muted)",
     cursor: "pointer",
     display: "flex",
     alignItems: "center",
@@ -1061,15 +1061,15 @@ const styles = {
     borderBottom: "3px solid transparent",
     marginBottom: "-2px",
   },
-  activeTabBtn: { color: "#00aa5b", borderBottom: "3px solid #00aa5b" },
+  activeTabBtn: { color: "var(--primary)", borderBottom: "3px solid var(--primary)" },
   desktopItemsGrid: {
     display: "grid",
     gridTemplateColumns: "repeat(auto-fill, minmax(220px, 1fr))",
     gap: "20px",
   },
   desktopItemCard: {
-    backgroundColor: "#fff",
-    border: "1px solid #eaeaea",
+    backgroundColor: "var(--bg-card)",
+    border: "1px solid var(--border-light)",
     borderRadius: "16px",
     overflow: "hidden",
     boxShadow: "0 4px 15px rgba(0,0,0,0.03)",
@@ -1078,7 +1078,7 @@ const styles = {
     position: "relative",
     width: "100%",
     height: "150px",
-    backgroundColor: "#f8f9fa",
+    backgroundColor: "var(--bg-card-hover)",
     display: "flex",
     alignItems: "center",
     justifyContent: "center",
@@ -1096,14 +1096,14 @@ const styles = {
   itemPrice: {
     fontSize: "15px",
     fontWeight: "bold",
-    color: "#00aa5b",
+    color: "var(--primary)",
     margin: "4px 0 10px 0",
   },
   cardFooterMeta: {
     display: "flex",
     justifyContent: "space-between",
     alignItems: "center",
-    borderTop: "1px solid #f0f0f0",
+    borderTop: "1px solid var(--bg-card-hover)",
     paddingTop: "8px",
     marginBottom: "8px",
   },
@@ -1112,12 +1112,12 @@ const styles = {
     alignItems: "center",
     gap: "4px",
     fontSize: "11px",
-    color: "#666",
+    color: "var(--text-muted)",
   },
   deleteBtn: {
     width: "100%",
-    backgroundColor: "#fee2e2",
-    color: "#dc2626",
+    backgroundColor: "var(--badge-red-bg)",
+    color: "var(--badge-red-text)",
     border: "none",
     padding: "6px",
     borderRadius: "8px",
@@ -1133,11 +1133,11 @@ const styles = {
   emptyState: {
     padding: "40px",
     textAlign: "center",
-    color: "#777",
+    color: "var(--text-muted)",
     fontSize: "14px",
-    backgroundColor: "#fafafa",
+    backgroundColor: "var(--bg-card-hover)",
     borderRadius: "16px",
-    border: "1px dashed #ddd",
+    border: "1px dashed var(--border-light)",
   },
   modalOverlay: {
     position: "fixed",
@@ -1153,7 +1153,7 @@ const styles = {
     padding: "20px",
   },
   prettyModalBox: {
-    backgroundColor: "#fff",
+    backgroundColor: "var(--bg-card)",
     width: "100%",
     maxWidth: "480px",
     borderRadius: "20px",
@@ -1170,7 +1170,7 @@ const styles = {
   },
   prettyModalTitle: { margin: 0, fontSize: "18px", fontWeight: "bold" },
   circleBackBtn: {
-    backgroundColor: "#f0f2f5",
+    backgroundColor: "var(--bg-card-hover)",
     border: "none",
     borderRadius: "50%",
     width: "32px",
@@ -1181,8 +1181,8 @@ const styles = {
     cursor: "pointer",
   },
   topSaveBtn: {
-    backgroundColor: "#00aa5b",
-    color: "#fff",
+    backgroundColor: "var(--primary)",
+    color: "var(--text-inverse)",
     border: "none",
     padding: "6px 16px",
     borderRadius: "8px",
@@ -1200,14 +1200,14 @@ const styles = {
     height: "90px",
     borderRadius: "50%",
     objectFit: "cover",
-    border: "3px solid #00aa5b",
+    border: "3px solid var(--primary)",
   },
   modalCameraBtn: {
     position: "absolute",
     bottom: "0",
     right: "0",
-    backgroundColor: "#fff",
-    border: "1px solid #ddd",
+    backgroundColor: "var(--bg-card)",
+    border: "1px solid var(--border-light)",
     borderRadius: "50%",
     padding: "6px",
     cursor: "pointer",
@@ -1219,7 +1219,7 @@ const styles = {
     display: "block",
     fontSize: "12px",
     fontWeight: "bold",
-    color: "#555",
+    color: "var(--text-secondary)",
     marginBottom: "5px",
   },
   inputWithIconWrapper: {
@@ -1232,7 +1232,7 @@ const styles = {
     width: "100%",
     padding: "10px 12px 10px 38px",
     borderRadius: "10px",
-    border: "1px solid #ddd",
+    border: "1px solid var(--border-light)",
     fontSize: "14px",
     outline: "none",
     boxSizing: "border-box",
@@ -1241,7 +1241,7 @@ const styles = {
     width: "100%",
     padding: "10px 12px",
     borderRadius: "10px",
-    border: "1px solid #ddd",
+    border: "1px solid var(--border-light)",
     fontSize: "14px",
     outline: "none",
     boxSizing: "border-box",
@@ -1250,7 +1250,7 @@ const styles = {
     width: "100%",
     padding: "10px 12px",
     borderRadius: "10px",
-    border: "1px solid #ddd",
+    border: "1px solid var(--border-light)",
     fontSize: "14px",
     outline: "none",
     minHeight: "80px",

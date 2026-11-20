@@ -84,8 +84,8 @@ export default function CartItemCard({
               position: "absolute",
               top: "6px",
               left: "6px",
-              background: "#b91c1c",
-              color: "#ffffff",
+              background: "var(--badge-red-text)",
+              color: "var(--text-inverse)",
               fontSize: "10px",
               fontWeight: "700",
               padding: "2px 6px",
@@ -139,7 +139,7 @@ export default function CartItemCard({
             {sellerPicUrl ? (
               <img src={sellerPicUrl} alt={sellerName} className="cart-item-seller-avatar" />
             ) : (
-              <User size={13} color="#15803d" />
+              <User size={13} color="var(--primary)" />
             )}
           </div>
           <span className="cart-item-seller-label">Listed by:</span>

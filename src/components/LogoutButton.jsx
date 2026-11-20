@@ -20,10 +20,10 @@ export default function LogoutButton({ handleLogout }) {
         .navbar-logout {
           width: 100%;
           padding: 11px 14px;
-          border: 1px solid #fee2e2;
+          border: 1px solid var(--badge-red-bg);
           border-radius: 9px;
-          background: #fff5f5;
-          color: #dc2626;
+          background: var(--badge-red-bg);
+          color: var(--badge-red-text);
           font-size: 14px;
           font-weight: 600;
           text-align: left;
@@ -32,8 +32,8 @@ export default function LogoutButton({ handleLogout }) {
         }
 
         .navbar-logout:hover {
-          background: #fee2e2;
-          border-color: #fecaca;
+          background: var(--badge-red-bg);
+          border-color: var(--badge-red-border);
         }
 
         .navbar-logout:active {

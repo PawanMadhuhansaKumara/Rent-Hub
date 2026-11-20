@@ -98,8 +98,8 @@ export default function Login({ onLoginSuccess, user }) {
         {/* Left Side: Welcome Text + Rent Hub Logo */}
         <div className="login-logo-container" style={styles.logoContainer}>
           <div style={styles.brandBadge}>
-            <CheckCircle2 size={18} color="#00aa5b" />
-            <span style={{ color: "#00aa5b", fontWeight: "bold", fontSize: "13px" }}>RentHub Community</span>
+            <CheckCircle2 size={18} color="var(--primary)" />
+            <span style={{ color: "var(--primary)", fontWeight: "bold", fontSize: "13px" }}>RentHub Community</span>
           </div>
           <div className="login-welcome-box" style={styles.welcomeBox}>
             <h2 style={styles.title}>{t("login.title") || "Welcome Back!"}</h2>
@@ -118,11 +118,11 @@ export default function Login({ onLoginSuccess, user }) {
               title="Go Back"
               aria-label="Go Back"
             >
-              <ArrowLeft size={18} color="#00aa5b" />
+              <ArrowLeft size={18} color="var(--primary)" />
             </button>
             <div style={styles.brandBadge}>
-              <CheckCircle2 size={16} color="#00aa5b" />
-              <span style={{ color: "#00aa5b", fontWeight: "bold", fontSize: "12px" }}>RentHub Access</span>
+              <CheckCircle2 size={16} color="var(--primary)" />
+              <span style={{ color: "var(--primary)", fontWeight: "bold", fontSize: "12px" }}>RentHub Access</span>
             </div>
           </div>
 
@@ -132,7 +132,7 @@ export default function Login({ onLoginSuccess, user }) {
             <div style={styles.inputGroup}>
               <label style={styles.label}>{t("login.phoneNumber") || "Phone Number"}</label>
               <div style={styles.inputWrapper}>
-                <Phone size={18} color="#00aa5b" style={styles.inputIcon} />
+                <Phone size={18} color="var(--primary)" style={styles.inputIcon} />
                 <input
                   type="tel"
                   placeholder={t("login.phonePlaceholder") || "07X XXXXXXX"}
@@ -147,7 +147,7 @@ export default function Login({ onLoginSuccess, user }) {
             <div style={styles.inputGroup}>
               <label style={styles.label}>{t("login.password") || "Password"}</label>
               <div style={styles.inputWrapper}>
-                <Lock size={18} color="#00aa5b" style={styles.inputIcon} />
+                <Lock size={18} color="var(--primary)" style={styles.inputIcon} />
                 <input
                   type="password"
                   placeholder="••••••••"
@@ -188,7 +188,7 @@ const styles = {
     justifyContent: "center",
     alignItems: "center",
     minHeight: "100vh",
-    backgroundColor: "#f4f6f8",
+    backgroundColor: "var(--bg-app)",
     padding: "20px",
   },
 
@@ -213,12 +213,13 @@ const styles = {
     display: "inline-flex",
     alignItems: "center",
     gap: "6px",
-    backgroundColor: "#e8f8f0",
-    border: "1px solid #c7e9d7",
+    backgroundColor: "var(--primary-light)",
+    border: "1px solid var(--primary-border)",
     padding: "6px 16px",
     borderRadius: "20px",
     width: "fit-content",
     marginBottom: "16px",
+    color: "var(--primary-text)",
   },
 
   welcomeBox: {
@@ -238,8 +239,8 @@ const styles = {
     padding: "40px 36px",
     borderRadius: "24px",
     boxShadow: "0 6px 25px rgba(0,0,0,0.06)",
-    backgroundColor: "#ffffff",
-    border: "1px solid #eaeaea",
+    backgroundColor: "var(--bg-card)",
+    border: "1px solid var(--border-light)",
     boxSizing: "border-box",
   },
 
@@ -251,8 +252,9 @@ const styles = {
   },
 
   backBtn: {
-    backgroundColor: "#e8f8f0",
-    border: "1px solid #c7e9d7",
+    backgroundColor: "var(--bg-card-elevated)",
+    border: "1px solid var(--border-light)",
+    color: "var(--text-main)",
     borderRadius: "50%",
     width: "36px",
     height: "36px",
@@ -266,26 +268,26 @@ const styles = {
   title: {
     fontSize: "28px",
     fontWeight: "700",
-    color: "#111111",
+    color: "var(--text-main)",
     marginBottom: "8px",
     letterSpacing: "-0.3px",
   },
 
   subtitle: {
-    color: "#666666",
+    color: "var(--text-muted)",
     fontSize: "14px",
     lineHeight: "1.5",
     margin: 0,
   },
 
   errorAlert: {
-    backgroundColor: "#fee2e2",
-    color: "#dc2626",
+    backgroundColor: "var(--badge-red-bg)",
+    color: "var(--badge-red-text)",
     padding: "12px 16px",
     borderRadius: "12px",
     marginBottom: "18px",
     fontSize: "13.5px",
-    border: "1px solid #fecaca",
+    border: "1px solid var(--badge-red-border)",
     fontWeight: "600",
     textAlign: "center",
   },
@@ -306,7 +308,7 @@ const styles = {
     marginBottom: "6px",
     fontSize: "12px",
     fontWeight: "bold",
-    color: "#555555",
+    color: "var(--text-secondary)",
   },
 
   inputWrapper: {
@@ -318,34 +320,35 @@ const styles = {
   inputIcon: {
     position: "absolute",
     left: "14px",
+    color: "var(--text-muted)",
   },
 
   input: {
     width: "100%",
     padding: "11px 14px 11px 40px",
     borderRadius: "12px",
-    border: "1px solid #c7e9d7",
-    backgroundColor: "#fcfdfe",
+    border: "1px solid var(--border-light)",
+    backgroundColor: "var(--bg-input)",
     boxSizing: "border-box",
     fontSize: "14px",
     fontFamily: "inherit",
     outline: "none",
-    color: "#222222",
+    color: "var(--text-main)",
     transition: "all 0.2s ease-in-out",
   },
 
   loginBtn: {
     width: "100%",
     padding: "12px",
-    backgroundColor: "#00aa5b",
-    color: "#ffffff",
-    border: "none",
+    backgroundColor: "var(--primary)",
+    color: "var(--text-main)",
+    border: "1px solid var(--border-focus)",
     borderRadius: "12px",
     fontSize: "15px",
     fontWeight: "bold",
     cursor: "pointer",
     marginTop: "6px",
-    boxShadow: "0 4px 12px rgba(0, 170, 91, 0.25)",
+    boxShadow: "0 4px 12px rgba(0, 0, 0, 0.15)",
     transition: "all 0.2s ease-in-out",
   },
 
@@ -356,7 +359,7 @@ const styles = {
   },
 
   forgotLink: {
-    color: "#00aa5b",
+    color: "var(--primary)",
     fontSize: "13px",
     fontWeight: "600",
     textDecoration: "none",
@@ -365,12 +368,12 @@ const styles = {
   footerText: {
     marginTop: "24px",
     fontSize: "13px",
-    color: "#666666",
+    color: "var(--text-muted)",
     textAlign: "center",
   },
 
   link: {
-    color: "#00aa5b",
+    color: "var(--primary)",
     fontWeight: "bold",
     textDecoration: "none",
     marginLeft: "4px",

@@ -37,7 +37,7 @@ export default function EditProfileModal({
 
         <div style={styles.prettyModalHeader}>
           <button onClick={onClose} style={styles.circleBackBtn}>
-            <X size={18} color="#333" />
+            <X size={18} color="var(--text-main)" />
           </button>
           <h3 style={styles.prettyModalTitle}>
             {t("profile.editProfile") || "Edit Profile"}
@@ -55,7 +55,7 @@ export default function EditProfileModal({
               height: "100px",
               borderRadius: "10px",
               overflow: "hidden",
-              backgroundColor: "#ddd",
+              backgroundColor: "var(--border-light)",
             }}
           >
             <img
@@ -74,7 +74,7 @@ export default function EditProfileModal({
                 position: "absolute",
                 bottom: "8px",
                 right: "8px",
-                backgroundColor: "#fff",
+                backgroundColor: "var(--bg-modal, var(--bg-card))",
                 border: "none",
                 borderRadius: "20px",
                 padding: "4px 10px",
@@ -86,7 +86,7 @@ export default function EditProfileModal({
                 gap: "4px",
               }}
             >
-              <Camera size={12} color="#00aa5b" /> Change Cover
+              <Camera size={12} color="var(--primary)" /> Change Cover
             </button>
           </div>
         </div>
@@ -103,7 +103,7 @@ export default function EditProfileModal({
               onClick={() => profileInputRef.current && profileInputRef.current.click()}
               style={styles.modalCameraBtn}
             >
-              <Camera size={15} color="#00aa5b" />
+              <Camera size={15} color="var(--primary)" />
             </button>
           </div>
         </div>
@@ -115,7 +115,7 @@ export default function EditProfileModal({
                 {t("profile.fullName") || "Full Name"}
               </label>
               <div style={styles.inputWithIconWrapper}>
-                <User size={18} color="#777" style={styles.inputIcon} />
+                <User size={18} color="var(--text-muted)" style={styles.inputIcon} />
                 <input
                   style={styles.prettyInput}
                   type="text"
@@ -131,7 +131,7 @@ export default function EditProfileModal({
                 {t("profile.username") || "Username"}
               </label>
               <div style={styles.inputWithIconWrapper}>
-                <AtSign size={18} color="#777" style={styles.inputIcon} />
+                <AtSign size={18} color="var(--text-muted)" style={styles.inputIcon} />
                 <input
                   style={styles.prettyInput}
                   type="text"
@@ -150,7 +150,7 @@ export default function EditProfileModal({
                 {t("profile.phoneNumber") || "Phone Number"}
               </label>
               <div style={styles.inputWithIconWrapper}>
-                <Phone size={18} color="#777" style={styles.inputIcon} />
+                <Phone size={18} color="var(--text-muted)" style={styles.inputIcon} />
                 <input
                   style={styles.prettyInput}
                   type="text"
@@ -166,7 +166,7 @@ export default function EditProfileModal({
                 {t("profile.email") || "Email"}
               </label>
               <div style={styles.inputWithIconWrapper}>
-                <Mail size={18} color="#777" style={styles.inputIcon} />
+                <Mail size={18} color="var(--text-muted)" style={styles.inputIcon} />
                 <input
                   style={styles.prettyInput}
                   type="email"
@@ -207,8 +207,8 @@ export default function EditProfileModal({
           {/* Shop Map Location Picker Section */}
           <div
             style={{
-              backgroundColor: "#f0fdf4",
-              border: "1px solid #bbf7d0",
+              backgroundColor: "var(--badge-green-bg)",
+              border: "1px solid var(--badge-green-bg)",
               borderRadius: "10px",
               padding: "12px 14px",
               display: "flex",
@@ -232,12 +232,12 @@ export default function EditProfileModal({
                   style={{
                     fontSize: "13px",
                     fontWeight: "700",
-                    color: "#166534",
+                    color: "var(--primary-hover)",
                   }}
                 >
                   {t("map.shopMapLocation") || "Shop Map Location"}
                 </div>
-                <div style={{ fontSize: "11px", color: "#4b5563" }}>
+                <div style={{ fontSize: "11px", color: "var(--text-secondary)" }}>
                   {profile.map_location_name ||
                     (profile.map_latitude
                       ? `${Number(profile.map_latitude).toFixed(4)}, ${Number(profile.map_longitude).toFixed(4)}`
@@ -252,8 +252,8 @@ export default function EditProfileModal({
               style={{
                 padding: "6px 14px",
                 borderRadius: "8px",
-                backgroundColor: "#00aa5b",
-                color: "#ffffff",
+                backgroundColor: "var(--primary)",
+                color: "var(--text-inverse)",
                 border: "none",
                 fontSize: "12px",
                 fontWeight: "700",
@@ -304,7 +304,7 @@ const styles = {
     padding: "20px",
   },
   prettyModalBox: {
-    backgroundColor: "#fff",
+    backgroundColor: "var(--bg-modal, var(--bg-card))",
     width: "100%",
     maxWidth: "480px",
     borderRadius: "20px",
@@ -321,7 +321,7 @@ const styles = {
   },
   prettyModalTitle: { margin: 0, fontSize: "18px", fontWeight: "bold" },
   circleBackBtn: {
-    backgroundColor: "#f0f2f5",
+    backgroundColor: "var(--bg-card-hover)",
     border: "none",
     borderRadius: "50%",
     width: "32px",
@@ -332,8 +332,8 @@ const styles = {
     cursor: "pointer",
   },
   topSaveBtn: {
-    backgroundColor: "#00aa5b",
-    color: "#fff",
+    backgroundColor: "var(--primary)",
+    color: "var(--text-inverse)",
     border: "none",
     padding: "6px 16px",
     borderRadius: "8px",
@@ -351,14 +351,14 @@ const styles = {
     height: "90px",
     borderRadius: "50%",
     objectFit: "cover",
-    border: "3px solid #00aa5b",
+    border: "3px solid var(--primary)",
   },
   modalCameraBtn: {
     position: "absolute",
     bottom: "0",
     right: "0",
-    backgroundColor: "#fff",
-    border: "1px solid #ddd",
+    backgroundColor: "var(--bg-modal, var(--bg-card))",
+    border: "1px solid var(--border-light)",
     borderRadius: "50%",
     padding: "6px",
     cursor: "pointer",
@@ -370,7 +370,7 @@ const styles = {
     display: "block",
     fontSize: "12px",
     fontWeight: "bold",
-    color: "#555",
+    color: "var(--text-secondary)",
     marginBottom: "5px",
   },
   inputWithIconWrapper: {
@@ -383,7 +383,7 @@ const styles = {
     width: "100%",
     padding: "10px 12px 10px 38px",
     borderRadius: "10px",
-    border: "1px solid #ddd",
+    border: "1px solid var(--border-light)",
     fontSize: "14px",
     outline: "none",
     boxSizing: "border-box",
@@ -392,7 +392,7 @@ const styles = {
     width: "100%",
     padding: "10px 12px",
     borderRadius: "10px",
-    border: "1px solid #ddd",
+    border: "1px solid var(--border-light)",
     fontSize: "14px",
     outline: "none",
     boxSizing: "border-box",
@@ -401,7 +401,7 @@ const styles = {
     width: "100%",
     padding: "10px 12px",
     borderRadius: "10px",
-    border: "1px solid #ddd",
+    border: "1px solid var(--border-light)",
     fontSize: "14px",
     outline: "none",
     minHeight: "80px",

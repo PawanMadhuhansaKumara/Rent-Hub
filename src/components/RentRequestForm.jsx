@@ -148,7 +148,7 @@ export default function RentRequestForm({
           <form className="rent-request-form" onSubmit={onDatesProceed}>
             <div className="request-form-heading">
               <span className="request-form-icon">
-                <CheckCircle size={22} color="#15803d" />
+                <CheckCircle size={22} color="var(--primary)" />
               </span>
               <div className="request-form-heading-text">
                 <h2>{t("rentRequest.requestToRent", "Rental Request")}</h2>

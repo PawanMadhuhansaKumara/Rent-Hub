@@ -38,59 +38,59 @@ export default function NotificationCard({
     switch (type) {
       case "request_approved":
         return {
-          icon: <CheckCircle2 size={15} color="#15803d" />,
-          bg: "#f0fdf4",
-          border: "#bbf7d0",
+          icon: <CheckCircle2 size={15} color="var(--primary)" />,
+          bg: "var(--badge-green-bg)",
+          border: "var(--badge-green-bg)",
           tag: "Approved",
-          tagColor: "#15803d",
+          tagColor: "var(--primary)",
         };
       case "request_declined":
         return {
-          icon: <XCircle size={15} color="#e11d48" />,
-          bg: "#fff1f2",
-          border: "#fecdd3",
+          icon: <XCircle size={15} color="var(--badge-notif-bg)" />,
+          bg: "var(--badge-red-bg)",
+          border: "var(--badge-red-bg)",
           tag: "Declined",
-          tagColor: "#e11d48",
+          tagColor: "var(--badge-notif-bg)",
         };
       case "item_picked_up":
         return {
-          icon: <PackageCheck size={15} color="#0d9488" />,
-          bg: "#f0fdfa",
-          border: "#99f6e4",
+          icon: <PackageCheck size={15} color="var(--badge-blue-text)" />,
+          bg: "var(--badge-blue-bg)",
+          border: "var(--badge-blue-border)",
           tag: "Picked Up",
-          tagColor: "#0d9488",
+          tagColor: "var(--badge-blue-text)",
         };
       case "item_returned":
         return {
-          icon: <RotateCcw size={15} color="#7c3aed" />,
-          bg: "#faf5ff",
-          border: "#e9d5ff",
+          icon: <RotateCcw size={15} color="var(--badge-purple-text)" />,
+          bg: "var(--badge-purple-bg)",
+          border: "var(--badge-purple-bg)",
           tag: "Returned",
-          tagColor: "#7c3aed",
+          tagColor: "var(--badge-purple-text)",
         };
       case "chat_message":
         return {
-          icon: <MessageCircle size={15} color="#0284c7" />,
-          bg: "#f0f9ff",
-          border: "#bae6fd",
+          icon: <MessageCircle size={15} color="var(--badge-blue-text)" />,
+          bg: "var(--badge-blue-bg)",
+          border: "var(--badge-blue-border)",
           tag: "Message",
-          tagColor: "#0284c7",
+          tagColor: "var(--badge-blue-text)",
         };
       case "rental_request":
         return {
-          icon: <Clock size={15} color="#d97706" />,
-          bg: "#fffbeb",
-          border: "#fde68a",
+          icon: <Clock size={15} color="var(--badge-yellow-text)" />,
+          bg: "var(--badge-yellow-bg)",
+          border: "var(--badge-yellow-border)",
           tag: "Request",
-          tagColor: "#d97706",
+          tagColor: "var(--badge-yellow-text)",
         };
       default:
         return {
-          icon: <Bell size={15} color="#64748b" />,
-          bg: "#f8fafc",
-          border: "#e2e8f0",
+          icon: <Bell size={15} color="var(--text-muted)" />,
+          bg: "var(--bg-app-alt)",
+          border: "var(--border-light)",
           tag: "Alert",
-          tagColor: "#64748b",
+          tagColor: "var(--text-muted)",
         };
     }
   };

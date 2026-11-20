@@ -40,7 +40,9 @@ export default function BottomNav({ user }) {
     if (!userId) return;
     const fetchCount = async () => {
       try {
-        const res = await fetch(`http://localhost:5001/api/notifications/${userId}`);
+        const res = await fetch(
+          `http://localhost:5001/api/notifications/${userId}`,
+        );
         if (res.ok) {
           const data = await res.json();
           setUnreadNotifCount(data.unreadCount || 0);
@@ -143,8 +145,8 @@ export default function BottomNav({ user }) {
                 position: "absolute",
                 top: "-4px",
                 right: "-6px",
-                background: "#e05260",
-                color: "#ffffff",
+                background: "var(--badge-notif-bg, #ef4444)",
+                color: "var(--badge-notif-text, #ffffff)",
                 borderRadius: "9999px",
                 fontSize: "10px",
                 fontWeight: "700",
@@ -173,8 +175,8 @@ const styles = {
     left: 0,
     width: "100%",
     height: "70px",
-    backgroundColor: "var(--bottom-nav-bg, #ffffff)",
-    borderTop: "1px solid var(--bottom-nav-border, #e5e5e5)",
+    backgroundColor: "var(--bottom-nav-bg)",
+    borderTop: "1px solid var(--bottom-nav-border)",
     display: "flex",
     justifyContent: "space-around",
     alignItems: "center",
@@ -184,7 +186,7 @@ const styles = {
 
   navItem: {
     textDecoration: "none",
-    color: "var(--bottom-nav-text, #777)",
+    color: "var(--bottom-nav-text)",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -196,7 +198,7 @@ const styles = {
   },
 
   activeItem: {
-    color: "var(--bottom-nav-active, #11843b)",
+    color: "var(--bottom-nav-active)",
   },
 
   icon: {
@@ -208,8 +210,8 @@ const styles = {
     width: "52px",
     height: "52px",
     borderRadius: "50%",
-    backgroundColor: "#11843b",
-    color: "#ffffff",
+    backgroundColor: "var(--primary)",
+    color: "var(--text-inverse)",
     textDecoration: "none",
     display: "flex",
     alignItems: "center",
@@ -222,7 +224,7 @@ const styles = {
   },
 
   activeAddItem: {
-    backgroundColor: "#11843b",
+    backgroundColor: "var(--primary)",
   },
 
   plus: {

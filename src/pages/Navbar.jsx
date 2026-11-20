@@ -311,7 +311,7 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
               title="Messages & Inquiries"
               aria-label="Messages"
             >
-              <MessageCircle size={21} color="#ffffff" />
+              <MessageCircle size={21} color="var(--text-inverse)" />
               {unreadCount > 0 && (
                 <span className="navbar-chat-badge">
                   {unreadCount > 9 ? "9+" : unreadCount}
@@ -340,7 +340,7 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div className="navbar-chat-confirm-icon">
-                        <Trash2 size={22} color="#ef4444" />
+                        <Trash2 size={22} color="var(--badge-red-text)" />
                       </div>
                       <h4 className="navbar-chat-confirm-title">Delete Conversation?</h4>
                       <p className="navbar-chat-confirm-text">
@@ -381,7 +381,7 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
                     onClick={() => setShowChatDropdown(false)}
                     aria-label="Close"
                   >
-                    <X size={17} color="#0284c7" />
+                    <X size={17} color="var(--badge-blue-text)" />
                   </button>
                 </div>
 
@@ -392,7 +392,7 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
                     <div className="navbar-chat-empty">
                       <MessageCircle
                         size={32}
-                        color="#cbd5e1"
+                        color="var(--border-light)"
                         style={{ marginBottom: "6px" }}
                       />
                       <p
@@ -400,7 +400,7 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
                           margin: 0,
                           fontWeight: "600",
                           fontSize: "13px",
-                          color: "#475569",
+                          color: "var(--text-secondary)",
                         }}
                       >
                         {t("chat.noMessagesYet") || "No messages yet"}
@@ -409,7 +409,7 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
                         style={{
                           margin: "4px 0 0 0",
                           fontSize: "11px",
-                          color: "#94a3b8",
+                          color: "var(--text-muted)",
                         }}
                       >
                         {t("chat.startChattingNotice") ||

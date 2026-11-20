@@ -30,11 +30,11 @@ const createShopPinIcon = (pinText = "Drag Me") => {
           <filter id="shadow" x="-20%" y="-10%" width="140%" height="130%">
             <feDropShadow dx="0" dy="4" stdDeviation="3" flood-opacity="0.3"/>
           </filter>
-          <path d="M20 0C8.95 0 0 8.95 0 20c0 14.5 18 27.2 18.78 27.75a2 2 0 0 0 2.44 0C22 47.2 40 34.5 40 20 40 8.95 31.05 0 20 0z" fill="#00aa5b" filter="url(#shadow)"/>
-          <circle cx="20" cy="18" r="13" fill="#ffffff"/>
-          <path d="M14 19v-4h12v4M16 23h8M17 12h6" stroke="#00aa5b" stroke-width="2" stroke-linecap="round"/>
+          <path d="M20 0C8.95 0 0 8.95 0 20c0 14.5 18 27.2 18.78 27.75a2 2 0 0 0 2.44 0C22 47.2 40 34.5 40 20 40 8.95 31.05 0 20 0z" fill="var(--primary)" filter="url(#shadow)"/>
+          <circle cx="20" cy="18" r="13" fill="var(--text-inverse)"/>
+          <path d="M14 19v-4h12v4M16 23h8M17 12h6" stroke="var(--primary)" stroke-width="2" stroke-linecap="round"/>
         </svg>
-        <span style="position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); background: #111827; color: #fff; font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.25);">
+        <span style="position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); background: var(--text-main); color: var(--text-inverse); font-size: 10px; font-weight: 700; padding: 2px 6px; border-radius: 4px; white-space: nowrap; box-shadow: 0 2px 4px rgba(0,0,0,0.25);">
           ${pinText}
         </span>
       </div>
@@ -370,7 +370,7 @@ export default function MapLocationPickerModal({
     >
       <div
         style={{
-          backgroundColor: "#ffffff",
+          backgroundColor: "var(--bg-modal, var(--bg-card))",
           borderRadius: "18px",
           width: "100%",
           maxWidth: "680px",
@@ -387,11 +387,11 @@ export default function MapLocationPickerModal({
         <div
           style={{
             padding: "14px 18px",
-            borderBottom: "1px solid #e2e8f0",
+            borderBottom: "1px solid var(--border-light)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
-            background: "linear-gradient(to right, #f8fafc, #ffffff)",
+            background: "linear-gradient(to right, var(--bg-app-alt), var(--bg-modal, var(--bg-card)))",
           }}
         >
           <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
@@ -402,7 +402,7 @@ export default function MapLocationPickerModal({
                   margin: 0,
                   fontSize: "clamp(15px, 2.5vw, 17px)",
                   fontWeight: 700,
-                  color: "#0f172a",
+                  color: "var(--text-main)",
                   whiteSpace: "nowrap",
                   overflow: "hidden",
                   textOverflow: "ellipsis",
@@ -414,7 +414,7 @@ export default function MapLocationPickerModal({
                 style={{
                   margin: 0,
                   fontSize: "11px",
-                  color: "#64748b",
+                  color: "var(--text-muted)",
                   marginTop: "2px",
                   display: "-webkit-box",
                   WebkitLineClamp: 1,
@@ -429,7 +429,7 @@ export default function MapLocationPickerModal({
           <button
             onClick={onClose}
             style={{
-              background: "#f1f5f9",
+              background: "var(--bg-card-hover)",
               border: "none",
               borderRadius: "50%",
               width: "32px",
@@ -438,7 +438,7 @@ export default function MapLocationPickerModal({
               alignItems: "center",
               justifyContent: "center",
               cursor: "pointer",
-              color: "#475569",
+              color: "var(--text-secondary)",
               flexShrink: 0,
               marginLeft: "8px",
             }}
@@ -451,8 +451,8 @@ export default function MapLocationPickerModal({
         <div
           style={{
             padding: "12px 16px",
-            background: "#f8fafc",
-            borderBottom: "1px solid #e2e8f0",
+            background: "var(--bg-app-alt)",
+            borderBottom: "1px solid var(--border-light)",
             display: "flex",
             flexDirection: "column",
             gap: "8px",
@@ -478,7 +478,7 @@ export default function MapLocationPickerModal({
             >
               <Search
                 size={16}
-                color="#94a3b8"
+                color="var(--text-muted)"
                 style={{ position: "absolute", left: "12px" }}
               />
               <input
@@ -490,10 +490,10 @@ export default function MapLocationPickerModal({
                   width: "100%",
                   padding: "9px 12px 9px 36px",
                   borderRadius: "10px",
-                  border: "1px solid #cbd5e1",
+                  border: "1px solid var(--border-light)",
                   fontSize: "13px",
                   outline: "none",
-                  backgroundColor: "#ffffff",
+                  backgroundColor: "var(--bg-modal, var(--bg-card))",
                   boxSizing: "border-box",
                 }}
               />
@@ -502,8 +502,8 @@ export default function MapLocationPickerModal({
               type="submit"
               disabled={searching}
               style={{
-                backgroundColor: "#00aa5b",
-                color: "#ffffff",
+                backgroundColor: "var(--primary)",
+                color: "var(--text-inverse)",
                 border: "none",
                 borderRadius: "10px",
                 padding: "9px 16px",
@@ -530,9 +530,9 @@ export default function MapLocationPickerModal({
               disabled={locatingUser}
               title="Use GPS current location"
               style={{
-                backgroundColor: "#ffffff",
-                color: "#0f172a",
-                border: "1px solid #cbd5e1",
+                backgroundColor: "var(--bg-modal, var(--bg-card))",
+                color: "var(--text-main)",
+                border: "1px solid var(--border-light)",
                 borderRadius: "10px",
                 padding: "9px 14px",
                 fontSize: "13px",
@@ -547,9 +547,9 @@ export default function MapLocationPickerModal({
               }}
             >
               {locatingUser ? (
-                <Loader2 size={16} className="spin-animation" color="#00aa5b" />
+                <Loader2 size={16} className="spin-animation" color="var(--primary)" />
               ) : (
-                <Navigation size={16} color="#00aa5b" />
+                <Navigation size={16} color="var(--primary)" />
               )}
               {t("map.myGpsLocation")}
             </button>
@@ -566,16 +566,16 @@ export default function MapLocationPickerModal({
                 borderRadius: "6px",
                 backgroundColor:
                   statusMessage.type === "error"
-                    ? "#fee2e2"
+                    ? "var(--badge-red-bg)"
                     : statusMessage.type === "success"
-                    ? "#dcfce7"
-                    : "#e0f2fe",
+                    ? "var(--badge-green-bg)"
+                    : "var(--badge-blue-bg)",
                 color:
                   statusMessage.type === "error"
-                    ? "#991b1b"
+                    ? "var(--badge-red-text)"
                     : statusMessage.type === "success"
-                    ? "#166534"
-                    : "#0369a1",
+                    ? "var(--primary-hover)"
+                    : "var(--badge-blue-text)",
               }}
             >
               <AlertCircle size={14} />
@@ -603,7 +603,7 @@ export default function MapLocationPickerModal({
               borderRadius: "8px",
               fontSize: "11px",
               fontWeight: 600,
-              color: "#334155",
+              color: "var(--text-secondary)",
               boxShadow: "0 2px 6px rgba(0,0,0,0.12)",
               pointerEvents: "none",
               textAlign: "center",
@@ -617,8 +617,8 @@ export default function MapLocationPickerModal({
         <div
           style={{
             padding: "14px 18px",
-            borderTop: "1px solid #e2e8f0",
-            backgroundColor: "#ffffff",
+            borderTop: "1px solid var(--border-light)",
+            backgroundColor: "var(--bg-modal, var(--bg-card))",
             display: "flex",
             flexDirection: "column",
             gap: "10px",
@@ -630,7 +630,7 @@ export default function MapLocationPickerModal({
                 display: "block",
                 fontSize: "12px",
                 fontWeight: 600,
-                color: "#475569",
+                color: "var(--text-secondary)",
                 marginBottom: "4px",
               }}
             >
@@ -645,7 +645,7 @@ export default function MapLocationPickerModal({
                 width: "100%",
                 padding: "8px 12px",
                 borderRadius: "8px",
-                border: "1px solid #cbd5e1",
+                border: "1px solid var(--border-light)",
                 fontSize: "13px",
                 outline: "none",
                 boxSizing: "border-box",
@@ -661,14 +661,14 @@ export default function MapLocationPickerModal({
               flexWrap: "wrap",
               gap: "6px",
               fontSize: "11px",
-              color: "#64748b",
-              background: "#f8fafc",
+              color: "var(--text-muted)",
+              background: "var(--bg-app-alt)",
               padding: "6px 10px",
               borderRadius: "8px",
             }}
           >
             <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-              <Compass size={13} color="#00aa5b" />
+              <Compass size={13} color="var(--primary)" />
               <span>
                 {t("map.coordinates")}: <strong>{coords.lat.toFixed(5)}</strong>,{" "}
                 <strong>{coords.lng.toFixed(5)}</strong>
@@ -679,7 +679,7 @@ export default function MapLocationPickerModal({
               target="_blank"
               rel="noreferrer"
               style={{
-                color: "#2563eb",
+                color: "var(--badge-blue-text)",
                 textDecoration: "none",
                 fontWeight: 600,
               }}
@@ -693,8 +693,8 @@ export default function MapLocationPickerModal({
         <div
           style={{
             padding: "12px 18px",
-            background: "#f8fafc",
-            borderTop: "1px solid #e2e8f0",
+            background: "var(--bg-app-alt)",
+            borderTop: "1px solid var(--border-light)",
             display: "flex",
             alignItems: "center",
             justifyContent: "flex-end",
@@ -708,11 +708,11 @@ export default function MapLocationPickerModal({
             style={{
               padding: "8px 16px",
               borderRadius: "8px",
-              border: "1px solid #cbd5e1",
-              background: "#ffffff",
+              border: "1px solid var(--border-light)",
+              background: "var(--bg-modal, var(--bg-card))",
               fontSize: "13px",
               fontWeight: 600,
-              color: "#475569",
+              color: "var(--text-secondary)",
               cursor: "pointer",
             }}
           >
@@ -726,10 +726,10 @@ export default function MapLocationPickerModal({
               padding: "8px 20px",
               borderRadius: "8px",
               border: "none",
-              background: "#00aa5b",
+              background: "var(--primary)",
               fontSize: "13px",
               fontWeight: 700,
-              color: "#ffffff",
+              color: "var(--text-inverse)",
               cursor: "pointer",
               display: "flex",
               alignItems: "center",

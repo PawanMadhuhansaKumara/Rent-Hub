@@ -278,7 +278,7 @@ export default function Home({
 
           <div className="hero-content">
             <div className="hero-tag-badge">
-              <Sparkles size={14} color="#15803d" />
+              <Sparkles size={14} color="var(--primary)" />
               <span>
                 {t("home.tag", "Sri Lanka's Community Rental Platform")}
               </span>
@@ -311,7 +311,7 @@ export default function Home({
             <div className="hero-features">
               <div className="hero-feature-item">
                 <div className="hero-feature-icon">
-                  <ShieldCheck size={18} color="#15803d" />
+                  <ShieldCheck size={18} color="var(--primary)" />
                 </div>
                 <div>
                   <strong>
@@ -328,7 +328,7 @@ export default function Home({
 
               <div className="hero-feature-item">
                 <div className="hero-feature-icon">
-                  <DollarSign size={18} color="#15803d" />
+                  <DollarSign size={18} color="var(--primary)" />
                 </div>
                 <div>
                   <strong>{t("home.budgetFriendly", "Budget Friendly")}</strong>
@@ -340,7 +340,7 @@ export default function Home({
 
               <div className="hero-feature-item">
                 <div className="hero-feature-icon">
-                  <Zap size={18} color="#15803d" />
+                  <Zap size={18} color="var(--primary)" />
                 </div>
                 <div>
                   <strong>{t("home.easyHandovers", "Easy Handovers")}</strong>
@@ -405,7 +405,7 @@ export default function Home({
         ) : filteredAndSortedItems.length === 0 ? (
           <div className="home-empty-state">
             <div className="home-empty-icon-wrapper">
-              <PackageSearch size={42} color="#15803d" />
+              <PackageSearch size={42} color="var(--primary)" />
             </div>
             <h3>{t("home.noItemsFound", "No rental items found")}</h3>
             <p>
@@ -443,7 +443,7 @@ export default function Home({
                 <h3 style={styles.subSectionTitle}>
                   <CheckCircle2
                     size={18}
-                    color="#00aa5b"
+                    color="var(--primary)"
                     style={{ marginRight: "6px" }}
                   />
                   Available For You (Within Your LKR{" "}
@@ -464,13 +464,13 @@ export default function Home({
                   <h3
                     style={{
                       ...styles.subSectionTitle,
-                      color: "#d97706",
+                      color: "var(--badge-yellow-text)",
                       margin: 0,
                     }}
                   >
                     <Lock
                       size={18}
-                      color="#d97706"
+                      color="var(--badge-yellow-text)"
                       style={{ marginRight: "6px" }}
                     />
                     Higher Trust Score Required (Exceeds LKR{" "}
@@ -517,7 +517,7 @@ export default function Home({
           <div className="how-step-card">
             <div className="how-step-number">1</div>
             <div className="how-step-icon">
-              <Search size={22} color="#15803d" />
+              <Search size={22} color="var(--primary)" />
             </div>
             <h3>{t("home.step1Title", "Find & Choose")}</h3>
             <p>
@@ -531,7 +531,7 @@ export default function Home({
           <div className="how-step-card">
             <div className="how-step-number">2</div>
             <div className="how-step-icon">
-              <Calendar size={22} color="#15803d" />
+              <Calendar size={22} color="var(--primary)" />
             </div>
             <h3>{t("home.step2Title", "Send Request")}</h3>
             <p>
@@ -545,7 +545,7 @@ export default function Home({
           <div className="how-step-card">
             <div className="how-step-number">3</div>
             <div className="how-step-icon">
-              <Handshake size={22} color="#15803d" />
+              <Handshake size={22} color="var(--primary)" />
             </div>
             <h3>{t("home.step3Title", "Pickup & Enjoy")}</h3>
             <p>
@@ -590,15 +590,15 @@ export default function Home({
   );
 }
 
-// --- GREEN THEME STYLES ---
+// --- THEME-COMPLIANT STYLES ---
 const styles = {
   trustBar: {
-    backgroundColor: "#f0fdf4",
-    border: "1.5px solid #bbf7d0",
+    backgroundColor: "var(--bg-card)",
+    border: "1.5px solid var(--border-light)",
     padding: "18px 22px",
     borderRadius: "18px",
     marginBottom: "26px",
-    boxShadow: "0 6px 20px rgba(0, 170, 91, 0.08)",
+    boxShadow: "0 6px 20px rgba(0, 0, 0, 0.08)",
   },
   trustBarHeader: {
     display: "flex",
@@ -612,8 +612,8 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: "10px",
-    backgroundColor: "#ffffff",
-    border: "1px solid #86efac",
+    backgroundColor: "var(--bg-card-elevated)",
+    border: "1px solid var(--border-light)",
     padding: "8px 16px",
     borderRadius: "12px",
     boxShadow: "0 2px 6px rgba(0,0,0,0.04)",
@@ -622,15 +622,15 @@ const styles = {
     display: "flex",
     alignItems: "center",
     gap: "10px",
-    backgroundColor: "#ffffff",
-    border: "1px solid #86efac",
+    backgroundColor: "var(--bg-card-elevated)",
+    border: "1px solid var(--border-light)",
     padding: "8px 16px",
     borderRadius: "12px",
     boxShadow: "0 2px 6px rgba(0,0,0,0.04)",
   },
   trustScoreLabel: {
     fontSize: "11px",
-    color: "#6b7280",
+    color: "var(--text-muted)",
     textTransform: "uppercase",
     fontWeight: "700",
     letterSpacing: "0.5px",
@@ -639,12 +639,12 @@ const styles = {
   },
   trustScoreValue: {
     fontSize: "18px",
-    color: "#15803d",
+    color: "var(--badge-green-text)",
     fontWeight: "800",
   },
   limitValue: {
     fontSize: "18px",
-    color: "#166534",
+    color: "var(--badge-green-text)",
     fontWeight: "800",
   },
   statsPillsGroup: {
@@ -656,37 +656,37 @@ const styles = {
   },
   statMiniBadge: {
     fontSize: "12px",
-    backgroundColor: "#dcfce7",
-    color: "#166534",
+    backgroundColor: "var(--bg-card-hover)",
+    color: "var(--text-main)",
     padding: "6px 12px",
     borderRadius: "20px",
     fontWeight: "500",
-    border: "1px solid #bbf7d0",
+    border: "1px solid var(--border-light)",
   },
   progressBarWrapper: {
     width: "100%",
     height: "8px",
-    backgroundColor: "#dcfce7",
+    backgroundColor: "var(--bg-card-hover)",
     borderRadius: "10px",
     overflow: "hidden",
     marginBottom: "10px",
   },
   progressBarFill: {
     height: "100%",
-    background: "linear-gradient(90deg, #22c55e 0%, #15803d 100%)",
+    background: "linear-gradient(90deg, var(--text-accent) 0%, var(--primary) 100%)",
     borderRadius: "10px",
     transition: "width 0.4s ease",
   },
   trustBarDesc: {
     margin: 0,
     fontSize: "13px",
-    color: "#374151",
+    color: "var(--text-secondary)",
     lineHeight: 1.5,
   },
   subSectionTitle: {
     fontSize: "18px",
     fontWeight: "700",
-    color: "#111",
+    color: "var(--text-main)",
     display: "flex",
     alignItems: "center",
     marginBottom: "14px",
@@ -699,12 +699,12 @@ const styles = {
     gap: "10px",
     marginTop: "30px",
     marginBottom: "14px",
-    borderTop: "1px solid #eaeaea",
+    borderTop: "1px solid var(--border-light)",
     paddingTop: "24px",
   },
   lockedSubnote: {
     fontSize: "12.5px",
-    color: "#666",
+    color: "var(--text-muted)",
     fontWeight: "600",
   },
   lockBadgeOverlay: {
@@ -713,7 +713,7 @@ const styles = {
     right: "10px",
     zIndex: 5,
     backgroundColor: "rgba(217, 119, 6, 0.95)",
-    color: "#fff",
+    color: "var(--text-inverse)",
     padding: "4px 10px",
     borderRadius: "20px",
     fontSize: "11px",

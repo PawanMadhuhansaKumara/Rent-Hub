@@ -94,7 +94,7 @@ export default function ItemCard({ item }) {
             className="item-author-avatar-fallback"
             style={{ display: avatarUrl ? "none" : "flex" }}
           >
-            <User size={13} color="#15803d" />
+            <User size={13} color="var(--primary)" />
           </div>
         </div>
 
@@ -103,7 +103,7 @@ export default function ItemCard({ item }) {
             {authorName}
           </span>
           <span className="item-author-badge" title={nearestCity}>
-            <MapPin size={10} style={{ flexShrink: 0, color: "#16a34a" }} />
+            <MapPin size={10} style={{ flexShrink: 0, color: "var(--primary)" }} />
             <span>{nearestCity}</span>
           </span>
         </div>
@@ -126,8 +126,8 @@ export default function ItemCard({ item }) {
               position: "absolute",
               top: "10px",
               right: "10px",
-              background: "#b91c1c",
-              color: "#ffffff",
+              background: "var(--badge-red-text)",
+              color: "var(--text-inverse)",
               fontSize: "11px",
               fontWeight: "700",
               padding: "3px 8px",
@@ -154,7 +154,7 @@ export default function ItemCard({ item }) {
           </span>
                     <span className="item-availability"
             style={{
-              color: isRented ? "#b91c1c" : "inherit",
+              color: isRented ? "var(--badge-red-text)" : "inherit",
               fontWeight: isRented ? "700" : "inherit",
             }}
           >

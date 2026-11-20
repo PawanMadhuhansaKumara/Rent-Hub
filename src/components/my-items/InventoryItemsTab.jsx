@@ -39,7 +39,7 @@ export default function InventoryItemsTab({
     return (
       <div className="my-items-empty">
         <div className="my-items-empty-icon">
-          <Package size={48} color="#15803d" />
+          <Package size={48} color="var(--primary)" />
         </div>
         <h3>No items listed yet</h3>
         <p>Start earning by listing your items for rent in the marketplace.</p>

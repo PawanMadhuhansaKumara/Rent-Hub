@@ -59,7 +59,7 @@ export default function RentedItemCard({
                 height: "48px",
                 borderRadius: "8px",
                 objectFit: "cover",
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-light)",
               }}
               onError={(e) => {
                 e.currentTarget.style.display = "none";
@@ -98,9 +98,9 @@ export default function RentedItemCard({
               fontWeight: "600",
               padding: "3px 8px",
               borderRadius: "12px",
-              backgroundColor: isSentedOut ? "#fffbeb" : "#eff6ff",
-              color: isSentedOut ? "#d97706" : "#2563eb",
-              border: isSentedOut ? "1px solid #fde68a" : "1px solid #bfdbfe",
+              backgroundColor: isSentedOut ? "var(--badge-yellow-bg)" : "var(--badge-blue-bg)",
+              color: isSentedOut ? "var(--badge-yellow-text)" : "var(--badge-blue-text)",
+              border: isSentedOut ? "1px solid var(--badge-yellow-border)" : "1px solid var(--badge-blue-bg)",
             }}
           >
             {isSentedOut
@@ -117,22 +117,22 @@ export default function RentedItemCard({
                 borderRadius: "12px",
                 backgroundColor:
                   (item.paymentMethod || item.payment_method) === "cashpoints"
-                    ? "#fef9c3"
+                    ? "var(--badge-yellow-bg)"
                     : (item.paymentMethod || item.payment_method) === "card"
-                    ? "#eff6ff"
-                    : "#f0fdf4",
+                    ? "var(--badge-blue-bg)"
+                    : "var(--badge-green-bg)",
                 color:
                   (item.paymentMethod || item.payment_method) === "cashpoints"
-                    ? "#854d0e"
+                    ? "var(--badge-yellow-text)"
                     : (item.paymentMethod || item.payment_method) === "card"
-                    ? "#1d4ed8"
-                    : "#15803d",
+                    ? "var(--badge-blue-text)"
+                    : "var(--primary)",
                 border:
                   (item.paymentMethod || item.payment_method) === "cashpoints"
-                    ? "1px solid #fde047"
+                    ? "1px solid var(--badge-yellow-text)"
                     : (item.paymentMethod || item.payment_method) === "card"
-                    ? "1px solid #bfdbfe"
-                    : "1px solid #bbf7d0",
+                    ? "1px solid var(--badge-blue-bg)"
+                    : "1px solid var(--badge-green-bg)",
               }}
             >
               {(item.paymentMethod || item.payment_method) === "cashpoints"
@@ -163,7 +163,7 @@ export default function RentedItemCard({
         <div className="rent-request-meta-item rent-request-user-meta">
           <User
             size={16}
-            color={isSentedOut ? "#d97706" : "#2563eb"}
+            color={isSentedOut ? "var(--badge-yellow-text)" : "var(--badge-blue-text)"}
             style={{ marginTop: "2px", flexShrink: 0 }}
           />
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -176,7 +176,7 @@ export default function RentedItemCard({
                 to={`/profile/${targetUserId}`}
                 className="rent-request-user-link"
                 style={{
-                  color: isSentedOut ? "#b45309" : "#1d4ed8",
+                  color: isSentedOut ? "var(--badge-yellow-text)" : "var(--badge-blue-text)",
                 }}
                 title={`Click to view ${targetUserName}'s profile`}
               >
@@ -193,7 +193,7 @@ export default function RentedItemCard({
         <div className="rent-request-meta-item">
           <Calendar
             size={16}
-            color={isSentedOut ? "#d97706" : "#2563eb"}
+            color={isSentedOut ? "var(--badge-yellow-text)" : "var(--badge-blue-text)"}
             style={{ marginTop: "2px", flexShrink: 0 }}
           />
           <div>
@@ -213,7 +213,7 @@ export default function RentedItemCard({
         <div className="rent-request-meta-item">
           <ShoppingBag
             size={16}
-            color={isSentedOut ? "#d97706" : "#2563eb"}
+            color={isSentedOut ? "var(--badge-yellow-text)" : "var(--badge-blue-text)"}
             style={{ marginTop: "2px", flexShrink: 0 }}
           />
           <div>
@@ -228,7 +228,7 @@ export default function RentedItemCard({
                   style={{
                     fontSize: "11px",
                     fontWeight: "normal",
-                    color: "#64748b",
+                    color: "var(--text-muted)",
                   }}
                 >
                   {" "}
@@ -251,12 +251,12 @@ export default function RentedItemCard({
                 width: "100%",
                 marginBottom: "8px",
                 padding: "8px 12px",
-                backgroundColor: "#fefce8",
-                border: "1px solid #fef08a",
+                backgroundColor: "var(--badge-yellow-bg)",
+                border: "1px solid var(--badge-yellow-border)",
                 borderRadius: "8px",
                 fontSize: "12px",
                 fontWeight: "600",
-                color: "#854d0e",
+                color: "var(--badge-yellow-text)",
               }}
             >
               🔔 Customer has returned the item! Please inspect for defects.
@@ -279,8 +279,8 @@ export default function RentedItemCard({
               alignItems: "center",
               justifyContent: "center",
               gap: "8px",
-              backgroundColor: item.requestStatus?.toLowerCase() === "return_pending" ? "#00aa5b" : "#2563eb",
-              color: "#ffffff",
+              backgroundColor: item.requestStatus?.toLowerCase() === "return_pending" ? "var(--primary)" : "var(--badge-blue-text)",
+              color: "var(--text-inverse)",
               border: "none",
               borderRadius: "8px",
               fontWeight: "600",
@@ -323,8 +323,8 @@ export default function RentedItemCard({
               alignItems: "center",
               justifyContent: "center",
               gap: "8px",
-              backgroundColor: "#f59e0b",
-              color: "#ffffff",
+              backgroundColor: "var(--badge-yellow-text)",
+              color: "var(--text-inverse)",
               border: "none",
               borderRadius: "8px",
               fontWeight: "600",
@@ -348,18 +348,18 @@ export default function RentedItemCard({
             style={{
               width: "100%",
               padding: "10px 14px",
-              backgroundColor: "#fefce8",
-              border: "1px solid #fef08a",
+              backgroundColor: "var(--badge-yellow-bg)",
+              border: "1px solid var(--badge-yellow-border)",
               borderRadius: "8px",
               fontSize: "12px",
               fontWeight: "600",
-              color: "#854d0e",
+              color: "var(--badge-yellow-text)",
               display: "flex",
               alignItems: "center",
               gap: "8px",
             }}
           >
-            <Clock size={16} color="#d97706" />
+            <Clock size={16} color="var(--badge-yellow-text)" />
             <span>Return Submitted! Waiting for shop owner to inspect and accept the item.</span>
           </div>
         </div>
@@ -402,21 +402,21 @@ export default function RentedItemCard({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  backgroundColor: "#fefce8",
-                  border: "1px solid #fef08a",
+                  backgroundColor: "var(--badge-yellow-bg)",
+                  border: "1px solid var(--badge-yellow-border)",
                   borderRadius: "8px",
                   fontSize: "13px",
                   fontWeight: "600",
-                  color: "#a16207",
+                  color: "var(--badge-yellow-text)",
                   boxSizing: "border-box",
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Star size={15} color="#eab308" fill="#eab308" />
+                  <Star size={15} color="var(--badge-yellow-text)" fill="var(--badge-yellow-text)" />
                   <span>You rated this: {currentRating}★</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ fontSize: "11px", color: "#854d0e" }}>Reviewed</span>
+                  <span style={{ fontSize: "11px", color: "var(--badge-yellow-text)" }}>Reviewed</span>
                   <button
                     type="button"
                     onClick={triggerRateItem}
@@ -424,9 +424,9 @@ export default function RentedItemCard({
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "4px",
-                      background: "#ffffff",
-                      border: "1px solid #fde047",
-                      color: "#854d0e",
+                      background: "var(--bg-card)",
+                      border: "1px solid var(--badge-yellow-text)",
+                      color: "var(--badge-yellow-text)",
                       borderRadius: "6px",
                       padding: "3px 8px",
                       fontSize: "11px",
@@ -452,8 +452,8 @@ export default function RentedItemCard({
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "8px",
-                  backgroundColor: "#00aa5b",
-                  color: "#ffffff",
+                  backgroundColor: "var(--primary)",
+                  color: "var(--text-inverse)",
                   border: "none",
                   borderRadius: "8px",
                   fontSize: "13px",
@@ -463,7 +463,7 @@ export default function RentedItemCard({
                 }}
                 title="Leave a review for this item and shop"
               >
-                <Star size={16} color="#ffffff" fill="#ffffff" />
+                <Star size={16} color="var(--text-inverse)" fill="var(--text-inverse)" />
                 <span>Rate & Review Item</span>
               </button>
             )}

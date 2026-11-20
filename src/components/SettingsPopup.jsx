@@ -142,9 +142,9 @@ export default function SettingsPopup({ handleLogout, onOpenMapLocation }) {
             >
               <div className="settings-theme-info">
                 {theme === "dark" ? (
-                  <Moon size={18} color="#818cf8" />
+                  <Moon size={18} color="var(--badge-purple-text)" />
                 ) : (
-                  <Sun size={18} color="#f59e0b" />
+                  <Sun size={18} color="var(--badge-yellow-text)" />
                 )}
                 <span>
                   {theme === "dark"
@@ -159,9 +159,9 @@ export default function SettingsPopup({ handleLogout, onOpenMapLocation }) {
               >
                 <div className="theme-switch-thumb">
                   {theme === "dark" ? (
-                    <Moon size={11} color="#ffffff" />
+                    <Moon size={11} color="var(--text-inverse)" />
                   ) : (
-                    <Sun size={11} color="#f59e0b" />
+                    <Sun size={11} color="var(--badge-yellow-text)" />
                   )}
                 </div>
               </div>
@@ -201,10 +201,10 @@ export default function SettingsPopup({ handleLogout, onOpenMapLocation }) {
             <div 
               className="settings-item" 
               onClick={handleDeleteAccount}
-              style={{ cursor: "pointer", borderTop: "1px solid #f0f0f0", marginTop: "8px", paddingTop: "12px" }}
+              style={{ cursor: "pointer", borderTop: "1px solid var(--border-light)", marginTop: "8px", paddingTop: "12px" }}
             >
-              <Trash2 size={18} color="#dc2626" />
-              <span style={{ color: "#dc2626", fontWeight: "bold" }}>
+              <Trash2 size={18} color="var(--badge-red-text)" />
+              <span style={{ color: "var(--badge-red-text)", fontWeight: "bold" }}>
                 {t("settings.deleteAccount", "Delete Account")}
               </span>
             </div>

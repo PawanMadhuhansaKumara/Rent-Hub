@@ -69,16 +69,16 @@ export default function RentedItemsTab({
             style={{
               background:
                 !hideRentedIn && rentedSubTab === "rented-in"
-                  ? "#e0f2fe"
-                  : "#fef3c7",
+                  ? "var(--badge-blue-bg)"
+                  : "var(--badge-yellow-bg)",
             }}
           >
             <Clock
               size={48}
               color={
                 !hideRentedIn && rentedSubTab === "rented-in"
-                  ? "#0284c7"
-                  : "#d97706"
+                  ? "var(--badge-blue-text)"
+                  : "var(--badge-yellow-text)"
               }
             />
           </div>

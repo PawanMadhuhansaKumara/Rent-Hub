@@ -12,7 +12,7 @@ export default function CartIcon({ count = 0 }) {
       onClick={() => navigate("/MyItems?tab=rent-cart")}
       aria-label="Shopping cart"
     >
-        <ShoppingCart size={21} color="#ffffff" />
+        <ShoppingCart size={21} color="var(--text-inverse)" />
 
       {count > 0 && <span className="cart-count">{count}</span>}
     </button>

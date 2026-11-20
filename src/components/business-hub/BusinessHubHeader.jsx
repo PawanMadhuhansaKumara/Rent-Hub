@@ -57,9 +57,9 @@ export default function BusinessHubHeader() {
           onClick={scrollToQuickOps}
           title="Jump directly to Quick Operations"
         >
-          <Zap size={15} color="#059669" />
+          <Zap size={15} color="var(--primary)" />
           <span>{t("businessHub.quickOperations", "Quick Operations")}</span>
-          <ChevronDown size={14} color="#059669" />
+          <ChevronDown size={14} color="var(--primary)" />
         </button>
       </div>
     </div>

@@ -17,8 +17,8 @@
   max-width: 650px;
   max-height: 95vh;
   overflow-y: auto;
-  background: #ffffff;
-  border: 1px solid #dcfce7;
+  background: var(--bg-card);
+  border: 1px solid var(--primary-border);
   border-radius: 16px;
   padding: 22px;
   box-shadow: 0 15px 45px rgba(20, 83, 45, 0.16);
@@ -34,19 +34,19 @@
 
 .buyer-location-header h2 {
   margin: 0 0 5px;
-  color: #14532d;
+  color: var(--primary-hover);
 }
 
 .buyer-location-header p {
   margin: 0;
-  color: #64748b;
+  color: var(--text-muted);
   font-size: 14px;
 }
 
 .buyer-close-btn {
   border: none;
-  background: #f0fdf4;
-  color: #15803d;
+  background: var(--primary-light);
+  color: var(--primary);
   border-radius: 50%;
   width: 38px;
   height: 38px;
@@ -55,8 +55,8 @@
 }
 
 .buyer-close-btn:hover {
-  background: #dcfce7;
-  color: #166534;
+  background: var(--primary-light);
+  color: var(--primary-hover);
 }
 
 .buyer-gps-btn,
@@ -75,15 +75,15 @@
 
 .buyer-gps-btn {
   width: 100%;
-  border: 1px solid #86efac;
-  background: #f0fdf4;
-  color: #15803d;
+  border: 1px solid var(--primary-border);
+  background: var(--primary-light);
+  color: var(--primary);
   margin-bottom: 12px;
 }
 
 .buyer-gps-btn:hover {
-  background: #dcfce7;
-  border-color: #4ade80;
+  background: var(--primary-light);
+  border-color: var(--primary-border);
 }
 
 .buyer-location-search {
@@ -96,14 +96,14 @@
   flex: 1;
   min-width: 0;
   padding: 12px;
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-light);
   border-radius: 8px;
   outline: none;
   transition: border 0.2s ease, box-shadow 0.2s ease;
 }
 
 .buyer-location-search input:focus {
-  border-color: #16a34a;
+  border-color: var(--border-focus);
   box-shadow: 0 0 0 3px rgba(22, 163, 74, 0.12);
 }
 
@@ -111,18 +111,18 @@
   width: 45px;
   border: none;
   border-radius: 8px;
-  background: #15803d;
+  background: var(--primary);
   color: white;
   cursor: pointer;
   transition: background 0.2s ease;
 }
 
 .buyer-location-search button:hover {
-  background: #166534;
+  background: var(--primary-hover);
 }
 
 .buyer-location-message {
-  color: #b91c1c;
+  color: var(--badge-red-text);
   font-size: 13px;
 }
 
@@ -132,13 +132,13 @@
   gap: 7px;
   font-size: 14px;
   margin: 15px 0 10px;
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .buyer-map-container {
   width: 100%;
   height: 330px;
-  border: 1px solid #dcfce7;
+  border: 1px solid var(--primary-border);
   border-radius: 10px;
   overflow: hidden;
 }
@@ -153,21 +153,21 @@
   gap: 12px;
   padding: 13px;
   margin-top: 14px;
-  background: #f0fdf4;
-  border: 1px solid #bbf7d0;
+  background: var(--primary-light);
+  border: 1px solid var(--primary-border);
   border-radius: 9px;
   overflow-wrap: anywhere;
-  color: #166534;
+  color: var(--primary-hover);
 }
 
 .buyer-selected-location p {
   margin: 5px 0;
   font-size: 13px;
-  color: #365b45;
+  color: var(--palette-pine);
 }
 
 .buyer-selected-location small {
-  color: #64748b;
+  color: var(--text-muted);
 }
 
 .buyer-location-actions {
@@ -178,23 +178,23 @@
 }
 
 .buyer-cancel-btn {
-  border: 1px solid #d1d5db;
+  border: 1px solid var(--border-light);
   background: white;
-  color: #475569;
+  color: var(--text-secondary);
 }
 
 .buyer-cancel-btn:hover {
-  background: #f8fafc;
+  background: var(--bg-app-alt);
 }
 
 .buyer-confirm-btn {
   border: none;
-  background: #15803d;
+  background: var(--primary);
   color: white;
 }
 
 .buyer-confirm-btn:hover {
-  background: #166534;
+  background: var(--primary-hover);
   box-shadow: 0 3px 10px rgba(21, 128, 61, 0.2);
 }
 

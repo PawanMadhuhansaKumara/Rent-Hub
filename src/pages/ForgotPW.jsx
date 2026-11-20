@@ -206,7 +206,7 @@ export default function ForgotPW({ user }) {
           {step === 2 && (
             <>
               <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "6px" }}>
-                <MessageSquare size={20} color="#2563eb" />
+                <MessageSquare size={20} color="var(--badge-blue-text)" />
                 <h3 style={{ ...styles.cardTitle, margin: 0 }}>Verify SMS Code</h3>
               </div>
               <p style={styles.cardSubtitle}>
@@ -284,8 +284,8 @@ export default function ForgotPW({ user }) {
           {/* STEP 3: SUCCESS STATE */}
           {step === 3 && (
             <div style={{ textAlign: "center", padding: "10px 0" }}>
-              <CheckCircle2 size={58} color="#16a34a" style={{ marginBottom: "16px" }} />
-              <h3 style={{ ...styles.cardTitle, color: "#16a34a", marginBottom: "8px" }}>
+              <CheckCircle2 size={58} color="var(--primary)" style={{ marginBottom: "16px" }} />
+              <h3 style={{ ...styles.cardTitle, color: "var(--primary)", marginBottom: "8px" }}>
                 Password Reset Successful!
               </h3>
               <p style={{ ...styles.cardSubtitle, marginBottom: "28px" }}>
@@ -314,7 +314,7 @@ const styles = {
     justifyContent: "center",
     alignItems: "center",
     minHeight: "100vh",
-    backgroundColor: "#f4f6f9",
+    backgroundColor: "var(--bg-app)",
   },
 
   wrapper: {
@@ -336,13 +336,13 @@ const styles = {
   leftTitle: {
     fontSize: "28px",
     fontWeight: "700",
-    color: "#0f172a",
+    color: "var(--text-main)",
     marginBottom: "8px",
     letterSpacing: "-0.3px",
   },
 
   leftSubtitle: {
-    color: "#64748b",
+    color: "var(--text-muted)",
     fontSize: "14px",
     lineHeight: "1.6",
   },
@@ -360,44 +360,44 @@ const styles = {
     padding: "44px 36px 36px 36px",
     borderRadius: "28px",
     boxShadow: "0 14px 38px rgba(0, 0, 0, 0.05), 0 2px 6px rgba(0, 0, 0, 0.02)",
-    backgroundColor: "#ffffff",
-    border: "1px solid rgba(226, 232, 240, 0.7)",
+    backgroundColor: "var(--bg-card)",
+    border: "1px solid var(--border-light, rgba(226, 232, 240, 0.7))",
     boxSizing: "border-box",
   },
 
   cardTitle: {
     fontSize: "20px",
     fontWeight: "700",
-    color: "#0f172a",
+    color: "var(--text-main)",
     marginBottom: "6px",
   },
 
   cardSubtitle: {
-    color: "#64748b",
+    color: "var(--text-muted)",
     fontSize: "13.5px",
     marginBottom: "20px",
     lineHeight: "1.5",
   },
 
   errorAlert: {
-    backgroundColor: "#fef2f2",
-    color: "#ef4444",
+    backgroundColor: "var(--badge-red-bg)",
+    color: "var(--badge-red-text)",
     padding: "11px 14px",
     borderRadius: "12px",
     marginBottom: "16px",
     fontSize: "13px",
-    border: "1px solid #fecaca",
+    border: "1px solid var(--badge-red-border)",
     fontWeight: "500",
   },
 
   successAlert: {
-    backgroundColor: "#f0fdf4",
-    color: "#16a34a",
+    backgroundColor: "var(--badge-green-bg)",
+    color: "var(--badge-green-text)",
     padding: "11px 14px",
     borderRadius: "12px",
     marginBottom: "16px",
     fontSize: "13px",
-    border: "1px solid #bbf7d0",
+    border: "1px solid var(--border-light)",
     fontWeight: "500",
   },
 
@@ -417,20 +417,20 @@ const styles = {
     marginBottom: "8px",
     fontSize: "14px",
     fontWeight: "600",
-    color: "#374151",
+    color: "var(--text-secondary)",
   },
 
   input: {
     width: "100%",
     padding: "13px 18px",
     borderRadius: "14px",
-    border: "1px solid #d4e4fc",
-    backgroundColor: "#edf5fe",
+    border: "1px solid var(--border-light)",
+    backgroundColor: "var(--bg-input)",
     boxSizing: "border-box",
     fontSize: "15px",
     fontFamily: "inherit",
     outline: "none",
-    color: "#1e293b",
+    color: "var(--text-main)",
     fontWeight: "500",
     transition: "all 0.2s ease-in-out",
   },
@@ -438,22 +438,22 @@ const styles = {
   actionBtn: {
     width: "100%",
     padding: "14px",
-    backgroundColor: "#2563eb",
-    color: "#ffffff",
-    border: "none",
+    backgroundColor: "var(--primary)",
+    color: "var(--text-main)",
+    border: "1px solid var(--border-focus)",
     borderRadius: "14px",
     fontSize: "16px",
     fontWeight: "600",
     cursor: "pointer",
     marginTop: "6px",
-    boxShadow: "0 8px 22px rgba(37, 99, 235, 0.35)",
+    boxShadow: "0 8px 22px rgba(0, 0, 0, 0.2)",
     transition: "all 0.2s ease-in-out",
   },
 
   backBtn: {
     background: "none",
     border: "none",
-    color: "#64748b",
+    color: "var(--text-muted)",
     fontSize: "13px",
     cursor: "pointer",
     display: "flex",
@@ -464,7 +464,7 @@ const styles = {
   resendBtn: {
     background: "none",
     border: "none",
-    color: "#2563eb",
+    color: "var(--primary-text)",
     fontSize: "13px",
     cursor: "pointer",
     fontWeight: "600",
@@ -473,12 +473,12 @@ const styles = {
   footerText: {
     marginTop: "44px",
     fontSize: "14px",
-    color: "#6b7280",
+    color: "var(--text-muted)",
     textAlign: "center",
   },
 
   link: {
-    color: "#2563eb",
+    color: "var(--primary-text)",
     fontWeight: "600",
     textDecoration: "none",
     marginLeft: "4px",

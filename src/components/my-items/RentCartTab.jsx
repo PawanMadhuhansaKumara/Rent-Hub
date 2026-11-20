@@ -46,8 +46,8 @@ export default function RentCartTab({
   if (cartItems.length === 0) {
     return (
       <div className="my-items-empty">
-        <div className="my-items-empty-icon" style={{ background: "#eff6ff" }}>
-          <ShoppingCart size={48} color="#2563eb" />
+        <div className="my-items-empty-icon" style={{ background: "var(--badge-blue-bg)" }}>
+          <ShoppingCart size={48} color="var(--badge-blue-text)" />
         </div>
         <h3>{t("rentsPage.cartEmptyTitle", "Your Rent Cart is empty")}</h3>
         <p>{t("rentsPage.cartEmptyDesc", "Browse items and add them to your rent cart to request rentals.")}</p>

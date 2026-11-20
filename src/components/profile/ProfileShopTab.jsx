@@ -25,7 +25,7 @@ export default function ProfileShopTab({
             margin: 0,
             fontSize: "18px",
             fontWeight: "bold",
-            color: "#111",
+            color: "var(--text-main)",
           }}
         >
           {isOwnProfile ? "My Items" : "Shop Items"}
@@ -34,7 +34,7 @@ export default function ProfileShopTab({
           onClick={() => navigate("/add-item")}
           style={{
             fontSize: "13px",
-            color: "#00aa5b",
+            color: "var(--primary)",
             fontWeight: "bold",
             cursor: "pointer",
           }}
@@ -48,11 +48,11 @@ export default function ProfileShopTab({
           style={{
             padding: "40px",
             textAlign: "center",
-            color: "#777",
+            color: "var(--text-muted)",
             fontSize: "14px",
-            backgroundColor: "#fafafa",
+            backgroundColor: "var(--bg-card-hover)",
             borderRadius: "16px",
-            border: "1px dashed #ddd",
+            border: "1px dashed var(--border-light)",
           }}
         >
           {t("profile.noItems", "No items available in shop.")}
@@ -106,8 +106,8 @@ export default function ProfileShopTab({
                         fontWeight: "bold",
                         padding: "4px 10px",
                         borderRadius: "14px",
-                        backgroundColor: isRented ? "#dc2626" : "#00aa5b",
-                        color: "#ffffff",
+                        backgroundColor: isRented ? "var(--badge-red-text)" : "var(--primary)",
+                        color: "var(--text-inverse)",
                         boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
                         display: "inline-flex",
                         alignItems: "center",
@@ -120,7 +120,7 @@ export default function ProfileShopTab({
                           width: "6px",
                           height: "6px",
                           borderRadius: "50%",
-                          backgroundColor: "#ffffff",
+                          backgroundColor: "var(--bg-card)",
                           display: "inline-block",
                         }}
                       />
@@ -135,7 +135,7 @@ export default function ProfileShopTab({
                       margin: "0 0 6px 0",
                       fontSize: "15px",
                       fontWeight: "bold",
-                      color: "#222",
+                      color: "var(--text-main)",
                     }}
                   >
                     {item.title}
@@ -145,7 +145,7 @@ export default function ProfileShopTab({
                     style={{
                       fontSize: "15px",
                       fontWeight: "bold",
-                      color: "#00aa5b",
+                      color: "var(--primary)",
                       margin: "4px 0 10px 0",
                     }}
                   >
@@ -154,7 +154,7 @@ export default function ProfileShopTab({
                       style={{
                         fontSize: "11px",
                         fontWeight: "normal",
-                        color: "#666",
+                        color: "var(--text-muted)",
                       }}
                     >
                       / {item.priceType || "day"}
@@ -167,7 +167,7 @@ export default function ProfileShopTab({
                       display: "flex",
                       justifyContent: "space-between",
                       alignItems: "center",
-                      borderTop: "1px solid #f0f0f0",
+                      borderTop: "1px solid var(--bg-card-hover)",
                       paddingTop: "8px",
                       marginBottom: "8px",
                     }}
@@ -178,10 +178,10 @@ export default function ProfileShopTab({
                         alignItems: "center",
                         gap: "4px",
                         fontSize: "11px",
-                        color: "#666",
+                        color: "var(--text-muted)",
                       }}
                     >
-                      <Calendar size={13} color="#00aa5b" />{" "}
+                      <Calendar size={13} color="var(--primary)" />{" "}
                       {item.bookings ?? 0}{" "}
                       {item.bookings === 1 ? "booking" : "bookings"}
                     </span>
@@ -191,10 +191,10 @@ export default function ProfileShopTab({
                         alignItems: "center",
                         gap: "4px",
                         fontSize: "11px",
-                        color: "#666",
+                        color: "var(--text-muted)",
                       }}
                     >
-                      <Eye size={13} color="#666" /> {item.views ?? 0} views
+                      <Eye size={13} color="var(--text-muted)" /> {item.views ?? 0} views
                     </span>
                   </div>
 
@@ -216,9 +216,9 @@ export default function ProfileShopTab({
                         }}
                         style={{
                           width: "100%",
-                          backgroundColor: isRented ? "#f0fdf4" : "#fef2f2",
-                          color: isRented ? "#16a34a" : "#dc2626",
-                          border: `1px solid ${isRented ? "#bbf7d0" : "#fecaca"}`,
+                          backgroundColor: isRented ? "var(--badge-green-bg)" : "var(--badge-red-bg)",
+                          color: isRented ? "var(--primary)" : "var(--badge-red-text)",
+                          border: `1px solid ${isRented ? "var(--badge-green-bg)" : "var(--badge-red-border)"}`,
                           padding: "7px 10px",
                           borderRadius: "8px",
                           fontSize: "12px",
@@ -234,11 +234,11 @@ export default function ProfileShopTab({
                       >
                         {isRented ? (
                           <>
-                            <CheckCircle2 size={14} color="#16a34a" /> Mark as Available
+                            <CheckCircle2 size={14} color="var(--primary)" /> Mark as Available
                           </>
                         ) : (
                           <>
-                            <Clock size={14} color="#dc2626" /> Mark as Rented Out
+                            <Clock size={14} color="var(--badge-red-text)" /> Mark as Rented Out
                           </>
                         )}
                       </button>
@@ -252,8 +252,8 @@ export default function ProfileShopTab({
                         }}
                         style={{
                           width: "100%",
-                          backgroundColor: "#fee2e2",
-                          color: "#dc2626",
+                          backgroundColor: "var(--badge-red-bg)",
+                          color: "var(--badge-red-text)",
                           border: "none",
                           padding: "6px",
                           borderRadius: "8px",

@@ -36,7 +36,7 @@ export default function BusinessWelcomeCard({
       >
         <div className="total-earn-left">
           <div className="total-earn-icon-wrap">
-            <Coins size={28} color="#854d0e" />
+            <Coins size={28} color="var(--badge-yellow-text)" />
           </div>
           <div>
             <div className="total-earn-tag-row">

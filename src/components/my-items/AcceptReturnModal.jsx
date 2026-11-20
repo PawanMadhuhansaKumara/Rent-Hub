@@ -29,35 +29,35 @@ export default function AcceptReturnModal({
       return {
         label: "🌟 10/10 - Perfect Condition (No Defects)",
         desc: "Item returned in excellent condition with no defects. Gives customer maximum Trust Score (+100%) and rental limit boost.",
-        color: "#15803d",
-        bg: "#f0fdf4",
-        border: "#86efac",
+        color: "var(--primary)",
+        bg: "var(--badge-green-bg)",
+        border: "var(--badge-green-bg)",
       };
     }
     if (val >= 8) {
       return {
         label: `👍 ${val}/10 - Very Good Condition (Minimal Wear)`,
         desc: "Item returned safely with only minor normal wear. Customer receives a high Trust Score and limit boost.",
-        color: "#166534",
-        bg: "#f0fdf4",
-        border: "#bbf7d0",
+        color: "var(--primary-hover)",
+        bg: "var(--badge-green-bg)",
+        border: "var(--badge-green-bg)",
       };
     }
     if (val >= 5) {
       return {
         label: `⚠️ ${val}/10 - Fair Condition (Minor Scratches / Wear)`,
         desc: "Item returned with slight cosmetic wear, minor scratches, or slight delay. Moderate Trust Score boost.",
-        color: "#d97706",
-        bg: "#fffbeb",
-        border: "#fde68a",
+        color: "var(--badge-yellow-text)",
+        bg: "var(--badge-yellow-bg)",
+        border: "var(--badge-yellow-border)",
       };
     }
     return {
       label: `❌ ${val}/10 - Damaged / Defective (Notable Issues)`,
       desc: "Item returned with noticeable defects or damaged parts. No Trust Score or rental limit boost will be given.",
-      color: "#dc2626",
-      bg: "#fef2f2",
-      border: "#fecaca",
+      color: "var(--badge-red-text)",
+      bg: "var(--badge-red-bg)",
+      border: "var(--badge-red-border)",
     };
   };
 
@@ -90,7 +90,7 @@ export default function AcceptReturnModal({
     >
       <div
         style={{
-          backgroundColor: "#ffffff",
+          backgroundColor: "var(--bg-modal, var(--bg-card))",
           borderRadius: "20px",
           maxWidth: "520px",
           width: "100%",
@@ -105,12 +105,12 @@ export default function AcceptReturnModal({
         <div style={{ display: "flex", justifyContent: "space-between", alignItems: "flex-start", marginBottom: "16px" }}>
           <div>
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
-              <ShieldCheck size={22} color="#00aa5b" />
-              <h3 style={{ margin: 0, fontSize: "19px", fontWeight: "700", color: "#111827" }}>
+              <ShieldCheck size={22} color="var(--primary)" />
+              <h3 style={{ margin: 0, fontSize: "19px", fontWeight: "700", color: "var(--text-main)" }}>
                 {t("rentModals.acceptReturn", "Inspect & Accept Return")}
               </h3>
             </div>
-            <p style={{ margin: 0, fontSize: "13px", color: "#6b7280" }}>
+            <p style={{ margin: 0, fontSize: "13px", color: "var(--text-muted)" }}>
               {t("rentModals.returnDesc", "Inspect the returned item and select the customer's return trust rating.")}
             </p>
           </div>
@@ -122,7 +122,7 @@ export default function AcceptReturnModal({
               background: "none",
               border: "none",
               cursor: "pointer",
-              color: "#9ca3af",
+              color: "var(--text-muted)",
               padding: "4px",
               borderRadius: "50%",
             }}
@@ -138,9 +138,9 @@ export default function AcceptReturnModal({
             alignItems: "center",
             gap: "12px",
             padding: "12px 14px",
-            backgroundColor: "#f9fafb",
+            backgroundColor: "var(--bg-app-alt)",
             borderRadius: "12px",
-            border: "1px solid #e5e7eb",
+            border: "1px solid var(--border-light)",
             marginBottom: "20px",
           }}
         >
@@ -155,23 +155,23 @@ export default function AcceptReturnModal({
               style={{
                 width: "48px",
                 height: "48px",
-                backgroundColor: "#e5e7eb",
+                backgroundColor: "var(--border-light)",
                 borderRadius: "8px",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
                 fontSize: "11px",
-                color: "#6b7280",
+                color: "var(--text-muted)",
               }}
             >
               No Pic
             </div>
           )}
           <div style={{ flex: 1, minWidth: 0 }}>
-            <h4 style={{ margin: "0 0 2px 0", fontSize: "14.5px", fontWeight: "700", color: "#111827", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
+            <h4 style={{ margin: "0 0 2px 0", fontSize: "14.5px", fontWeight: "700", color: "var(--text-main)", whiteSpace: "nowrap", overflow: "hidden", textOverflow: "ellipsis" }}>
               {itemTitle}
             </h4>
-            <span style={{ fontSize: "12.5px", color: "#4b5563" }}>
+            <span style={{ fontSize: "12.5px", color: "var(--text-secondary)" }}>
               Customer: <strong>{buyerName}</strong>
             </span>
           </div>
@@ -180,7 +180,7 @@ export default function AcceptReturnModal({
         {/* Trust Rating (0-10) Selection */}
         <div style={{ marginBottom: "20px" }}>
           <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
-            <label style={{ fontSize: "13.5px", fontWeight: "700", color: "#374151" }}>
+            <label style={{ fontSize: "13.5px", fontWeight: "700", color: "var(--text-secondary)" }}>
               Rate Customer Trust & Care (0 - 10):
             </label>
             <span style={{ fontSize: "13px", fontWeight: "800", color: feedback.color }}>
@@ -202,9 +202,9 @@ export default function AcceptReturnModal({
                     minWidth: "36px",
                     height: "38px",
                     borderRadius: "10px",
-                    border: isSelected ? "2px solid #00aa5b" : "1.5px solid #e5e7eb",
-                    backgroundColor: isSelected ? "#00aa5b" : "#f9fafb",
-                    color: isSelected ? "#ffffff" : "#374151",
+                    border: isSelected ? "2px solid var(--primary)" : "1.5px solid var(--border-light)",
+                    backgroundColor: isSelected ? "var(--primary)" : "var(--bg-app-alt)",
+                    color: isSelected ? "var(--text-inverse)" : "var(--text-secondary)",
                     fontWeight: isSelected ? "800" : "600",
                     fontSize: "14px",
                     cursor: "pointer",
@@ -237,7 +237,7 @@ export default function AcceptReturnModal({
               <strong style={{ color: feedback.color, fontSize: "13.5px", display: "block", marginBottom: "2px" }}>
                 {feedback.label}
               </strong>
-              <p style={{ margin: 0, fontSize: "12px", color: "#4b5563", lineHeight: 1.4 }}>
+              <p style={{ margin: 0, fontSize: "12px", color: "var(--text-secondary)", lineHeight: 1.4 }}>
                 {feedback.desc}
               </p>
             </div>
@@ -253,9 +253,9 @@ export default function AcceptReturnModal({
             style={{
               padding: "10px 18px",
               borderRadius: "10px",
-              border: "1.5px solid #d1d5db",
-              backgroundColor: "#ffffff",
-              color: "#374151",
+              border: "1.5px solid var(--border-light)",
+              backgroundColor: "var(--bg-modal, var(--bg-card))",
+              color: "var(--text-secondary)",
               fontSize: "13.5px",
               fontWeight: "600",
               cursor: submitting ? "not-allowed" : "pointer",
@@ -271,8 +271,8 @@ export default function AcceptReturnModal({
               padding: "10px 22px",
               borderRadius: "10px",
               border: "none",
-              backgroundColor: "#00aa5b",
-              color: "#ffffff",
+              backgroundColor: "var(--primary)",
+              color: "var(--text-inverse)",
               fontSize: "13.5px",
               fontWeight: "700",
               cursor: submitting ? "not-allowed" : "pointer",

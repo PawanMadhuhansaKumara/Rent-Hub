@@ -79,8 +79,9 @@ export default function PaymentOptionsModal({
       onClick={paymentDone ? onClose : undefined}
     >
       <div
+        className="payment-modal-box"
         style={{
-          background: "#ffffff",
+          background: "var(--bg-modal)",
           borderRadius: "22px",
           width: "100%",
           maxWidth: "490px",
@@ -88,7 +89,8 @@ export default function PaymentOptionsModal({
             "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 30px rgba(22, 163, 74, 0.15)",
           overflow: "hidden",
           animation: "fadeIn 0.25s ease-out",
-          border: paymentDone ? "2px solid #86efac" : "1px solid #e2e8f0",
+          border: paymentDone ? "2px solid var(--badge-green-bg)" : "1px solid var(--border-light)",
+          color: "var(--text-main)",
         }}
         onClick={(e) => e.stopPropagation()}
       >
@@ -103,7 +105,7 @@ export default function PaymentOptionsModal({
               display: "flex",
               flexDirection: "column",
               alignItems: "center",
-              background: "linear-gradient(180deg, #f0fdf4 0%, #ffffff 100%)",
+              background: "linear-gradient(180deg, var(--badge-green-bg) 0%, var(--bg-modal, var(--bg-card)) 100%)",
             }}
           >
             {/* Glowing Big Green Success Badge */}
@@ -112,7 +114,7 @@ export default function PaymentOptionsModal({
                 width: "92px",
                 height: "92px",
                 borderRadius: "50%",
-                background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
+                background: "linear-gradient(135deg, var(--text-accent) 0%, var(--primary) 100%)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
@@ -121,7 +123,7 @@ export default function PaymentOptionsModal({
                 animation: "scaleIn 0.35s ease-out",
               }}
             >
-              <CheckCircle2 size={56} color="#ffffff" strokeWidth={2.5} />
+              <CheckCircle2 size={56} color="var(--text-inverse)" strokeWidth={2.5} />
             </div>
 
             {/* Big Green Heading */}
@@ -130,8 +132,8 @@ export default function PaymentOptionsModal({
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "6px",
-                backgroundColor: "#dcfce7",
-                color: "#15803d",
+                backgroundColor: "var(--badge-green-bg)",
+                color: "var(--primary)",
                 fontSize: "12px",
                 fontWeight: "700",
                 padding: "4px 12px",
@@ -146,7 +148,7 @@ export default function PaymentOptionsModal({
               style={{
                 fontSize: "28px",
                 fontWeight: "900",
-                color: "#15803d",
+                color: "var(--primary)",
                 margin: "0 0 6px 0",
                 letterSpacing: "-0.5px",
               }}
@@ -157,7 +159,7 @@ export default function PaymentOptionsModal({
             <p
               style={{
                 fontSize: "14px",
-                color: "#166534",
+                color: "var(--primary-hover)",
                 margin: "0 0 20px 0",
                 maxWidth: "360px",
                 lineHeight: "1.4",
@@ -170,8 +172,8 @@ export default function PaymentOptionsModal({
             <div
               style={{
                 width: "100%",
-                background: "#ffffff",
-                border: "1.5px solid #bbf7d0",
+                background: "var(--bg-modal, var(--bg-card))",
+                border: "1.5px solid var(--badge-green-bg)",
                 borderRadius: "14px",
                 padding: "16px",
                 marginBottom: "24px",
@@ -186,12 +188,12 @@ export default function PaymentOptionsModal({
                   justifyContent: "space-between",
                   alignItems: "center",
                   paddingBottom: "10px",
-                  borderBottom: "1px solid #f1f5f9",
+                  borderBottom: "1px solid var(--bg-card-hover)",
                   marginBottom: "10px",
                 }}
               >
-                <span style={{ fontSize: "12.5px", color: "#64748b" }}>{t("payment.amountPaid", "Amount Paid:")}</span>
-                <strong style={{ fontSize: "16px", color: "#15803d" }}>
+                <span style={{ fontSize: "12.5px", color: "var(--text-muted)" }}>{t("payment.amountPaid", "Amount Paid:")}</span>
+                <strong style={{ fontSize: "16px", color: "var(--primary)" }}>
                   LKR {numTotal.toLocaleString("en-LK", { minimumFractionDigits: 2 })}
                 </strong>
               </div>
@@ -202,12 +204,12 @@ export default function PaymentOptionsModal({
                   justifyContent: "space-between",
                   alignItems: "center",
                   paddingBottom: "10px",
-                  borderBottom: "1px solid #f1f5f9",
+                  borderBottom: "1px solid var(--bg-card-hover)",
                   marginBottom: "10px",
                 }}
               >
-                <span style={{ fontSize: "12.5px", color: "#64748b" }}>{t("payment.method", "Payment Method:")}</span>
-                <span style={{ fontSize: "13px", fontWeight: "700", color: "#1e293b" }}>
+                <span style={{ fontSize: "12.5px", color: "var(--text-muted)" }}>{t("payment.method", "Payment Method:")}</span>
+                <span style={{ fontSize: "13px", fontWeight: "700", color: "var(--text-main)" }}>
                   {selectedMethod === "cashpoints"
                     ? `🪙 ${t("payment.cashpoints", "Cash Points")}`
                     : selectedMethod === "card"
@@ -222,15 +224,15 @@ export default function PaymentOptionsModal({
                   justifyContent: "space-between",
                   alignItems: "center",
                   paddingBottom: "10px",
-                  borderBottom: "1px solid #f1f5f9",
+                  borderBottom: "1px solid var(--bg-card-hover)",
                   marginBottom: "10px",
                 }}
               >
-                <span style={{ fontSize: "12.5px", color: "#64748b" }}>{t("payment.status", "Status:")}</span>
+                <span style={{ fontSize: "12.5px", color: "var(--text-muted)" }}>{t("payment.status", "Status:")}</span>
                 <span
                   style={{
-                    backgroundColor: "#16a34a",
-                    color: "#ffffff",
+                    backgroundColor: "var(--primary)",
+                    color: "var(--text-inverse)",
                     fontSize: "11px",
                     fontWeight: "800",
                     padding: "3px 8px",
@@ -242,8 +244,8 @@ export default function PaymentOptionsModal({
               </div>
 
               <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-                <span style={{ fontSize: "12px", color: "#94a3b8" }}>Ref Number:</span>
-                <span style={{ fontSize: "12px", color: "#64748b", fontFamily: "monospace", fontWeight: "600" }}>
+                <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>Ref Number:</span>
+                <span style={{ fontSize: "12px", color: "var(--text-muted)", fontFamily: "monospace", fontWeight: "600" }}>
                   {txnRef}
                 </span>
               </div>
@@ -257,8 +259,8 @@ export default function PaymentOptionsModal({
                 width: "100%",
                 padding: "13px",
                 borderRadius: "12px",
-                backgroundColor: "#16a34a",
-                color: "#ffffff",
+                backgroundColor: "var(--primary)",
+                color: "var(--text-inverse)",
                 border: "none",
                 fontSize: "15px",
                 fontWeight: "700",
@@ -282,9 +284,9 @@ export default function PaymentOptionsModal({
             {/* Header */}
             <div
               style={{
-                background: "linear-gradient(135deg, #0f172a 0%, #1e293b 100%)",
+                background: "linear-gradient(135deg, var(--text-main) 0%, var(--text-main) 100%)",
                 padding: "18px 20px",
-                color: "#ffffff",
+                color: "var(--text-inverse)",
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "space-between",
@@ -294,9 +296,9 @@ export default function PaymentOptionsModal({
                 <h3 style={{ margin: 0, fontSize: "16.5px", fontWeight: "700" }}>
                   {t("payment.title", "Select Payment Option")}
                 </h3>
-                <span style={{ fontSize: "12px", color: "#94a3b8" }}>
+                <span style={{ fontSize: "12px", color: "var(--text-muted)" }}>
                   {t("payment.totalPayable", "Total Payable")}:{" "}
-                  <strong style={{ color: "#4ade80", fontSize: "14px" }}>
+                  <strong style={{ color: "var(--primary-light)", fontSize: "14px" }}>
                     LKR {numTotal.toLocaleString("en-LK", { minimumFractionDigits: 2 })}
                   </strong>
                 </span>
@@ -314,7 +316,7 @@ export default function PaymentOptionsModal({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "center",
-                  color: "#ffffff",
+                  color: "var(--text-inverse)",
                   cursor: "pointer",
                 }}
               >
@@ -324,7 +326,7 @@ export default function PaymentOptionsModal({
 
             {/* Payment Choices List */}
             <div style={{ padding: "20px", maxHeight: "80vh", overflowY: "auto" }}>
-              <p style={{ margin: "0 0 14px", fontSize: "13px", color: "#475569" }}>
+              <p style={{ margin: "0 0 14px", fontSize: "13px", color: "var(--text-secondary)" }}>
                 Choose how you would like to pay for <strong>{itemTitle}</strong>:
               </p>
 
@@ -335,10 +337,10 @@ export default function PaymentOptionsModal({
                   style={{
                     border:
                       selectedMethod === "cashpoints"
-                        ? "2px solid #eab308"
-                        : "1.5px solid #e2e8f0",
+                        ? "2px solid var(--badge-yellow-text)"
+                        : "1.5px solid var(--border-light)",
                     backgroundColor:
-                      selectedMethod === "cashpoints" ? "#fefce8" : "#ffffff",
+                      selectedMethod === "cashpoints" ? "var(--badge-yellow-bg)" : "var(--bg-card-elevated)",
                     borderRadius: "14px",
                     padding: "14px",
                     cursor: "pointer",
@@ -359,23 +361,23 @@ export default function PaymentOptionsModal({
                           width: "34px",
                           height: "34px",
                           borderRadius: "10px",
-                          backgroundColor: "#fef08a",
+                          backgroundColor: "var(--badge-yellow-border)",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                         }}
                       >
-                        <Coins size={19} color="#ca8a04" />
+                        <Coins size={19} color="var(--badge-yellow-text)" />
                       </div>
                       <div>
-                        <strong style={{ fontSize: "13.5px", color: "#713f12" }}>
+                        <strong style={{ fontSize: "13.5px", color: "var(--badge-yellow-text)" }}>
                           {t("payment.cashpoints", "Pay with Cash Points")}
                         </strong>
                         <span
                           style={{
                             display: "block",
                             fontSize: "12px",
-                            color: "#854d0e",
+                            color: "var(--badge-yellow-text)",
                           }}
                         >
                           {t("payment.yourBalance", "Your Balance:")} <strong>{numPoints.toLocaleString()} Points</strong> (LKR {numPoints.toLocaleString()})
@@ -388,7 +390,7 @@ export default function PaymentOptionsModal({
                       name="paymentOption"
                       checked={selectedMethod === "cashpoints"}
                       onChange={() => setSelectedMethod("cashpoints")}
-                      style={{ accentColor: "#ca8a04", width: "18px", height: "18px" }}
+                      style={{ accentColor: "var(--badge-yellow-text)", width: "18px", height: "18px" }}
                     />
                   </div>
 
@@ -400,11 +402,11 @@ export default function PaymentOptionsModal({
                         alignItems: "center",
                         gap: "6px",
                         fontSize: "11.5px",
-                        color: "#15803d",
+                        color: "var(--primary)",
                         fontWeight: "600",
                       }}
                     >
-                      <CheckCircle2 size={14} color="#16a34a" />
+                      <CheckCircle2 size={14} color="var(--primary)" />
                       <span>{t("payment.sufficientBalance", "Sufficient balance. Points will be automatically deducted.")}</span>
                     </div>
                   ) : (
@@ -415,11 +417,11 @@ export default function PaymentOptionsModal({
                         alignItems: "center",
                         justifyContent: "space-between",
                         paddingTop: "8px",
-                        borderTop: "1px dashed #fde047",
+                        borderTop: "1px dashed var(--badge-yellow-text)",
                       }}
                     >
-                      <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11.5px", color: "#b45309" }}>
-                        <AlertTriangle size={14} color="#d97706" />
+                      <div style={{ display: "flex", alignItems: "center", gap: "6px", fontSize: "11.5px", color: "var(--badge-yellow-text)" }}>
+                        <AlertTriangle size={14} color="var(--badge-yellow-text)" />
                         <span>Need {(numTotal - numPoints).toLocaleString()} more points</span>
                       </div>
                       <button
@@ -429,8 +431,8 @@ export default function PaymentOptionsModal({
                           onOpenTopup && onOpenTopup();
                         }}
                         style={{
-                          background: "#ca8a04",
-                          color: "#ffffff",
+                          background: "var(--badge-yellow-text)",
+                          color: "var(--text-inverse)",
                           border: "none",
                           borderRadius: "6px",
                           padding: "4px 10px",
@@ -454,10 +456,10 @@ export default function PaymentOptionsModal({
                   style={{
                     border:
                       selectedMethod === "card"
-                        ? "2px solid #2563eb"
-                        : "1.5px solid #e2e8f0",
+                        ? "2px solid var(--badge-blue-text)"
+                        : "1.5px solid var(--border-light)",
                     backgroundColor:
-                      selectedMethod === "card" ? "#eff6ff" : "#ffffff",
+                      selectedMethod === "card" ? "var(--badge-blue-bg)" : "var(--bg-card-elevated)",
                     borderRadius: "14px",
                     padding: "14px",
                     cursor: "pointer",
@@ -478,23 +480,23 @@ export default function PaymentOptionsModal({
                           width: "34px",
                           height: "34px",
                           borderRadius: "10px",
-                          backgroundColor: "#dbeafe",
+                          backgroundColor: "var(--badge-blue-bg)",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                         }}
                       >
-                        <CreditCard size={19} color="#1e3a8a" />
+                        <CreditCard size={19} color="var(--badge-blue-text)" />
                       </div>
                       <div>
-                        <strong style={{ fontSize: "13.5px", color: "#1e3a8a" }}>
+                        <strong style={{ fontSize: "13.5px", color: "var(--badge-blue-text)" }}>
                           {t("payment.card", "Card Payment (PayHere Gateway)")}
                         </strong>
                         <span
                           style={{
                             display: "block",
                             fontSize: "12px",
-                            color: "#3b82f6",
+                            color: "var(--badge-blue-text)",
                           }}
                         >
                           {t("payment.cardDesc", "Debit / Credit Card (Visa / Master)")}
@@ -507,7 +509,7 @@ export default function PaymentOptionsModal({
                       name="paymentOption"
                       checked={selectedMethod === "card"}
                       onChange={() => setSelectedMethod("card")}
-                      style={{ accentColor: "#2563eb", width: "18px", height: "18px" }}
+                      style={{ accentColor: "var(--badge-blue-text)", width: "18px", height: "18px" }}
                     />
                   </div>
 
@@ -516,7 +518,7 @@ export default function PaymentOptionsModal({
                       style={{
                         marginTop: "10px",
                         paddingTop: "10px",
-                        borderTop: "1px solid #bfdbfe",
+                        borderTop: "1px solid var(--badge-blue-bg)",
                         display: "flex",
                         flexDirection: "column",
                         gap: "8px",
@@ -524,7 +526,7 @@ export default function PaymentOptionsModal({
                       onClick={(e) => e.stopPropagation()}
                     >
                       <div>
-                        <label style={{ display: "block", fontSize: "11px", fontWeight: "600", color: "#475569", marginBottom: "3px" }}>
+                        <label style={{ display: "block", fontSize: "11px", fontWeight: "600", color: "var(--text-secondary)", marginBottom: "3px" }}>
                           Card Number
                         </label>
                         <input
@@ -535,9 +537,9 @@ export default function PaymentOptionsModal({
                             width: "100%",
                             padding: "7px 10px",
                             borderRadius: "6px",
-                            border: "1px solid #cbd5e1",
+                            border: "1px solid var(--border-light)",
                             fontSize: "12.5px",
-                            background: "#fff",
+                            background: "var(--bg-modal, var(--bg-card))",
                             boxSizing: "border-box",
                           }}
                         />
@@ -545,7 +547,7 @@ export default function PaymentOptionsModal({
 
                       <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "8px" }}>
                         <div>
-                          <label style={{ display: "block", fontSize: "11px", fontWeight: "600", color: "#475569", marginBottom: "3px" }}>
+                          <label style={{ display: "block", fontSize: "11px", fontWeight: "600", color: "var(--text-secondary)", marginBottom: "3px" }}>
                             Expiry (MM/YY)
                           </label>
                           <input
@@ -556,15 +558,15 @@ export default function PaymentOptionsModal({
                               width: "100%",
                               padding: "7px 10px",
                               borderRadius: "6px",
-                              border: "1px solid #cbd5e1",
+                              border: "1px solid var(--border-light)",
                               fontSize: "12.5px",
-                              background: "#fff",
+                              background: "var(--bg-modal, var(--bg-card))",
                               boxSizing: "border-box",
                             }}
                           />
                         </div>
                         <div>
-                          <label style={{ display: "block", fontSize: "11px", fontWeight: "600", color: "#475569", marginBottom: "3px" }}>
+                          <label style={{ display: "block", fontSize: "11px", fontWeight: "600", color: "var(--text-secondary)", marginBottom: "3px" }}>
                             CVV
                           </label>
                           <input
@@ -575,9 +577,9 @@ export default function PaymentOptionsModal({
                               width: "100%",
                               padding: "7px 10px",
                               borderRadius: "6px",
-                              border: "1px solid #cbd5e1",
+                              border: "1px solid var(--border-light)",
                               fontSize: "12.5px",
-                              background: "#fff",
+                              background: "var(--bg-modal, var(--bg-card))",
                               boxSizing: "border-box",
                             }}
                           />
@@ -593,10 +595,10 @@ export default function PaymentOptionsModal({
                   style={{
                     border:
                       selectedMethod === "cash"
-                        ? "2px solid #16a34a"
-                        : "1.5px solid #e2e8f0",
+                        ? "2px solid var(--primary)"
+                        : "1.5px solid var(--border-light)",
                     backgroundColor:
-                      selectedMethod === "cash" ? "#f0fdf4" : "#ffffff",
+                      selectedMethod === "cash" ? "var(--badge-green-bg)" : "var(--bg-card-elevated)",
                     borderRadius: "14px",
                     padding: "14px",
                     cursor: "pointer",
@@ -616,23 +618,23 @@ export default function PaymentOptionsModal({
                           width: "34px",
                           height: "34px",
                           borderRadius: "10px",
-                          backgroundColor: "#dcfce7",
+                          backgroundColor: "var(--badge-green-bg)",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                         }}
                       >
-                        <Banknote size={19} color="#15803d" />
+                        <Banknote size={19} color="var(--primary)" />
                       </div>
                       <div>
-                        <strong style={{ fontSize: "13.5px", color: "#166534" }}>
+                        <strong style={{ fontSize: "13.5px", color: "var(--primary-hover)" }}>
                           {t("payment.cash", "Cash on Pickup")}
                         </strong>
                         <span
                           style={{
                             display: "block",
                             fontSize: "12px",
-                            color: "#16a34a",
+                            color: "var(--primary)",
                           }}
                         >
                           {t("payment.cashDesc", "Pay directly to the owner when collecting the item")}
@@ -645,7 +647,7 @@ export default function PaymentOptionsModal({
                       name="paymentOption"
                       checked={selectedMethod === "cash"}
                       onChange={() => setSelectedMethod("cash")}
-                      style={{ accentColor: "#16a34a", width: "18px", height: "18px" }}
+                      style={{ accentColor: "var(--primary)", width: "18px", height: "18px" }}
                     />
                   </div>
                 </div>
@@ -663,11 +665,11 @@ export default function PaymentOptionsModal({
                     borderRadius: "12px",
                     backgroundColor:
                       selectedMethod === "cashpoints"
-                        ? "#ca8a04"
+                        ? "var(--badge-yellow-text)"
                         : selectedMethod === "card"
-                        ? "#2563eb"
-                        : "#16a34a",
-                    color: "#ffffff",
+                        ? "var(--badge-blue-text)"
+                        : "var(--primary)",
+                    color: "var(--text-inverse)",
                     border: "none",
                     fontSize: "14px",
                     fontWeight: "700",

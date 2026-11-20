@@ -28,7 +28,7 @@ export default function ProfileStatsBar({
           cursor: "pointer",
           padding: "6px 8px",
           borderRadius: "12px",
-          backgroundColor: activeTab === "shop" ? "#e6f7ef" : "transparent",
+          backgroundColor: activeTab === "shop" ? "var(--bg-card-hover)" : "transparent",
           transition: "all 0.2s ease",
         }}
         title="Click to view shop items"
@@ -36,7 +36,7 @@ export default function ProfileStatsBar({
         tabIndex={0}
       >
         <div className="profile-stat-icon-wrapper">
-          <Package size={20} color="#00aa5b" />
+          <Package size={20} color="var(--primary)" />
         </div>
         <div style={{ minWidth: 0, overflow: "hidden" }}>
           <span className="profile-stat-val">{items?.length || 0}</span>
@@ -56,7 +56,7 @@ export default function ProfileStatsBar({
         ).toLocaleString()}`}
       >
         <div className="profile-stat-icon-wrapper">
-          <CheckCircle2 size={20} color="#00aa5b" />
+          <CheckCircle2 size={20} color="var(--primary)" />
         </div>
         <div style={{ minWidth: 0, overflow: "hidden" }}>
           <span className="profile-stat-val">
@@ -81,7 +81,7 @@ export default function ProfileStatsBar({
           cursor: "pointer",
           padding: "6px 8px",
           borderRadius: "12px",
-          backgroundColor: activeTab === "reviews" ? "#e6f7ef" : "transparent",
+          backgroundColor: activeTab === "reviews" ? "var(--bg-card-hover)" : "transparent",
           transition: "all 0.2s ease",
         }}
         title="Click to view customer reviews & comments"
@@ -89,7 +89,7 @@ export default function ProfileStatsBar({
         tabIndex={0}
       >
         <div className="profile-stat-icon-wrapper">
-          <Star size={20} color="#00aa5b" fill="#00aa5b" />
+          <Star size={20} color="var(--primary)" fill="var(--primary)" />
         </div>
         <div style={{ minWidth: 0, overflow: "hidden" }}>
           <span className="profile-stat-val">
@@ -120,8 +120,8 @@ export default function ProfileStatsBar({
           cursor: isOwnProfile ? "pointer" : "default",
           padding: "6px 8px",
           borderRadius: "12px",
-          backgroundColor: isOwnProfile ? "#fefce8" : "transparent",
-          border: isOwnProfile ? "1px dashed #facc15" : "none",
+          backgroundColor: isOwnProfile ? "var(--bg-card-elevated)" : "transparent",
+          border: isOwnProfile ? "1px dashed var(--border-strong)" : "none",
           transition: "all 0.2s ease",
         }}
         title={
@@ -134,24 +134,24 @@ export default function ProfileStatsBar({
       >
         <div
           className="profile-stat-icon-wrapper"
-          style={{ backgroundColor: "#fef9c3" }}
+          style={{ backgroundColor: "var(--bg-card-hover)" }}
         >
-          <Coins size={20} color="#ca8a04" />
+          <Coins size={20} color="var(--badge-yellow-text)" />
         </div>
         <div style={{ minWidth: 0, overflow: "hidden" }}>
           <span
             className="profile-stat-val"
-            style={{ color: "#854d0e" }}
+            style={{ color: "var(--badge-yellow-text)" }}
           >
             {Number(profile?.cash_points || 0).toLocaleString()}
           </span>
           <span
             className="profile-stat-lbl"
-            style={{ color: "#a16207" }}
+            style={{ color: "var(--badge-yellow-text)" }}
           >
             {t("stats.cashPoints", "Cash Points")}{" "}
             {isOwnProfile && (
-              <span style={{ color: "#16a34a", fontWeight: "800" }}>+</span>
+              <span style={{ color: "var(--primary)", fontWeight: "800" }}>+</span>
             )}
           </span>
         </div>

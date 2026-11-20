@@ -251,7 +251,7 @@ export default function SellerEarningsModal({
     >
       <div
         style={{
-          background: "#ffffff",
+          background: "var(--bg-modal, var(--bg-card))",
           borderRadius: "24px",
           width: "100%",
           maxWidth: "720px",
@@ -269,8 +269,8 @@ export default function SellerEarningsModal({
         <div
           style={{
             padding: "20px 24px",
-            background: "linear-gradient(135deg, #064e3b 0%, #047857 100%)",
-            color: "#ffffff",
+            background: "linear-gradient(135deg, var(--primary-hover) 0%, var(--primary) 100%)",
+            color: "var(--text-inverse)",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -288,7 +288,7 @@ export default function SellerEarningsModal({
                 justifyContent: "center",
               }}
             >
-              <Coins size={24} color="#fef08a" />
+              <Coins size={24} color="var(--badge-yellow-border)" />
             </div>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
@@ -299,8 +299,8 @@ export default function SellerEarningsModal({
                   style={{
                     fontSize: "11px",
                     fontWeight: "700",
-                    backgroundColor: "#bbf7d0",
-                    color: "#166534",
+                    backgroundColor: "var(--badge-green-bg)",
+                    color: "var(--primary-hover)",
                     padding: "2px 8px",
                     borderRadius: "12px",
                   }}
@@ -312,7 +312,7 @@ export default function SellerEarningsModal({
                 style={{
                   margin: "2px 0 0",
                   fontSize: "12.5px",
-                  color: "#d1fae5",
+                  color: "var(--badge-green-bg)",
                 }}
               >
                 {t("earnings.feeDeducted", "10% platform fee deducted automatically from each rental")}
@@ -330,7 +330,7 @@ export default function SellerEarningsModal({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "#ffffff",
+              color: "var(--text-inverse)",
               cursor: "pointer",
               transition: "all 0.2s ease",
             }}
@@ -343,8 +343,8 @@ export default function SellerEarningsModal({
         <div
           style={{
             padding: "16px 24px",
-            backgroundColor: "#f8fafc",
-            borderBottom: "1px solid #e2e8f0",
+            backgroundColor: "var(--bg-app-alt)",
+            borderBottom: "1px solid var(--border-light)",
             display: "grid",
             gridTemplateColumns: "repeat(auto-fit, minmax(130px, 1fr))",
             gap: "12px",
@@ -352,55 +352,55 @@ export default function SellerEarningsModal({
         >
           <div
             style={{
-              backgroundColor: "#ffffff",
+              backgroundColor: "var(--bg-modal, var(--bg-card))",
               padding: "12px 14px",
               borderRadius: "14px",
-              border: "1.5px solid #dcfce7",
+              border: "1.5px solid var(--badge-green-bg)",
             }}
           >
-            <span style={{ fontSize: "11px", fontWeight: "700", color: "#166534", textTransform: "uppercase" }}>
+            <span style={{ fontSize: "11px", fontWeight: "700", color: "var(--primary-hover)", textTransform: "uppercase" }}>
               {t("earnings.totalEarned", "Total Net Earned (90%)")}
             </span>
-            <div style={{ fontSize: "18px", fontWeight: "800", color: "#15803d", marginTop: "2px" }}>
+            <div style={{ fontSize: "18px", fontWeight: "800", color: "var(--primary)", marginTop: "2px" }}>
               LKR {Number(earningsData.totalNetEarnings || 0).toLocaleString("en-LK", { minimumFractionDigits: 2 })}
             </div>
-            <span style={{ fontSize: "10.5px", color: "#64748b" }}>from {earningsData.history.length} rental(s)</span>
+            <span style={{ fontSize: "10.5px", color: "var(--text-muted)" }}>from {earningsData.history.length} rental(s)</span>
           </div>
 
           <div
             style={{
-              backgroundColor: "#ffffff",
+              backgroundColor: "var(--bg-modal, var(--bg-card))",
               padding: "12px 14px",
               borderRadius: "14px",
-              border: "1px solid #e2e8f0",
+              border: "1px solid var(--border-light)",
             }}
           >
-            <span style={{ fontSize: "11px", fontWeight: "700", color: "#64748b", textTransform: "uppercase" }}>
+            <span style={{ fontSize: "11px", fontWeight: "700", color: "var(--text-muted)", textTransform: "uppercase" }}>
               {t("earnings.grossRental", "Gross Volume (100%)")}
             </span>
-            <div style={{ fontSize: "17px", fontWeight: "700", color: "#1e293b", marginTop: "2px" }}>
+            <div style={{ fontSize: "17px", fontWeight: "700", color: "var(--text-main)", marginTop: "2px" }}>
               LKR {Number(earningsData.totalGross || 0).toLocaleString("en-LK", { minimumFractionDigits: 2 })}
             </div>
-            <span style={{ fontSize: "10.5px", color: "#ca8a04" }}>
+            <span style={{ fontSize: "10.5px", color: "var(--badge-yellow-text)" }}>
               -{t("earnings.platformFee", "10% Platform Fee")}: LKR {Number(earningsData.totalCommission || 0).toLocaleString("en-LK")}
             </span>
           </div>
 
           <div
             style={{
-              backgroundColor: "#ffffff",
+              backgroundColor: "var(--bg-modal, var(--bg-card))",
               padding: "12px 14px",
               borderRadius: "14px",
-              border: "1.5px solid #bae6fd",
+              border: "1.5px solid var(--badge-blue-border)",
             }}
           >
-            <span style={{ fontSize: "11px", fontWeight: "700", color: "#0369a1", textTransform: "uppercase" }}>
+            <span style={{ fontSize: "11px", fontWeight: "700", color: "var(--badge-blue-text)", textTransform: "uppercase" }}>
               {t("earnings.availableWithdraw", "Available Balance")}
             </span>
-            <div style={{ fontSize: "18px", fontWeight: "800", color: "#0284c7", marginTop: "2px" }}>
+            <div style={{ fontSize: "18px", fontWeight: "800", color: "var(--badge-blue-text)", marginTop: "2px" }}>
               LKR {Number(earningsData.availableBalance || 0).toLocaleString("en-LK", { minimumFractionDigits: 2 })}
             </div>
-            <span style={{ fontSize: "10.5px", color: "#0369a1" }}>
+            <span style={{ fontSize: "10.5px", color: "var(--badge-blue-text)" }}>
               {earningsData.totalCashPickupDeductions > 0
                 ? `Net of -LKR ${Number(earningsData.totalCashPickupDeductions).toLocaleString("en-LK")} cash fee deductions`
                 : "Ready for payout"}
@@ -412,8 +412,8 @@ export default function SellerEarningsModal({
         <div
           style={{
             display: "flex",
-            borderBottom: "1px solid #e2e8f0",
-            backgroundColor: "#ffffff",
+            borderBottom: "1px solid var(--border-light)",
+            backgroundColor: "var(--bg-modal, var(--bg-card))",
             padding: "0 24px",
             gap: "24px",
           }}
@@ -424,8 +424,8 @@ export default function SellerEarningsModal({
               padding: "14px 4px",
               background: "none",
               border: "none",
-              borderBottom: activeTab === "breakdown" ? "3px solid #16a34a" : "3px solid transparent",
-              color: activeTab === "breakdown" ? "#16a34a" : "#64748b",
+              borderBottom: activeTab === "breakdown" ? "3px solid var(--primary)" : "3px solid transparent",
+              color: activeTab === "breakdown" ? "var(--primary)" : "var(--text-muted)",
               fontWeight: "700",
               fontSize: "13.5px",
               cursor: "pointer",
@@ -444,8 +444,8 @@ export default function SellerEarningsModal({
               padding: "14px 4px",
               background: "none",
               border: "none",
-              borderBottom: activeTab === "bank" ? "3px solid #16a34a" : "3px solid transparent",
-              color: activeTab === "bank" ? "#16a34a" : "#64748b",
+              borderBottom: activeTab === "bank" ? "3px solid var(--primary)" : "3px solid transparent",
+              color: activeTab === "bank" ? "var(--primary)" : "var(--text-muted)",
               fontWeight: "700",
               fontSize: "13.5px",
               cursor: "pointer",
@@ -455,7 +455,7 @@ export default function SellerEarningsModal({
             }}
           >
             <Building2 size={16} />
-            <span>{t("earnings.tabBank", "Bank Account")} {hasBankDetails && <CheckCircle2 size={13} color="#16a34a" />}</span>
+            <span>{t("earnings.tabBank", "Bank Account")} {hasBankDetails && <CheckCircle2 size={13} color="var(--primary)" />}</span>
           </button>
 
           <button
@@ -467,8 +467,8 @@ export default function SellerEarningsModal({
               padding: "14px 4px",
               background: "none",
               border: "none",
-              borderBottom: activeTab === "withdraw" ? "3px solid #16a34a" : "3px solid transparent",
-              color: activeTab === "withdraw" ? "#16a34a" : "#64748b",
+              borderBottom: activeTab === "withdraw" ? "3px solid var(--primary)" : "3px solid transparent",
+              color: activeTab === "withdraw" ? "var(--primary)" : "var(--text-muted)",
               fontWeight: "700",
               fontSize: "13.5px",
               cursor: "pointer",
@@ -503,18 +503,18 @@ export default function SellerEarningsModal({
                 }}
               >
                 <div>
-                  <h4 style={{ margin: 0, fontSize: "15px", fontWeight: "700", color: "#0f172a" }}>
+                  <h4 style={{ margin: 0, fontSize: "15px", fontWeight: "700", color: "var(--text-main)" }}>
                     Rental Transactions & 10% Platform Cut
                   </h4>
-                  <p style={{ margin: "2px 0 0", fontSize: "12px", color: "#64748b" }}>
+                  <p style={{ margin: "2px 0 0", fontSize: "12px", color: "var(--text-muted)" }}>
                     For every rented item, 10% platform service fee is deducted and 90% is credited to you.
                   </p>
                 </div>
                 <button
                   onClick={() => setActiveTab("withdraw")}
                   style={{
-                    backgroundColor: "#16a34a",
-                    color: "#ffffff",
+                    backgroundColor: "var(--primary)",
+                    color: "var(--text-inverse)",
                     border: "none",
                     borderRadius: "8px",
                     padding: "8px 14px",
@@ -535,14 +535,14 @@ export default function SellerEarningsModal({
                   style={{
                     padding: "48px 24px",
                     textAlign: "center",
-                    backgroundColor: "#f8fafc",
+                    backgroundColor: "var(--bg-app-alt)",
                     borderRadius: "16px",
-                    border: "1px dashed #cbd5e1",
+                    border: "1px dashed var(--border-light)",
                   }}
                 >
-                  <Package size={42} color="#94a3b8" style={{ marginBottom: "12px" }} />
-                  <h4 style={{ margin: 0, fontSize: "15px", color: "#334155" }}>No items rented out yet</h4>
-                  <p style={{ margin: "6px 0 0", fontSize: "13px", color: "#64748b" }}>
+                  <Package size={42} color="var(--text-muted)" style={{ marginBottom: "12px" }} />
+                  <h4 style={{ margin: 0, fontSize: "15px", color: "var(--text-secondary)" }}>No items rented out yet</h4>
+                  <p style={{ margin: "6px 0 0", fontSize: "13px", color: "var(--text-muted)" }}>
                     When customers book and rent items from your rental store, your earnings and 10% commission calculations will appear here.
                   </p>
                 </div>
@@ -554,8 +554,8 @@ export default function SellerEarningsModal({
                       style={{
                         padding: "14px 16px",
                         borderRadius: "14px",
-                        border: "1px solid #e2e8f0",
-                        backgroundColor: "#ffffff",
+                        border: "1px solid var(--border-light)",
+                        backgroundColor: "var(--bg-modal, var(--bg-card))",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "space-between",
@@ -569,7 +569,7 @@ export default function SellerEarningsModal({
                             width: "48px",
                             height: "48px",
                             borderRadius: "10px",
-                            backgroundColor: "#f1f5f9",
+                            backgroundColor: "var(--bg-card-hover)",
                             overflow: "hidden",
                             display: "flex",
                             alignItems: "center",
@@ -591,7 +591,7 @@ export default function SellerEarningsModal({
                               }}
                             />
                           ) : (
-                            <Package size={22} color="#64748b" />
+                            <Package size={22} color="var(--text-muted)" />
                           )}
                         </div>
                         <div>
@@ -600,12 +600,12 @@ export default function SellerEarningsModal({
                               display: "block",
                               fontSize: "14px",
                               fontWeight: "700",
-                              color: "#0f172a",
+                              color: "var(--text-main)",
                             }}
                           >
                             {item.itemTitle}
                           </span>
-                          <span style={{ display: "block", fontSize: "11.5px", color: "#64748b" }}>
+                          <span style={{ display: "block", fontSize: "11.5px", color: "var(--text-muted)" }}>
                             Rented by {item.renterName} • {new Date(item.date).toLocaleDateString("en-LK")}
                           </span>
                           <span
@@ -614,8 +614,8 @@ export default function SellerEarningsModal({
                               marginTop: "3px",
                               fontSize: "10.5px",
                               fontWeight: "700",
-                              backgroundColor: item.isCashOnPickup ? "#fef3c7" : "#f1f5f9",
-                              color: item.isCashOnPickup ? "#92400e" : "#475569",
+                              backgroundColor: item.isCashOnPickup ? "var(--badge-yellow-bg)" : "var(--bg-card-hover)",
+                              color: item.isCashOnPickup ? "var(--badge-yellow-text)" : "var(--text-secondary)",
                               padding: "2px 8px",
                               borderRadius: "4px",
                               textTransform: "capitalize",
@@ -629,7 +629,7 @@ export default function SellerEarningsModal({
                                 display: "block",
                                 marginTop: "2px",
                                 fontSize: "10.5px",
-                                color: item.feeDeducted ? "#dc2626" : "#b45309",
+                                color: item.feeDeducted ? "var(--badge-red-text)" : "var(--badge-yellow-text)",
                                 fontWeight: "600",
                               }}
                             >
@@ -652,7 +652,7 @@ export default function SellerEarningsModal({
                         {item.isCashOnPickup ? (
                           <>
                             <div>
-                              <span style={{ display: "block", fontSize: "11px", color: "#64748b" }}>
+                              <span style={{ display: "block", fontSize: "11px", color: "var(--text-muted)" }}>
                                 In-Hand Cash: LKR {Number(item.grossAmount).toLocaleString("en-LK")}
                               </span>
                               <span
@@ -660,7 +660,7 @@ export default function SellerEarningsModal({
                                   display: "block",
                                   fontSize: "11px",
                                   fontWeight: "700",
-                                  color: "#dc2626",
+                                  color: "var(--badge-red-text)",
                                 }}
                               >
                                 {item.feeDeducted ? "-10% Fee Deducted" : "10% Fee Pending"}
@@ -669,10 +669,10 @@ export default function SellerEarningsModal({
 
                             <div
                               style={{
-                                backgroundColor: item.feeDeducted ? "#fef2f2" : "#fffbeb",
+                                backgroundColor: item.feeDeducted ? "var(--badge-red-bg)" : "var(--badge-yellow-bg)",
                                 padding: "6px 12px",
                                 borderRadius: "10px",
-                                border: item.feeDeducted ? "1px solid #fecaca" : "1px solid #fde68a",
+                                border: item.feeDeducted ? "1px solid var(--badge-red-border)" : "1px solid var(--badge-yellow-border)",
                               }}
                             >
                               <span
@@ -680,7 +680,7 @@ export default function SellerEarningsModal({
                                   display: "block",
                                   fontSize: "10px",
                                   fontWeight: "700",
-                                  color: item.feeDeducted ? "#991b1b" : "#92400e",
+                                  color: item.feeDeducted ? "var(--badge-red-text)" : "var(--badge-yellow-text)",
                                 }}
                               >
                                 {item.feeDeducted ? "SHOP FEE DEDUCTION" : "PENDING DEDUCTION"}
@@ -690,7 +690,7 @@ export default function SellerEarningsModal({
                                   display: "block",
                                   fontSize: "15px",
                                   fontWeight: "800",
-                                  color: item.feeDeducted ? "#dc2626" : "#b45309",
+                                  color: item.feeDeducted ? "var(--badge-red-text)" : "var(--badge-yellow-text)",
                                 }}
                               >
                                 - LKR {Number(item.platformCommission).toLocaleString("en-LK")}
@@ -700,7 +700,7 @@ export default function SellerEarningsModal({
                         ) : (
                           <>
                             <div>
-                              <span style={{ display: "block", fontSize: "11px", color: "#64748b" }}>
+                              <span style={{ display: "block", fontSize: "11px", color: "var(--text-muted)" }}>
                                 Gross: LKR {Number(item.grossAmount).toLocaleString("en-LK")}
                               </span>
                               <span
@@ -708,7 +708,7 @@ export default function SellerEarningsModal({
                                   display: "block",
                                   fontSize: "11px",
                                   fontWeight: "700",
-                                  color: "#dc2626",
+                                  color: "var(--badge-red-text)",
                                 }}
                               >
                                 -10% Fee: LKR {Number(item.platformCommission).toLocaleString("en-LK")}
@@ -717,13 +717,13 @@ export default function SellerEarningsModal({
 
                             <div
                               style={{
-                                backgroundColor: "#f0fdf4",
+                                backgroundColor: "var(--badge-green-bg)",
                                 padding: "6px 12px",
                                 borderRadius: "10px",
-                                border: "1px solid #bbf7d0",
+                                border: "1px solid var(--badge-green-bg)",
                               }}
                             >
-                              <span style={{ display: "block", fontSize: "10px", fontWeight: "700", color: "#166534" }}>
+                              <span style={{ display: "block", fontSize: "10px", fontWeight: "700", color: "var(--primary-hover)" }}>
                                 YOUR NET (90%)
                               </span>
                               <span
@@ -731,7 +731,7 @@ export default function SellerEarningsModal({
                                   display: "block",
                                   fontSize: "15px",
                                   fontWeight: "800",
-                                  color: "#15803d",
+                                  color: "var(--primary)",
                                 }}
                               >
                                 + LKR {Number(item.netEarned).toLocaleString("en-LK")}
@@ -751,10 +751,10 @@ export default function SellerEarningsModal({
           {activeTab === "bank" && (
             <div>
               <div style={{ marginBottom: "20px" }}>
-                <h4 style={{ margin: 0, fontSize: "16px", fontWeight: "700", color: "#0f172a" }}>
+                <h4 style={{ margin: 0, fontSize: "16px", fontWeight: "700", color: "var(--text-main)" }}>
                   Store Bank Account for Payouts
                 </h4>
-                <p style={{ margin: "3px 0 0", fontSize: "12.5px", color: "#64748b" }}>
+                <p style={{ margin: "3px 0 0", fontSize: "12.5px", color: "var(--text-muted)" }}>
                   Save your official Sri Lankan bank account details. Your earned rental payouts will be directly credited to this account.
                 </p>
               </div>
@@ -762,8 +762,8 @@ export default function SellerEarningsModal({
               {hasBankDetails && (
                 <div
                   style={{
-                    backgroundColor: "#f0fdf4",
-                    border: "1.5px solid #86efac",
+                    backgroundColor: "var(--badge-green-bg)",
+                    border: "1.5px solid var(--badge-green-bg)",
                     borderRadius: "14px",
                     padding: "16px 20px",
                     marginBottom: "20px",
@@ -780,23 +780,23 @@ export default function SellerEarningsModal({
                         width: "42px",
                         height: "42px",
                         borderRadius: "10px",
-                        backgroundColor: "#dcfce7",
+                        backgroundColor: "var(--badge-green-bg)",
                         display: "flex",
                         alignItems: "center",
                         justifyContent: "center",
                       }}
                     >
-                      <Building2 size={22} color="#15803d" />
+                      <Building2 size={22} color="var(--primary)" />
                     </div>
                     <div>
-                      <span style={{ display: "block", fontSize: "14px", fontWeight: "800", color: "#166534" }}>
+                      <span style={{ display: "block", fontSize: "14px", fontWeight: "800", color: "var(--primary-hover)" }}>
                         {earningsData.bankDetails.bankName}
                       </span>
-                      <span style={{ display: "block", fontSize: "12px", color: "#15803d" }}>
+                      <span style={{ display: "block", fontSize: "12px", color: "var(--primary)" }}>
                         Account: <strong>{earningsData.bankDetails.accountNo}</strong>
                         {earningsData.bankDetails.branch && ` • Branch: ${earningsData.bankDetails.branch}`}
                       </span>
-                      <span style={{ display: "block", fontSize: "11.5px", color: "#4b5563" }}>
+                      <span style={{ display: "block", fontSize: "11.5px", color: "var(--text-secondary)" }}>
                         Holder: {earningsData.bankDetails.accountName}
                       </span>
                     </div>
@@ -805,8 +805,8 @@ export default function SellerEarningsModal({
                     style={{
                       fontSize: "11px",
                       fontWeight: "700",
-                      backgroundColor: "#bbf7d0",
-                      color: "#166534",
+                      backgroundColor: "var(--badge-green-bg)",
+                      color: "var(--primary-hover)",
                       padding: "3px 10px",
                       borderRadius: "20px",
                       display: "flex",
@@ -822,8 +822,8 @@ export default function SellerEarningsModal({
               {bankSuccessMsg && (
                 <div
                   style={{
-                    backgroundColor: "#dcfce7",
-                    color: "#166534",
+                    backgroundColor: "var(--badge-green-bg)",
+                    color: "var(--primary-hover)",
                     padding: "10px 14px",
                     borderRadius: "8px",
                     fontSize: "13px",
@@ -841,8 +841,8 @@ export default function SellerEarningsModal({
               {bankErrorMsg && (
                 <div
                   style={{
-                    backgroundColor: "#fee2e2",
-                    color: "#b91c1c",
+                    backgroundColor: "var(--badge-red-bg)",
+                    color: "var(--badge-red-text)",
                     padding: "10px 14px",
                     borderRadius: "8px",
                     fontSize: "13px",
@@ -859,7 +859,7 @@ export default function SellerEarningsModal({
 
               <form onSubmit={handleSaveBank} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                 <div>
-                  <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "#334155", marginBottom: "6px" }}>
+                  <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "var(--text-secondary)", marginBottom: "6px" }}>
                     {t("earnings.bankName", "Select Bank")} *
                   </label>
                   <select
@@ -870,9 +870,9 @@ export default function SellerEarningsModal({
                       width: "100%",
                       padding: "10px 14px",
                       borderRadius: "10px",
-                      border: "1.5px solid #cbd5e1",
+                      border: "1.5px solid var(--border-light)",
                       fontSize: "13.5px",
-                      backgroundColor: "#ffffff",
+                      backgroundColor: "var(--bg-modal, var(--bg-card))",
                       boxSizing: "border-box",
                     }}
                   >
@@ -887,7 +887,7 @@ export default function SellerEarningsModal({
 
                 {selectedBank === "Other Bank" && (
                   <div>
-                    <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "#334155", marginBottom: "6px" }}>
+                    <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "var(--text-secondary)", marginBottom: "6px" }}>
                       {t("earnings.bankName", "Bank Name")} *
                     </label>
                     <input
@@ -900,7 +900,7 @@ export default function SellerEarningsModal({
                         width: "100%",
                         padding: "10px 14px",
                         borderRadius: "10px",
-                        border: "1.5px solid #cbd5e1",
+                        border: "1.5px solid var(--border-light)",
                         fontSize: "13.5px",
                         boxSizing: "border-box",
                       }}
@@ -910,7 +910,7 @@ export default function SellerEarningsModal({
 
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
                   <div>
-                    <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "#334155", marginBottom: "6px" }}>
+                    <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "var(--text-secondary)", marginBottom: "6px" }}>
                       {t("earnings.branch", "Bank Branch")}
                     </label>
                     <input
@@ -922,7 +922,7 @@ export default function SellerEarningsModal({
                         width: "100%",
                         padding: "10px 14px",
                         borderRadius: "10px",
-                        border: "1.5px solid #cbd5e1",
+                        border: "1.5px solid var(--border-light)",
                         fontSize: "13.5px",
                         boxSizing: "border-box",
                       }}
@@ -930,7 +930,7 @@ export default function SellerEarningsModal({
                   </div>
 
                   <div>
-                    <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "#334155", marginBottom: "6px" }}>
+                    <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "var(--text-secondary)", marginBottom: "6px" }}>
                       {t("earnings.accountNo", "Account Number")} *
                     </label>
                     <input
@@ -943,7 +943,7 @@ export default function SellerEarningsModal({
                         width: "100%",
                         padding: "10px 14px",
                         borderRadius: "10px",
-                        border: "1.5px solid #cbd5e1",
+                        border: "1.5px solid var(--border-light)",
                         fontSize: "13.5px",
                         boxSizing: "border-box",
                       }}
@@ -952,7 +952,7 @@ export default function SellerEarningsModal({
                 </div>
 
                 <div>
-                  <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "#334155", marginBottom: "6px" }}>
+                  <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "var(--text-secondary)", marginBottom: "6px" }}>
                     {t("earnings.accountName", "Account Holder Name")} *
                   </label>
                   <input
@@ -965,7 +965,7 @@ export default function SellerEarningsModal({
                       width: "100%",
                       padding: "10px 14px",
                       borderRadius: "10px",
-                      border: "1.5px solid #cbd5e1",
+                      border: "1.5px solid var(--border-light)",
                       fontSize: "13.5px",
                       boxSizing: "border-box",
                     }}
@@ -978,8 +978,8 @@ export default function SellerEarningsModal({
                   style={{
                     padding: "12px 20px",
                     borderRadius: "10px",
-                    backgroundColor: "#16a34a",
-                    color: "#ffffff",
+                    backgroundColor: "var(--primary)",
+                    color: "var(--text-inverse)",
                     border: "none",
                     fontSize: "14px",
                     fontWeight: "700",
@@ -1011,9 +1011,9 @@ export default function SellerEarningsModal({
                     display: "flex",
                     flexDirection: "column",
                     alignItems: "center",
-                    backgroundColor: "#f0fdf4",
+                    backgroundColor: "var(--badge-green-bg)",
                     borderRadius: "20px",
-                    border: "2px solid #86efac",
+                    border: "2px solid var(--badge-green-bg)",
                   }}
                 >
                   <div
@@ -1021,7 +1021,7 @@ export default function SellerEarningsModal({
                       width: "80px",
                       height: "80px",
                       borderRadius: "50%",
-                      background: "linear-gradient(135deg, #22c55e 0%, #16a34a 100%)",
+                      background: "linear-gradient(135deg, var(--text-accent) 0%, var(--primary) 100%)",
                       display: "flex",
                       alignItems: "center",
                       justifyContent: "center",
@@ -1029,7 +1029,7 @@ export default function SellerEarningsModal({
                       marginBottom: "16px",
                     }}
                   >
-                    <CheckCircle2 size={48} color="#ffffff" strokeWidth={2.5} />
+                    <CheckCircle2 size={48} color="var(--text-inverse)" strokeWidth={2.5} />
                   </div>
 
                   <span
@@ -1037,8 +1037,8 @@ export default function SellerEarningsModal({
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "6px",
-                      backgroundColor: "#dcfce7",
-                      color: "#15803d",
+                      backgroundColor: "var(--badge-green-bg)",
+                      color: "var(--primary)",
                       fontSize: "12px",
                       fontWeight: "700",
                       padding: "4px 12px",
@@ -1054,7 +1054,7 @@ export default function SellerEarningsModal({
                       margin: "0 0 8px 0",
                       fontSize: "24px",
                       fontWeight: "800",
-                      color: "#166534",
+                      color: "var(--primary-hover)",
                     }}
                   >
                     LKR {Number(lastWithdrawalInfo?.amount || 0).toLocaleString("en-LK")}
@@ -1064,7 +1064,7 @@ export default function SellerEarningsModal({
                     style={{
                       margin: "0 0 20px 0",
                       fontSize: "13.5px",
-                      color: "#15803d",
+                      color: "var(--primary)",
                       maxWidth: "420px",
                       lineHeight: "1.5",
                     }}
@@ -1078,8 +1078,8 @@ export default function SellerEarningsModal({
                       style={{
                         padding: "10px 20px",
                         borderRadius: "10px",
-                        backgroundColor: "#16a34a",
-                        color: "#ffffff",
+                        backgroundColor: "var(--primary)",
+                        color: "var(--text-inverse)",
                         border: "none",
                         fontWeight: "700",
                         fontSize: "13.5px",
@@ -1093,9 +1093,9 @@ export default function SellerEarningsModal({
                       style={{
                         padding: "10px 20px",
                         borderRadius: "10px",
-                        backgroundColor: "#ffffff",
-                        color: "#166534",
-                        border: "1.5px solid #86efac",
+                        backgroundColor: "var(--bg-modal, var(--bg-card))",
+                        color: "var(--primary-hover)",
+                        border: "1.5px solid var(--badge-green-bg)",
                         fontWeight: "700",
                         fontSize: "13.5px",
                         cursor: "pointer",
@@ -1108,10 +1108,10 @@ export default function SellerEarningsModal({
               ) : (
                 <div>
                   <div style={{ marginBottom: "20px" }}>
-                    <h4 style={{ margin: 0, fontSize: "16px", fontWeight: "700", color: "#0f172a" }}>
+                    <h4 style={{ margin: 0, fontSize: "16px", fontWeight: "700", color: "var(--text-main)" }}>
                       Request Available Payout
                     </h4>
-                    <p style={{ margin: "3px 0 0", fontSize: "12.5px", color: "#64748b" }}>
+                    <p style={{ margin: "3px 0 0", fontSize: "12.5px", color: "var(--text-muted)" }}>
                       Choose any custom amount up to your available balance. Funds will be transferred to your registered bank account.
                     </p>
                   </div>
@@ -1119,8 +1119,8 @@ export default function SellerEarningsModal({
                   {/* BALANCE CARD */}
                   <div
                     style={{
-                      background: "linear-gradient(135deg, #0284c7 0%, #0369a1 100%)",
-                      color: "#ffffff",
+                      background: "linear-gradient(135deg, var(--badge-blue-text) 0%, var(--badge-blue-text) 100%)",
+                      color: "var(--text-inverse)",
                       borderRadius: "16px",
                       padding: "18px 22px",
                       marginBottom: "20px",
@@ -1132,7 +1132,7 @@ export default function SellerEarningsModal({
                     }}
                   >
                     <div>
-                      <span style={{ fontSize: "12px", fontWeight: "700", color: "#bae6fd", textTransform: "uppercase" }}>
+                      <span style={{ fontSize: "12px", fontWeight: "700", color: "var(--badge-blue-border)", textTransform: "uppercase" }}>
                         Available Balance for Withdrawal
                       </span>
                       <div style={{ fontSize: "24px", fontWeight: "800", marginTop: "2px" }}>
@@ -1155,17 +1155,17 @@ export default function SellerEarningsModal({
                     <div
                       style={{
                         padding: "18px",
-                        backgroundColor: "#fffbeb",
-                        border: "1.5px solid #fde68a",
+                        backgroundColor: "var(--badge-yellow-bg)",
+                        border: "1.5px solid var(--badge-yellow-border)",
                         borderRadius: "14px",
                         marginBottom: "20px",
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "8px" }}>
-                        <AlertCircle size={18} color="#b45309" />
-                        <strong style={{ fontSize: "13.5px", color: "#92400e" }}>Bank Account Required</strong>
+                        <AlertCircle size={18} color="var(--badge-yellow-text)" />
+                        <strong style={{ fontSize: "13.5px", color: "var(--badge-yellow-text)" }}>Bank Account Required</strong>
                       </div>
-                      <p style={{ margin: "0 0 12px 0", fontSize: "12.5px", color: "#b45309" }}>
+                      <p style={{ margin: "0 0 12px 0", fontSize: "12.5px", color: "var(--badge-yellow-text)" }}>
                         You must add your bank account details before submitting a withdrawal request so we know where to send your funds.
                       </p>
                       <button
@@ -1173,8 +1173,8 @@ export default function SellerEarningsModal({
                         style={{
                           padding: "8px 16px",
                           borderRadius: "8px",
-                          backgroundColor: "#f59e0b",
-                          color: "#ffffff",
+                          backgroundColor: "var(--badge-yellow-text)",
+                          color: "var(--text-inverse)",
                           border: "none",
                           fontSize: "12.5px",
                           fontWeight: "700",
@@ -1187,8 +1187,8 @@ export default function SellerEarningsModal({
                   ) : (
                     <div
                       style={{
-                        backgroundColor: "#f8fafc",
-                        border: "1px solid #e2e8f0",
+                        backgroundColor: "var(--bg-app-alt)",
+                        border: "1px solid var(--border-light)",
                         borderRadius: "12px",
                         padding: "12px 16px",
                         marginBottom: "20px",
@@ -1198,12 +1198,12 @@ export default function SellerEarningsModal({
                       }}
                     >
                       <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                        <Building2 size={18} color="#0369a1" />
+                        <Building2 size={18} color="var(--badge-blue-text)" />
                         <div>
-                          <span style={{ display: "block", fontSize: "12px", fontWeight: "700", color: "#0f172a" }}>
+                          <span style={{ display: "block", fontSize: "12px", fontWeight: "700", color: "var(--text-main)" }}>
                             Payout Destination: {earningsData.bankDetails.bankName}
                           </span>
-                          <span style={{ display: "block", fontSize: "11px", color: "#64748b" }}>
+                          <span style={{ display: "block", fontSize: "11px", color: "var(--text-muted)" }}>
                             Acc: {earningsData.bankDetails.accountNo} ({earningsData.bankDetails.accountName})
                           </span>
                         </div>
@@ -1213,7 +1213,7 @@ export default function SellerEarningsModal({
                         style={{
                           background: "none",
                           border: "none",
-                          color: "#16a34a",
+                          color: "var(--primary)",
                           fontSize: "11.5px",
                           fontWeight: "700",
                           cursor: "pointer",
@@ -1227,8 +1227,8 @@ export default function SellerEarningsModal({
                   {withdrawErrorMsg && (
                     <div
                       style={{
-                        backgroundColor: "#fee2e2",
-                        color: "#b91c1c",
+                        backgroundColor: "var(--badge-red-bg)",
+                        color: "var(--badge-red-text)",
                         padding: "10px 14px",
                         borderRadius: "8px",
                         fontSize: "13px",
@@ -1245,7 +1245,7 @@ export default function SellerEarningsModal({
 
                   <form onSubmit={handleWithdrawRequest}>
                     <div style={{ marginBottom: "16px" }}>
-                      <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "#334155", marginBottom: "6px" }}>
+                      <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "var(--text-secondary)", marginBottom: "6px" }}>
                         {t("earnings.withdrawAmount", "Withdrawal Amount (LKR)")} *
                       </label>
                       <div style={{ position: "relative" }}>
@@ -1257,7 +1257,7 @@ export default function SellerEarningsModal({
                             transform: "translateY(-50%)",
                             fontSize: "13.5px",
                             fontWeight: "800",
-                            color: "#64748b",
+                            color: "var(--text-muted)",
                           }}
                         >
                           LKR
@@ -1274,7 +1274,7 @@ export default function SellerEarningsModal({
                             width: "100%",
                             padding: "12px 14px 12px 52px",
                             borderRadius: "10px",
-                            border: "1.5px solid #cbd5e1",
+                            border: "1.5px solid var(--border-light)",
                             fontSize: "16px",
                             fontWeight: "700",
                             boxSizing: "border-box",
@@ -1296,11 +1296,11 @@ export default function SellerEarningsModal({
                                   flex: 1,
                                   padding: "6px 0",
                                   borderRadius: "6px",
-                                  border: "1px solid #cbd5e1",
-                                  backgroundColor: "#f8fafc",
+                                  border: "1px solid var(--border-light)",
+                                  backgroundColor: "var(--bg-app-alt)",
                                   fontSize: "11.5px",
                                   fontWeight: "700",
-                                  color: "#334155",
+                                  color: "var(--text-secondary)",
                                   cursor: "pointer",
                                 }}
                               >
@@ -1319,8 +1319,8 @@ export default function SellerEarningsModal({
                         width: "100%",
                         padding: "13px",
                         borderRadius: "10px",
-                        backgroundColor: "#16a34a",
-                        color: "#ffffff",
+                        backgroundColor: "var(--primary)",
+                        color: "var(--text-inverse)",
                         border: "none",
                         fontSize: "14px",
                         fontWeight: "700",
@@ -1345,7 +1345,7 @@ export default function SellerEarningsModal({
                   {/* WITHDRAWAL HISTORY TABLE */}
                   {earningsData.withdrawals.length > 0 && (
                     <div style={{ marginTop: "28px" }}>
-                      <h5 style={{ margin: "0 0 10px 0", fontSize: "13.5px", fontWeight: "700", color: "#334155" }}>
+                      <h5 style={{ margin: "0 0 10px 0", fontSize: "13.5px", fontWeight: "700", color: "var(--text-secondary)" }}>
                         {t("earnings.payoutHistory", "Past Payout Requests")}
                       </h5>
                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
@@ -1355,18 +1355,18 @@ export default function SellerEarningsModal({
                             style={{
                               padding: "10px 14px",
                               borderRadius: "10px",
-                              backgroundColor: "#f8fafc",
-                              border: "1px solid #e2e8f0",
+                              backgroundColor: "var(--bg-app-alt)",
+                              border: "1px solid var(--border-light)",
                               display: "flex",
                               alignItems: "center",
                               justifyContent: "space-between",
                             }}
                           >
                             <div>
-                              <span style={{ display: "block", fontSize: "13.5px", fontWeight: "700", color: "#0f172a" }}>
+                              <span style={{ display: "block", fontSize: "13.5px", fontWeight: "700", color: "var(--text-main)" }}>
                                 LKR {Number(w.amount).toLocaleString("en-LK")}
                               </span>
-                              <span style={{ display: "block", fontSize: "11px", color: "#64748b" }}>
+                              <span style={{ display: "block", fontSize: "11px", color: "var(--text-muted)" }}>
                                 {w.bankName} • {new Date(w.date).toLocaleDateString("en-LK")}
                               </span>
                             </div>
@@ -1379,16 +1379,16 @@ export default function SellerEarningsModal({
                                 textTransform: "uppercase",
                                 backgroundColor:
                                   w.status === "completed" || w.status === "approved"
-                                    ? "#dcfce7"
+                                    ? "var(--badge-green-bg)"
                                     : w.status === "rejected"
-                                    ? "#fee2e2"
-                                    : "#fef3c7",
+                                    ? "var(--badge-red-bg)"
+                                    : "var(--badge-yellow-bg)",
                                 color:
                                   w.status === "completed" || w.status === "approved"
-                                    ? "#166534"
+                                    ? "var(--primary-hover)"
                                     : w.status === "rejected"
-                                    ? "#b91c1c"
-                                    : "#b45309",
+                                    ? "var(--badge-red-text)"
+                                    : "var(--badge-yellow-text)",
                               }}
                             >
                               {w.status || "Pending"}

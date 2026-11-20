@@ -91,7 +91,7 @@ export default function RentRequestCard({
                 height: "48px",
                 borderRadius: "8px",
                 objectFit: "cover",
-                border: "1px solid #e2e8f0",
+                border: "1px solid var(--border-light)",
               }}
               onError={(e) => {
                 e.currentTarget.style.display = "none";
@@ -120,9 +120,9 @@ export default function RentRequestCard({
               fontWeight: "600",
               padding: "3px 8px",
               borderRadius: "12px",
-              backgroundColor: isSender ? "#eff6ff" : "#fdf4ff",
-              color: isSender ? "#1d4ed8" : "#9333ea",
-              border: isSender ? "1px solid #bfdbfe" : "1px solid #f0abfc",
+              backgroundColor: isSender ? "var(--badge-blue-bg)" : "var(--badge-purple-bg)",
+              color: isSender ? "var(--badge-blue-text)" : "var(--badge-purple-text)",
+              border: isSender ? "1px solid var(--badge-blue-bg)" : "1px solid var(--badge-purple-bg)",
             }}
           >
             {isSender ? "Sent Request" : "Received"}
@@ -137,22 +137,22 @@ export default function RentRequestCard({
                 borderRadius: "12px",
                 backgroundColor:
                   (req.paymentMethod || req.payment_method) === "cashpoints"
-                    ? "#fef9c3"
+                    ? "var(--badge-yellow-bg)"
                     : (req.paymentMethod || req.payment_method) === "card"
-                    ? "#eff6ff"
-                    : "#f0fdf4",
+                    ? "var(--badge-blue-bg)"
+                    : "var(--badge-green-bg)",
                 color:
                   (req.paymentMethod || req.payment_method) === "cashpoints"
-                    ? "#854d0e"
+                    ? "var(--badge-yellow-text)"
                     : (req.paymentMethod || req.payment_method) === "card"
-                    ? "#1d4ed8"
-                    : "#15803d",
+                    ? "var(--badge-blue-text)"
+                    : "var(--primary)",
                 border:
                   (req.paymentMethod || req.payment_method) === "cashpoints"
-                    ? "1px solid #fde047"
+                    ? "1px solid var(--badge-yellow-text)"
                     : (req.paymentMethod || req.payment_method) === "card"
-                    ? "1px solid #bfdbfe"
-                    : "1px solid #bbf7d0",
+                    ? "1px solid var(--badge-blue-bg)"
+                    : "1px solid var(--badge-green-bg)",
               }}
             >
               {(req.paymentMethod || req.payment_method) === "cashpoints"
@@ -171,7 +171,7 @@ export default function RentRequestCard({
 
       <div className="rent-request-meta-grid">
         <div className="rent-request-meta-item rent-request-user-meta">
-          <User size={16} color="#15803d" style={{ marginTop: "2px", flexShrink: 0 }} />
+          <User size={16} color="var(--primary)" style={{ marginTop: "2px", flexShrink: 0 }} />
           <div style={{ flex: 1, minWidth: 0 }}>
             <span className="rent-request-user-label">
               {isSender ? "Item Owner" : "Requested by"}
@@ -193,7 +193,7 @@ export default function RentRequestCard({
         </div>
 
         <div className="rent-request-meta-item">
-          <Calendar size={16} color="#15803d" style={{ marginTop: "2px", flexShrink: 0 }} />
+          <Calendar size={16} color="var(--primary)" style={{ marginTop: "2px", flexShrink: 0 }} />
           <div>
             <span className="rent-request-user-label">Rental Period</span>
             <span className="rent-request-meta-val">
@@ -204,7 +204,7 @@ export default function RentRequestCard({
         </div>
 
         <div className="rent-request-meta-item">
-          <ShoppingBag size={16} color="#15803d" style={{ marginTop: "2px", flexShrink: 0 }} />
+          <ShoppingBag size={16} color="var(--primary)" style={{ marginTop: "2px", flexShrink: 0 }} />
           <div>
             <span className="rent-request-user-label">
               Total ({req.quantity || 1} item)
@@ -317,8 +317,8 @@ export default function RentRequestCard({
               alignItems: "center",
               justifyContent: "center",
               gap: "8px",
-              backgroundColor: "#00aa5b",
-              color: "#ffffff",
+              backgroundColor: "var(--primary)",
+              color: "var(--text-inverse)",
               border: "none",
               borderRadius: "8px",
               fontWeight: "600",
@@ -359,8 +359,8 @@ export default function RentRequestCard({
               alignItems: "center",
               justifyContent: "center",
               gap: "8px",
-              backgroundColor: "#f59e0b",
-              color: "#ffffff",
+              backgroundColor: "var(--badge-yellow-text)",
+              color: "var(--text-inverse)",
               border: "none",
               borderRadius: "8px",
               fontWeight: "600",
@@ -382,18 +382,18 @@ export default function RentRequestCard({
             style={{
               width: "100%",
               padding: "10px 14px",
-              backgroundColor: "#fefce8",
-              border: "1px solid #fef08a",
+              backgroundColor: "var(--badge-yellow-bg)",
+              border: "1px solid var(--badge-yellow-border)",
               borderRadius: "8px",
               fontSize: "12px",
               fontWeight: "600",
-              color: "#854d0e",
+              color: "var(--badge-yellow-text)",
               display: "flex",
               alignItems: "center",
               gap: "8px",
             }}
           >
-            <Clock size={16} color="#d97706" />
+            <Clock size={16} color="var(--badge-yellow-text)" />
             <span>Return Submitted! Waiting for shop owner to inspect and accept the item.</span>
           </div>
         </div>
@@ -417,8 +417,8 @@ export default function RentRequestCard({
               alignItems: "center",
               justifyContent: "center",
               gap: "8px",
-              backgroundColor: "#00aa5b",
-              color: "#ffffff",
+              backgroundColor: "var(--primary)",
+              color: "var(--text-inverse)",
               border: "none",
               borderRadius: "8px",
               fontWeight: "600",
@@ -440,19 +440,19 @@ export default function RentRequestCard({
             style={{
               width: "100%",
               padding: "9px 14px",
-              backgroundColor: "#f0fdf4",
-              border: "1px solid #bbf7d0",
+              backgroundColor: "var(--badge-green-bg)",
+              border: "1px solid var(--badge-green-bg)",
               borderRadius: "8px",
               display: "flex",
               alignItems: "center",
               gap: "6px",
               fontSize: "12px",
               fontWeight: "600",
-              color: "#166534",
+              color: "var(--primary-hover)",
               boxSizing: "border-box",
             }}
           >
-            <CheckCircle2 size={15} color="#16a34a" />
+            <CheckCircle2 size={15} color="var(--primary)" />
             <span>Item Handed Over • Currently with Customer</span>
           </div>
         </div>
@@ -493,21 +493,21 @@ export default function RentRequestCard({
                   display: "flex",
                   alignItems: "center",
                   justifyContent: "space-between",
-                  backgroundColor: "#fefce8",
-                  border: "1px solid #fef08a",
+                  backgroundColor: "var(--badge-yellow-bg)",
+                  border: "1px solid var(--badge-yellow-border)",
                   borderRadius: "8px",
                   fontSize: "13px",
                   fontWeight: "600",
-                  color: "#a16207",
+                  color: "var(--badge-yellow-text)",
                   boxSizing: "border-box",
                 }}
               >
                 <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                  <Star size={15} color="#eab308" fill="#eab308" />
+                  <Star size={15} color="var(--badge-yellow-text)" fill="var(--badge-yellow-text)" />
                   <span>You rated this: {currentRating}★</span>
                 </div>
                 <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <span style={{ fontSize: "11px", color: "#854d0e" }}>Reviewed</span>
+                  <span style={{ fontSize: "11px", color: "var(--badge-yellow-text)" }}>Reviewed</span>
                   <button
                     type="button"
                     onClick={triggerRateItem}
@@ -515,9 +515,9 @@ export default function RentRequestCard({
                       display: "inline-flex",
                       alignItems: "center",
                       gap: "4px",
-                      background: "#ffffff",
-                      border: "1px solid #fde047",
-                      color: "#854d0e",
+                      background: "var(--bg-card)",
+                      border: "1px solid var(--badge-yellow-text)",
+                      color: "var(--badge-yellow-text)",
                       borderRadius: "6px",
                       padding: "3px 8px",
                       fontSize: "11px",
@@ -543,8 +543,8 @@ export default function RentRequestCard({
                   alignItems: "center",
                   justifyContent: "center",
                   gap: "8px",
-                  backgroundColor: "#00aa5b",
-                  color: "#ffffff",
+                  backgroundColor: "var(--primary)",
+                  color: "var(--text-inverse)",
                   border: "none",
                   borderRadius: "8px",
                   fontSize: "13px",
@@ -554,7 +554,7 @@ export default function RentRequestCard({
                 }}
                 title="Leave a review for this item and shop"
               >
-                <Star size={16} color="#ffffff" fill="#ffffff" />
+                <Star size={16} color="var(--text-inverse)" fill="var(--text-inverse)" />
                 <span>Rate & Review Item</span>
               </button>
             )}

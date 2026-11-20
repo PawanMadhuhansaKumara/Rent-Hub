@@ -766,14 +766,14 @@ export default function ItemDetails() {
                 className="details-author-avatar-fallback"
                 style={{ display: avatarUrl ? "none" : "flex" }}
               >
-                <User size={18} color="#15803d" />
+                <User size={18} color="var(--primary)" />
               </div>
             </div>
 
             <div className="details-author-info">
               <span className="details-author-name">{authorName}</span>
               <span className="details-author-badge">
-                <MapPin size={12} style={{ flexShrink: 0, color: "#16a34a" }} />
+                <MapPin size={12} style={{ flexShrink: 0, color: "var(--primary)" }} />
                 <span>{nearestCity}</span>
               </span>
             </div>
@@ -827,21 +827,21 @@ export default function ItemDetails() {
                     <Star
                       key={s}
                       size={16}
-                      color="#eab308"
-                      fill={s <= Math.round(itemReviewStats.avgRating) ? "#eab308" : "none"}
+                      color="var(--badge-yellow-text)"
+                      fill={s <= Math.round(itemReviewStats.avgRating) ? "var(--badge-yellow-text)" : "none"}
                     />
                   ))}
                 </div>
-                <span style={{ fontSize: "14px", fontWeight: "700", color: "#a16207" }}>
+                <span style={{ fontSize: "14px", fontWeight: "700", color: "var(--badge-yellow-text)" }}>
                   {Number(itemReviewStats.avgRating).toFixed(1)}
                 </span>
-                <span style={{ fontSize: "13px", color: "#64748b" }}>
+                <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
                   ({t("stats.fromReviews", { count: itemReviewStats.totalReviews, defaultValue: `${itemReviewStats.totalReviews} reviews` })})
                 </span>
               </div>
             ) : (
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", margin: "6px 0 14px 0", fontSize: "13px", color: "#94a3b8" }}>
-                <Star size={15} color="#cbd5e1" />
+              <div style={{ display: "flex", alignItems: "center", gap: "6px", margin: "6px 0 14px 0", fontSize: "13px", color: "var(--text-muted)" }}>
+                <Star size={15} color="var(--border-light)" />
                 <span>{t("itemDetails.noReviews", "No reviews yet")}</span>
               </div>
             )}
@@ -890,7 +890,7 @@ export default function ItemDetails() {
               <span
                 style={{
                   fontWeight: isRented ? "700" : "600",
-                  color: isRented ? "#b91c1c" : "inherit",
+                  color: isRented ? "var(--badge-red-text)" : "inherit",
                 }}
               >
                 {isRented
@@ -914,8 +914,8 @@ export default function ItemDetails() {
             {isLimitExceeded && (
               <div
                 style={{
-                  backgroundColor: "#fffbeb",
-                  border: "1.5px solid #fde68a",
+                  backgroundColor: "var(--badge-yellow-bg)",
+                  border: "1.5px solid var(--border-light)",
                   borderRadius: "14px",
                   padding: "12px 16px",
                   marginBottom: "16px",
@@ -928,7 +928,7 @@ export default function ItemDetails() {
                 <div>
                   <strong
                     style={{
-                      color: "#b45309",
+                      color: "var(--badge-yellow-text)",
                       fontSize: "13.5px",
                       display: "block",
                       marginBottom: "3px",
@@ -941,7 +941,7 @@ export default function ItemDetails() {
                   </strong>
                   <span
                     style={{
-                      color: "#78350f",
+                      color: "var(--text-secondary)",
                       fontSize: "12.5px",
                       lineHeight: "1.4",
                       display: "block",
@@ -1037,10 +1037,10 @@ export default function ItemDetails() {
                     <Star
                       key={s}
                       size={11}
-                      color="#eab308"
+                      color="var(--badge-yellow-text)"
                       fill={
                         s <= Math.round(itemReviewStats.avgRating)
-                          ? "#eab308"
+                          ? "var(--badge-yellow-text)"
                           : "none"
                       }
                     />
@@ -1064,7 +1064,7 @@ export default function ItemDetails() {
           {/* Reviews List */}
           {itemReviewStats.reviews.length === 0 ? (
             <div className="item-reviews-empty">
-              <Star size={38} color="#cbd5e1" style={{ marginBottom: "10px" }} />
+              <Star size={38} color="var(--border-light)" style={{ marginBottom: "10px" }} />
               <h4>{t("itemDetails.noReviews", "No reviews yet")}</h4>
               <p>{t("itemDetails.firstReviewPrompt", "Be the first customer to rent and review this item!")}</p>
             </div>
@@ -1117,8 +1117,8 @@ export default function ItemDetails() {
                                     style={{
                                       fontSize: "11px",
                                       fontWeight: "700",
-                                      color: "#0369a1",
-                                      backgroundColor: "#e0f2fe",
+                                      color: "var(--badge-blue-text)",
+                                      backgroundColor: "var(--badge-blue-bg)",
                                       padding: "1px 6px",
                                       borderRadius: "10px",
                                     }}
@@ -1157,10 +1157,10 @@ export default function ItemDetails() {
                                   <Star
                                     key={star}
                                     size={15}
-                                    color="#eab308"
+                                    color="var(--badge-yellow-text)"
                                     fill={
                                       star <= Math.round(Number(rev.rating))
-                                        ? "#eab308"
+                                        ? "var(--badge-yellow-text)"
                                         : "none"
                                     }
                                   />
@@ -1201,9 +1201,9 @@ export default function ItemDetails() {
                                     display: "inline-flex",
                                     alignItems: "center",
                                     gap: "3px",
-                                    background: "#f0f9ff",
-                                    border: "1px solid #bae6fd",
-                                    color: "#0284c7",
+                                    background: "var(--badge-blue-bg)",
+                                    border: "1px solid var(--badge-blue-border)",
+                                    color: "var(--badge-blue-text)",
                                     borderRadius: "6px",
                                     padding: "2px 7px",
                                     fontSize: "11px",
@@ -1222,9 +1222,9 @@ export default function ItemDetails() {
                                     display: "inline-flex",
                                     alignItems: "center",
                                     gap: "3px",
-                                    background: "#fef2f2",
-                                    border: "1px solid #fecaca",
-                                    color: "#ef4444",
+                                    background: "var(--badge-red-bg)",
+                                    border: "1px solid var(--badge-red-border)",
+                                    color: "var(--badge-red-text)",
                                     borderRadius: "6px",
                                     padding: "2px 7px",
                                     fontSize: "11px",
@@ -1251,7 +1251,7 @@ export default function ItemDetails() {
                           <div className="item-review-seller-reply">
                             <div className="item-review-seller-reply-header">
                               <div className="item-review-seller-reply-title-row">
-                                <CornerDownRight size={15} color="#15803d" />
+                                <CornerDownRight size={15} color="var(--primary)" />
                                 <span className="item-review-seller-reply-badge">
                                   {t("itemDetails.responseFrom", {
                                     name: rev.sellerName || "Shop Owner",
@@ -1280,7 +1280,7 @@ export default function ItemDetails() {
                                     style={{
                                       background: "none",
                                       border: "none",
-                                      color: "#16a34a",
+                                      color: "var(--primary)",
                                       fontSize: "12px",
                                       fontWeight: "600",
                                       cursor: "pointer",
@@ -1296,7 +1296,7 @@ export default function ItemDetails() {
                                     style={{
                                       background: "none",
                                       border: "none",
-                                      color: "#ef4444",
+                                      color: "var(--badge-red-text)",
                                       fontSize: "12px",
                                       fontWeight: "600",
                                       cursor: "pointer",
@@ -1318,7 +1318,7 @@ export default function ItemDetails() {
                         {/* Reply Form (When Shop Owner clicks Reply or Edit) */}
                         {isItemSeller && (replyingReviewId === rev.id || editingReplyId === rev.id) && (
                           <div className="item-review-reply-form">
-                            <label style={{ display: "block", fontSize: "12px", fontWeight: "700", color: "#334155", marginBottom: "6px" }}>
+                            <label style={{ display: "block", fontSize: "12px", fontWeight: "700", color: "var(--text-main)", marginBottom: "6px" }}>
                               {editingReplyId === rev.id
                                 ? t("itemDetails.editResponse", "Edit your response:")
                                 : t("itemDetails.writeResponse", "Write a response to this customer:")}
@@ -1342,9 +1342,9 @@ export default function ItemDetails() {
                                 style={{
                                   padding: "6px 14px",
                                   borderRadius: "6px",
-                                  border: "1px solid #cbd5e1",
-                                  backgroundColor: "#ffffff",
-                                  color: "#475569",
+                                  border: "1px solid var(--border-light)",
+                                  backgroundColor: "var(--bg-card-elevated)",
+                                  color: "var(--text-main)",
                                   fontSize: "12px",
                                   fontWeight: "600",
                                   cursor: "pointer",
@@ -1360,8 +1360,8 @@ export default function ItemDetails() {
                                   padding: "6px 16px",
                                   borderRadius: "6px",
                                   border: "none",
-                                  backgroundColor: "#00aa5b",
-                                  color: "#ffffff",
+                                  backgroundColor: "var(--primary)",
+                                  color: "var(--text-main)",
                                   fontSize: "12px",
                                   fontWeight: "600",
                                   cursor: submittingReply || !replyText.trim() ? "not-allowed" : "pointer",
