@@ -432,7 +432,6 @@ export default function MyItems({ user }) {
   const [rentStartDate, setRentStartDate] = useState("");
   const [rentEndDate, setRentEndDate] = useState("");
   const [rentQuantity, setRentQuantity] = useState(1);
-  const [rentPaymentMethod, setRentPaymentMethod] = useState("cash");
 
   const handleRentNow = async () => {
     if (selectedCartIds.length === 0) {
@@ -521,19 +520,24 @@ export default function MyItems({ user }) {
     setShowSuccessModal(true);
   };
 
-  const handleCartRentSubmit = async (e) => {
-    e.preventDefault();
-    if (!rentModalItem) return;
+  const handleCartRentSubmit = async (paymentData) => {
+    if (paymentData && paymentData.preventDefault) {
+      paymentData.preventDefault();
+    }
+    if (!rentModalItem) return false;
 
     if (isItemCurrentlyRented(rentModalItem)) {
       alert("This item is currently rented out and cannot be rented.");
-      return;
+      return false;
     }
 
     if (!rentStartDate || !rentEndDate) {
       alert("Please select rental start and end dates.");
-      return;
+      return false;
     }
+
+    const chosenMethod = paymentData?.paymentMethod || "cash";
+    const isPaid = Boolean(paymentData?.isPaid);
 
     const s = new Date(rentStartDate);
     const eDate = new Date(rentEndDate);
@@ -558,7 +562,8 @@ export default function MyItems({ user }) {
       endDate: rentEndDate,
       quantity: numQty,
       totalPrice: calculatedTotal,
-      paymentMethod: rentPaymentMethod || "cash",
+      paymentMethod: chosenMethod,
+      paymentStatus: isPaid ? "paid" : "pending",
       status: "Pending",
     };
 
@@ -570,10 +575,16 @@ export default function MyItems({ user }) {
         body: JSON.stringify(requestPayload),
       });
       const data = await res.json().catch(() => ({}));
-      if (res.ok && (data.success !== false || data.requestId)) {
+      if (!res.ok) {
+        alert(data.message || "Failed to submit rental request.");
+        return false;
+      }
+      if (data.success !== false || data.requestId) {
         created = {
           id: data.requestId || data.request?.id || Date.now(),
           ...requestPayload,
+          paymentMethod: chosenMethod,
+          paymentStatus: isPaid ? "paid" : "pending",
           createdAt: data.request?.createdAt || new Date().toISOString(),
           itemTitle: rentModalItem.title || rentModalItem.itemTitle,
           itemImage: rentModalItem.image || rentModalItem.image_url,
@@ -593,6 +604,8 @@ export default function MyItems({ user }) {
       created = {
         id: Date.now(),
         ...requestPayload,
+        paymentMethod: chosenMethod,
+        paymentStatus: isPaid ? "paid" : "pending",
         createdAt: new Date().toISOString(),
         itemTitle: rentModalItem.title || rentModalItem.itemTitle,
         itemImage: rentModalItem.image || rentModalItem.image_url,
@@ -614,6 +627,7 @@ export default function MyItems({ user }) {
         JSON.stringify([created, ...filtered]),
       );
       window.dispatchEvent(new Event("rent_requests_updated"));
+      window.dispatchEvent(new Event("user_updated"));
     } catch {}
 
     if (rentModalItem.id) {
@@ -629,7 +643,6 @@ export default function MyItems({ user }) {
     setRentStartDate("");
     setRentEndDate("");
     setRentQuantity(1);
-    setRentPaymentMethod("cash");
     setSuccessModalTitle(sentTitle);
     setShowSuccessModal(true);
     return true;
@@ -1325,7 +1338,6 @@ export default function MyItems({ user }) {
             setRentStartDate("");
             setRentEndDate("");
             setRentQuantity(1);
-            setRentPaymentMethod("cash");
           }}
           handleRequestSubmit={handleCartRentSubmit}
           startDate={rentStartDate}
@@ -1334,12 +1346,12 @@ export default function MyItems({ user }) {
           setEndDate={setRentEndDate}
           quantity={rentQuantity}
           setQuantity={setRentQuantity}
-          paymentMethod={rentPaymentMethod}
-          setPaymentMethod={setRentPaymentMethod}
           available={10}
           priceType={rentModalItem.priceType || "day"}
           price={rentModalItem.price || 0}
           itemTitle={rentModalItem.title}
+          currentUser={user}
+          API_URL={API_URL}
         />
       )}
 

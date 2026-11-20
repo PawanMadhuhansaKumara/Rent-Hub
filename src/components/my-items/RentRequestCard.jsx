@@ -14,8 +14,6 @@ import {
   RotateCcw,
 } from "lucide-react";
 import { formatRentalDate, formatRequestTime } from "../../utils/dateUtils";
-import QRPaymentModal from "./QRPaymentModal";
-import CardPaymentModal from "./CardPaymentModal";
 
 /**
  * RentRequestCard
@@ -33,8 +31,6 @@ export default function RentRequestCard({
   onRateItem,
   API_URL = "http://localhost:5001",
 }) {
-  const [showQRModal, setShowQRModal] = useState(false);
-  const [showCardModal, setShowCardModal] = useState(false);
   const [paymentStatus, setPaymentStatus] = useState(req.payment_status || req.paymentStatus || "pending");
   const isSender =
     Number(req.buyerId || req.buyer_id) === Number(userId) ||
@@ -132,30 +128,40 @@ export default function RentRequestCard({
             {isSender ? "Sent Request" : "Received"}
           </span>
 
-          <span
-            style={{
-              fontSize: "11px",
-              fontWeight: "600",
-              padding: "3px 8px",
-              borderRadius: "12px",
-              backgroundColor:
-                (req.paymentMethod || req.payment_method)?.toLowerCase() === "card"
-                  ? "#eff6ff"
-                  : "#f0fdf4",
-              color:
-                (req.paymentMethod || req.payment_method)?.toLowerCase() === "card"
-                  ? "#1d4ed8"
-                  : "#15803d",
-              border:
-                (req.paymentMethod || req.payment_method)?.toLowerCase() === "card"
-                  ? "1px solid #bfdbfe"
-                  : "1px solid #bbf7d0",
-            }}
-          >
-            {(req.paymentMethod || req.payment_method)?.toLowerCase() === "card"
-              ? "💳 Card"
-              : "💵 Cash"}
-          </span>
+          {(req.paymentMethod || req.payment_method) && (
+            <span
+              style={{
+                fontSize: "11px",
+                fontWeight: "700",
+                padding: "3px 8px",
+                borderRadius: "12px",
+                backgroundColor:
+                  (req.paymentMethod || req.payment_method) === "cashpoints"
+                    ? "#fef9c3"
+                    : (req.paymentMethod || req.payment_method) === "card"
+                    ? "#eff6ff"
+                    : "#f0fdf4",
+                color:
+                  (req.paymentMethod || req.payment_method) === "cashpoints"
+                    ? "#854d0e"
+                    : (req.paymentMethod || req.payment_method) === "card"
+                    ? "#1d4ed8"
+                    : "#15803d",
+                border:
+                  (req.paymentMethod || req.payment_method) === "cashpoints"
+                    ? "1px solid #fde047"
+                    : (req.paymentMethod || req.payment_method) === "card"
+                    ? "1px solid #bfdbfe"
+                    : "1px solid #bbf7d0",
+              }}
+            >
+              {(req.paymentMethod || req.payment_method) === "cashpoints"
+                ? "🪙 Points (Paid)"
+                : (req.paymentMethod || req.payment_method) === "card"
+                ? "💳 Card (Paid)"
+                : "💵 Cash on Pickup"}
+            </span>
+          )}
 
           <span className={`rent-request-status-badge ${statusBadgeClass}`}>
             {req.status}
@@ -555,26 +561,6 @@ export default function RentRequestCard({
           </div>
         );
       })()}
-{showQRModal && (
-        <QRPaymentModal
-          requestId={req.id}
-          onClose={() => setShowQRModal(false)}
-          onSuccess={() => {
-            setPaymentStatus('paid');
-            setShowQRModal(false);
-          }}
-        />
-      )}
-      {showCardModal && (
-        <CardPaymentModal
-          requestId={req.id}
-          onClose={() => setShowCardModal(false)}
-          onSuccess={() => {
-            setPaymentStatus('paid');
-            setShowCardModal(false);
-          }}
-        />
-      )}
     </div>
   );
 }

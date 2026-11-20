@@ -102,30 +102,40 @@ export default function RentedItemCard({
             {isSentedOut ? "Sented Out" : "Rented In"}
           </span>
 
-          <span
-            style={{
-              fontSize: "11px",
-              fontWeight: "600",
-              padding: "3px 8px",
-              borderRadius: "12px",
-              backgroundColor:
-                (item.paymentMethod || item.payment_method)?.toLowerCase() === "card"
-                  ? "#eff6ff"
-                  : "#f0fdf4",
-              color:
-                (item.paymentMethod || item.payment_method)?.toLowerCase() === "card"
-                  ? "#1d4ed8"
-                  : "#15803d",
-              border:
-                (item.paymentMethod || item.payment_method)?.toLowerCase() === "card"
-                  ? "1px solid #bfdbfe"
-                  : "1px solid #bbf7d0",
-            }}
-          >
-            {(item.paymentMethod || item.payment_method)?.toLowerCase() === "card"
-              ? "💳 Card"
-              : "💵 Cash"}
-          </span>
+          {(item.paymentMethod || item.payment_method) && (
+            <span
+              style={{
+                fontSize: "11px",
+                fontWeight: "700",
+                padding: "3px 8px",
+                borderRadius: "12px",
+                backgroundColor:
+                  (item.paymentMethod || item.payment_method) === "cashpoints"
+                    ? "#fef9c3"
+                    : (item.paymentMethod || item.payment_method) === "card"
+                    ? "#eff6ff"
+                    : "#f0fdf4",
+                color:
+                  (item.paymentMethod || item.payment_method) === "cashpoints"
+                    ? "#854d0e"
+                    : (item.paymentMethod || item.payment_method) === "card"
+                    ? "#1d4ed8"
+                    : "#15803d",
+                border:
+                  (item.paymentMethod || item.payment_method) === "cashpoints"
+                    ? "1px solid #fde047"
+                    : (item.paymentMethod || item.payment_method) === "card"
+                    ? "1px solid #bfdbfe"
+                    : "1px solid #bbf7d0",
+              }}
+            >
+              {(item.paymentMethod || item.payment_method) === "cashpoints"
+                ? "🪙 Points (Paid)"
+                : (item.paymentMethod || item.payment_method) === "card"
+                ? "💳 Card (Paid)"
+                : "💵 Cash on Pickup"}
+            </span>
+          )}
 
           <span
             className={`rent-request-status-badge ${

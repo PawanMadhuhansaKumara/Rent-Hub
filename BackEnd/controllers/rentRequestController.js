@@ -43,6 +43,12 @@ const initRentRequestsTable = async () => {
     try {
       await db.execute(`ALTER TABLE rent_requests ADD COLUMN payment_status VARCHAR(50) DEFAULT 'pending'`);
     } catch (e) {}
+    try {
+      await db.execute(`ALTER TABLE rent_requests ADD COLUMN commission_fee DECIMAL(10,2) DEFAULT 0.00`);
+    } catch (e) {}
+    try {
+      await db.execute(`ALTER TABLE rent_requests ADD COLUMN commission_deducted TINYINT(1) DEFAULT 0`);
+    } catch (e) {}
 
     isTableInitialized = true;
   } catch (err) {
@@ -228,12 +234,20 @@ exports.createRentRequest = async (req, res) => {
     req.body.payment_type ||
     "cash"
   ).toString().toLowerCase();
-  const payment_method = rawPaymentMethod === "card" ? "card" : "cash";
 
-  const payment_status =
+  let payment_method = "cash";
+  if (rawPaymentMethod.includes("point") || rawPaymentMethod === "cashpoints") {
+    payment_method = "cashpoints";
+  } else if (rawPaymentMethod === "card") {
+    payment_method = "card";
+  } else {
+    payment_method = "cash";
+  }
+
+  let payment_status =
     paymentStatus ||
     req.body.payment_status ||
-    (payment_method === "card" && req.body.isPaid ? "paid" : "pending");
+    (payment_method === "cashpoints" || (payment_method === "card" && req.body.isPaid) ? "paid" : "pending");
 
   let total_days = 1;
   try {
@@ -277,6 +291,26 @@ exports.createRentRequest = async (req, res) => {
       }
     } catch (checkErr) {
       console.warn("Item availability check error:", checkErr.message);
+    }
+
+    // If paying with cashpoints, check and deduct from buyer's cash points balance
+    let remainingCashPoints = null;
+    if (payment_method === "cashpoints") {
+      try {
+        const [buyerRows] = await db.execute("SELECT cash_points FROM users_details WHERE user_id = ?", [buyer_id]);
+        const currentPoints = parseFloat(buyerRows[0]?.cash_points || 0);
+        if (currentPoints < total) {
+          return res.status(400).json({
+            success: false,
+            message: `Insufficient Cash Points! You have ${currentPoints.toLocaleString()} points, but need ${total.toLocaleString()}. Please top up your Cash Points or select another payment option.`
+          });
+        }
+        await db.execute("UPDATE users_details SET cash_points = cash_points - ? WHERE user_id = ?", [total, buyer_id]);
+        payment_status = "paid";
+        remainingCashPoints = currentPoints - total;
+      } catch (cpErr) {
+        console.warn("Cash points deduction warning:", cpErr.message);
+      }
     }
 
     await initRentRequestsTable();
@@ -385,6 +419,7 @@ exports.createRentRequest = async (req, res) => {
       success: true,
       message: "Rental request created successfully.",
       requestId: insertId,
+      remainingCashPoints,
       request: {
         id: insertId,
         itemId: item_id,
@@ -765,10 +800,18 @@ exports.markCustomerPicked = async (req, res) => {
     }
 
     const rental = rRows[0];
+    const grossTotal = parseFloat(rental.total_price || 0);
+    const commission = parseFloat((grossTotal * 0.10).toFixed(2));
 
     await db.execute(
-      `UPDATE rent_requests SET customer_picked = 1, customer_picked_at = NOW() WHERE id = ?`,
-      [requestId]
+      `UPDATE rent_requests 
+       SET customer_picked = 1, 
+           customer_picked_at = NOW(),
+           payment_status = CASE WHEN payment_method = 'cash' THEN 'paid' ELSE payment_status END,
+           commission_fee = ?,
+           commission_deducted = 1
+       WHERE id = ?`,
+      [commission, requestId]
     );
 
     // Send real notification to seller
@@ -910,21 +953,28 @@ exports.confirmHandover = async (req, res) => {
       console.warn("Could not write to rental_verifications table:", vErr.message);
     }
 
-    // 4. Update rent_requests status to 'rented' and payment_status
+    // 4. Update rent_requests status to 'rented', customer_picked = 1, and commission_fee
     const updatedPaymentStatus =
       rentalPaymentStatus?.toLowerCase() === "paid" ? "paid" : "pending";
+    const grossTotal = parseFloat(currentReq.total_price || 0);
+    const commission = parseFloat((grossTotal * 0.10).toFixed(2));
+
     try {
       await db.execute(
-        `UPDATE rent_requests SET status = 'rented', payment_status = ? WHERE id = ?`,
-        [updatedPaymentStatus, requestId]
+        `UPDATE rent_requests 
+         SET status = 'rented', 
+             payment_status = ?, 
+             customer_picked = 1, 
+             customer_picked_at = COALESCE(customer_picked_at, NOW()),
+             commission_fee = ?,
+             commission_deducted = 1 
+         WHERE id = ?`,
+        [updatedPaymentStatus, commission, requestId]
       );
     } catch (statusErr) {
       try {
         await db.execute(
-          `ALTER TABLE rent_requests MODIFY COLUMN status VARCHAR(50) DEFAULT 'Pending'`
-        );
-        await db.execute(
-          `UPDATE rent_requests SET status = 'rented' WHERE id = ?`,
+          `UPDATE rent_requests SET status = 'rented', customer_picked = 1, customer_picked_at = COALESCE(customer_picked_at, NOW()) WHERE id = ?`,
           [requestId]
         );
       } catch (e2) {

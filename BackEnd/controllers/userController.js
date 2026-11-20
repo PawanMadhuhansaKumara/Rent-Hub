@@ -1,14 +1,44 @@
 const db = require('../config/db');
 
-// Ensure preferred_language column exists in users_details
+// Ensure preferred_language, cash_points, bank details, and withdrawal_requests table exist
 let isLangColumnChecked = false;
 const ensureLanguageColumn = async () => {
   if (isLangColumnChecked) return;
   try {
     await db.execute(`ALTER TABLE users_details ADD COLUMN preferred_language VARCHAR(10) DEFAULT 'en'`);
-  } catch (e) {
-    // Column already exists or error ignored
-  }
+  } catch (e) {}
+  try {
+    await db.execute(`ALTER TABLE users_details ADD COLUMN cash_points DECIMAL(12,2) DEFAULT 0.00`);
+  } catch (e) {}
+  try {
+    await db.execute(`ALTER TABLE users_details ADD COLUMN bank_name VARCHAR(100) DEFAULT NULL`);
+  } catch (e) {}
+  try {
+    await db.execute(`ALTER TABLE users_details ADD COLUMN bank_branch VARCHAR(100) DEFAULT NULL`);
+  } catch (e) {}
+  try {
+    await db.execute(`ALTER TABLE users_details ADD COLUMN bank_account_no VARCHAR(100) DEFAULT NULL`);
+  } catch (e) {}
+  try {
+    await db.execute(`ALTER TABLE users_details ADD COLUMN bank_account_name VARCHAR(150) DEFAULT NULL`);
+  } catch (e) {}
+  try {
+    await db.execute(`
+      CREATE TABLE IF NOT EXISTS withdrawal_requests (
+        id INT AUTO_INCREMENT PRIMARY KEY,
+        seller_id INT NOT NULL,
+        amount DECIMAL(12,2) NOT NULL,
+        bank_name VARCHAR(100) NOT NULL,
+        bank_branch VARCHAR(100),
+        bank_account_no VARCHAR(100) NOT NULL,
+        bank_account_name VARCHAR(150) NOT NULL,
+        status VARCHAR(50) DEFAULT 'pending',
+        notes TEXT,
+        created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+        updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
+      )
+    `);
+  } catch (e) {}
   isLangColumnChecked = true;
 };
 
@@ -22,6 +52,7 @@ exports.getUser = async (req, res) => {
       return res.status(404).json({ success: false, message: 'User not found' });
     }
     const { password_hash, nic_photo_front_url, nic_photo_back_url, ...publicUser } = rows[0];
+    publicUser.cash_points = parseFloat(rows[0].cash_points || 0);
 
     // Compute live review stats directly from reviews table
     try {
@@ -342,5 +373,336 @@ exports.getUserTrustScore = async (req, res) => {
   } catch (error) {
     console.error('Trust Score Calculation Error:', error);
     res.status(500).json({ success: false, message: 'Server error calculating trust score' });
+  }
+};
+
+// TOP UP CASH POINTS VIA PAYMENT GATEWAY
+exports.topupCashPoints = async (req, res) => {
+  await ensureLanguageColumn();
+  const userId = req.params.id;
+  const { amount, transactionRef } = req.body;
+  const numAmount = Number(amount);
+
+  if (!numAmount || numAmount <= 0) {
+    return res.status(400).json({ success: false, message: 'Valid top-up amount is required.' });
+  }
+
+  try {
+    await db.execute(
+      'UPDATE users_details SET cash_points = COALESCE(cash_points, 0) + ? WHERE user_id = ?',
+      [numAmount, userId]
+    );
+
+    const [rows] = await db.execute('SELECT user_id, cash_points FROM users_details WHERE user_id = ?', [userId]);
+    const updatedPoints = rows.length > 0 ? parseFloat(rows[0].cash_points || 0) : numAmount;
+
+    res.status(200).json({
+      success: true,
+      message: `Successfully topped up ${numAmount.toLocaleString()} Cash Points!`,
+      cashPoints: updatedPoints,
+      transactionRef: transactionRef || `TOPUP-${Date.now()}`
+    });
+  } catch (error) {
+    console.error('Topup Cash Points Error:', error);
+    res.status(500).json({ success: false, message: 'Server error while topping up Cash Points.' });
+  }
+};
+
+// GET SELLER TOTAL EARNINGS (90% NET AFTER 10% PLATFORM FEE), BANK INFO, AND BREAKDOWN
+exports.getSellerEarnings = async (req, res) => {
+  await ensureLanguageColumn();
+  const sellerId = req.params.id;
+
+  try {
+    // 1. Fetch user & bank info
+    const [userRows] = await db.execute(
+      'SELECT user_id, cash_points, bank_name, bank_branch, bank_account_no, bank_account_name FROM users_details WHERE user_id = ?',
+      [sellerId]
+    );
+
+    if (userRows.length === 0) {
+      return res.status(404).json({ success: false, message: 'User not found' });
+    }
+
+    const userData = userRows[0];
+    const cashPoints = parseFloat(userData.cash_points || 0);
+
+    // 2. Fetch all rentals where this user is seller
+    const [requests] = await db.execute(`
+      SELECT 
+        r.id,
+        r.item_id AS itemId,
+        r.buyer_id AS buyerId,
+        r.seller_id AS sellerId,
+        r.total_price AS totalPrice,
+        r.payment_method AS paymentMethod,
+        r.payment_status AS paymentStatus,
+        r.status,
+        r.customer_picked AS customerPicked,
+        r.customer_picked_at AS customerPickedAt,
+        r.commission_fee AS commissionFee,
+        r.commission_deducted AS commissionDeducted,
+        r.created_at AS createdAt,
+        i.title AS itemTitle,
+        i.image_url AS itemImage,
+        u.full_name AS renterName,
+        u.phone_no AS renterPhone
+      FROM rent_requests r
+      LEFT JOIN items i ON r.item_id = i.id
+      LEFT JOIN users_details u ON r.buyer_id = u.user_id
+      WHERE r.seller_id = ? AND LOWER(r.status) NOT IN ('declined', 'cancelled')
+      ORDER BY r.created_at DESC, r.id DESC
+    `, [sellerId]);
+
+    // 3. Compute earnings:
+    // - Online (Card / Cash Points): Platform collects 100%, keeps 10% fee, credits +90% to shop's balance.
+    // - Cash on Pickup: Customer hands 100% cash to shop directly. When pickup is confirmed, 10% platform fee is DEDUCTED from shop's earnings.
+    let grossEarnings = 0;
+    let platformFeeTotal = 0;
+    let totalOnlineNetCredits = 0;
+    let totalCashPickupDeductions = 0;
+    let totalNetStoreEarnings = 0;
+
+    const earningsHistory = requests.map(reqItem => {
+      const gross = parseFloat(reqItem.totalPrice || 0);
+      const commission = parseFloat((gross * 0.10).toFixed(2));
+      const isCash = (reqItem.paymentMethod || "").toLowerCase().includes("cash");
+      const isPickedOrRented = reqItem.customerPicked === 1 || 
+                               ["rented", "completed"].includes(String(reqItem.status).toLowerCase()) ||
+                               reqItem.commissionDeducted === 1;
+
+      grossEarnings += gross;
+      platformFeeTotal += commission;
+
+      let netEarned = 0;
+      let balanceImpact = 0;
+      let feeDeducted = false;
+
+      if (isCash) {
+        // Cash on Pickup: Shop collected 100% in cash directly from customer
+        if (isPickedOrRented) {
+          // Handover/pickup confirmed -> 10% fee deducted from shop's earnings!
+          feeDeducted = true;
+          balanceImpact = -commission; // -10% deducted from online balance
+          totalCashPickupDeductions += commission;
+          totalNetStoreEarnings += (gross - commission); // Shop made 90% net (100% in cash - 10% fee)
+        } else {
+          // Pickup not confirmed yet
+          feeDeducted = false;
+          balanceImpact = 0;
+        }
+        netEarned = gross; // Full cash amount received by shop
+      } else {
+        // Online Card / Cash Points
+        netEarned = parseFloat((gross - commission).toFixed(2)); // +90%
+        balanceImpact = netEarned; // +90% added to online balance
+        totalOnlineNetCredits += netEarned;
+        totalNetStoreEarnings += netEarned;
+      }
+
+      return {
+        id: reqItem.id,
+        itemId: reqItem.itemId,
+        itemTitle: reqItem.itemTitle || "Rental Item",
+        itemImage: reqItem.itemImage || null,
+        renterName: reqItem.renterName || "Customer",
+        renterPhone: reqItem.renterPhone || "",
+        grossAmount: gross,
+        platformCommission: commission, // 10%
+        netEarned: isCash ? gross : netEarned,
+        balanceImpact,                 // e.g. +4,500 or -500
+        isCashOnPickup: isCash,
+        isConfirmed: isPickedOrRented,
+        feeDeducted,
+        paymentMethod: isCash ? "cash" : (reqItem.paymentMethod || "card"),
+        paymentStatus: reqItem.paymentStatus || "pending",
+        status: reqItem.status || "Pending",
+        date: reqItem.createdAt
+      };
+    });
+
+    grossEarnings = parseFloat(grossEarnings.toFixed(2));
+    platformFeeTotal = parseFloat(platformFeeTotal.toFixed(2));
+    totalNetStoreEarnings = parseFloat(totalNetStoreEarnings.toFixed(2));
+    totalOnlineNetCredits = parseFloat(totalOnlineNetCredits.toFixed(2));
+    totalCashPickupDeductions = parseFloat(totalCashPickupDeductions.toFixed(2));
+
+    // 4. Fetch withdrawal requests
+    const [withdrawals] = await db.execute(`
+      SELECT id, seller_id, amount, bank_name, bank_branch, bank_account_no, bank_account_name, status, notes, created_at
+      FROM withdrawal_requests
+      WHERE seller_id = ?
+      ORDER BY created_at DESC
+    `, [sellerId]);
+
+    let totalWithdrawn = 0;
+    withdrawals.forEach(w => {
+      if (w.status !== 'rejected') {
+        totalWithdrawn += parseFloat(w.amount || 0);
+      }
+    });
+    totalWithdrawn = parseFloat(totalWithdrawn.toFixed(2));
+
+    // Available Payout Balance = Online Credits - Cash Pickup 10% Deductions - Total Withdrawn
+    const availableBalance = Math.max(0, parseFloat((totalOnlineNetCredits - totalCashPickupDeductions - totalWithdrawn).toFixed(2)));
+
+    res.status(200).json({
+      success: true,
+      totalNetEarnings: totalNetStoreEarnings,
+      totalGross: grossEarnings,
+      totalCommission: platformFeeTotal,
+      totalOnlineNetCredits,
+      totalCashPickupDeductions,
+      totalWithdrawn,
+      availableBalance,
+      cashPoints,
+      bankDetails: {
+        bankName: userData.bank_name || "",
+        branch: userData.bank_branch || "",
+        accountNo: userData.bank_account_no || "",
+        accountName: userData.bank_account_name || ""
+      },
+      history: earningsHistory,
+      withdrawals: withdrawals.map(w => ({
+        id: w.id,
+        amount: parseFloat(w.amount),
+        bankName: w.bank_name,
+        branch: w.bank_branch,
+        accountNo: w.bank_account_no,
+        accountName: w.bank_account_name,
+        status: w.status,
+        date: w.created_at
+      }))
+    });
+  } catch (error) {
+    console.error('getSellerEarnings Error:', error);
+    res.status(500).json({ success: false, message: 'Server error loading earnings.' });
+  }
+};
+
+// UPDATE STORE OWNER BANK ACCOUNT DETAILS
+exports.updateBankDetails = async (req, res) => {
+  await ensureLanguageColumn();
+  const userId = req.params.id;
+  const { bankName, branch, accountNo, accountName } = req.body;
+
+  if (!bankName || !accountNo || !accountName) {
+    return res.status(400).json({
+      success: false,
+      message: 'Bank Name, Account Number, and Account Holder Name are required.'
+    });
+  }
+
+  try {
+    await db.execute(`
+      UPDATE users_details 
+      SET bank_name = ?, bank_branch = ?, bank_account_no = ?, bank_account_name = ?
+      WHERE user_id = ?
+    `, [bankName.trim(), (branch || '').trim(), accountNo.trim(), accountName.trim(), userId]);
+
+    res.status(200).json({
+      success: true,
+      message: 'Bank account details saved successfully to database!',
+      bankDetails: {
+        bankName: bankName.trim(),
+        branch: (branch || '').trim(),
+        accountNo: accountNo.trim(),
+        accountName: accountName.trim()
+      }
+    });
+  } catch (error) {
+    console.error('updateBankDetails Error:', error);
+    res.status(500).json({ success: false, message: 'Failed to update bank details.' });
+  }
+};
+
+// SUBMIT WITHDRAWAL REQUEST FOR AVAILABLE EARNINGS
+exports.requestWithdrawal = async (req, res) => {
+  await ensureLanguageColumn();
+  const userId = req.params.id;
+  const { amount, bankName, branch, accountNo, accountName } = req.body;
+  const numAmount = parseFloat(amount);
+
+  if (!numAmount || numAmount <= 0) {
+    return res.status(400).json({ success: false, message: 'Please enter a valid withdrawal amount.' });
+  }
+
+  if (!bankName || !accountNo || !accountName) {
+    return res.status(400).json({ success: false, message: 'Complete bank account details are required for withdrawal.' });
+  }
+
+  try {
+    // 1. Recalculate earnings & available balance
+    const [requests] = await db.execute(`
+      SELECT total_price, payment_method, status, customer_picked, commission_deducted 
+      FROM rent_requests 
+      WHERE seller_id = ? AND LOWER(status) NOT IN ('declined', 'cancelled')
+    `, [userId]);
+
+    let totalOnlineNetCredits = 0;
+    let totalCashPickupDeductions = 0;
+
+    requests.forEach(r => {
+      const gross = parseFloat(r.total_price || 0);
+      const commission = parseFloat((gross * 0.10).toFixed(2));
+      const isCash = (r.payment_method || "").toLowerCase().includes("cash");
+      const isConfirmed = r.customer_picked === 1 || 
+                          ["rented", "completed"].includes(String(r.status).toLowerCase()) ||
+                          r.commission_deducted === 1;
+
+      if (isCash) {
+        if (isConfirmed) {
+          totalCashPickupDeductions += commission;
+        }
+      } else {
+        totalOnlineNetCredits += parseFloat((gross - commission).toFixed(2));
+      }
+    });
+
+    const [withdrawals] = await db.execute(`
+      SELECT amount FROM withdrawal_requests 
+      WHERE seller_id = ? AND status != 'rejected'
+    `, [userId]);
+
+    let totalWithdrawn = 0;
+    withdrawals.forEach(w => {
+      totalWithdrawn += parseFloat(w.amount || 0);
+    });
+
+    const availableBalance = Math.max(0, parseFloat((totalOnlineNetCredits - totalCashPickupDeductions - totalWithdrawn).toFixed(2)));
+
+    if (numAmount > availableBalance) {
+      return res.status(400).json({
+        success: false,
+        message: `Requested amount LKR ${numAmount.toLocaleString()} exceeds your available balance of LKR ${availableBalance.toLocaleString()}.`
+      });
+    }
+
+    // 2. Save bank details to user profile
+    await db.execute(`
+      UPDATE users_details 
+      SET bank_name = ?, bank_branch = ?, bank_account_no = ?, bank_account_name = ?
+      WHERE user_id = ?
+    `, [bankName.trim(), (branch || '').trim(), accountNo.trim(), accountName.trim(), userId]);
+
+    // 3. Insert withdrawal request
+    const [result] = await db.execute(`
+      INSERT INTO withdrawal_requests 
+      (seller_id, amount, bank_name, bank_branch, bank_account_no, bank_account_name, status, created_at)
+      VALUES (?, ?, ?, ?, ?, ?, 'pending', NOW())
+    `, [userId, numAmount, bankName.trim(), (branch || '').trim(), accountNo.trim(), accountName.trim()]);
+
+    const newAvailableBalance = Math.max(0, parseFloat((availableBalance - numAmount).toFixed(2)));
+
+    res.status(201).json({
+      success: true,
+      message: `Withdrawal request for LKR ${numAmount.toLocaleString()} submitted successfully!`,
+      withdrawalId: result.insertId,
+      amount: numAmount,
+      availableBalance: newAvailableBalance
+    });
+  } catch (error) {
+    console.error('requestWithdrawal Error:', error);
+    res.status(500).json({ success: false, message: 'Server error processing withdrawal request.' });
   }
 };

@@ -101,6 +101,7 @@ exports.login = async (req, res) => {
     );
 
     const { password_hash, ...userData } = user;
+    userData.cash_points = parseFloat(user.cash_points || 0);
 
     res.status(200).json({
       success: true,
@@ -138,6 +139,7 @@ exports.googleLogin = async (req, res) => {
     );
 
     const { password_hash, ...userData } = user;
+    userData.cash_points = parseFloat(user.cash_points || 0);
 
     res.status(200).json({
       success: true,

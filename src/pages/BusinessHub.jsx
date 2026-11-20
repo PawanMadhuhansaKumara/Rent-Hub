@@ -17,8 +17,10 @@ import {
   Sparkles,
   ArrowLeft,
   ShoppingBag,
+  Coins,
 } from "lucide-react";
 import "./BusinessHub.css";
+import SellerEarningsModal from "../components/SellerEarningsModal";
 
 const API_URL = "http://localhost:5001";
 
@@ -42,6 +44,29 @@ export default function BusinessHub({ user }) {
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
+  const [showEarningsModal, setShowEarningsModal] = useState(false);
+  const [earningsData, setEarningsData] = useState({
+    totalNetEarnings: 0,
+    totalGross: 0,
+    totalCommission: 0,
+    totalWithdrawn: 0,
+    availableBalance: 0,
+    cashPoints: 0,
+    history: [],
+  });
+
+  const fetchEarnings = async () => {
+    if (!userId) return;
+    try {
+      const res = await fetch(`${API_URL}/api/users/${userId}/earnings`);
+      const data = await res.json();
+      if (res.ok && data.success) {
+        setEarningsData(data);
+      }
+    } catch (err) {
+      console.error("Error loading seller earnings:", err);
+    }
+  };
 
   useEffect(() => {
     const fetchUserItems = async () => {
@@ -73,12 +98,17 @@ export default function BusinessHub({ user }) {
     };
 
     fetchUserItems();
+    fetchEarnings();
 
     window.addEventListener("items_updated", fetchUserItems);
     window.addEventListener("rent_requests_updated", fetchUserItems);
+    window.addEventListener("rent_requests_updated", fetchEarnings);
+    window.addEventListener("user_updated", fetchEarnings);
     return () => {
       window.removeEventListener("items_updated", fetchUserItems);
       window.removeEventListener("rent_requests_updated", fetchUserItems);
+      window.removeEventListener("rent_requests_updated", fetchEarnings);
+      window.removeEventListener("user_updated", fetchEarnings);
     };
   }, [userId]);
 
@@ -171,6 +201,49 @@ export default function BusinessHub({ user }) {
                   defaultValue: `${userName}'s Rental Store`,
                 })}
               </h2>
+            </div>
+          </div>
+
+          {/* TOTAL EARNED BANNER (Net 90% after 10% platform fee deduction) */}
+          <div
+            className="business-total-earn-card"
+            onClick={() => setShowEarningsModal(true)}
+            role="button"
+            tabIndex={0}
+            title="Click to view item earnings breakdown, add bank account & request payouts"
+          >
+            <div className="total-earn-left">
+              <div className="total-earn-icon-wrap">
+                <Coins size={28} color="#854d0e" />
+              </div>
+              <div>
+                <div className="total-earn-tag-row">
+                  <span className="total-earn-tag">Total Earned (90% Net)</span>
+                  <span className="total-earn-fee-pill">10% Platform Fee Deducted</span>
+                </div>
+                <div className="total-earn-value">
+                  <span style={{ fontSize: "18px", fontWeight: "700", opacity: 0.9 }}>LKR</span>{" "}
+                  {Number(earningsData.totalNetEarnings || 0).toLocaleString("en-LK", {
+                    minimumFractionDigits: 2,
+                    maximumFractionDigits: 2,
+                  })}
+                </div>
+                <div className="total-earn-sub">
+                  <span>Available to Withdraw:</span>
+                  <strong className="total-earn-available">
+                    LKR {Number(earningsData.availableBalance || 0).toLocaleString("en-LK", {
+                      minimumFractionDigits: 2,
+                      maximumFractionDigits: 2,
+                    })}
+                  </strong>
+                  <span>• Click to view item breakdown & payout →</span>
+                </div>
+              </div>
+            </div>
+
+            <div className="total-earn-withdraw-cta">
+              <Sparkles size={16} />
+              <span>View Breakdown & Payout</span>
             </div>
           </div>
 
@@ -496,6 +569,17 @@ export default function BusinessHub({ user }) {
             </p>
           </div>
         </div>
+
+        {/* SELLER EARNINGS & PAYOUT MODAL */}
+        {showEarningsModal && (
+          <SellerEarningsModal
+            isOpen={showEarningsModal}
+            onClose={() => setShowEarningsModal(false)}
+            userId={userId}
+            API_URL={API_URL}
+            onEarningsUpdated={(data) => setEarningsData(data)}
+          />
+        )}
       </div>
     </main>
   );

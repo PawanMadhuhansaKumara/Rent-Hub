@@ -2,17 +2,15 @@ import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  Camera,CheckCircle2, Phone,MapPin, Clock, Mail, Star, Heart, Plus, Edit3, Settings, X, User,AtSign, ArrowLeft, Package, Calendar, Eye, Trash2, ChevronDown, CornerDownRight,
+  Camera,CheckCircle2, Phone,MapPin, Clock, Mail, Star, Heart, Plus, Edit3, Settings, X, User,AtSign, ArrowLeft, Package, Calendar, Eye, Trash2, ChevronDown, CornerDownRight, Coins,
 } from "lucide-react";
 import SettingsPopup from "../components/SettingsPopup";
 import LeaveReviewModal from "../components/LeaveReviewModal";
 import GoogleMapIcon from "../components/GoogleMapIcon";
 import MapLocationPickerModal from "../components/MapLocationPickerModal";
 import ShopDistanceModal from "../components/ShopDistanceModal";
+import CashPointsTopupModal from "../components/CashPointsTopupModal";
 
-import { QRCodeCanvas } from "qrcode.react";
-// හෝ වෙනම file එකක හැදුවා නම්:
-// import ProfileQRSection from "../components/ProfileQRSection";
 
 const isItemRented = (item) => {
   if (!item) return false;
@@ -47,6 +45,7 @@ export default function Profile({ user, setUser }) {
   const [showEditProfile, setShowEditProfile] = useState(false);
   const [showMapPicker, setShowMapPicker] = useState(false);
   const [showDistanceModal, setShowDistanceModal] = useState(false);
+  const [showTopupModal, setShowTopupModal] = useState(false);
 
   // Hidden File Input References for Modal (Profile & Cover)
   const profileInputRef = useRef(null);
@@ -73,6 +72,7 @@ export default function Profile({ user, setUser }) {
       "Rent smarter. Live better.",
     trust_score: user?.trust_score !== undefined ? user.trust_score : (user?.user_rating ? user.user_rating * 20 : 50),
     max_rental_limit: user?.rental_limit || user?.max_rental_limit || 1000,
+    cash_points: user?.cash_points !== undefined ? Number(user.cash_points) : 0,
     reviews_count: user?.reviews_count || 12,
     likes_count: user?.likes_count || 68,
     profile_pic_url: user?.profile_pic_url
@@ -346,6 +346,7 @@ export default function Profile({ user, setUser }) {
                   ? u.coverphoto
                   : `http://localhost:5001${u.coverphoto}`
                 : "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=1000",
+              cash_points: u.cash_points !== undefined ? Number(u.cash_points) : 0,
               is_verified: u.is_verified || 0,
             });
           }
@@ -367,6 +368,7 @@ export default function Profile({ user, setUser }) {
         about: user.about || prev.about,
         trust_score: user.trust_score !== undefined ? user.trust_score : prev.trust_score,
         max_rental_limit: user.rental_limit || user.max_rental_limit || prev.max_rental_limit || 1000,
+        cash_points: user.cash_points !== undefined ? Number(user.cash_points) : (prev.cash_points || 0),
         reviews_count: user.reviews_count || prev.reviews_count,
         likes_count: user.likes_count || prev.likes_count,
         profile_pic_url: user.profile_pic_url
@@ -635,44 +637,7 @@ export default function Profile({ user, setUser }) {
   };
 
 
-  const [showQRModal, setShowQRModal] = useState(false);
-const [bankName, setBankName] = useState("");
-const [accountName, setAccountName] = useState("");
-const [accountNumber, setAccountNumber] = useState("");
-const [qrValue, setQrValue] = useState("");
 
-const currentUserId = user?.id || user?.user_id || "default";
-
-useEffect(() => {
-  const saved = localStorage.getItem(`renthub_seller_qr_${currentUserId}`);
-  if (saved) {
-    try {
-      const parsed = JSON.parse(saved);
-      setBankName(parsed.bankName || "");
-      setAccountName(parsed.accountName || "");
-      setAccountNumber(parsed.accountNumber || "");
-      setQrValue(parsed.qrValue || "");
-    } catch (e) {
-      console.error("Failed to load saved QR data:", e);
-    }
-  }
-}, [currentUserId]);
-
-const handleGenerateQR = (e) => {
-  e.preventDefault();
-  const payLink = `${window.location.origin}/qr-pay?seller=${encodeURIComponent(
-    currentUserId
-  )}&bank=${encodeURIComponent(bankName)}&holder=${encodeURIComponent(
-    accountName
-  )}&acc=${encodeURIComponent(accountNumber)}`;
-
-  setQrValue(payLink);
-  localStorage.setItem(
-    `renthub_seller_qr_${currentUserId}`,
-    JSON.stringify({ bankName, accountName, accountNumber, qrValue: payLink })
-  );
-  setShowQRModal(false);
-};
 
 
   return (
@@ -803,9 +768,114 @@ const handleGenerateQR = (e) => {
             )}
           </div>
 
-          {/* Stats Bar Layout (Total Items, Trust Score, Reviews) */}
-          <div style={styles.statsBarContainer}>
+          {/* Stats Bar Layout (Total Items, Trust Score, Reviews, Cash Points) - 100% Mobile Responsive */}
+          <style>{`
+            .profile-stats-bar-grid {
+              display: grid !important;
+              grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
+              gap: 12px !important;
+              align-items: center;
+              box-sizing: border-box !important;
+              width: 100% !important;
+              max-width: 100% !important;
+              background-color: #e8f8f0;
+              border: 1px solid #c7e9d7;
+              border-radius: 16px;
+              padding: 14px 16px;
+              margin-top: 25px;
+            }
+
+            .profile-stat-box {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              min-width: 0;
+              box-sizing: border-box;
+            }
+
+            .profile-stat-cashpoints {
+              display: flex;
+              align-items: center;
+              gap: 10px;
+              min-width: 0;
+              box-sizing: border-box;
+              width: 100%;
+            }
+
+            .profile-stat-icon-wrapper {
+              flex-shrink: 0;
+            }
+
+            .profile-stat-val {
+              display: block;
+              font-size: 16px;
+              font-weight: bold;
+              color: #111;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+
+            .profile-stat-lbl {
+              display: block;
+              font-size: 12px;
+              color: #666;
+              white-space: nowrap;
+              overflow: hidden;
+              text-overflow: ellipsis;
+            }
+
+            @media (min-width: 821px) {
+              .profile-stat-item-with-border {
+                border-right: 1px solid #c7e9d7;
+                padding-right: 12px;
+              }
+            }
+
+            /* Tablet & Mobile (<= 820px): Clean 2x2 Grid Layout */
+            @media (max-width: 820px) {
+              .profile-stats-bar-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 12px 10px !important;
+                padding: 12px 10px !important;
+              }
+              .profile-stat-box, .profile-stat-cashpoints {
+                gap: 8px !important;
+                padding: 6px 8px !important;
+              }
+              .profile-stat-item-with-border {
+                border-right: none !important;
+              }
+              .profile-stat-val {
+                font-size: 14.5px !important;
+              }
+              .profile-stat-lbl {
+                font-size: 11px !important;
+              }
+            }
+
+            /* Extra Small Mobile (<= 380px) */
+            @media (max-width: 380px) {
+              .profile-stats-bar-grid {
+                grid-template-columns: repeat(2, minmax(0, 1fr)) !important;
+                gap: 8px 6px !important;
+                padding: 10px 6px !important;
+              }
+              .profile-stat-box, .profile-stat-cashpoints {
+                gap: 6px !important;
+                padding: 4px 4px !important;
+              }
+              .profile-stat-val {
+                font-size: 13.5px !important;
+              }
+              .profile-stat-lbl {
+                font-size: 10px !important;
+              }
+            }
+          `}</style>
+          <div className="profile-stats-bar-grid">
             <div
+              className="profile-stat-box profile-stat-item-with-border"
               onClick={() => {
                 setActiveTab("shop");
                 setTimeout(() => {
@@ -813,9 +883,8 @@ const handleGenerateQR = (e) => {
                 }, 50);
               }}
               style={{
-                ...styles.statBox,
                 cursor: "pointer",
-                padding: "6px 10px",
+                padding: "6px 8px",
                 borderRadius: "12px",
                 backgroundColor: activeTab === "shop" ? "#e6f7ef" : "transparent",
                 transition: "all 0.2s ease",
@@ -824,33 +893,34 @@ const handleGenerateQR = (e) => {
               role="button"
               tabIndex={0}
             >
-              <div style={styles.statIconBg}>
-                <Package size={22} color="#00aa5b" />
+              <div style={styles.statIconBg} className="profile-stat-icon-wrapper">
+                <Package size={20} color="#00aa5b" />
               </div>
-              <div>
-                <span style={styles.statBoxVal}>{items.length}</span>
-                <span style={styles.statBoxLbl}>Total Items</span>
+              <div style={{ minWidth: 0, overflow: "hidden" }}>
+                <span style={styles.statBoxVal} className="profile-stat-val">{items.length}</span>
+                <span style={styles.statBoxLbl} className="profile-stat-lbl">Total Items</span>
               </div>
             </div>
-
-            <div style={styles.statBoxDivider}></div>
 
             <div 
-              style={styles.statBox} 
+              className="profile-stat-box profile-stat-item-with-border"
+              style={{
+                padding: "6px 8px",
+                borderRadius: "12px",
+              }}
               title={`Trust Score: ${profile.trust_score || 50}% | Max Rental Limit: LKR ${(profile.max_rental_limit || 1000).toLocaleString()}`}
             >
-              <div style={styles.statIconBg}>
-                <CheckCircle2 size={22} color="#00aa5b" />
+              <div style={styles.statIconBg} className="profile-stat-icon-wrapper">
+                <CheckCircle2 size={20} color="#00aa5b" />
               </div>
-              <div>
-                <span style={styles.statBoxVal}>{profile.trust_score || 50}%</span>
-                <span style={styles.statBoxLbl}>Trust Score</span>
+              <div style={{ minWidth: 0, overflow: "hidden" }}>
+                <span style={styles.statBoxVal} className="profile-stat-val">{profile.trust_score || 50}%</span>
+                <span style={styles.statBoxLbl} className="profile-stat-lbl">Trust Score</span>
               </div>
             </div>
 
-            <div style={styles.statBoxDivider}></div>
-
             <div
+              className="profile-stat-box profile-stat-item-with-border"
               onClick={() => {
                 setActiveTab("reviews");
                 setTimeout(() => {
@@ -858,9 +928,8 @@ const handleGenerateQR = (e) => {
                 }, 50);
               }}
               style={{
-                ...styles.statBox,
                 cursor: "pointer",
-                padding: "6px 10px",
+                padding: "6px 8px",
                 borderRadius: "12px",
                 backgroundColor: activeTab === "reviews" ? "#e6f7ef" : "transparent",
                 transition: "all 0.2s ease",
@@ -869,23 +938,56 @@ const handleGenerateQR = (e) => {
               role="button"
               tabIndex={0}
             >
-              <div style={styles.statIconBg}>
-                <Star size={22} color="#00aa5b" fill="#00aa5b" />
+              <div style={styles.statIconBg} className="profile-stat-icon-wrapper">
+                <Star size={20} color="#00aa5b" fill="#00aa5b" />
               </div>
-              <div>
-                <span style={styles.statBoxVal}>
+              <div style={{ minWidth: 0, overflow: "hidden" }}>
+                <span style={styles.statBoxVal} className="profile-stat-val">
                   {profile.user_rating && profile.user_rating > 0
                     ? Number(profile.user_rating).toFixed(1)
                     : profile.reviews_count > 0
                     ? "5.0"
                     : "0.0"}
                 </span>
-                <span style={styles.statBoxLbl}>
+                <span style={styles.statBoxLbl} className="profile-stat-lbl">
                   {profile.reviews_count > 0
                     ? `from ${profile.reviews_count} ${
                         profile.reviews_count === 1 ? "review" : "reviews"
                       }`
                     : "from 0 reviews"}
+                </span>
+              </div>
+            </div>
+
+            <div
+              className="profile-stat-box profile-stat-cashpoints"
+              onClick={() => isOwnProfile && setShowTopupModal(true)}
+              style={{
+                cursor: isOwnProfile ? "pointer" : "default",
+                padding: "6px 10px",
+                borderRadius: "12px",
+                backgroundColor: isOwnProfile ? "#fefce8" : "transparent",
+                border: isOwnProfile ? "1.5px solid #fef08a" : "1px solid transparent",
+                transition: "all 0.2s ease",
+                boxSizing: "border-box",
+              }}
+              title={
+                isOwnProfile
+                  ? "Click to Top Up Cash Points via Payment Gateway"
+                  : "User Cash Points"
+              }
+              role={isOwnProfile ? "button" : undefined}
+              tabIndex={isOwnProfile ? 0 : undefined}
+            >
+              <div style={{ ...styles.statIconBg, backgroundColor: "#fef9c3" }} className="profile-stat-icon-wrapper">
+                <Coins size={20} color="#ca8a04" />
+              </div>
+              <div style={{ minWidth: 0, overflow: "hidden" }}>
+                <span style={{ ...styles.statBoxVal, color: "#854d0e" }} className="profile-stat-val">
+                  {Number(profile.cash_points || 0).toLocaleString()}
+                </span>
+                <span style={{ ...styles.statBoxLbl, color: "#a16207" }} className="profile-stat-lbl">
+                  Cash Points {isOwnProfile && <span style={{ color: "#16a34a", fontWeight: "800" }}>+</span>}
                 </span>
               </div>
             </div>
@@ -925,104 +1027,7 @@ const handleGenerateQR = (e) => {
               </button>
             )}
           </div>
-          {/* --- Seller Payment QR Section --- */}
-<div className="profile-qr-section" style={{ marginTop: "18px", padding: "16px", borderRadius: "14px", border: "1px solid #e2e8f0", background: "#ffffff" }}>
-  <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", gap: "10px", flexWrap: "wrap" }}>
-    <div>
-      <h4 style={{ margin: 0, fontSize: "15px", fontWeight: 700, color: "#0f172a" }}>
-        Seller Payment QR
-      </h4>
-      <p style={{ margin: "4px 0 0", fontSize: "12.5px", color: "#64748b" }}>
-        Add bank details to generate a QR. Customers scan it, enter the amount, and pay by card.
-      </p>
-    </div>
 
-    <button
-      type="button"
-      className="req-btn"
-      style={{ width: "auto", padding: "9px 14px" }}
-      onClick={() => setShowQRModal(true)}
-    >
-      {qrValue ? "Update Bank & QR" : "Generate QR"}
-    </button>
-  </div>
-
-  {qrValue && (
-    <div style={{ marginTop: "14px", paddingTop: "14px", borderTop: "1px solid #f1f5f9", display: "flex", flexDirection: "column", alignItems: "center", gap: "8px" }}>
-      <QRCodeCanvas value={qrValue} size={165} level="M" />
-      <div style={{ fontSize: "13px", fontWeight: 600, color: "#0f172a", textAlign: "center" }}>
-        {accountName} • {bankName} ({accountNumber})
-      </div>
-    </div>
-  )}
-</div>
-
-{/* --- Bank Details Modal --- */}
-{showQRModal && (
-  <div className="payment-modal-backdrop" onClick={() => setShowQRModal(false)}>
-    <div className="payment-modal-card" onClick={(e) => e.stopPropagation()}>
-      <div className="payment-modal-header">
-        <h3 className="payment-modal-title">Bank Details for QR</h3>
-        <button type="button" className="payment-modal-close" onClick={() => setShowQRModal(false)}>
-          ✕
-        </button>
-      </div>
-
-      <form onSubmit={handleGenerateQR}>
-        <div style={{ marginBottom: "10px" }}>
-          <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "4px" }}>
-            Bank Name
-          </label>
-          <input
-            type="text"
-            placeholder="e.g. Commercial Bank"
-            value={bankName}
-            onChange={(e) => setBankName(e.target.value)}
-            required
-            style={{ width: "100%", padding: "9px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "10px" }}>
-          <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "4px" }}>
-            Account Holder Name
-          </label>
-          <input
-            type="text"
-            placeholder="Account holder full name"
-            value={accountName}
-            onChange={(e) => setAccountName(e.target.value)}
-            required
-            style={{ width: "100%", padding: "9px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
-          />
-        </div>
-
-        <div style={{ marginBottom: "14px" }}>
-          <label style={{ display: "block", fontSize: "13px", fontWeight: 600, marginBottom: "4px" }}>
-            Account Number
-          </label>
-          <input
-            type="text"
-            placeholder="e.g. 8001234567"
-            value={accountNumber}
-            onChange={(e) => setAccountNumber(e.target.value)}
-            required
-            style={{ width: "100%", padding: "9px", borderRadius: "8px", border: "1px solid #cbd5e1" }}
-          />
-        </div>
-
-        <div className="payment-modal-actions">
-          <button type="button" className="payment-btn-cancel" onClick={() => setShowQRModal(false)}>
-            Cancel
-          </button>
-          <button type="submit" className="payment-btn-confirm">
-            Generate QR
-          </button>
-        </div>
-      </form>
-    </div>
-  </div>
-)}
           {activeTab === "shop" && (
             <div style={{ marginTop: "24px" }}>
               <div
@@ -2261,6 +2266,21 @@ const handleGenerateQR = (e) => {
             }}
           />
         )}
+        {/* CASH POINTS TOP-UP MODAL (VIA GATEWAY) */}
+        {showTopupModal && (
+          <CashPointsTopupModal
+            isOpen={showTopupModal}
+            onClose={() => setShowTopupModal(false)}
+            currentUser={user}
+            currentBalance={profile.cash_points || 0}
+            onSuccess={(newPoints) => {
+              setProfile((prev) => ({
+                ...prev,
+                cash_points: newPoints,
+              }));
+            }}
+          />
+        )}
       </div>
     </div>
   );
@@ -2375,14 +2395,17 @@ const styles = {
   },
   
   statsBarContainer: {
-    display: "flex",
+    display: "grid",
+    gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
+    gap: "12px",
     alignItems: "center",
-    justifyContent: "space-around",
     backgroundColor: "#e8f8f0",
     border: "1px solid #c7e9d7",
     borderRadius: "16px",
-    padding: "16px",
+    padding: "14px 16px",
     marginTop: "25px",
+    boxSizing: "border-box",
+    width: "100%",
   },
   statBox: { display: "flex", alignItems: "center", gap: "12px" },
   statIconBg: {

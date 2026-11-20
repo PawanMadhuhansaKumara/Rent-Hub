@@ -4,12 +4,12 @@ import {
   ClipboardCheck,
   ShieldCheck,
   UserCheck,
-  CreditCard,
   Package,
   FileText,
   AlertCircle,
   Calendar,
   CheckCircle2,
+  Coins,
 } from "lucide-react";
 import "../components.css";
 import { formatRentalDate } from "../../utils/dateUtils";
@@ -26,12 +26,6 @@ export default function RentalVerificationModal({
   onConfirm,
   isSubmitting = false,
 }) {
-  const chosenMethod = (
-    req?.paymentMethod ||
-    req?.payment_method ||
-    "cash"
-  ).toLowerCase();
-
   const [idCardChecked, setIdCardChecked] = useState(false);
   const [customerDetailsVerified, setCustomerDetailsVerified] = useState(false);
   const [rentalPaymentStatus, setRentalPaymentStatus] = useState("Paid");
@@ -40,9 +34,6 @@ export default function RentalVerificationModal({
   const [accessoriesIncluded, setAccessoriesIncluded] = useState(true);
   const [additionalNotes, setAdditionalNotes] = useState("");
   const [validationError, setValidationError] = useState("");
-
-  const [cardPaid, setCardPaid] = useState(false);
-  const [cardAuthCode, setCardAuthCode] = useState("");
 
   // Reset form when modal opens or request changes
   useEffect(() => {
@@ -55,13 +46,6 @@ export default function RentalVerificationModal({
       setAccessoriesIncluded(true);
       setAdditionalNotes("");
       setValidationError("");
-
-      const isAlreadyPaid =
-        req?.paymentStatus === "paid" ||
-        req?.payment_status === "paid" ||
-        req?.rentalPaymentStatus === "Paid";
-      setCardPaid(Boolean(isAlreadyPaid));
-      setCardAuthCode(isAlreadyPaid ? "AUTH-PREPAID" : "");
     }
   }, [isOpen, req?.id]);
 
@@ -113,10 +97,7 @@ export default function RentalVerificationModal({
     const verificationData = {
       idCardChecked,
       customerDetailsVerified,
-      rentalPaymentStatus: chosenMethod === "card" && cardPaid ? "Paid" : rentalPaymentStatus,
-      paymentMethod: chosenMethod,
-      paymentStatus: (chosenMethod === "card" && cardPaid) || rentalPaymentStatus === "Paid" ? "paid" : "pending",
-      cardAuthCode: cardAuthCode || undefined,
+      rentalPaymentStatus,
       securityDeposit,
       itemCondition,
       accessoriesIncluded,
@@ -218,174 +199,26 @@ export default function RentalVerificationModal({
                 </strong>
               </div>
             )}
-            <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center" }}>
-              <span style={{ color: "#64748b" }}>Selected Payment:</span>
-              <span
-                style={{
-                  fontSize: "12px",
-                  fontWeight: "700",
-                  padding: "3px 8px",
-                  borderRadius: "6px",
-                  background: chosenMethod === "card" ? "#eff6ff" : "#f0fdf4",
-                  color: chosenMethod === "card" ? "#1d4ed8" : "#15803d",
-                  border: chosenMethod === "card" ? "1px solid #bfdbfe" : "1px solid #bbf7d0",
-                }}
-              >
-                {chosenMethod === "card" ? "💳 Card Payment" : "💵 Cash on Pickup"}
-              </span>
-            </div>
           </div>
 
-          {/* Payment Handling Section based on Customer's choice */}
-          {chosenMethod === "card" ? (
+          {/* Cash on Pickup Warning: 10% platform fee deducted upon handover confirmation */}
+          {(req.paymentMethod || req.payment_method || "cash").toLowerCase().includes("cash") && (
             <div
               style={{
-                padding: "14px",
-                background: "#f0f9ff",
-                border: "1.5px solid #bae6fd",
-                borderRadius: "14px",
+                backgroundColor: "#fffbeb",
+                border: "1.5px solid #fde68a",
+                borderRadius: "12px",
+                padding: "11px 14px",
                 display: "flex",
-                flexDirection: "column",
+                alignItems: "flex-start",
                 gap: "10px",
               }}
             >
-              <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between" }}>
-                <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                  <CreditCard size={18} color="#0284c7" />
-                  <strong style={{ fontSize: "13.5px", color: "#0369a1" }}>
-                    Card Payment Processing
-                  </strong>
-                </div>
-                <span style={{ fontSize: "12px", fontWeight: "700", color: "#0c4a6e" }}>
-                  Due: Rs. {Number(req.totalPrice || 0).toLocaleString()}
-                </span>
+              <Coins size={20} color="#b45309" style={{ flexShrink: 0, marginTop: "2px" }} />
+              <div style={{ fontSize: "12.5px", color: "#92400e", lineHeight: "1.4" }}>
+                <strong>Cash on Pickup Payment:</strong> Collect <strong>Rs. {Number(req.totalPrice || req.total_price || 0).toLocaleString()}</strong> in cash from the customer.
+                Upon confirming handover, <strong>10% platform fee (Rs. {Number(((req.totalPrice || req.total_price || 0) * 0.10)).toLocaleString()})</strong> will be automatically deducted from your shop's earnings.
               </div>
-
-              {cardPaid ? (
-                <div
-                  style={{
-                    background: "#ecfdf5",
-                    border: "1px solid #a7f3d0",
-                    borderRadius: "10px",
-                    padding: "10px 12px",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                  }}
-                >
-                  <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                    <CheckCircle2 size={18} color="#16a34a" />
-                    <div>
-                      <strong style={{ fontSize: "13px", color: "#15803d", display: "block" }}>
-                        Card Payment Successful ✓
-                      </strong>
-                      <span style={{ fontSize: "11px", color: "#166534" }}>
-                        Transaction Ref: {cardAuthCode || "AUTH-VERIFIED"} • Total: Rs. {Number(req.totalPrice || 0).toLocaleString()}
-                      </span>
-                    </div>
-                  </div>
-                  <span
-                    style={{
-                      background: "#16a34a",
-                      color: "#fff",
-                      fontSize: "11px",
-                      fontWeight: "700",
-                      padding: "3px 8px",
-                      borderRadius: "6px",
-                    }}
-                  >
-                    PAID ✓
-                  </span>
-                </div>
-              ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "10px" }}>
-                  <p style={{ fontSize: "12px", color: "#0369a1", margin: 0 }}>
-                    Customer selected Card Payment. Swipe/tap the customer's card on your physical shop POS terminal or counter card machine:
-                  </p>
-                  <div style={{ display: "flex", gap: "10px", alignItems: "center" }}>
-                    <input
-                      type="text"
-                      placeholder="POS Slip / Auth Ref (Optional, e.g. REF-1234)"
-                      value={cardAuthCode}
-                      onChange={(e) => setCardAuthCode(e.target.value)}
-                      style={{
-                        flex: 1,
-                        padding: "9px 12px",
-                        fontSize: "12.5px",
-                        borderRadius: "8px",
-                        border: "1px solid #cbd5e1",
-                        background: "#fff",
-                      }}
-                    />
-                    <button
-                      type="button"
-                      onClick={() => {
-                        setCardPaid(true);
-                        setRentalPaymentStatus("Paid");
-                        if (!cardAuthCode) {
-                          setCardAuthCode(`POS-SWIPE-${Date.now().toString().slice(-6)}`);
-                        }
-                      }}
-                      style={{
-                        padding: "9px 16px",
-                        background: "#0284c7",
-                        color: "#fff",
-                        border: "none",
-                        borderRadius: "8px",
-                        fontSize: "13px",
-                        fontWeight: "600",
-                        cursor: "pointer",
-                        display: "flex",
-                        alignItems: "center",
-                        gap: "6px",
-                        whiteSpace: "nowrap",
-                        boxShadow: "0 2px 4px rgba(2, 132, 199, 0.2)",
-                      }}
-                    >
-                      <CreditCard size={15} />
-                      <span>Confirm Card Received ✓</span>
-                    </button>
-                  </div>
-                </div>
-              )}
-            </div>
-          ) : (
-            /* Cash on pickup block */
-            <div
-              style={{
-                padding: "12px 14px",
-                background: "#f0fdf4",
-                border: "1.5px solid #bbf7d0",
-                borderRadius: "14px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-              }}
-            >
-              <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-                <span style={{ fontSize: "22px" }}>💵</span>
-                <div>
-                  <strong style={{ fontSize: "13px", color: "#166534", display: "block" }}>
-                    Cash on Pickup Selected
-                  </strong>
-                  <span style={{ fontSize: "12px", color: "#15803d" }}>
-                    Collect <strong>Rs. {Number(req.totalPrice || 0).toLocaleString()}</strong> in cash from customer
-                  </span>
-                </div>
-              </div>
-              <span
-                style={{
-                  background: "#dcfce7",
-                  border: "1px solid #86efac",
-                  color: "#15803d",
-                  fontSize: "11px",
-                  fontWeight: "700",
-                  padding: "4px 8px",
-                  borderRadius: "6px",
-                }}
-              >
-                Cash Collection
-              </span>
             </div>
           )}
 

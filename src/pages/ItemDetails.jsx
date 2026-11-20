@@ -355,7 +355,6 @@ export default function ItemDetails() {
   const [startDate, setStartDate] = useState("");
   const [endDate, setEndDate] = useState("");
   const [quantity, setQuantity] = useState(1);
-  const [paymentMethod, setPaymentMethod] = useState("cash");
 
   const today = new Date();
   const minDate = [
@@ -464,41 +463,46 @@ export default function ItemDetails() {
     setShowRequestForm(true);
   };
 
-  const handleRequestSubmit = async (event) => {
-    event.preventDefault();
+  const handleRequestSubmit = async (paymentData) => {
+    if (paymentData && paymentData.preventDefault) {
+      paymentData.preventDefault();
+    }
 
     if (!currentUser) {
       alert("Please login to request a rental.");
       navigate("/login");
-      return;
+      return false;
     }
 
     if (isLimitExceeded) {
       alert(
         `Trust Limit Exceeded!\n\nYour current maximum rental limit is LKR ${userRentalLimit.toLocaleString()}, but this item costs LKR ${itemPrice.toLocaleString()}.\n\nComplete and return previous rentals safely on RentHub to build your Trust Score and unlock higher-priced items!`
       );
-      return;
+      return false;
     }
 
     if (isRented || available < 1) {
       alert("This item is currently rented out and cannot be rented.");
-      return;
+      return false;
     }
 
     if (!startDate || !endDate) {
       alert("Please select the rental start and end dates.");
-      return;
+      return false;
     }
 
     if (endDate < startDate) {
       alert("End date must be on or after the start date.");
-      return;
+      return false;
     }
 
     if (quantity < 1 || quantity > available)  {
       alert("Please select a valid quantity.");
-      return;
+      return false;
     }
+
+    const chosenMethod = paymentData?.paymentMethod || "cash";
+    const isPaid = Boolean(paymentData?.isPaid);
 
     const myId = currentUser?.user_id || currentUser?.id;
     const sellerId = item?.user_id || item?.userId || item?.seller_id;
@@ -524,7 +528,8 @@ export default function ItemDetails() {
       endDate: endDate,
       quantity: numQty,
       totalPrice: calculatedTotal,
-      paymentMethod: paymentMethod || "cash",
+      paymentMethod: chosenMethod,
+      paymentStatus: isPaid ? "paid" : "pending",
       status: "Pending",
     };
 
@@ -538,12 +543,17 @@ export default function ItemDetails() {
       });
 
       const data = await res.json().catch(() => ({}));
-      if (res.ok && (data.success !== false || data.requestId)) {
+      if (!res.ok) {
+        alert(data.message || "Failed to submit rental request.");
+        return false;
+      }
+
+      if (data.success !== false || data.requestId) {
         createdRequest = {
           id: data.requestId || data.request?.id || Date.now(),
           ...requestPayload,
-          paymentMethod: paymentMethod || "cash",
-          paymentStatus: "pending",
+          paymentMethod: chosenMethod,
+          paymentStatus: isPaid ? "paid" : "pending",
           createdAt: data.request?.createdAt || new Date().toISOString(),
           itemTitle: item.title,
           itemImage: item.image || item.image_url,
@@ -563,8 +573,8 @@ export default function ItemDetails() {
       createdRequest = {
         id: Date.now(),
         ...requestPayload,
-        paymentMethod: paymentMethod || "cash",
-        paymentStatus: "pending",
+        paymentMethod: chosenMethod,
+        paymentStatus: isPaid ? "paid" : "pending",
         createdAt: new Date().toISOString(),
         itemTitle: item.title,
         itemImage: item.image || item.image_url,
@@ -589,6 +599,7 @@ export default function ItemDetails() {
         JSON.stringify([createdRequest, ...filtered]),
       );
       window.dispatchEvent(new Event("rent_requests_updated"));
+      window.dispatchEvent(new Event("user_updated"));
     } catch (e) {
       console.error("Local storage update error:", e);
     }
@@ -939,106 +950,7 @@ export default function ItemDetails() {
               </div>
             )}
 
-            {!isItemSeller && (
-              <div
-                style={{
-                  background: "#f8fafc",
-                  border: "1px solid #e2e8f0",
-                  borderRadius: "14px",
-                  padding: "12px 14px",
-                  marginBottom: "16px",
-                }}
-              >
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "space-between",
-                    marginBottom: "8px",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: "12.5px",
-                      fontWeight: "700",
-                      color: "#1e293b",
-                      display: "flex",
-                      alignItems: "center",
-                      gap: "6px",
-                    }}
-                  >
-                    <span>Payment Method:</span>
-                  </span>
-                  <span style={{ fontSize: "11px", color: "#64748b" }}>
-                    (Pay at item pickup)
-                  </span>
-                </div>
 
-                <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "10px" }}>
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("cash")}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                      padding: "10px 12px",
-                      borderRadius: "10px",
-                      border:
-                        paymentMethod === "cash"
-                          ? "2px solid #16a34a"
-                          : "1.5px solid #cbd5e1",
-                      backgroundColor:
-                        paymentMethod === "cash" ? "#f0fdf4" : "#ffffff",
-                      color: paymentMethod === "cash" ? "#15803d" : "#475569",
-                      fontWeight: paymentMethod === "cash" ? "700" : "500",
-                      fontSize: "13px",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease",
-                      boxShadow:
-                        paymentMethod === "cash"
-                          ? "0 2px 6px rgba(22, 163, 74, 0.15)"
-                          : "none",
-                    }}
-                  >
-                    <span style={{ fontSize: "16px" }}>💵</span>
-                    <span>Cash on Pickup</span>
-                  </button>
-
-                  <button
-                    type="button"
-                    onClick={() => setPaymentMethod("card")}
-                    style={{
-                      display: "flex",
-                      alignItems: "center",
-                      justifyContent: "center",
-                      gap: "8px",
-                      padding: "10px 12px",
-                      borderRadius: "10px",
-                      border:
-                        paymentMethod === "card"
-                          ? "2px solid #2563eb"
-                          : "1.5px solid #cbd5e1",
-                      backgroundColor:
-                        paymentMethod === "card" ? "#eff6ff" : "#ffffff",
-                      color: paymentMethod === "card" ? "#1d4ed8" : "#475569",
-                      fontWeight: paymentMethod === "card" ? "700" : "500",
-                      fontSize: "13px",
-                      cursor: "pointer",
-                      transition: "all 0.2s ease",
-                      boxShadow:
-                        paymentMethod === "card"
-                          ? "0 2px 6px rgba(37, 99, 235, 0.15)"
-                          : "none",
-                    }}
-                  >
-                    <span style={{ fontSize: "16px" }}>💳</span>
-                    <span>Card Payment</span>
-                  </button>
-                </div>
-              </div>
-            )}
 
             <div className="details-actions">
               {isItemSeller ? (
@@ -1511,12 +1423,12 @@ export default function ItemDetails() {
           setEndDate={setEndDate}
           quantity={quantity}
           setQuantity={setQuantity}
-          paymentMethod={paymentMethod}
-          setPaymentMethod={setPaymentMethod}
           available={available}
           priceType={priceType}
           price={price}
           itemTitle={item.title}
+          currentUser={currentUser}
+          API_URL={API_URL}
         />
       )}
 
