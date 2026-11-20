@@ -173,8 +173,8 @@ const styles = {
     left: 0,
     width: "100%",
     height: "70px",
-    backgroundColor: "#ffffff",
-    borderTop: "1px solid #e5e5e5",
+    backgroundColor: "var(--bottom-nav-bg, #ffffff)",
+    borderTop: "1px solid var(--bottom-nav-border, #e5e5e5)",
     display: "flex",
     justifyContent: "space-around",
     alignItems: "center",
@@ -184,7 +184,7 @@ const styles = {
 
   navItem: {
     textDecoration: "none",
-    color: "#777",
+    color: "var(--bottom-nav-text, #777)",
     display: "flex",
     flexDirection: "column",
     alignItems: "center",
@@ -196,7 +196,7 @@ const styles = {
   },
 
   activeItem: {
-    color: "#11843b",
+    color: "var(--bottom-nav-active, #11843b)",
   },
 
   icon: {

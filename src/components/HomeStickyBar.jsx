@@ -22,13 +22,17 @@ export default function HomeStickyBar({
   radius,
   setRadius,
   setShowBuyerPicker,
+  user,
 }) {
   const { t } = useTranslation();
+  const isLoggedIn = Boolean(user);
 
   return (
     <div className="home-sticky-bar">
-      {/* 1. Search Bar Slot (Mobile only; hidden on Desktop & Tablet) */}
-      <div className="sticky-search-slot">
+      {/* 1. Search Bar Slot:
+          - Always visible on mobile (<= 700px)
+          - On desktop (> 700px): Visible before logging in; hidden when logged in (since it is in the Navbar) */}
+      <div className={`sticky-search-slot ${isLoggedIn ? "logged-in" : "guest-visible"}`}>
         <div>
           <SearchBar
             searchTerm={searchTerm}

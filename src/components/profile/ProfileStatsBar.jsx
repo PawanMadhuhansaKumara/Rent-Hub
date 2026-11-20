@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Package, CheckCircle2, Star, Coins } from "lucide-react";
 
 export default function ProfileStatsBar({
@@ -9,6 +10,7 @@ export default function ProfileStatsBar({
   isOwnProfile = false,
   setShowTopupModal = () => {},
 }) {
+  const { t } = useTranslation();
   return (
     <div className="profile-stats-bar-grid">
       {/* 1. Total Items */}
@@ -38,7 +40,7 @@ export default function ProfileStatsBar({
         </div>
         <div style={{ minWidth: 0, overflow: "hidden" }}>
           <span className="profile-stat-val">{items?.length || 0}</span>
-          <span className="profile-stat-lbl">Total Items</span>
+          <span className="profile-stat-lbl">{t("stats.totalItems", "Total Items")}</span>
         </div>
       </div>
 
@@ -60,7 +62,7 @@ export default function ProfileStatsBar({
           <span className="profile-stat-val">
             {profile?.trust_score || 50}%
           </span>
-          <span className="profile-stat-lbl">Trust Score</span>
+          <span className="profile-stat-lbl">{t("stats.trustScore", "Trust Score")}</span>
         </div>
       </div>
 
@@ -98,11 +100,10 @@ export default function ProfileStatsBar({
               : "0.0"}
           </span>
           <span className="profile-stat-lbl">
-            {profile?.reviews_count > 0
-              ? `from ${profile.reviews_count} ${
-                  profile.reviews_count === 1 ? "review" : "reviews"
-                }`
-              : "from 0 reviews"}
+            {t("stats.fromReviews", {
+              count: profile?.reviews_count || 0,
+              defaultValue: `from ${profile?.reviews_count || 0} reviews`,
+            })}
           </span>
         </div>
       </div>
@@ -148,7 +149,7 @@ export default function ProfileStatsBar({
             className="profile-stat-lbl"
             style={{ color: "#a16207" }}
           >
-            Cash Points{" "}
+            {t("stats.cashPoints", "Cash Points")}{" "}
             {isOwnProfile && (
               <span style={{ color: "#16a34a", fontWeight: "800" }}>+</span>
             )}

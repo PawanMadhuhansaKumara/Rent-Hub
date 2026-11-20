@@ -1,26 +1,8 @@
-.navbar-language {
-  max-width: 120px;
-  padding: 8px 12px;
-  border: 1px solid rgba(255, 255, 255, 0.45);
-  border-radius: 8px;
-  background: rgba(255, 255, 255, 0.18);
-  color: #222020;
-  font-size: 13px;
-  font-weight: 600;
-  cursor: pointer;
-  outline: none;
-  transition: all 0.2s ease;
-}
-
+/* Language selector dropdown options (navbar button sizing managed in Navbar.css) */
 .navbar-language option {
   background: #ffffff;
   color: #172b22;
-}
-
-.navbar-language:hover,
-.navbar-language:focus {
-  background: rgba(255, 255, 255, 0.3);
-  border-color: #ffffff;
+  font-weight: 500;
 }
 /* =================================
    SEARCH BAR
@@ -33,7 +15,7 @@
   width: 100%;
   max-width: 650px;
   min-height: 40px;
-  margin: 24px 0 32px;
+  margin: 16px auto 24px auto;
   padding: 0 18px;
   border: 1px solid #dbe3dc;
   border-radius: 30px;

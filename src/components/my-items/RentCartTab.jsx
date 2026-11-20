@@ -1,5 +1,6 @@
 import React from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import { ShoppingCart } from "lucide-react";
 import CartItemCard from "../CartItemCard";
 import RentRequestButton from "../RentRequestButton";
@@ -20,6 +21,8 @@ export default function RentCartTab({
   onRentNow,
   onRetry,
 }) {
+  const { t } = useTranslation();
+
   if (loadingCart) {
     return (
       <div className="my-items-loader">
@@ -46,10 +49,10 @@ export default function RentCartTab({
         <div className="my-items-empty-icon" style={{ background: "#eff6ff" }}>
           <ShoppingCart size={48} color="#2563eb" />
         </div>
-        <h3>Your Rent Cart is empty</h3>
-        <p>Browse items and add them to your rent cart to request rentals.</p>
+        <h3>{t("rentsPage.cartEmptyTitle", "Your Rent Cart is empty")}</h3>
+        <p>{t("rentsPage.cartEmptyDesc", "Browse items and add them to your rent cart to request rentals.")}</p>
         <Link to="/" className="my-items-empty-add-btn">
-          Browse Items
+          {t("rentsPage.browseItemsBtn", "Browse Items")}
         </Link>
       </div>
     );
@@ -82,17 +85,22 @@ export default function RentCartTab({
             onChange={onSelectAll}
             disabled={selectableCartItems.length === 0}
           />
-          <span>Select All ({selectableCartItems.length} available)</span>
+          <span>
+            {t("rentsPage.selectAll", {
+              count: selectableCartItems.length,
+              defaultValue: `Select All (${selectableCartItems.length} available)`,
+            })}
+          </span>
         </label>
 
         <div className="rent-cart-toolbar-actions">
           {selectedCartIds.length > 0 && (
             <div className="rent-cart-selected-summary">
               <span className="selected-count">
-                Selected: <strong>{selectedCartIds.length}</strong>
+                {t("rentsPage.selectedCount", "Selected")}: <strong>{selectedCartIds.length}</strong>
               </span>
               <span className="selected-total">
-                Total: <strong>Rs. {totalSelectedPrice.toLocaleString()}</strong>
+                {t("rentsPage.selectedTotal", "Total")}: <strong>LKR {totalSelectedPrice.toLocaleString()}</strong>
               </span>
             </div>
           )}
@@ -118,13 +126,12 @@ export default function RentCartTab({
         <div className="rent-cart-bottom-bar">
           <div className="rent-cart-bottom-summary">
             <span>
-              Selected: <strong>{selectedCartIds.length}</strong> of{" "}
-              {cartItems.length} items
+              {t("rentsPage.selectedCount", "Selected")}: <strong>{selectedCartIds.length}</strong> / {cartItems.length}
             </span>
             <span>
-              Total Amount:{" "}
+              {t("rentsPage.totalAmountLabel", "Total Amount")}:{" "}
               <strong className="summary-price">
-                Rs. {totalSelectedPrice.toLocaleString()}
+                LKR {totalSelectedPrice.toLocaleString()}
               </strong>
             </span>
           </div>

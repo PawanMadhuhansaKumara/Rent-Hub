@@ -1,0 +1,759 @@
+/* ==========================================================================
+   RENT-HUB CENTRAL THEME DESIGN TOKENS
+   Easily customize Light & Dark theme colors from this single central file.
+   ========================================================================== */
+
+/* --------------------------------------------------------------------------
+   1. LIGHT THEME (Default)
+   -------------------------------------------------------------------------- */
+:root,
+[data-theme="light"] {
+  /* Brand / Primary Emerald */
+  --primary: #15803d;
+  --primary-hover: #166534;
+  --primary-light: #f0fdf4;
+  --primary-border: #bbf7d0;
+  --primary-text: #166534;
+
+  /* App Canvas & Cards */
+  --bg-app: #ffffff;
+  --bg-app-alt: #f8fafc;
+  --bg-card: #ffffff;
+  --bg-card-hover: #f8fafc;
+  --bg-card-elevated: #ffffff;
+  --bg-input: #ffffff;
+  --bg-dropdown: #ffffff;
+  --bg-modal: #ffffff;
+
+  /* Text Colors */
+  --text-main: #0f172a;
+  --text-secondary: #334155;
+  --text-muted: #64748b;
+  --text-subtle: #94a3b8;
+  --text-inverse: #ffffff;
+
+  /* Borders & Dividers */
+  --border-light: #e2e8f0;
+  --border-subtle: #f1f5f9;
+  --border-strong: #cbd5e1;
+  --border-focus: #16a34a;
+
+  /* Navbar */
+  --navbar-bg: #15803d;
+  --navbar-border: #166534;
+  --navbar-text: #ffffff;
+
+  /* Bottom Navigation */
+  --bottom-nav-bg: #ffffff;
+  --bottom-nav-border: #e2e8f0;
+  --bottom-nav-text: #64748b;
+  --bottom-nav-active: #15803d;
+
+  /* Hero Section */
+  --hero-bg: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #ffffff 100%);
+  --hero-border: #dcfce7;
+  --hero-tag-bg: #dcfce7;
+  --hero-tag-text: #15803d;
+
+  /* Badges & Tags */
+  --badge-green-bg: #dcfce7;
+  --badge-green-text: #15803d;
+  --badge-yellow-bg: #fef9c3;
+  --badge-yellow-text: #854d0e;
+  --badge-red-bg: #fee2e2;
+  --badge-red-text: #991b1b;
+  --badge-blue-bg: #e0f2fe;
+  --badge-blue-text: #075985;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.05);
+  --shadow-md: 0 4px 14px rgba(0, 0, 0, 0.07);
+  --shadow-lg: 0 10px 30px rgba(0, 0, 0, 0.12);
+  --modal-backdrop: rgba(15, 23, 42, 0.55);
+
+  /* Form & Interactive */
+  --chip-bg: #f1f5f9;
+  --chip-text: #334155;
+  --chip-active-bg: #15803d;
+  --chip-active-text: #ffffff;
+}
+
+/* --------------------------------------------------------------------------
+   2. DARK THEME
+   -------------------------------------------------------------------------- */
+[data-theme="dark"] {
+  /* Brand / Primary Emerald (Vibrant for high contrast on dark) */
+  --primary: #10b981;
+  --primary-hover: #059669;
+  --primary-light: rgba(16, 185, 129, 0.15);
+  --primary-border: #047857;
+  --primary-text: #34d399;
+
+  /* App Backgrounds (Deep rich slate tones) */
+  --bg-app: #0b1120;             /* Main canvas background */
+  --bg-app-alt: #0f172a;         /* Slightly lighter section background */
+  --bg-card: #1e293b;            /* Card container background (Slate 800) */
+  --bg-card-hover: #26354a;      /* Hover state for cards/items */
+  --bg-card-elevated: #283548;   /* Elevated panels, dropdowns */
+  --bg-input: #0f172a;           /* Input field background */
+  --bg-dropdown: #1e293b;        /* Dropdown popups */
+  --bg-modal: #1e293b;           /* Modal dialog windows */
+
+  /* Text Colors */
+  --text-main: #f8fafc;          /* High contrast primary text (Slate 50) */
+  --text-secondary: #cbd5e1;     /* Slate 300 */
+  --text-muted: #94a3b8;         /* Subtitles & secondary labels (Slate 400) */
+  --text-subtle: #64748b;        /* Subtle timestamps, hints (Slate 500) */
+  --text-inverse: #0f172a;
+
+  /* Borders & Dividers */
+  --border-light: #334155;       /* Card borders (Slate 700) */
+  --border-subtle: #1e293b;      /* Subtle inner separators */
+  --border-strong: #475569;      /* Focused / emphasized borders (Slate 600) */
+  --border-focus: #10b981;
+
+  /* Navbar */
+  --navbar-bg: #064e3b;          /* Rich dark emerald green */
+  --navbar-border: #047857;
+  --navbar-text: #f8fafc;
+
+  /* Bottom Navigation */
+  --bottom-nav-bg: #0f172a;      /* Slate 900 */
+  --bottom-nav-border: #334155;  /* Slate 700 */
+  --bottom-nav-text: #94a3b8;
+  --bottom-nav-active: #34d399;
+
+  /* Hero Section */
+  --hero-bg: linear-gradient(135deg, #064e3b 0%, #065f46 40%, #0f172a 100%);
+  --hero-border: #047857;
+  --hero-tag-bg: rgba(52, 211, 153, 0.2);
+  --hero-tag-text: #6ee7b7;
+
+  /* Badges & Tags */
+  --badge-green-bg: rgba(16, 185, 129, 0.2);
+  --badge-green-text: #6ee7b7;
+  --badge-yellow-bg: rgba(234, 179, 8, 0.2);
+  --badge-yellow-text: #fde047;
+  --badge-red-bg: rgba(239, 68, 68, 0.2);
+  --badge-red-text: #fca5a5;
+  --badge-blue-bg: rgba(56, 189, 248, 0.2);
+  --badge-blue-text: #7dd3fc;
+
+  /* Shadows */
+  --shadow-sm: 0 1px 3px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 4px 16px rgba(0, 0, 0, 0.5);
+  --shadow-lg: 0 12px 36px rgba(0, 0, 0, 0.65);
+  --modal-backdrop: rgba(0, 0, 0, 0.75);
+
+  /* Form & Interactive */
+  --chip-bg: #1e293b;
+  --chip-text: #cbd5e1;
+  --chip-active-bg: #10b981;
+  --chip-active-text: #ffffff;
+}
+
+/* ==========================================================================
+   3. GLOBAL DARK THEME COMPONENT STYLES
+   ========================================================================== */
+
+[data-theme="dark"] body {
+  background-color: var(--bg-app) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] #root {
+  background-color: var(--bg-app) !important;
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .items-page {
+  background-color: var(--bg-app) !important;
+  color: var(--text-main) !important;
+}
+
+/* Headings & Text */
+[data-theme="dark"] h1,
+[data-theme="dark"] h2,
+[data-theme="dark"] h3,
+[data-theme="dark"] h4,
+[data-theme="dark"] h5,
+[data-theme="dark"] h6 {
+  color: var(--text-main);
+}
+
+/* Item Cards & Grid */
+[data-theme="dark"] .item-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+[data-theme="dark"] .item-card:hover {
+  background: var(--bg-card-hover) !important;
+  border-color: var(--primary) !important;
+  box-shadow: var(--shadow-md) !important;
+}
+
+[data-theme="dark"] .item-info h3 {
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .item-info p,
+[data-theme="dark"] .item-description {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .item-price strong {
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .item-price span {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .item-category {
+  background: var(--bg-app-alt) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border-light) !important;
+}
+
+[data-theme="dark"] .no-image {
+  background-color: var(--bg-app-alt) !important;
+  color: var(--text-muted) !important;
+}
+
+/* Home Controls, Search & Sticky Headers */
+[data-theme="dark"] .home-sticky-header,
+[data-theme="dark"] .home-sticky-bar {
+  background: var(--bg-app) !important;
+  border-bottom-color: var(--border-light) !important;
+}
+
+[data-theme="dark"] .home-search {
+  background: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+  box-shadow: var(--shadow-sm) !important;
+}
+
+[data-theme="dark"] .home-search:focus-within {
+  border-color: var(--primary) !important;
+  box-shadow: 0 0 0 3px var(--primary-light) !important;
+}
+
+[data-theme="dark"] .home-search input {
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .home-search input::placeholder {
+  color: var(--text-subtle) !important;
+}
+
+[data-theme="dark"] .search-icon {
+  color: var(--primary) !important;
+}
+
+[data-theme="dark"] .navbar-center-search .home-search {
+  background: #0f172a !important;
+  border-color: #334155 !important;
+}
+
+/* Category Slider */
+[data-theme="dark"] .category-btn {
+  background: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .category-btn.active {
+  background: var(--primary) !important;
+  color: #ffffff !important;
+  border-color: var(--primary) !important;
+}
+
+[data-theme="dark"] .category-btn:hover:not(.active) {
+  background: var(--bg-card-hover) !important;
+  color: var(--text-main) !important;
+}
+
+/* Results Header & Filters */
+[data-theme="dark"] .home-results-header {
+  border-bottom-color: var(--border-light) !important;
+}
+
+[data-theme="dark"] .home-results-title-group h2 {
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .home-results-count,
+[data-theme="dark"] .home-results-count-badge {
+  background: var(--bg-card) !important;
+  color: var(--text-muted) !important;
+  border: 1px solid var(--border-light) !important;
+}
+
+[data-theme="dark"] .home-available-filter-btn {
+  background: var(--bg-card) !important;
+  color: var(--text-muted) !important;
+  border-color: var(--border-light) !important;
+}
+
+[data-theme="dark"] .home-available-filter-btn.active {
+  background: var(--primary-light) !important;
+  color: var(--primary-text) !important;
+  border-color: var(--primary) !important;
+}
+
+[data-theme="dark"] .home-sort-select,
+[data-theme="dark"] .home-radius-select,
+[data-theme="dark"] .home-filter-toggle-btn {
+  background-color: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-light) !important;
+}
+
+[data-theme="dark"] .home-filter-toggle-btn:hover,
+[data-theme="dark"] .home-radius-select:hover,
+[data-theme="dark"] .home-sort-select:hover {
+  background: var(--bg-card-hover) !important;
+}
+
+[data-theme="dark"] .home-sort-select option {
+  background-color: var(--bg-card);
+  color: var(--text-main);
+}
+
+[data-theme="dark"] .home-location-btn {
+  background: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-light) !important;
+}
+
+/* Skeleton Loading Cards */
+[data-theme="dark"] .item-card-skeleton {
+  background: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+}
+
+[data-theme="dark"] .skeleton-image,
+[data-theme="dark"] .skeleton-line {
+  background: #334155 !important;
+}
+
+/* Empty / Error States */
+[data-theme="dark"] .home-empty-state,
+[data-theme="dark"] .home-error-state {
+  background: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-light) !important;
+}
+
+/* Hero Section */
+[data-theme="dark"] .hero-section {
+  background: var(--hero-bg) !important;
+  border-color: var(--hero-border) !important;
+}
+
+[data-theme="dark"] .hero-tag-badge {
+  background: var(--hero-tag-bg) !important;
+  color: var(--hero-tag-text) !important;
+}
+
+[data-theme="dark"] .hero-content h1 {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .hero-content p {
+  color: #cbd5e1 !important;
+}
+
+[data-theme="dark"] .hero-feature-item {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.12) !important;
+  color: #f8fafc !important;
+}
+
+[data-theme="dark"] .hero-feature-item small {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .hero-dismiss-btn {
+  background: #1e293b !important;
+  color: #cbd5e1 !important;
+  border-color: var(--border-light) !important;
+}
+
+/* Navbar */
+[data-theme="dark"] .navbar {
+  background: var(--navbar-bg) !important;
+  border-bottom-color: var(--navbar-border) !important;
+}
+
+/* Settings Popup */
+[data-theme="dark"] .settings-popup {
+  background: var(--bg-card) !important;
+  color: var(--text-main) !important;
+  border: 1px solid var(--border-light) !important;
+  box-shadow: var(--shadow-lg) !important;
+}
+
+[data-theme="dark"] .settings-header h3 {
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .settings-close-btn {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .settings-close-btn:hover {
+  color: var(--text-main) !important;
+  background: var(--bg-card-hover) !important;
+}
+
+[data-theme="dark"] .settings-item {
+  background: transparent !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .settings-item:hover {
+  background: var(--bg-card-hover) !important;
+}
+
+[data-theme="dark"] .settings-language {
+  background: var(--bg-app) !important;
+}
+
+[data-theme="dark"] .settings-language .navbar-language {
+  background: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-main) !important;
+}
+
+/* Profile Page */
+[data-theme="dark"] .profile-page,
+[data-theme="dark"] .profile-page-wrapper,
+[data-theme="dark"] .profile-container,
+[data-theme="dark"] .profile-main-content {
+  background-color: var(--bg-app) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .profile-main-card,
+[data-theme="dark"] .profile-card,
+[data-theme="dark"] .profile-stats-card,
+[data-theme="dark"] .profile-history-card,
+[data-theme="dark"] .profile-history-item,
+[data-theme="dark"] .trust-score-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .profile-top-bar {
+  border-bottom-color: var(--border-light) !important;
+}
+
+[data-theme="dark"] .profile-back-btn {
+  background-color: var(--bg-card-elevated) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .profile-back-btn:hover {
+  background-color: var(--bg-card-hover) !important;
+}
+
+[data-theme="dark"] .profile-page-heading {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .profile-user-name {
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .profile-user-about {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .profile-meta-item {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .profile-secondary-btn {
+  background-color: var(--bg-card-elevated) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-light) !important;
+}
+
+[data-theme="dark"] .profile-secondary-btn:hover {
+  background-color: var(--bg-card-hover) !important;
+}
+
+[data-theme="dark"] .profile-stats-bar,
+[data-theme="dark"] .profile-stats-bar-grid {
+  background-color: #0f231c !important;
+  border-color: #047857 !important;
+}
+
+[data-theme="dark"] .profile-stat-icon-wrapper {
+  background-color: var(--bg-card) !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .profile-stat-val {
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .profile-stat-lbl {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .profile-stat-item-with-border {
+  border-right-color: #047857 !important;
+}
+
+[data-theme="dark"] .profile-tabs-scroll-row,
+[data-theme="dark"] .profile-tabs-header,
+[data-theme="dark"] .profile-history-tabs {
+  border-bottom-color: var(--border-light) !important;
+}
+
+[data-theme="dark"] .profile-tab-btn,
+[data-theme="dark"] .profile-history-tab-btn {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .profile-tab-btn:hover,
+[data-theme="dark"] .profile-history-tab-btn:hover {
+  color: var(--primary-text) !important;
+}
+
+[data-theme="dark"] .profile-tab-btn.active,
+[data-theme="dark"] .profile-history-tab-btn.active {
+  color: var(--primary-text) !important;
+  border-bottom-color: var(--primary) !important;
+}
+
+/* Item Details Page */
+[data-theme="dark"] .item-details-container,
+[data-theme="dark"] .item-details-page,
+[data-theme="dark"] .item-details-wrapper {
+  background-color: var(--bg-app) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .item-details-card,
+[data-theme="dark"] .item-seller-card,
+[data-theme="dark"] .item-details-summary,
+[data-theme="dark"] .item-review-reply-box {
+  background: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .details-author-header {
+  background: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .details-author-header:hover {
+  background: var(--bg-card-hover) !important;
+  border-color: var(--primary) !important;
+}
+
+[data-theme="dark"] .details-author-name {
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .details-breadcrumb {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .details-title-text,
+[data-theme="dark"] .details-content > h1,
+[data-theme="dark"] .details-description h2 {
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .details-description p {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .details-condition {
+  background: var(--bg-card-hover) !important;
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .details-price-box {
+  background: #0f231c !important;
+  border-color: #047857 !important;
+}
+
+[data-theme="dark"] .details-price-label,
+[data-theme="dark"] .details-price span {
+  color: #94a3b8 !important;
+}
+
+[data-theme="dark"] .details-price {
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .details-availability {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .details-image-section,
+[data-theme="dark"] .details-image {
+  background: #0f172a !important;
+}
+
+[data-theme="dark"] .details-back-button {
+  background: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .chat-seller-button {
+  background: #0f231c !important;
+  border-color: #047857 !important;
+  color: #34d399 !important;
+}
+
+[data-theme="dark"] .request-price-summary {
+  background: #0f231c !important;
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .request-price-summary strong {
+  color: #34d399 !important;
+}
+
+/* Item Reviews */
+[data-theme="dark"] .item-reviews-section,
+[data-theme="dark"] .item-reviews-container {
+  background: var(--bg-app) !important;
+}
+
+[data-theme="dark"] .item-reviews-title {
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .item-reviews-subtitle {
+  color: var(--text-muted) !important;
+}
+
+[data-theme="dark"] .item-review-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .item-review-user-name {
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .item-review-date {
+  color: var(--text-subtle) !important;
+}
+
+[data-theme="dark"] .item-review-comment {
+  color: var(--text-secondary) !important;
+}
+
+[data-theme="dark"] .item-reviews-load-more-btn {
+  background: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .item-reviews-load-more-btn:hover {
+  background: var(--bg-card-hover) !important;
+}
+
+[data-theme="dark"] .item-reviews-empty {
+  background: var(--bg-card) !important;
+  border: 1px solid var(--border-light) !important;
+}
+
+[data-theme="dark"] .item-reviews-empty h4 {
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .item-reviews-empty p {
+  color: var(--text-muted) !important;
+}
+
+/* My Items & Business Hub */
+[data-theme="dark"] .my-items-page,
+[data-theme="dark"] .business-hub-page,
+[data-theme="dark"] .business-welcome-card,
+[data-theme="dark"] .hub-quick-card,
+[data-theme="dark"] .business-stat-card,
+[data-theme="dark"] .my-items-tab-content,
+[data-theme="dark"] .rent-cart-item {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-main) !important;
+}
+
+/* Add Item Page */
+[data-theme="dark"] .add-item-container,
+[data-theme="dark"] .add-item-card {
+  background-color: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .add-item-field label {
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .add-item-hint {
+  color: var(--text-muted) !important;
+}
+
+/* Notifications Page */
+[data-theme="dark"] .notifications-container,
+[data-theme="dark"] .notification-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .notification-title {
+  color: var(--text-main) !important;
+}
+
+[data-theme="dark"] .notification-text,
+[data-theme="dark"] .notification-time {
+  color: var(--text-muted) !important;
+}
+
+/* Modals & Dialogs */
+[data-theme="dark"] .modal-content,
+[data-theme="dark"] .modal-box,
+[data-theme="dark"] .custom-modal,
+[data-theme="dark"] .earnings-modal-card,
+[data-theme="dark"] .cashpoints-modal-box,
+[data-theme="dark"] .verification-modal-box,
+[data-theme="dark"] .map-modal-content,
+[data-theme="dark"] .location-picker-modal,
+[data-theme="dark"] .payment-modal-card {
+  background: var(--bg-card) !important;
+  border-color: var(--border-light) !important;
+  color: var(--text-main) !important;
+}
+
+/* Inputs, Selects, and Textareas */
+[data-theme="dark"] input:not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):not(.home-search input),
+[data-theme="dark"] textarea {
+  background-color: var(--bg-input) !important;
+  color: var(--text-main) !important;
+  border-color: var(--border-light) !important;
+}
+
+[data-theme="dark"] input:focus,
+[data-theme="dark"] textarea:focus {
+  border-color: var(--primary) !important;
+  outline: none;
+}

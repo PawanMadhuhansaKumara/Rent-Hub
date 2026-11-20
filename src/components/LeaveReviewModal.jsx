@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { Star, X, CheckCircle2, MessageSquare, AlertCircle, Trash2, Edit3 } from "lucide-react";
 
 export default function LeaveReviewModal({
@@ -24,6 +25,7 @@ export default function LeaveReviewModal({
 
   const reviewId = explicitReviewId || (isDirectReviewObject ? item?.id : null);
   const isEdit = Boolean(reviewId);
+  const { t } = useTranslation();
 
   const [rating, setRating] = useState(5);
   const [hoverRating, setHoverRating] = useState(0);
@@ -56,15 +58,15 @@ export default function LeaveReviewModal({
   const getRatingLabel = (val) => {
     switch (val) {
       case 5:
-        return "Excellent! (5.0)";
+        return t("rentModals.ratingExcellent", "Excellent! (5.0)");
       case 4:
-        return "Very Good (4.0)";
+        return t("rentModals.ratingVeryGood", "Very Good (4.0)");
       case 3:
-        return "Good (3.0)";
+        return t("rentModals.ratingGood", "Good (3.0)");
       case 2:
-        return "Fair (2.0)";
+        return t("rentModals.ratingFair", "Fair (2.0)");
       case 1:
-        return "Poor (1.0)";
+        return t("rentModals.ratingPoor", "Poor (1.0)");
       default:
         return "Select Rating";
     }
@@ -223,12 +225,15 @@ export default function LeaveReviewModal({
             </div>
             <div>
               <h3 style={styles.title}>
-                {isEdit ? "Edit Your Review" : "Rate & Review"}
+                {t("rentModals.leaveReview", isEdit ? "Edit Your Review" : "Rate & Review")}
               </h3>
               <p style={styles.subtitle}>
-                {isEdit
-                  ? "Update your rating or comments for this rental"
-                  : "Share your rental experience with the community"}
+                {t(
+                  "rentModals.rateExperience",
+                  isEdit
+                    ? "Update your rating or comments for this rental"
+                    : "Share your rental experience with the community"
+                )}
               </p>
             </div>
           </div>
@@ -359,7 +364,7 @@ export default function LeaveReviewModal({
                   disabled={submitting || deleting}
                   style={styles.cancelBtn}
                 >
-                  Cancel
+                  {t("buyerLocation.cancel", "Cancel")}
                 </button>
                 <button
                   type="submit"
@@ -367,10 +372,8 @@ export default function LeaveReviewModal({
                   style={styles.submitBtn}
                 >
                   {submitting
-                    ? "Saving..."
-                    : isEdit
-                    ? "Update Review"
-                    : "Submit Review"}
+                    ? t("rentRequest.submitting", "Saving...")
+                    : t("rentModals.submitReview", isEdit ? "Update Review" : "Submit Review")}
                 </button>
               </div>
             </div>

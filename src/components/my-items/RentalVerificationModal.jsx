@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   X,
   ClipboardCheck,
@@ -26,6 +27,7 @@ export default function RentalVerificationModal({
   onConfirm,
   isSubmitting = false,
 }) {
+  const { t } = useTranslation();
   const [idCardChecked, setIdCardChecked] = useState(false);
   const [customerDetailsVerified, setCustomerDetailsVerified] = useState(false);
   const [rentalPaymentStatus, setRentalPaymentStatus] = useState("Paid");
@@ -135,10 +137,10 @@ export default function RentalVerificationModal({
             </div>
             <div className="request-form-heading-text">
               <h2 style={{ fontSize: "18px", color: "#0f172a" }}>
-                Rental Handover Verification
+                {t("rentModals.verifyHandover", "Rental Handover Verification")}
               </h2>
               <p style={{ fontSize: "12px", color: "#64748b" }}>
-                Verify customer & item condition before handover
+                {t("rentModals.handoverDesc", "Verify customer & item condition before handover")}
               </p>
             </div>
             <button
@@ -544,7 +546,7 @@ export default function RentalVerificationModal({
                 transition: "all 0.2s ease",
               }}
             >
-              Cancel
+              {t("buyerLocation.cancel", "Cancel")}
             </button>
 
             {/* CONFIRM BUTTON: Validates & confirms handover */}
@@ -580,12 +582,12 @@ export default function RentalVerificationModal({
                       display: "inline-block",
                     }}
                   />
-                  <span>Confirming...</span>
+                  <span>{t("rentRequest.submitting", "Confirming...")}</span>
                 </>
               ) : (
                 <>
                   <CheckCircle2 size={16} />
-                  <span>Confirm Handover</span>
+                  <span>{t("rentModals.confirmReceipt", "Confirm Handover")}</span>
                 </>
               )}
             </button>

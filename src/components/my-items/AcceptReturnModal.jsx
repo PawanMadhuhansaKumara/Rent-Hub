@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { ShieldCheck, CheckCircle2, X, AlertTriangle } from "lucide-react";
 
 export default function AcceptReturnModal({
@@ -8,6 +9,7 @@ export default function AcceptReturnModal({
   onConfirm,
   submitting = false,
 }) {
+  const { t } = useTranslation();
   const [rating, setRating] = useState(10);
 
   useEffect(() => {
@@ -105,11 +107,11 @@ export default function AcceptReturnModal({
             <div style={{ display: "flex", alignItems: "center", gap: "8px", marginBottom: "4px" }}>
               <ShieldCheck size={22} color="#00aa5b" />
               <h3 style={{ margin: 0, fontSize: "19px", fontWeight: "700", color: "#111827" }}>
-                Inspect & Accept Return
+                {t("rentModals.acceptReturn", "Inspect & Accept Return")}
               </h3>
             </div>
             <p style={{ margin: 0, fontSize: "13px", color: "#6b7280" }}>
-              Inspect the returned item and select the customer's return trust rating.
+              {t("rentModals.returnDesc", "Inspect the returned item and select the customer's return trust rating.")}
             </p>
           </div>
           <button
@@ -259,7 +261,7 @@ export default function AcceptReturnModal({
               cursor: submitting ? "not-allowed" : "pointer",
             }}
           >
-            Cancel
+            {t("buyerLocation.cancel", "Cancel")}
           </button>
           <button
             type="button"
@@ -281,11 +283,11 @@ export default function AcceptReturnModal({
             }}
           >
             {submitting ? (
-              <span>Saving...</span>
+              <span>{t("rentRequest.submitting", "Saving...")}</span>
             ) : (
               <>
                 <CheckCircle2 size={16} />
-                <span>Confirm & Accept ({rating}/10)</span>
+                <span>{t("rentModals.completeRental", "Confirm & Accept")} ({rating}/10)</span>
               </>
             )}
           </button>

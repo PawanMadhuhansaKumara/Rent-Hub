@@ -374,6 +374,7 @@ export default function Home({
           radius={radius}
           setRadius={setRadius}
           setShowBuyerPicker={setShowBuyerPicker}
+          user={currentUser}
         />
 
         {/* Items Grid / Empty / Loading States */}

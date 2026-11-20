@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   X,
   Coins,
@@ -24,6 +25,7 @@ export default function PaymentOptionsModal({
   onConfirmPayment,
   isSubmitting = false,
 }) {
+  const { t } = useTranslation();
   const [selectedMethod, setSelectedMethod] = useState("cashpoints"); // 'cashpoints' | 'card' | 'cash'
   const [cardNumber, setCardNumber] = useState("4111 2222 3333 4444");
   const [cardExpiry, setCardExpiry] = useState("12/28");
@@ -137,7 +139,7 @@ export default function PaymentOptionsModal({
                 marginBottom: "8px",
               }}
             >
-              <Sparkles size={14} /> TRANSACTION VERIFIED
+              <Sparkles size={14} /> {t("payment.verified", "TRANSACTION VERIFIED")}
             </span>
 
             <h2
@@ -149,7 +151,7 @@ export default function PaymentOptionsModal({
                 letterSpacing: "-0.5px",
               }}
             >
-              Payment Successful!
+              {t("payment.successTitle", "Payment Successful!")}
             </h2>
 
             <p
@@ -161,7 +163,7 @@ export default function PaymentOptionsModal({
                 lineHeight: "1.4",
               }}
             >
-              Your payment for <strong>{itemTitle}</strong> has been processed successfully.
+              {t("payment.successDesc", { item: itemTitle, defaultValue: `Your payment for ${itemTitle} has been processed successfully.` })}
             </p>
 
             {/* Receipt Summary Card */}
@@ -188,7 +190,7 @@ export default function PaymentOptionsModal({
                   marginBottom: "10px",
                 }}
               >
-                <span style={{ fontSize: "12.5px", color: "#64748b" }}>Amount Paid:</span>
+                <span style={{ fontSize: "12.5px", color: "#64748b" }}>{t("payment.amountPaid", "Amount Paid:")}</span>
                 <strong style={{ fontSize: "16px", color: "#15803d" }}>
                   LKR {numTotal.toLocaleString("en-LK", { minimumFractionDigits: 2 })}
                 </strong>
@@ -204,13 +206,13 @@ export default function PaymentOptionsModal({
                   marginBottom: "10px",
                 }}
               >
-                <span style={{ fontSize: "12.5px", color: "#64748b" }}>Payment Method:</span>
+                <span style={{ fontSize: "12.5px", color: "#64748b" }}>{t("payment.method", "Payment Method:")}</span>
                 <span style={{ fontSize: "13px", fontWeight: "700", color: "#1e293b" }}>
                   {selectedMethod === "cashpoints"
-                    ? "🪙 Cash Points"
+                    ? `🪙 ${t("payment.cashpoints", "Cash Points")}`
                     : selectedMethod === "card"
-                    ? "💳 Card (PayHere Gateway)"
-                    : "💵 Cash on Pickup"}
+                    ? `💳 ${t("payment.card", "Card (PayHere Gateway)")}`
+                    : `💵 ${t("payment.cash", "Cash on Pickup")}`}
                 </span>
               </div>
 
@@ -224,7 +226,7 @@ export default function PaymentOptionsModal({
                   marginBottom: "10px",
                 }}
               >
-                <span style={{ fontSize: "12.5px", color: "#64748b" }}>Status:</span>
+                <span style={{ fontSize: "12.5px", color: "#64748b" }}>{t("payment.status", "Status:")}</span>
                 <span
                   style={{
                     backgroundColor: "#16a34a",
@@ -235,7 +237,7 @@ export default function PaymentOptionsModal({
                     borderRadius: "6px",
                   }}
                 >
-                  PAID ✓
+                  {t("payment.paid", "PAID ✓")}
                 </span>
               </div>
 
@@ -268,7 +270,7 @@ export default function PaymentOptionsModal({
                 boxShadow: "0 4px 10px rgba(22, 163, 74, 0.35)",
               }}
             >
-              <span>Done / View Bookings</span>
+              <span>{t("payment.done", "Done / View Bookings")}</span>
               <ArrowRight size={17} />
             </button>
           </div>
@@ -290,10 +292,10 @@ export default function PaymentOptionsModal({
             >
               <div>
                 <h3 style={{ margin: 0, fontSize: "16.5px", fontWeight: "700" }}>
-                  Select Payment Option
+                  {t("payment.title", "Select Payment Option")}
                 </h3>
                 <span style={{ fontSize: "12px", color: "#94a3b8" }}>
-                  Total Payable:{" "}
+                  {t("payment.totalPayable", "Total Payable")}:{" "}
                   <strong style={{ color: "#4ade80", fontSize: "14px" }}>
                     LKR {numTotal.toLocaleString("en-LK", { minimumFractionDigits: 2 })}
                   </strong>
@@ -367,7 +369,7 @@ export default function PaymentOptionsModal({
                       </div>
                       <div>
                         <strong style={{ fontSize: "13.5px", color: "#713f12" }}>
-                          Pay with Cash Points
+                          {t("payment.cashpoints", "Pay with Cash Points")}
                         </strong>
                         <span
                           style={{
@@ -376,7 +378,7 @@ export default function PaymentOptionsModal({
                             color: "#854d0e",
                           }}
                         >
-                          Your Balance: <strong>{numPoints.toLocaleString()} Points</strong> (LKR {numPoints.toLocaleString()})
+                          {t("payment.yourBalance", "Your Balance:")} <strong>{numPoints.toLocaleString()} Points</strong> (LKR {numPoints.toLocaleString()})
                         </span>
                       </div>
                     </div>
@@ -403,7 +405,7 @@ export default function PaymentOptionsModal({
                       }}
                     >
                       <CheckCircle2 size={14} color="#16a34a" />
-                      <span>Sufficient balance. Points will be automatically deducted.</span>
+                      <span>{t("payment.sufficientBalance", "Sufficient balance. Points will be automatically deducted.")}</span>
                     </div>
                   ) : (
                     <div
@@ -440,7 +442,7 @@ export default function PaymentOptionsModal({
                           gap: "4px",
                         }}
                       >
-                        <span>+ Top Up Points</span>
+                        <span>+ {t("payment.topupBtn", "Top Up Points")}</span>
                       </button>
                     </div>
                   )}
@@ -486,7 +488,7 @@ export default function PaymentOptionsModal({
                       </div>
                       <div>
                         <strong style={{ fontSize: "13.5px", color: "#1e3a8a" }}>
-                          Card Payment (PayHere Gateway)
+                          {t("payment.card", "Card Payment (PayHere Gateway)")}
                         </strong>
                         <span
                           style={{
@@ -495,7 +497,7 @@ export default function PaymentOptionsModal({
                             color: "#3b82f6",
                           }}
                         >
-                          Debit / Credit Card (Visa / Master)
+                          {t("payment.cardDesc", "Debit / Credit Card (Visa / Master)")}
                         </span>
                       </div>
                     </div>
@@ -624,7 +626,7 @@ export default function PaymentOptionsModal({
                       </div>
                       <div>
                         <strong style={{ fontSize: "13.5px", color: "#166534" }}>
-                          Cash on Pickup
+                          {t("payment.cash", "Cash on Pickup")}
                         </strong>
                         <span
                           style={{
@@ -633,7 +635,7 @@ export default function PaymentOptionsModal({
                             color: "#16a34a",
                           }}
                         >
-                          Pay in cash directly to shop owner at item handover
+                          {t("payment.cashDesc", "Pay directly to the owner when collecting the item")}
                         </span>
                       </div>
                     </div>
@@ -685,21 +687,21 @@ export default function PaymentOptionsModal({
                   }}
                 >
                   {isSubmitting ? (
-                    <span>Processing Payment...</span>
+                    <span>{t("payment.processing", "Processing Payment...")}</span>
                   ) : selectedMethod === "cashpoints" ? (
                     <>
                       <Coins size={18} />
-                      <span>Confirm & Pay with {numTotal.toLocaleString()} Points</span>
+                      <span>{t("payment.confirmPay", "Confirm & Pay")} ({numTotal.toLocaleString()} Points)</span>
                     </>
                   ) : selectedMethod === "card" ? (
                     <>
                       <CreditCard size={18} />
-                      <span>Pay LKR {numTotal.toLocaleString()} & Complete Rental</span>
+                      <span>{t("payment.confirmPay", "Confirm & Pay")} (LKR {numTotal.toLocaleString()})</span>
                     </>
                   ) : (
                     <>
                       <Banknote size={18} />
-                      <span>Confirm Rental (Pay Cash at Pickup)</span>
+                      <span>{t("payment.confirmRental", "Confirm Rental")} ({t("payment.cash", "Cash on Pickup")})</span>
                     </>
                   )}
                 </button>

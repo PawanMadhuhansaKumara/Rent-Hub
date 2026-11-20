@@ -274,8 +274,8 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
         <img src={logo} alt="Rent-Hub Logo" className="navbar-logo" />
       </Link>
 
-      {/* Middle: Search Bar (Desktop & Tablet on Home Page only) */}
-      {isHomePage && setSearchTerm && (
+      {/* Middle: Search Bar (Desktop & Tablet on Home Page only, when logged in) */}
+      {isHomePage && activeUser && setSearchTerm && (
         <div className="navbar-center-search">
           <SearchBar
             searchTerm={searchTerm}

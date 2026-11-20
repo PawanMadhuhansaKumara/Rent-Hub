@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
   User,
@@ -25,6 +26,7 @@ export default function RentedItemCard({
   onRateItem,
   API_URL = "http://localhost:5001",
 }) {
+  const { t } = useTranslation();
   const isSentedOut = item.rentType === "sented-out";
   const targetUserId = isSentedOut ? item.renterId : item.sellerId;
   const targetUserName = isSentedOut
@@ -67,7 +69,9 @@ export default function RentedItemCard({
           <div>
             <span className="rent-request-time">
               {item.category ||
-                (isSentedOut ? "Sented Out Rental" : "Rented In Item")}
+                (isSentedOut
+                  ? t("rentsPage.sentedOutRental", "Sented Out Rental")
+                  : t("rentsPage.rentedInItem", "Rented In Item"))}
             </span>
             <h4 className="rent-request-item-title">
               <Link
@@ -99,7 +103,9 @@ export default function RentedItemCard({
               border: isSentedOut ? "1px solid #fde68a" : "1px solid #bfdbfe",
             }}
           >
-            {isSentedOut ? "Sented Out" : "Rented In"}
+            {isSentedOut
+              ? t("rentsPage.filters.sentedOut", "Sented Out")
+              : t("rentsPage.filters.rentedIn", "Rented In")}
           </span>
 
           {(item.paymentMethod || item.payment_method) && (

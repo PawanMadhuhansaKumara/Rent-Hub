@@ -1,5 +1,6 @@
 
 import React, { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   MapContainer,
   TileLayer,
@@ -71,6 +72,7 @@ function BuyerLocationPicker({
   onLocationSelect,
   initialLocation,
 }) {
+  const { t } = useTranslation();
   const [position, setPosition] = useState(
     initialLocation || DEFAULT_LOCATION
   );
@@ -225,9 +227,9 @@ function BuyerLocationPicker({
 
         <div className="buyer-location-header">
           <div>
-            <h2>Select Your Location</h2>
+            <h2>{t("buyerLocation.title", "Select Your Location")}</h2>
             <p>
-              Find rental items near your location.
+              {t("buyerLocation.subtitle", "Find rental items near your location.")}
             </p>
           </div>
 
@@ -252,8 +254,8 @@ function BuyerLocationPicker({
           )}
 
           {loadingGPS
-            ? "Getting your location..."
-            : "Use My Current Location"}
+            ? t("buyerLocation.gettingGps", "Getting your location...")
+            : t("buyerLocation.useGps", "Use My Current Location")}
         </button>
 
         <form
@@ -262,7 +264,7 @@ function BuyerLocationPicker({
         >
           <input
             type="text"
-            placeholder="Search city or area..."
+            placeholder={t("buyerLocation.searchPlaceholder", "Search city or area...")}
             value={searchText}
             onChange={(e) =>
               setSearchText(e.target.value)
@@ -290,7 +292,7 @@ function BuyerLocationPicker({
 
         <div className="buyer-map-instruction">
           <MapPin size={17} />
-          Click on the map to select your location.
+          {t("buyerLocation.mapInstruction", "Click on the map to select your location.")}
         </div>
 
         <div className="buyer-map-container">
@@ -318,9 +320,9 @@ function BuyerLocationPicker({
           <MapPin size={18} />
 
           <div>
-            <strong>Selected Location</strong>
+            <strong>{t("buyerLocation.selectedLocation", "Selected Location")}</strong>
             <p>
-              {locationName || "Select a point on the map"}
+              {locationName || t("buyerLocation.selectPoint", "Select a point on the map")}
             </p>
 
             <small>
@@ -335,7 +337,7 @@ function BuyerLocationPicker({
             className="buyer-cancel-btn"
             onClick={onClose}
           >
-            Cancel
+            {t("buyerLocation.cancel", "Cancel")}
           </button>
 
           <button
@@ -343,7 +345,7 @@ function BuyerLocationPicker({
             onClick={handleConfirm}
           >
             <CheckCircle size={18} />
-            Confirm Location
+            {t("buyerLocation.confirm", "Confirm Location")}
           </button>
         </div>
 

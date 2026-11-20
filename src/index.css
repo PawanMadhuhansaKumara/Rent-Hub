@@ -44,8 +44,8 @@
 
 body {
   margin: 0;
-  background-color: #ffffff !important;
-  color: #172b22;
+  background-color: var(--bg-app, #ffffff) !important;
+  color: var(--text-main, #172b22);
 }
 
 #root {
@@ -55,7 +55,7 @@ body {
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
-  background-color: #ffffff;
+  background-color: var(--bg-app, #ffffff);
 }
 
 h1,

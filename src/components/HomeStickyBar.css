@@ -14,14 +14,35 @@
 }
 
 /* 1. Search Bar Slot */
-/* On desktop and tablet (> 700px), hide the search bar slot because it is displayed in the center of the Navbar */
+.sticky-search-slot {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%;
+  margin-bottom: 12px;
+}
+
+.sticky-search-slot > div {
+  display: flex;
+  justify-content: center;
+  width: 100%;
+}
+
+.sticky-search-slot .home-search {
+  width: 100%;
+  max-width: 650px;
+  margin: 0 auto 10px auto;
+}
+
+/* On desktop and tablet (> 700px), hide the search bar slot ONLY when logged in,
+   because when logged in it is displayed in the center of the Navbar */
 @media (min-width: 701px) {
-  .sticky-search-slot {
+  .sticky-search-slot.logged-in {
     display: none !important;
   }
 }
 
-/* On mobile (<= 700px), show search bar */
+/* On mobile (<= 700px), adjust margins for mobile display */
 @media (max-width: 700px) {
   .sticky-search-slot {
     margin-bottom: 8px;
@@ -29,7 +50,7 @@
 
   .sticky-search-slot .home-search {
     max-width: 100%;
-    margin: 0 0 10px 0;
+    margin: 0 auto 10px auto;
   }
 }
 

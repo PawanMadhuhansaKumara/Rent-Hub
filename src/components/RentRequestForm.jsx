@@ -253,14 +253,14 @@ export default function RentRequestForm({
               }
             >
               {isRentedOut
-                ? "Item Currently Rented Out"
+                ? t("rentRequest.itemRentedOut", "Item Currently Rented Out")
                 : isSubmitting
                 ? t("rentRequest.submitting", "Processing...")
-                : "Proceed to Payment Options →"}
+                : t("rentRequest.proceedPayment", "Proceed to Payment Options →")}
             </button>
 
             <p className="request-note">
-              Choose your payment method in the next step: Cash Points, Card, or Cash on Pickup.
+              {t("rentRequest.paymentNote", "Choose your payment method in the next step: Cash Points, Card, or Cash on Pickup.")}
             </p>
           </form>
         </div>

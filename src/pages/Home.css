@@ -225,7 +225,7 @@
 
 .home-sticky-header .home-search {
   max-width: 100%;
-  margin: 0 0 10px 0;
+  margin: 0 auto 10px auto;
 }
 
 .home-sticky-header .category-slider {

@@ -207,17 +207,17 @@ export default function AddItem({ onItemAdded }) {
                   value={form.condition}
                   onChange={handleChange}
                 >
-                  <option>New</option>
-                  <option>Like New</option>
-                  <option>Good</option>
-                  <option>Fair</option>
+                  <option value="New">{t("addItemPage.conditionNew", "New")}</option>
+                  <option value="Like New">{t("addItemPage.conditionLikeNew", "Like New")}</option>
+                  <option value="Good">{t("addItemPage.conditionGood", "Good")}</option>
+                  <option value="Fair">{t("addItemPage.conditionFair", "Fair")}</option>
                 </select>
               </div>
             </div>
 
             <div className="add-item-row">
               <div className="add-item-field">
-                <label htmlFor="price">Rental Price (LKR) <span>*</span></label>
+                <label htmlFor="price">{t("addItemPage.rentalPrice", "Rental Price (LKR)")} <span>*</span></label>
                 <input
                   id="price"
                   name="price"
@@ -226,28 +226,28 @@ export default function AddItem({ onItemAdded }) {
                   step="0.01"
                   value={form.price}
                   onChange={handleChange}
-                  placeholder="e.g. 1500"
+                  placeholder={t("addItemPage.pricePlaceholder", "e.g. 1500")}
                   required
                 />
               </div>
 
               <div className="add-item-field">
-                <label htmlFor="priceType">Price Period</label>
+                <label htmlFor="priceType">{t("addItemPage.pricePeriod", "Price Period")}</label>
                 <select
                   id="priceType"
                   name="priceType"
                   value={form.priceType}
                   onChange={handleChange}
                 >
-                  <option value="day">Per day</option>
-                  <option value="hour">Per hour</option>
+                  <option value="day">{t("addItemPage.perDay", "Per day")}</option>
+                  <option value="hour">{t("addItemPage.perHour", "Per hour")}</option>
                 </select>
               </div>
             </div>
 
             {/* Available Quantity Field */}
             <div className="add-item-field">
-              <label htmlFor="available_quantity">Available Quantity (Stock) <span>*</span></label>
+              <label htmlFor="available_quantity">{t("addItemPage.availableQuantity", "Available Quantity (Stock)")} <span>*</span></label>
               <input
                 id="available_quantity"
                 name="available_quantity"
@@ -256,29 +256,29 @@ export default function AddItem({ onItemAdded }) {
                 step="1"
                 value={form.available_quantity}
                 onChange={handleChange}
-                placeholder="e.g. 1"
+                placeholder="1"
                 required
               />
               <small className="add-item-hint">
-                Specify total number of units available for rent.
+                {t("addItemPage.quantityHint", "Specify total number of units available for rent.")}
               </small>
             </div>
 
             <div className="add-item-field">
-              <label htmlFor="description">Description</label>
+              <label htmlFor="description">{t("addItemPage.description", "Description")}</label>
               <textarea
                 id="description"
                 name="description"
                 value={form.description}
                 onChange={handleChange}
-                placeholder="Describe your item, its features and condition..."
+                placeholder={t("addItemPage.descPlaceholder", "Describe your item, its features and condition...")}
                 rows={5}
                 maxLength={2000}
               />
             </div>
 
             <div className="add-item-field">
-              <label htmlFor="image">Upload Item Image <span>*</span></label>
+              <label htmlFor="image">{t("addItemPage.uploadImage", "Upload Item Image")} <span>*</span></label>
               <input
                 id="image"
                 name="image"
@@ -288,13 +288,13 @@ export default function AddItem({ onItemAdded }) {
                 required
               />
               <small className="add-item-hint">
-                Choose an image file from your device.
+                {t("addItemPage.chooseFileHint", "Choose an image file from your device.")}
               </small>
             </div>
 
             {imagePreview && (
               <div className="add-item-image-preview">
-                <p>Image Preview</p>
+                <p>{t("addItemPage.imagePreview", "Image Preview")}</p>
                 <img src={imagePreview} alt="Preview of the item" />
               </div>
             )}

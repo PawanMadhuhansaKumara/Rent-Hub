@@ -685,8 +685,8 @@ export default function ItemDetails() {
     return (
       <div className="details-message">
         <span className="details-message-icon">!</span>
-        <h2>Item unavailable</h2>
-        <p>{error || "We couldn't find this item."}</p>
+        <h2>{t("itemDetails.itemUnavailable", "Item unavailable")}</h2>
+        <p>{error || t("itemDetails.itemNotFound", "We couldn't find this item.")}</p>
         <button
           type="button"
           onClick={handleBack}
@@ -779,7 +779,7 @@ export default function ItemDetails() {
             </div>
 
             <span className="details-author-view-profile">
-              Visit Store <span>→</span>
+              {t("itemDetails.visitStore", "Visit Store")} <span>→</span>
             </span>
           </Link>
 
@@ -797,14 +797,14 @@ export default function ItemDetails() {
             ) : (
               <div className="details-no-image">
                 <span>▧</span>
-                <p>No image available</p>
+                <p>{t("itemDetails.noImage", "No image available")}</p>
               </div>
             )}
           </div>
 
           {/* Item Information */}
           <div className="details-content">
-            <span className="details-eyebrow">RENT-HUB MARKETPLACE</span>
+            <span className="details-eyebrow">{t("itemDetails.marketplace", "RENT-HUB MARKETPLACE")}</span>
 
             <div className="details-title-row">
               <h1 className="details-title-text">{item.title}</h1>
@@ -836,13 +836,13 @@ export default function ItemDetails() {
                   {Number(itemReviewStats.avgRating).toFixed(1)}
                 </span>
                 <span style={{ fontSize: "13px", color: "#64748b" }}>
-                  ({itemReviewStats.totalReviews} {itemReviewStats.totalReviews === 1 ? "review" : "reviews"})
+                  ({t("stats.fromReviews", { count: itemReviewStats.totalReviews, defaultValue: `${itemReviewStats.totalReviews} reviews` })})
                 </span>
               </div>
             ) : (
               <div style={{ display: "flex", alignItems: "center", gap: "6px", margin: "6px 0 14px 0", fontSize: "13px", color: "#94a3b8" }}>
                 <Star size={15} color="#cbd5e1" />
-                <span>No reviews yet</span>
+                <span>{t("itemDetails.noReviews", "No reviews yet")}</span>
               </div>
             )}
 
@@ -852,7 +852,7 @@ export default function ItemDetails() {
               </span>
 
               <span className="details-condition">
-                Condition: {item.condition || "Not specified"}
+                {t("itemDetails.condition", "Condition")}: {item.condition || t("itemDetails.notSpecified", "Not specified")}
               </span>
 
               <button
@@ -870,14 +870,14 @@ export default function ItemDetails() {
             </div>
 
             <div className="details-price-box">
-              <span className="details-price-label">Rental price</span>
+              <span className="details-price-label">{t("itemDetails.rentalPrice", "Rental price")}</span>
               <p className="details-price">
                 LKR{" "}
                 {price.toLocaleString("en-LK", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
-                <span> / {priceType}</span>
+                <span> / {priceType === "hour" ? t("addItemPage.perHour", "hour") : t("addItemPage.perDay", "day")}</span>
               </p>
             </div>
 
@@ -894,18 +894,18 @@ export default function ItemDetails() {
                 }}
               >
                 {isRented
-                  ? "Currently Rented Out"
+                  ? t("rentRequest.itemRentedOut", "Currently Rented Out")
                   : available > 0
-                    ? `${available} item(s) available`
-                    : "Currently unavailable"}
+                    ? t("itemDetails.itemsAvailable", { count: available, defaultValue: `${available} item(s) available` })
+                    : t("itemDetails.currentlyUnavailable", "Currently unavailable")}
               </span>
             </div>
 
             <div className="details-description">
-              <h2>About this item</h2>
+              <h2>{t("itemDetails.aboutItem", "About this item")}</h2>
               <p>
                 {item.description ||
-                  "No description has been provided for this item yet."}
+                  t("itemDetails.noDescription", "No description has been provided for this item yet.")}
               </p>
             </div>
 
@@ -934,7 +934,10 @@ export default function ItemDetails() {
                       marginBottom: "3px",
                     }}
                   >
-                    Trust Limit Exceeded (Your Limit: LKR {userRentalLimit.toLocaleString()})
+                    {t("itemDetails.trustLimitExceeded", {
+                      limit: userRentalLimit.toLocaleString(),
+                      defaultValue: `Trust Limit Exceeded (Your Limit: LKR ${userRentalLimit.toLocaleString()})`,
+                    })}
                   </strong>
                   <span
                     style={{
@@ -944,7 +947,11 @@ export default function ItemDetails() {
                       display: "block",
                     }}
                   >
-                    Your Trust Score allows rentals up to <strong>LKR {userRentalLimit.toLocaleString()}</strong>. This item costs <strong>LKR {itemPrice.toLocaleString()}</strong>. Rent and return more items safely on RentHub to unlock this item!
+                    {t("itemDetails.trustLimitDesc", {
+                      limit: userRentalLimit.toLocaleString(),
+                      price: itemPrice.toLocaleString(),
+                      defaultValue: `Your Trust Score allows rentals up to LKR ${userRentalLimit.toLocaleString()}. This item costs LKR ${itemPrice.toLocaleString()}. Rent and return more items safely on RentHub to unlock this item!`,
+                    })}
                   </span>
                 </div>
               </div>
@@ -1041,13 +1048,14 @@ export default function ItemDetails() {
                 </div>
               </div>
               <div>
-                <h3 className="item-reviews-title">Customer Reviews & Ratings</h3>
+                <h3 className="item-reviews-title">{t("itemDetails.customerReviews", "Customer Reviews & Ratings")}</h3>
                 <p className="item-reviews-subtitle">
                   {itemReviewStats.totalReviews > 0
-                    ? `Based on ${itemReviewStats.totalReviews} ${
-                        itemReviewStats.totalReviews === 1 ? "review" : "reviews"
-                      } from verified renters`
-                    : "Real feedback from renters who used this item"}
+                    ? t("itemDetails.basedOnReviews", {
+                        count: itemReviewStats.totalReviews,
+                        defaultValue: `Based on ${itemReviewStats.totalReviews} reviews from verified renters`,
+                      })
+                    : t("itemDetails.realFeedback", "Real feedback from renters who used this item")}
                 </p>
               </div>
             </div>
@@ -1057,8 +1065,8 @@ export default function ItemDetails() {
           {itemReviewStats.reviews.length === 0 ? (
             <div className="item-reviews-empty">
               <Star size={38} color="#cbd5e1" style={{ marginBottom: "10px" }} />
-              <h4>No reviews yet</h4>
-              <p>Be the first customer to rent and review this item!</p>
+              <h4>{t("itemDetails.noReviews", "No reviews yet")}</h4>
+              <p>{t("itemDetails.firstReviewPrompt", "Be the first customer to rent and review this item!")}</p>
             </div>
           ) : (
             <>
@@ -1102,7 +1110,7 @@ export default function ItemDetails() {
                             <div>
                               <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
                                 <h5 className="item-review-user-name">
-                                  {rev.buyerName || "Verified Renter"}
+                                  {rev.buyerName || t("itemDetails.verifiedRenter", "Verified Renter")}
                                 </h5>
                                 {isMyReview && (
                                   <span
@@ -1115,7 +1123,7 @@ export default function ItemDetails() {
                                       borderRadius: "10px",
                                     }}
                                   >
-                                    You
+                                    {t("itemDetails.you", "You")}
                                   </span>
                                 )}
                               </div>
@@ -1129,7 +1137,7 @@ export default function ItemDetails() {
                                         year: "numeric",
                                       }
                                     )
-                                  : "Recent Review"}
+                                  : t("itemDetails.recentReview", "Recent Review")}
                                 {rev.buyerCity ? ` • ${rev.buyerCity}` : ""}
                               </span>
                             </div>
@@ -1205,7 +1213,7 @@ export default function ItemDetails() {
                                   title="Edit your review"
                                 >
                                   <Edit3 size={12} />
-                                  <span>Edit</span>
+                                  <span>{t("itemDetails.edit", "Edit")}</span>
                                 </button>
                                 <button
                                   type="button"
@@ -1226,7 +1234,7 @@ export default function ItemDetails() {
                                   title="Delete your review"
                                 >
                                   <Trash2 size={12} />
-                                  <span>Delete</span>
+                                  <span>{t("itemDetails.delete", "Delete")}</span>
                                 </button>
                               </div>
                             )}
@@ -1245,7 +1253,10 @@ export default function ItemDetails() {
                               <div className="item-review-seller-reply-title-row">
                                 <CornerDownRight size={15} color="#15803d" />
                                 <span className="item-review-seller-reply-badge">
-                                  Response from {rev.sellerName || "Shop Owner"}
+                                  {t("itemDetails.responseFrom", {
+                                    name: rev.sellerName || "Shop Owner",
+                                    defaultValue: `Response from ${rev.sellerName || "Shop Owner"}`,
+                                  })}
                                 </span>
                                 {rev.sellerReplyAt && (
                                   <span className="item-review-seller-reply-date">
@@ -1277,7 +1288,7 @@ export default function ItemDetails() {
                                     }}
                                     title="Edit your reply"
                                   >
-                                    Edit
+                                    {t("itemDetails.edit", "Edit")}
                                   </button>
                                   <button
                                     type="button"
@@ -1293,7 +1304,7 @@ export default function ItemDetails() {
                                     }}
                                     title="Delete your reply"
                                   >
-                                    Delete
+                                    {t("itemDetails.delete", "Delete")}
                                   </button>
                                 </div>
                               )}
@@ -1308,13 +1319,15 @@ export default function ItemDetails() {
                         {isItemSeller && (replyingReviewId === rev.id || editingReplyId === rev.id) && (
                           <div className="item-review-reply-form">
                             <label style={{ display: "block", fontSize: "12px", fontWeight: "700", color: "#334155", marginBottom: "6px" }}>
-                              {editingReplyId === rev.id ? "Edit your response:" : "Write a response to this customer:"}
+                              {editingReplyId === rev.id
+                                ? t("itemDetails.editResponse", "Edit your response:")
+                                : t("itemDetails.writeResponse", "Write a response to this customer:")}
                             </label>
                             <textarea
                               rows={3}
                               value={replyText}
                               onChange={(e) => setReplyText(e.target.value)}
-                              placeholder="Thank the customer or address their feedback..."
+                              placeholder={t("itemDetails.replyPlaceholder", "Thank the customer or address their feedback...")}
                               className="item-review-reply-textarea"
                             />
                             <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "10px" }}>
@@ -1337,7 +1350,7 @@ export default function ItemDetails() {
                                   cursor: "pointer",
                                 }}
                               >
-                                Cancel
+                                {t("itemDetails.cancel", "Cancel")}
                               </button>
                               <button
                                 type="button"
@@ -1355,7 +1368,9 @@ export default function ItemDetails() {
                                   opacity: submittingReply || !replyText.trim() ? 0.6 : 1,
                                 }}
                               >
-                                {submittingReply ? "Posting..." : "Post Reply"}
+                                {submittingReply
+                                  ? t("itemDetails.posting", "Posting...")
+                                  : t("itemDetails.postReply", "Post Reply")}
                               </button>
                             </div>
                           </div>
@@ -1374,7 +1389,7 @@ export default function ItemDetails() {
                               className="item-review-reply-btn"
                             >
                               <CornerDownRight size={14} />
-                              <span>Reply to Review</span>
+                              <span>{t("itemDetails.replyToReview", "Reply to Review")}</span>
                             </button>
                           </div>
                         )}
@@ -1393,9 +1408,12 @@ export default function ItemDetails() {
                       setVisibleReviewsCount((prev) => prev + 3)
                     }
                   >
-                    <span>See more reviews</span>
+                    <span>{t("itemDetails.seeMoreReviews", "See more reviews")}</span>
                     <span className="item-reviews-remaining-count">
-                      ({itemReviewStats.reviews.length - visibleReviewsCount} remaining)
+                      {t("itemDetails.remainingReviews", {
+                        count: itemReviewStats.reviews.length - visibleReviewsCount,
+                        defaultValue: `(${itemReviewStats.reviews.length - visibleReviewsCount} remaining)`,
+                      })}
                     </span>
                     <ChevronDown size={16} />
                   </button>

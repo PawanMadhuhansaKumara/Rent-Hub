@@ -1,4 +1,5 @@
 import React, { useState, useRef, useEffect } from 'react';
+import { useTranslation } from 'react-i18next';
 import './PaymentModals.css';
 
 /**
@@ -8,6 +9,7 @@ import './PaymentModals.css';
  * Here we simulate a successful scan after the user clicks Capture.
  */
 export default function QRPaymentModal({ onClose, onSuccess, requestId }) {
+  const { t } = useTranslation();
   const videoRef = useRef(null);
   const [error, setError] = useState(null);
 
@@ -18,7 +20,7 @@ export default function QRPaymentModal({ onClose, onSuccess, requestId }) {
       .then((stream) => {
         if (videoRef.current) videoRef.current.srcObject = stream;
       })
-      .catch((err) => setError('Camera access denied'));
+      .catch((err) => setError(t('payment.cameraDenied', 'Camera access denied')));
     // Cleanup on unmount
     return () => {
       if (videoRef.current && videoRef.current.srcObject) {
@@ -40,19 +42,23 @@ export default function QRPaymentModal({ onClose, onSuccess, requestId }) {
       if (res.ok) onSuccess();
       else throw new Error('Payment API error');
     } catch (e) {
-      setError('Payment failed');
+      setError(t('payment.paymentFailed', 'Payment failed'));
     }
   };
 
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h3>QR Scan to Pay</h3>
+        <h3>{t('payment.qrScanTitle', 'QR Scan to Pay')}</h3>
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <video ref={videoRef} autoPlay style={{ width: '100%', maxHeight: '300px' }} />
         <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
-          <button className="req-btn" onClick={handleCapture}>Capture & Pay</button>
-          <button className="req-btn req-btn-cancel" onClick={onClose}>Cancel</button>
+          <button className="req-btn" onClick={handleCapture}>
+            {t('payment.capture', 'Capture & Pay')}
+          </button>
+          <button className="req-btn req-btn-cancel" onClick={onClose}>
+            {t('payment.cancel', 'Cancel')}
+          </button>
         </div>
       </div>
     </div>

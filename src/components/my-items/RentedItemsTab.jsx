@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { ArrowUpRight, ArrowDownLeft, Clock, Inbox } from "lucide-react";
 import RentedItemCard from "./RentedItemCard";
 
@@ -24,6 +25,8 @@ export default function RentedItemsTab({
   API_URL = "http://localhost:5001",
   hideRentedIn = false,
 }) {
+  const { t } = useTranslation();
+
   return (
     <div className="rented-items-section">
       {/* Sub-tabs: Sented Out, Rented In */}
@@ -36,7 +39,7 @@ export default function RentedItemsTab({
           onClick={() => setRentedSubTab("sented-out")}
         >
           <ArrowUpRight size={15} />
-          <span>Sented Out</span>
+          <span>{t("rentsPage.filters.sentedOut", "Sented Out")}</span>
           <span className="my-items-tab-count">{sentedOutCount}</span>
         </button>
         {!hideRentedIn && (
@@ -48,7 +51,7 @@ export default function RentedItemsTab({
             onClick={() => setRentedSubTab("rented-in")}
           >
             <ArrowDownLeft size={15} />
-            <span>Rented In</span>
+            <span>{t("rentsPage.filters.rentedIn", "Rented In")}</span>
             <span className="my-items-tab-count">{rentedInCount}</span>
           </button>
         )}
@@ -57,7 +60,7 @@ export default function RentedItemsTab({
       {loading && (!displayedRentedItems || displayedRentedItems.length === 0) ? (
         <div className="my-items-loader">
           <div className="my-items-spinner" />
-          <p>Loading rented items...</p>
+          <p>{t("rentsPage.loadingRented", "Loading rented items...")}</p>
         </div>
       ) : displayedRentedItems.length === 0 ? (
         <div className="my-items-empty">
@@ -81,13 +84,19 @@ export default function RentedItemsTab({
           </div>
           <h3>
             {!hideRentedIn && rentedSubTab === "rented-in"
-              ? "No items currently rented in"
-              : "No items currently sented out"}
+              ? t("rentsPage.noRentedIn", "No items currently rented in")
+              : t("rentsPage.noSentedOut", "No items currently sented out")}
           </h3>
           <p>
             {!hideRentedIn && rentedSubTab === "rented-in"
-              ? "Items you have rented from other shops or owners will appear here once approved or picked up."
-              : 'Items marked as "Rented Out" in your inventory or picked up by renters will appear here.'}
+              ? t(
+                  "rentsPage.noRentedInDesc",
+                  "Items you have rented from other shops or owners will appear here once approved or picked up."
+                )
+              : t(
+                  "rentsPage.noSentedOutDesc",
+                  'Items marked as "Rented Out" in your inventory or picked up by renters will appear here.'
+                )}
           </p>
           {!hideRentedIn && rentedSubTab === "rented-in" ? (
             <button
@@ -95,7 +104,7 @@ export default function RentedItemsTab({
               onClick={() => onNavigateTab && onNavigateTab("rent-requests")}
               className="my-items-empty-add-btn"
             >
-              <Inbox size={18} /> View Rent Requests
+              <Inbox size={18} /> {t("rentsPage.viewRentRequests", "View Rent Requests")}
             </button>
           ) : (
             <button
@@ -103,7 +112,7 @@ export default function RentedItemsTab({
               onClick={() => onNavigateTab && onNavigateTab("my-items")}
               className="my-items-empty-add-btn"
             >
-              View All Items
+              {t("rentsPage.viewAllItems", "View All Items")}
             </button>
           )}
         </div>

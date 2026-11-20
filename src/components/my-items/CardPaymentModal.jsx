@@ -1,10 +1,12 @@
 import React, { useState } from 'react';
+import { useTranslation } from 'react-i18next';
 
 /**
  * Mock Card payment modal.
  * Simply shows a "Processing..." button and calls the backend with payment_method='card'.
  */
 export default function CardPaymentModal({ onClose, onSuccess, requestId }) {
+  const { t } = useTranslation();
   const [processing, setProcessing] = useState(false);
   const [error, setError] = useState(null);
 
@@ -20,7 +22,7 @@ export default function CardPaymentModal({ onClose, onSuccess, requestId }) {
       if (res.ok) onSuccess();
       else throw new Error('Payment API error');
     } catch (e) {
-      setError('Payment failed');
+      setError(t('payment.paymentFailed', 'Payment failed'));
     } finally {
       setProcessing(false);
     }
@@ -29,14 +31,14 @@ export default function CardPaymentModal({ onClose, onSuccess, requestId }) {
   return (
     <div className="modal-overlay">
       <div className="modal-content">
-        <h3>Pay with Card (Mock)</h3>
+        <h3>{t('payment.card', 'Pay with Card')}</h3>
         {error && <p style={{ color: 'red' }}>{error}</p>}
         <div style={{ marginTop: '12px', display: 'flex', gap: '8px' }}>
           <button className="req-btn" onClick={handlePay} disabled={processing}>
-            {processing ? 'Processing...' : 'Pay'}
+            {processing ? t('payment.processing', 'Processing...') : t('payment.confirmPay', 'Pay')}
           </button>
           <button className="req-btn req-btn-cancel" onClick={onClose} disabled={processing}>
-            Cancel
+            {t('payment.cancel', 'Cancel')}
           </button>
         </div>
       </div>

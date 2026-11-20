@@ -1,9 +1,17 @@
 import "./Home.css";
+import "./theme.css";
 import { StrictMode } from "react";
 import { createRoot } from "react-dom/client";
 import "./index.css";
 import App from "./App.jsx";
 import "./i18n";
+
+// Initialize Theme on startup
+try {
+  const initialTheme = localStorage.getItem("renthub_theme") || "light";
+  document.documentElement.setAttribute("data-theme", initialTheme);
+  document.body.setAttribute("data-theme", initialTheme);
+} catch {}
 
 // Automatically route localhost:5001 API calls & images to current host IP when accessed from phone/network
 if (

@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   X,
   Coins,
@@ -38,6 +39,7 @@ export default function SellerEarningsModal({
   API_URL = "http://localhost:5001",
   onEarningsUpdated,
 }) {
+  const { t } = useTranslation();
   const [activeTab, setActiveTab] = useState("breakdown"); // 'breakdown' | 'bank' | 'withdraw'
   const [loading, setLoading] = useState(true);
   const [earningsData, setEarningsData] = useState({
@@ -291,7 +293,7 @@ export default function SellerEarningsModal({
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
                 <h3 style={{ margin: 0, fontSize: "19px", fontWeight: "800" }}>
-                  Store Earnings & Payouts
+                  {t("earnings.title", "Store Earnings & Payouts")}
                 </h3>
                 <span
                   style={{
@@ -313,7 +315,7 @@ export default function SellerEarningsModal({
                   color: "#d1fae5",
                 }}
               >
-                10% platform fee deducted automatically from each rental
+                {t("earnings.feeDeducted", "10% platform fee deducted automatically from each rental")}
               </p>
             </div>
           </div>
@@ -357,7 +359,7 @@ export default function SellerEarningsModal({
             }}
           >
             <span style={{ fontSize: "11px", fontWeight: "700", color: "#166534", textTransform: "uppercase" }}>
-              Total Net Earned (90%)
+              {t("earnings.totalEarned", "Total Net Earned (90%)")}
             </span>
             <div style={{ fontSize: "18px", fontWeight: "800", color: "#15803d", marginTop: "2px" }}>
               LKR {Number(earningsData.totalNetEarnings || 0).toLocaleString("en-LK", { minimumFractionDigits: 2 })}
@@ -374,13 +376,13 @@ export default function SellerEarningsModal({
             }}
           >
             <span style={{ fontSize: "11px", fontWeight: "700", color: "#64748b", textTransform: "uppercase" }}>
-              Gross Volume (100%)
+              {t("earnings.grossRental", "Gross Volume (100%)")}
             </span>
             <div style={{ fontSize: "17px", fontWeight: "700", color: "#1e293b", marginTop: "2px" }}>
               LKR {Number(earningsData.totalGross || 0).toLocaleString("en-LK", { minimumFractionDigits: 2 })}
             </div>
             <span style={{ fontSize: "10.5px", color: "#ca8a04" }}>
-              -10% Fee: LKR {Number(earningsData.totalCommission || 0).toLocaleString("en-LK")}
+              -{t("earnings.platformFee", "10% Platform Fee")}: LKR {Number(earningsData.totalCommission || 0).toLocaleString("en-LK")}
             </span>
           </div>
 
@@ -393,7 +395,7 @@ export default function SellerEarningsModal({
             }}
           >
             <span style={{ fontSize: "11px", fontWeight: "700", color: "#0369a1", textTransform: "uppercase" }}>
-              Available Balance
+              {t("earnings.availableWithdraw", "Available Balance")}
             </span>
             <div style={{ fontSize: "18px", fontWeight: "800", color: "#0284c7", marginTop: "2px" }}>
               LKR {Number(earningsData.availableBalance || 0).toLocaleString("en-LK", { minimumFractionDigits: 2 })}
@@ -433,7 +435,7 @@ export default function SellerEarningsModal({
             }}
           >
             <TrendingUp size={16} />
-            <span>Item Earnings Breakdown ({earningsData.history.length})</span>
+            <span>{t("earnings.tabBreakdown", "Item Earnings Breakdown")} ({earningsData.history.length})</span>
           </button>
 
           <button
@@ -453,7 +455,7 @@ export default function SellerEarningsModal({
             }}
           >
             <Building2 size={16} />
-            <span>Bank Account {hasBankDetails && <CheckCircle2 size={13} color="#16a34a" />}</span>
+            <span>{t("earnings.tabBank", "Bank Account")} {hasBankDetails && <CheckCircle2 size={13} color="#16a34a" />}</span>
           </button>
 
           <button
@@ -476,7 +478,7 @@ export default function SellerEarningsModal({
             }}
           >
             <ArrowDownToLine size={16} />
-            <span>Request Payout</span>
+            <span>{t("earnings.tabWithdraw", "Request Payout")}</span>
           </button>
         </div>
 
@@ -858,7 +860,7 @@ export default function SellerEarningsModal({
               <form onSubmit={handleSaveBank} style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
                 <div>
                   <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "#334155", marginBottom: "6px" }}>
-                    Select Bank *
+                    {t("earnings.bankName", "Select Bank")} *
                   </label>
                   <select
                     value={selectedBank}
@@ -874,7 +876,7 @@ export default function SellerEarningsModal({
                       boxSizing: "border-box",
                     }}
                   >
-                    <option value="">-- Choose Bank --</option>
+                    <option value="">-- {t("earnings.selectBank", "Choose Bank")} --</option>
                     {POPULAR_BANKS.map((b) => (
                       <option key={b} value={b}>
                         {b}
@@ -886,7 +888,7 @@ export default function SellerEarningsModal({
                 {selectedBank === "Other Bank" && (
                   <div>
                     <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "#334155", marginBottom: "6px" }}>
-                      Bank Name *
+                      {t("earnings.bankName", "Bank Name")} *
                     </label>
                     <input
                       type="text"
@@ -909,7 +911,7 @@ export default function SellerEarningsModal({
                 <div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: "14px" }}>
                   <div>
                     <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "#334155", marginBottom: "6px" }}>
-                      Bank Branch
+                      {t("earnings.branch", "Bank Branch")}
                     </label>
                     <input
                       type="text"
@@ -929,7 +931,7 @@ export default function SellerEarningsModal({
 
                   <div>
                     <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "#334155", marginBottom: "6px" }}>
-                      Account Number *
+                      {t("earnings.accountNo", "Account Number")} *
                     </label>
                     <input
                       type="text"
@@ -951,7 +953,7 @@ export default function SellerEarningsModal({
 
                 <div>
                   <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "#334155", marginBottom: "6px" }}>
-                    Account Holder Name (as in bank passbook) *
+                    {t("earnings.accountName", "Account Holder Name")} *
                   </label>
                   <input
                     type="text"
@@ -991,7 +993,7 @@ export default function SellerEarningsModal({
                   }}
                 >
                   <ShieldCheck size={18} />
-                  <span>{savingBank ? "Saving to Database..." : "Save Bank Details to Database"}</span>
+                  <span>{savingBank ? t("earnings.saving", "Saving...") : t("earnings.saveBank", "Save Bank Details to Database")}</span>
                 </button>
               </form>
             </div>
@@ -1244,7 +1246,7 @@ export default function SellerEarningsModal({
                   <form onSubmit={handleWithdrawRequest}>
                     <div style={{ marginBottom: "16px" }}>
                       <label style={{ display: "block", fontSize: "12.5px", fontWeight: "700", color: "#334155", marginBottom: "6px" }}>
-                        Withdrawal Amount (LKR) *
+                        {t("earnings.withdrawAmount", "Withdrawal Amount (LKR)")} *
                       </label>
                       <div style={{ position: "relative" }}>
                         <span
@@ -1334,10 +1336,8 @@ export default function SellerEarningsModal({
                       <ArrowDownToLine size={18} />
                       <span>
                         {withdrawing
-                          ? "Submitting Payout Request..."
-                          : `Request Payout of LKR ${
-                              withdrawAmount ? Number(withdrawAmount).toLocaleString() : "0"
-                            }`}
+                          ? t("earnings.saving", "Submitting Payout Request...")
+                          : t("earnings.submitWithdraw", "Submit Payout Request")}
                       </span>
                     </button>
                   </form>
@@ -1346,7 +1346,7 @@ export default function SellerEarningsModal({
                   {earningsData.withdrawals.length > 0 && (
                     <div style={{ marginTop: "28px" }}>
                       <h5 style={{ margin: "0 0 10px 0", fontSize: "13.5px", fontWeight: "700", color: "#334155" }}>
-                        Past Payout Requests
+                        {t("earnings.payoutHistory", "Past Payout Requests")}
                       </h5>
                       <div style={{ display: "flex", flexDirection: "column", gap: "8px" }}>
                         {earningsData.withdrawals.map((w) => (

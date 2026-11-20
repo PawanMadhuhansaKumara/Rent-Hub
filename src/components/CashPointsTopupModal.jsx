@@ -1,4 +1,5 @@
 import React, { useState } from "react";
+import { useTranslation } from "react-i18next";
 import {
   X,
   Coins,
@@ -19,6 +20,7 @@ export default function CashPointsTopupModal({
   onSuccess,
   API_URL = "http://localhost:5001",
 }) {
+  const { t } = useTranslation();
   const [amount, setAmount] = useState(1000);
   const [customAmount, setCustomAmount] = useState("");
   const [cardNumber, setCardNumber] = useState("4111 2222 3333 4444");
@@ -176,7 +178,7 @@ export default function CashPointsTopupModal({
                 marginBottom: "8px",
               }}
             >
-              <Sparkles size={14} /> TOP-UP SUCCESSFUL
+              <Sparkles size={14} /> {t("topup.successTitle", "TOP-UP SUCCESSFUL")}
             </span>
 
             <h2
@@ -188,7 +190,7 @@ export default function CashPointsTopupModal({
                 letterSpacing: "-0.5px",
               }}
             >
-              Payment Successful!
+              {t("topup.successTitle", "Payment Successful!")}
             </h2>
 
             <p
@@ -200,7 +202,7 @@ export default function CashPointsTopupModal({
                 lineHeight: "1.4",
               }}
             >
-              You have successfully added <strong>{finalAmount.toLocaleString()} Cash Points</strong> to your wallet.
+              {t("topup.successDesc", { amount: finalAmount.toLocaleString(), defaultValue: `You have successfully added ${finalAmount.toLocaleString()} Cash Points to your wallet.` })}
             </p>
 
             {/* Receipt Summary Card */}
@@ -259,7 +261,7 @@ export default function CashPointsTopupModal({
                   marginBottom: "10px",
                 }}
               >
-                <span style={{ fontSize: "12.5px", color: "#64748b" }}>Updated Balance:</span>
+                <span style={{ fontSize: "12.5px", color: "#64748b" }}>{t("topup.newBalance", "Updated Balance:")}</span>
                 <strong style={{ fontSize: "15px", color: "#1e293b" }}>
                   {Number(updatedBalance).toLocaleString()} Points
                 </strong>
@@ -329,10 +331,10 @@ export default function CashPointsTopupModal({
                 </div>
                 <div>
                   <h3 style={{ margin: 0, fontSize: "16px", fontWeight: "700" }}>
-                    Top Up Cash Points
+                    {t("topup.title", "Top Up Cash Points")}
                   </h3>
                   <span style={{ fontSize: "12px", opacity: 0.9 }}>
-                    Current Balance: {Number(currentBalance).toLocaleString()} Points (LKR {Number(currentBalance).toLocaleString()})
+                    {t("topup.currentBalance", "Current Balance")}: {Number(currentBalance).toLocaleString()} Points (LKR {Number(currentBalance).toLocaleString()})
                   </span>
                 </div>
               </div>
@@ -390,7 +392,7 @@ export default function CashPointsTopupModal({
                     marginBottom: "8px",
                   }}
                 >
-                  Select Top-Up Amount (1 Point = LKR 1.00):
+                  {t("topup.selectAmount", "Select Top-Up Amount")}:
                 </label>
                 <div
                   style={{
@@ -446,7 +448,7 @@ export default function CashPointsTopupModal({
                   </span>
                   <input
                     type="number"
-                    placeholder="Or enter custom amount..."
+                    placeholder={t("topup.customAmount", "Or enter custom amount...")}
                     value={customAmount}
                     onChange={(e) => setCustomAmount(e.target.value)}
                     min="100"
@@ -617,8 +619,8 @@ export default function CashPointsTopupModal({
                 <ShieldCheck size={18} />
                 <span>
                   {loading
-                    ? "Processing Gateway Payment..."
-                    : `Pay LKR ${finalAmount.toLocaleString()} & Add ${finalAmount.toLocaleString()} Points`}
+                    ? t("topup.processing", "Processing Gateway Payment...")
+                    : t("topup.payNow", { amount: finalAmount.toLocaleString(), defaultValue: `Pay LKR ${finalAmount.toLocaleString()} & Add ${finalAmount.toLocaleString()} Points` })}
                 </span>
               </button>
             </form>

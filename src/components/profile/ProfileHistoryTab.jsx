@@ -1,4 +1,5 @@
 import React from "react";
+import { useTranslation } from "react-i18next";
 import { Calendar, User } from "lucide-react";
 
 export default function ProfileHistoryTab({
@@ -6,8 +7,11 @@ export default function ProfileHistoryTab({
   loadingHistory = false,
   historyError = null,
   styles = {},
-  t = (key) => key,
+  t: propT,
 }) {
+  const { t: i18nT } = useTranslation();
+  const t = propT || i18nT;
+
   return (
     <div id="profile-history-section" style={{ marginTop: "24px" }}>
       <div
@@ -28,10 +32,10 @@ export default function ProfileHistoryTab({
               color: "#0f172a",
             }}
           >
-            Rental History
+            {t("profile.rentalHistory", "Rental History")}
           </h3>
           <p style={{ margin: 0, color: "#64748b", fontSize: "13px" }}>
-            View your completed rental transactions.
+            {t("profile.historySubtitle", "View your completed rental transactions.")}
           </p>
         </div>
       </div>
@@ -50,7 +54,7 @@ export default function ProfileHistoryTab({
             }
           }
         >
-          Loading rental history...
+          {t("profile.loadingHistory", "Loading rental history...")}
         </div>
       ) : historyError ? (
         <div
@@ -82,7 +86,7 @@ export default function ProfileHistoryTab({
             }
           }
         >
-          No completed rental transactions found.
+          {t("profile.noHistory", "No completed rental transactions found.")}
         </div>
       ) : (
         <div
@@ -173,7 +177,7 @@ export default function ProfileHistoryTab({
                       fontSize: "13px",
                     }}
                   >
-                    Quantity: {rental.quantity || 1} · {rental.totalDays || 1} day(s)
+                    {t("profile.quantityLabel", "Quantity")}: {rental.quantity || 1} · {rental.totalDays || 1} {t("profile.daysLabel", "day(s)")}
                   </p>
                   <div
                     style={{
@@ -199,8 +203,8 @@ export default function ProfileHistoryTab({
                     )}
                     <span style={{ color: "#475569", fontSize: "13px" }}>
                       {rental.historyType === "buyer"
-                        ? "Rented from"
-                        : "Rented to"}
+                        ? t("profile.rentedFrom", "Rented from")
+                        : t("profile.rentedTo", "Rented to")}
                       : <strong>{rental.otherUserName || "User"}</strong>
                     </span>
                   </div>
@@ -230,7 +234,9 @@ export default function ProfileHistoryTab({
                       fontWeight: "700",
                     }}
                   >
-                    {rental.historyType === "buyer" ? "Rented" : "Rented Out"}
+                    {rental.historyType === "buyer"
+                      ? t("profile.rentedBuyer", "Rented")
+                      : t("profile.rentedSeller", "Rented Out")}
                   </span>
                   <span
                     style={{
@@ -244,7 +250,7 @@ export default function ProfileHistoryTab({
                       fontWeight: "700",
                     }}
                   >
-                    Completed
+                    {t("profile.completed", "Completed")}
                   </span>
                   <p
                     style={{
@@ -253,7 +259,7 @@ export default function ProfileHistoryTab({
                       fontSize: "11px",
                     }}
                   >
-                    Transaction #{rental.transactionId}
+                    {t("profile.transaction", "Transaction")} #{rental.transactionId}
                   </p>
                 </div>
               </div>
