@@ -140,8 +140,8 @@ exports.updateUser = async (req, res) => {
   const { full_name, phone_no, email, address, nearest_city, map_latitude, map_longitude, map_location_name } = req.body;
 
   try {
-    const profile_pic_url = req.files && req.files['profile_pic'] ? `/uploads/${req.files['profile_pic'][0].filename}` : null;
-    const coverphoto = req.files && req.files['cover_pic'] ? `/uploads/${req.files['cover_pic'][0].filename}` : null;
+    const profile_pic_url = req.files && req.files['profile_pic'] ? (req.files['profile_pic'][0].path || `/uploads/${req.files['profile_pic'][0].filename}`) : null;
+    const coverphoto = req.files && req.files['cover_pic'] ? (req.files['cover_pic'][0].path || `/uploads/${req.files['cover_pic'][0].filename}`) : null;
 
     let query = `
       UPDATE users_details 

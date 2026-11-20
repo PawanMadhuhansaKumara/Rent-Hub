@@ -175,7 +175,7 @@ exports.addItem = async (req, res) => {
 
   try {
     const image_url = req.file
-      ? `/uploads/${req.file.filename}`
+      ? (req.file.path || `/uploads/${req.file.filename}`)
       : "/uploads/default-item.png";
 
     const query = `
@@ -257,7 +257,7 @@ exports.updateItem = async (req, res) => {
     }
 
     const currentItem = existing[0];
-    const newImageUrl = req.file ? `/uploads/${req.file.filename}` : currentItem.image_url;
+    const newImageUrl = req.file ? (req.file.path || `/uploads/${req.file.filename}`) : currentItem.image_url;
 
     const updatedTitle = title !== undefined ? title.trim() : currentItem.title;
     const updatedCategory = category !== undefined ? category : currentItem.category;

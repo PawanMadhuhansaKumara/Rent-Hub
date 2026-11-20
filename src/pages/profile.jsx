@@ -83,10 +83,14 @@ export default function Profile({ user, setUser }) {
     reviews_count: user?.reviews_count || 12,
     likes_count: user?.likes_count || 68,
     profile_pic_url: user?.profile_pic_url
-      ? `http://localhost:5001${user.profile_pic_url}`
+      ? user.profile_pic_url.startsWith("http")
+        ? user.profile_pic_url
+        : `http://localhost:5001${user.profile_pic_url}`
       : "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?auto=format&fit=crop&q=80&w=300",
     coverphoto: user?.coverphoto
-      ? `http://localhost:5001${user.coverphoto}`
+      ? user.coverphoto.startsWith("http")
+        ? user.coverphoto
+        : `http://localhost:5001${user.coverphoto}`
       : "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=1000",
     is_verified: user?.is_verified || 1,
   });
@@ -631,10 +635,14 @@ export default function Profile({ user, setUser }) {
           ...prev,
           ...data.user,
           profile_pic_url: data.user.profile_pic_url
-            ? `http://localhost:5001${data.user.profile_pic_url}`
+            ? data.user.profile_pic_url.startsWith("http")
+              ? data.user.profile_pic_url
+              : `http://localhost:5001${data.user.profile_pic_url}`
             : prev.profile_pic_url,
           coverphoto: data.user.coverphoto
-            ? `http://localhost:5001${data.user.coverphoto}`
+            ? data.user.coverphoto.startsWith("http")
+              ? data.user.coverphoto
+              : `http://localhost:5001${data.user.coverphoto}`
             : prev.coverphoto,
         }));
         localStorage.setItem("user", JSON.stringify(data.user));

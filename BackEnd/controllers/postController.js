@@ -56,7 +56,7 @@ exports.createPost = async (req, res) => {
       )
     `);
 
-    const image_url = req.file ? `/uploads/${req.file.filename}` : null;
+    const image_url = req.file ? (req.file.path || `/uploads/${req.file.filename}`) : null;
     const [result] = await db.execute(
       `INSERT INTO posts (user_id, content, image_url, created_at) VALUES (?, ?, ?, NOW())`,
       [user_id, content || '', image_url]

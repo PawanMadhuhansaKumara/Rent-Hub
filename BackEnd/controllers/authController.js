@@ -17,9 +17,9 @@ exports.register = async (req, res) => {
     user_role
   } = req.body;
 
-  const profile_pic_url = req.files && req.files['profile_pic'] ? `/uploads/${req.files['profile_pic'][0].filename}` : null;
-  const nic_photo_front_url = req.files && req.files['nic_photo_front'] ? `/uploads/${req.files['nic_photo_front'][0].filename}` : null;
-  const nic_photo_back_url = req.files && req.files['nic_photo_back'] ? `/uploads/${req.files['nic_photo_back'][0].filename}` : null;
+  const profile_pic_url = req.files && req.files['profile_pic'] ? (req.files['profile_pic'][0].path || `/uploads/${req.files['profile_pic'][0].filename}`) : null;
+  const nic_photo_front_url = req.files && req.files['nic_photo_front'] ? (req.files['nic_photo_front'][0].path || `/uploads/${req.files['nic_photo_front'][0].filename}`) : null;
+  const nic_photo_back_url = req.files && req.files['nic_photo_back'] ? (req.files['nic_photo_back'][0].path || `/uploads/${req.files['nic_photo_back'][0].filename}`) : null;
 
   if (!profile_pic_url || !nic_photo_front_url || !nic_photo_back_url) {
     return res.status(400).json({
