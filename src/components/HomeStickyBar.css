@@ -1,0 +1,113 @@
+/* =================================
+   HOME CONTROLS & FILTER BAR
+   Normal flow (non-sticky on scroll)
+================================= */
+
+.home-sticky-bar {
+  position: static !important;
+  background: #ffffff;
+  width: 100%;
+  box-sizing: border-box;
+  padding-top: 8px;
+  padding-bottom: 6px;
+  border-bottom: 1px solid #f1f5f9;
+}
+
+/* 1. Search Bar Slot */
+/* On desktop and tablet (> 700px), hide the search bar slot because it is displayed in the center of the Navbar */
+@media (min-width: 701px) {
+  .sticky-search-slot {
+    display: none !important;
+  }
+}
+
+/* On mobile (<= 700px), show search bar */
+@media (max-width: 700px) {
+  .sticky-search-slot {
+    margin-bottom: 8px;
+  }
+
+  .sticky-search-slot .home-search {
+    max-width: 100%;
+    margin: 0 0 10px 0;
+  }
+}
+
+/* 2. Categories Slider Slot */
+.sticky-categories-slot {
+  width: 100%;
+}
+
+.sticky-categories-slot .category-slider {
+  margin-bottom: 4px;
+  padding-top: 2px;
+  padding-bottom: 6px;
+}
+
+/* 3. Filters / Sort Slot */
+.sticky-filters-slot {
+  width: 100%;
+}
+
+.sticky-filters-slot .home-results-header {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  margin: 4px 0 0;
+  padding-bottom: 4px;
+  border-bottom: none;
+  flex-wrap: wrap;
+}
+
+.sticky-filters-slot .home-results-title-group {
+  margin-right: auto;
+}
+
+.sticky-filters-slot .home-available-filter-btn {
+  flex-shrink: 0;
+}
+
+.sticky-filters-slot .home-results-actions {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  flex-wrap: wrap;
+}
+
+@media (max-width: 700px) {
+  .sticky-filters-slot .home-results-header {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 10px;
+    margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+
+  .sticky-filters-slot .home-results-title-group {
+    margin-right: 0;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .sticky-filters-slot .home-results-title-group h2 {
+    font-size: 18px;
+  }
+
+  .sticky-filters-slot .home-available-filter-btn {
+    margin-left: auto;
+    flex-shrink: 0;
+    padding: 6px 12px;
+    font-size: 12.5px;
+  }
+
+  .sticky-filters-slot .home-results-actions {
+    width: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
+  }
+}

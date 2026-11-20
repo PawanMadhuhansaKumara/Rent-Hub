@@ -22,20 +22,25 @@ import {
   Lock,
 } from "lucide-react";
 import "./Home.css";
-import SearchBar from "../components/SearchBar";
 import ItemCard from "../components/ItemCard";
-import CategorySlider from "../components/CategorySlider";
-import { MapPin } from "lucide-react";
+import HomeStickyBar from "../components/HomeStickyBar";
 import BuyerLocationPicker from "../components/BuyerLocationPicker";
 
 const API_URL = "http://localhost:5001/api/items";
 
-export default function Home({ user }) {
+export default function Home({
+  user,
+  searchTerm: propSearchTerm,
+  setSearchTerm: propSetSearchTerm,
+}) {
   const { t } = useTranslation();
   const [items, setItems] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
-  const [searchTerm, setSearchTerm] = useState("");
+  const [localSearchTerm, setLocalSearchTerm] = useState("");
+  const searchTerm =
+    propSearchTerm !== undefined ? propSearchTerm : localSearchTerm;
+  const setSearchTerm = propSetSearchTerm || setLocalSearchTerm;
   const [selectedCategory, setSelectedCategory] = useState("All");
   const [sortBy, setSortBy] = useState("newest");
   const [availableOnly, setAvailableOnly] = useState(false);
@@ -69,44 +74,6 @@ export default function Home({ user }) {
   const searchInputRef = useRef(null);
   const location = useLocation();
 
-  // Sticky header scroll behavior (collapses search on scroll down, reveals on scroll up)
-  const [isScrolled, setIsScrolled] = useState(false);
-  const [scrollDirection, setScrollDirection] = useState("up");
-
-  useEffect(() => {
-    let lastScrollY = window.scrollY;
-    let ticking = false;
-
-    const updateScrollDir = () => {
-      const scrollY = window.scrollY;
-
-      // Threshold of 8px to prevent jitter
-      if (Math.abs(scrollY - lastScrollY) > 8) {
-        if (scrollY > lastScrollY && scrollY > 60) {
-          setScrollDirection("down");
-        } else if (scrollY < lastScrollY) {
-          setScrollDirection("up");
-        }
-        lastScrollY = scrollY > 0 ? scrollY : 0;
-      }
-
-      setIsScrolled(scrollY > 40);
-      ticking = false;
-    };
-
-    const onScroll = () => {
-      if (!ticking) {
-        window.requestAnimationFrame(updateScrollDir);
-        ticking = true;
-      }
-    };
-
-    window.addEventListener("scroll", onScroll, { passive: true });
-    return () => window.removeEventListener("scroll", onScroll);
-  }, []);
-
-  const isSearchHidden = isScrolled && scrollDirection === "down";
-
   // Focus search input when coming with focusSearch state
   useEffect(() => {
     if (location.state?.focusSearch) {
@@ -127,56 +94,56 @@ export default function Home({ user }) {
   }, [location.state]);
 
   const loadItems = () => {
-  setLoading(true);
-  setError("");
+    setLoading(true);
+    setError("");
 
-  let requestURL = API_URL;
+    let requestURL = API_URL;
 
-  // Buyer location selected
-  if (buyerLocation) {
-    const params = new URLSearchParams({
-      lat: buyerLocation.latitude,
-      lng: buyerLocation.longitude,
-      radius: radius,
-    });
+    // Buyer location selected
+    if (buyerLocation) {
+      const params = new URLSearchParams({
+        lat: buyerLocation.latitude,
+        lng: buyerLocation.longitude,
+        radius: radius,
+      });
 
-    requestURL = `${API_URL}/nearby?${params.toString()}`;
-  }
+      requestURL = `${API_URL}/nearby?${params.toString()}`;
+    }
 
-  fetch(requestURL)
-    .then((response) => {
-      if (!response.ok) {
-        throw new Error("Could not load rental items");
-      }
-      return response.json();
-    })
-    .then((data) => {
-      const itemList = Array.isArray(data)
-        ? data
-        : Array.isArray(data.items)
-          ? data.items
-          : [];
+    fetch(requestURL)
+      .then((response) => {
+        if (!response.ok) {
+          throw new Error("Could not load rental items");
+        }
+        return response.json();
+      })
+      .then((data) => {
+        const itemList = Array.isArray(data)
+          ? data
+          : Array.isArray(data.items)
+            ? data.items
+            : [];
 
-      setItems(itemList);
-    })
-    .catch((err) => setError(err.message))
-    .finally(() => setLoading(false));
-};
- useEffect(() => {
-  loadItems();
-
-  window.addEventListener("items_updated", loadItems);
-  window.addEventListener("rent_requests_updated", loadItems);
-  window.addEventListener("user_updated", loadItems);
-  window.addEventListener("focus", loadItems);
-
-  return () => {
-    window.removeEventListener("items_updated", loadItems);
-    window.removeEventListener("rent_requests_updated", loadItems);
-    window.removeEventListener("user_updated", loadItems);
-    window.removeEventListener("focus", loadItems);
+        setItems(itemList);
+      })
+      .catch((err) => setError(err.message))
+      .finally(() => setLoading(false));
   };
-}, [location.pathname, location.key, buyerLocation, radius]);
+  useEffect(() => {
+    loadItems();
+
+    window.addEventListener("items_updated", loadItems);
+    window.addEventListener("rent_requests_updated", loadItems);
+    window.addEventListener("user_updated", loadItems);
+    window.addEventListener("focus", loadItems);
+
+    return () => {
+      window.removeEventListener("items_updated", loadItems);
+      window.removeEventListener("rent_requests_updated", loadItems);
+      window.removeEventListener("user_updated", loadItems);
+      window.removeEventListener("focus", loadItems);
+    };
+  }, [location.pathname, location.key, buyerLocation, radius]);
 
   // Compute item counts per category
   const itemCounts = useMemo(() => {
@@ -184,7 +151,10 @@ export default function Home({ user }) {
     items.forEach((item) => {
       if (item.category) {
         counts[item.category] = (counts[item.category] || 0) + 1;
-        if (item.category.toLowerCase() === "camera" || item.category.toLowerCase() === "cameras") {
+        if (
+          item.category.toLowerCase() === "camera" ||
+          item.category.toLowerCase() === "cameras"
+        ) {
           counts["Cameras"] = (counts["Cameras"] || 0) + 1;
         }
       }
@@ -245,17 +215,25 @@ export default function Home({ user }) {
   const userLimit = currentUser
     ? Number(currentUser.rental_limit || currentUser.max_rental_limit || 1000)
     : 1000;
-  const userTrustScore = currentUser ? Number(currentUser.trust_score || 50) : 50;
-  const completedRentals = currentUser ? Number(currentUser.completed_rentals || 0) : 0;
+  const userTrustScore = currentUser
+    ? Number(currentUser.trust_score || 50)
+    : 50;
+  const completedRentals = currentUser
+    ? Number(currentUser.completed_rentals || 0)
+    : 0;
   const accountDays = currentUser ? Number(currentUser.account_days || 0) : 0;
 
   // Split items into Affordable (Within Limit) vs Locked (Exceeds Limit)
   const affordableItems = useMemo(() => {
-    return filteredAndSortedItems.filter((item) => (Number(item.price) || 0) <= userLimit);
+    return filteredAndSortedItems.filter(
+      (item) => (Number(item.price) || 0) <= userLimit,
+    );
   }, [filteredAndSortedItems, userLimit]);
 
   const lockedItems = useMemo(() => {
-    return filteredAndSortedItems.filter((item) => (Number(item.price) || 0) > userLimit);
+    return filteredAndSortedItems.filter(
+      (item) => (Number(item.price) || 0) > userLimit,
+    );
   }, [filteredAndSortedItems, userLimit]);
 
   const handleResetFilters = () => {
@@ -301,7 +279,9 @@ export default function Home({ user }) {
           <div className="hero-content">
             <div className="hero-tag-badge">
               <Sparkles size={14} color="#15803d" />
-              <span>{t("home.tag", "Sri Lanka's Community Rental Platform")}</span>
+              <span>
+                {t("home.tag", "Sri Lanka's Community Rental Platform")}
+              </span>
             </div>
 
             <h1>
@@ -311,7 +291,10 @@ export default function Home({ user }) {
             </h1>
 
             <p>
-              {t("home.subtitle", "Why buy when you can rent? Borrow tools, electronics, camping gear, and everyday items from verified neighbors at affordable daily rates.")}
+              {t(
+                "home.subtitle",
+                "Why buy when you can rent? Borrow tools, electronics, camping gear, and everyday items from verified neighbors at affordable daily rates.",
+              )}
             </p>
 
             <div className="hero-action-buttons">
@@ -331,8 +314,15 @@ export default function Home({ user }) {
                   <ShieldCheck size={18} color="#15803d" />
                 </div>
                 <div>
-                  <strong>{t("home.verifiedCommunity", "Verified Community")}</strong>
-                  <small>{t("home.verifiedCommunityDesc", "Safe & trusted member profiles")}</small>
+                  <strong>
+                    {t("home.verifiedCommunity", "Verified Community")}
+                  </strong>
+                  <small>
+                    {t(
+                      "home.verifiedCommunityDesc",
+                      "Safe & trusted member profiles",
+                    )}
+                  </small>
                 </div>
               </div>
 
@@ -342,7 +332,9 @@ export default function Home({ user }) {
                 </div>
                 <div>
                   <strong>{t("home.budgetFriendly", "Budget Friendly")}</strong>
-                  <small>{t("home.budgetFriendlyDesc", "Pay only for days you use")}</small>
+                  <small>
+                    {t("home.budgetFriendlyDesc", "Pay only for days you use")}
+                  </small>
                 </div>
               </div>
 
@@ -352,7 +344,9 @@ export default function Home({ user }) {
                 </div>
                 <div>
                   <strong>{t("home.easyHandovers", "Easy Handovers")}</strong>
-                  <small>{t("home.easyHandoversDesc", "Quick pickup in your town")}</small>
+                  <small>
+                    {t("home.easyHandoversDesc", "Quick pickup in your town")}
+                  </small>
                 </div>
               </div>
             </div>
@@ -362,129 +356,25 @@ export default function Home({ user }) {
 
       {/* 2. RENTAL ITEMS & DISCOVERY SECTION */}
       <section id="rental-items" className="rental-section">
-        {/* Sticky Header: Search Bar & Categories Bar */}
-        <div className={`home-sticky-header ${isScrolled ? "is-sticky" : ""} ${isSearchHidden ? "search-hidden" : "search-visible"}`}>
-          <div className="home-search-wrapper">
-            <SearchBar
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
-              searchInputRef={searchInputRef}
-            />
-          </div>
-
-          {/* Categories Bar */}
-          <CategorySlider
-            selectedCategory={selectedCategory}
-            setSelectedCategory={setSelectedCategory}
-            itemCounts={itemCounts}
-          />
-
-          {/* Section Header Controls (Filters, Sort & Location) */}
-          <div className="home-results-header">
-            <div className="home-results-title-group">
-              <h2>
-                {selectedCategory === "All"
-                  ? t("home.allRentalItems", "All Rental Items")
-                  : t("home.categoryRentals", {
-                      category: t(`categories.${selectedCategory.toLowerCase()}`, selectedCategory),
-                      defaultValue: `${selectedCategory} Rentals`,
-                    })}
-              </h2>
-              <span className="home-results-count-badge">
-                {filteredAndSortedItems.length}{" "}
-                {filteredAndSortedItems.length === 1
-                  ? t("home.itemCount_one", "item")
-                  : t("home.itemCount_other", "items")}
-              </span>
-
-              {searchTerm.trim() && (
-                <span className="home-active-filter-tag">
-                  <span>"{searchTerm}"</span>
-                  <button
-                    type="button"
-                    onClick={() => setSearchTerm("")}
-                    aria-label="Remove search filter"
-                  >
-                    <X size={13} />
-                  </button>
-                </span>
-              )}
-            </div>
-
-            <div className="home-results-actions">
-              <button
-                type="button"
-                className={`home-filter-toggle-btn ${availableOnly ? "active" : ""}`}
-                onClick={() => setAvailableOnly(!availableOnly)}
-              >
-                <CheckCircle2 size={15} />
-                <span>{t("home.availableOnly", "Available Only")}</span>
-              </button>
-
-              <div className="home-sort-wrapper">
-                <label htmlFor="home-sort-select" className="home-sort-label">
-                  <SlidersHorizontal size={14} />
-                  <span>{t("home.sort", "Sort:")}</span>
-                </label>
-                <select
-                  id="home-sort-select"
-                  value={sortBy}
-                  onChange={(e) => setSortBy(e.target.value)}
-                  className="home-sort-select"
-                >
-                  <option value="newest">{t("home.sortNewest", "Newest First")}</option>
-                  <option value="price-low">{t("home.sortPriceLow", "Price: Low to High")}</option>
-                  <option value="price-high">{t("home.sortPriceHigh", "Price: High to Low")}</option>
-                </select>
-              </div>
-
-              {/* Compact Location Filter at Far Right */}
-              <div className="home-location-filter-wrapper">
-                <button
-                  type="button"
-                  className={`home-filter-toggle-btn ${buyerLocation ? "active" : ""}`}
-                  onClick={() => setShowBuyerPicker(true)}
-                  title={buyerLocation ? buyerLocation.locationName : t("home.location", "Location")}
-                >
-                  <MapPin size={14} />
-                  <span className="home-location-name">
-                    {buyerLocation ? buyerLocation.locationName : t("home.location", "Location")}
-                  </span>
-                </button>
-
-                {buyerLocation && (
-                  <>
-                    <select
-                      value={radius}
-                      onChange={(e) => setRadius(e.target.value)}
-                      className="home-sort-select home-radius-select"
-                      title="Filter Radius"
-                    >
-                      <option value="5">5 km</option>
-                      <option value="10">10 km</option>
-                      <option value="25">25 km</option>
-                      <option value="50">50 km</option>
-                      <option value="all">All</option>
-                    </select>
-
-                    <button
-                      type="button"
-                      className="home-clear-loc-btn"
-                      onClick={() => {
-                        setBuyerLocation(null);
-                        setRadius("all");
-                      }}
-                      title="Clear Location"
-                      aria-label="Clear location filter"
-                    >
-                      <X size={12} />
-                    </button>
-                  </>
-                )}
-              </div>
-            </div>
-          </div>
-        </div>
+        {/* Categories & Filter Controls Bar */}
+        <HomeStickyBar
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+          searchInputRef={searchInputRef}
+          selectedCategory={selectedCategory}
+          setSelectedCategory={setSelectedCategory}
+          itemCounts={itemCounts}
+          filteredCount={filteredAndSortedItems.length}
+          availableOnly={availableOnly}
+          setAvailableOnly={setAvailableOnly}
+          sortBy={sortBy}
+          setSortBy={setSortBy}
+          buyerLocation={buyerLocation}
+          setBuyerLocation={setBuyerLocation}
+          radius={radius}
+          setRadius={setRadius}
+          setShowBuyerPicker={setShowBuyerPicker}
+        />
 
         {/* Items Grid / Empty / Loading States */}
         {loading ? (
@@ -519,10 +409,19 @@ export default function Home({ user }) {
             <h3>{t("home.noItemsFound", "No rental items found")}</h3>
             <p>
               {searchTerm
-                ? t("home.noItemsSearch", { term: searchTerm, defaultValue: `We couldn't find anything matching "${searchTerm}". Try checking your spelling or search for another item.` })
+                ? t("home.noItemsSearch", {
+                    term: searchTerm,
+                    defaultValue: `We couldn't find anything matching "${searchTerm}". Try checking your spelling or search for another item.`,
+                  })
                 : availableOnly
-                  ? t("home.noItemsAvailable", "No items are currently available in this category. Try unticking 'Available Only'.")
-                  : t("home.noItemsCategory", "No items listed under this category yet.")}
+                  ? t(
+                      "home.noItemsAvailable",
+                      "No items are currently available in this category. Try unticking 'Available Only'.",
+                    )
+                  : t(
+                      "home.noItemsCategory",
+                      "No items listed under this category yet.",
+                    )}
             </p>
             <button
               type="button"
@@ -537,10 +436,17 @@ export default function Home({ user }) {
           <div>
             {/* --- SECTION 1: AFFORDABLE ITEMS (Within Limit) --- */}
             {affordableItems.length > 0 && (
-              <div style={{ marginBottom: lockedItems.length > 0 ? "40px" : "0" }}>
+              <div
+                style={{ marginBottom: lockedItems.length > 0 ? "40px" : "0" }}
+              >
                 <h3 style={styles.subSectionTitle}>
-                  <CheckCircle2 size={18} color="#00aa5b" style={{ marginRight: "6px" }} />
-                  Available For You (Within Your LKR {userLimit.toLocaleString()} Limit)
+                  <CheckCircle2
+                    size={18}
+                    color="#00aa5b"
+                    style={{ marginRight: "6px" }}
+                  />
+                  Available For You (Within Your LKR{" "}
+                  {userLimit.toLocaleString()} Limit)
                 </h3>
                 <div className="items-grid">
                   {affordableItems.map((item) => (
@@ -554,19 +460,32 @@ export default function Home({ user }) {
             {lockedItems.length > 0 && (
               <div>
                 <div style={styles.lockedHeader}>
-                  <h3 style={{ ...styles.subSectionTitle, color: "#d97706", margin: 0 }}>
-                    <Lock size={18} color="#d97706" style={{ marginRight: "6px" }} />
-                    Higher Trust Score Required (Exceeds LKR {userLimit.toLocaleString()})
+                  <h3
+                    style={{
+                      ...styles.subSectionTitle,
+                      color: "#d97706",
+                      margin: 0,
+                    }}
+                  >
+                    <Lock
+                      size={18}
+                      color="#d97706"
+                      style={{ marginRight: "6px" }}
+                    />
+                    Higher Trust Score Required (Exceeds LKR{" "}
+                    {userLimit.toLocaleString()})
                   </h3>
                   <span style={styles.lockedSubnote}>
-                    Complete more rentals and return on time to increase your LKR {userLimit.toLocaleString()} limit!
+                    Complete more rentals and return on time to increase your
+                    LKR {userLimit.toLocaleString()} limit!
                   </span>
                 </div>
                 <div className="items-grid" style={{ opacity: 0.9 }}>
                   {lockedItems.map((item) => (
                     <div key={item.id} style={{ position: "relative" }}>
                       <div style={styles.lockBadgeOverlay}>
-                        <Lock size={12} /> Requires LKR {Number(item.price).toLocaleString()}
+                        <Lock size={12} /> Requires LKR{" "}
+                        {Number(item.price).toLocaleString()}
                       </div>
                       <ItemCard item={item} />
                     </div>
@@ -581,9 +500,16 @@ export default function Home({ user }) {
       {/* 3. HOW IT WORKS SECTION */}
       <section className="how-it-works-section">
         <div className="how-it-works-header">
-          <span className="how-it-works-tag">{t("home.howItWorksTag", "Simple & Transparent")}</span>
+          <span className="how-it-works-tag">
+            {t("home.howItWorksTag", "Simple & Transparent")}
+          </span>
           <h2>{t("home.howItWorksTitle", "How Rent-Hub Works")}</h2>
-          <p>{t("home.howItWorksSubtitle", "Get started with renting or renting out in 3 simple steps")}</p>
+          <p>
+            {t(
+              "home.howItWorksSubtitle",
+              "Get started with renting or renting out in 3 simple steps",
+            )}
+          </p>
         </div>
 
         <div className="how-it-works-steps">
@@ -593,7 +519,12 @@ export default function Home({ user }) {
               <Search size={22} color="#15803d" />
             </div>
             <h3>{t("home.step1Title", "Find & Choose")}</h3>
-            <p>{t("home.step1Desc", "Browse everyday items, tools, and equipment available for rent near your location.")}</p>
+            <p>
+              {t(
+                "home.step1Desc",
+                "Browse everyday items, tools, and equipment available for rent near your location.",
+              )}
+            </p>
           </div>
 
           <div className="how-step-card">
@@ -602,7 +533,12 @@ export default function Home({ user }) {
               <Calendar size={22} color="#15803d" />
             </div>
             <h3>{t("home.step2Title", "Send Request")}</h3>
-            <p>{t("home.step2Desc", "Select your rental start and end dates, view the calculated total, and send the request.")}</p>
+            <p>
+              {t(
+                "home.step2Desc",
+                "Select your rental start and end dates, view the calculated total, and send the request.",
+              )}
+            </p>
           </div>
 
           <div className="how-step-card">
@@ -611,14 +547,26 @@ export default function Home({ user }) {
               <Handshake size={22} color="#15803d" />
             </div>
             <h3>{t("home.step3Title", "Pickup & Enjoy")}</h3>
-            <p>{t("home.step3Desc", "Verify details with the owner, inspect the item together, and enjoy your rental!")}</p>
+            <p>
+              {t(
+                "home.step3Desc",
+                "Verify details with the owner, inspect the item together, and enjoy your rental!",
+              )}
+            </p>
           </div>
         </div>
 
         <div className="owner-cta-banner">
           <div className="owner-cta-text">
-            <h3>{t("home.ownerCtaTitle", "Have items sitting idle at home?")}</h3>
-            <p>{t("home.ownerCtaDesc", "List your unused tools, electronics, or gear and start earning rental income today.")}</p>
+            <h3>
+              {t("home.ownerCtaTitle", "Have items sitting idle at home?")}
+            </h3>
+            <p>
+              {t(
+                "home.ownerCtaDesc",
+                "List your unused tools, electronics, or gear and start earning rental income today.",
+              )}
+            </p>
           </div>
           <Link to="/add-item" className="owner-cta-btn">
             <span>{t("home.ownerCtaBtn", "List Item Now")}</span>
@@ -626,15 +574,15 @@ export default function Home({ user }) {
           </Link>
         </div>
       </section>
-       {/* Buyer Location Picker */}
+      {/* Buyer Location Picker */}
 
       <BuyerLocationPicker
         isOpen={showBuyerPicker}
         onClose={() => setShowBuyerPicker(false)}
         onLocationSelect={(selectedLocation) => {
-  console.log("Selected Buyer Location:", selectedLocation);
+          console.log("Selected Buyer Location:", selectedLocation);
 
-  setBuyerLocation(selectedLocation);
+          setBuyerLocation(selectedLocation);
         }}
       />
     </main>

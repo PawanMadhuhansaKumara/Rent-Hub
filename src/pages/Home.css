@@ -8,7 +8,9 @@
   margin: 0 auto;
   padding: 24px 28px 80px;
   box-sizing: border-box;
-  font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+  font-family:
+    -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial,
+    sans-serif;
   color: #1e293b;
   background-color: #ffffff;
 }
@@ -28,12 +30,7 @@
   padding: 48px 32px 42px;
   border: 1px solid #dcfce7;
   border-radius: 20px;
-  background: linear-gradient(
-    135deg,
-    #f0fdf4 0%,
-    #dcfce7 50%,
-    #ffffff 100%
-  );
+  background: linear-gradient(135deg, #f0fdf4 0%, #dcfce7 50%, #ffffff 100%);
   box-shadow: 0 4px 20px rgba(21, 128, 61, 0.05);
 }
 
@@ -213,47 +210,17 @@
   scroll-margin-top: 30px;
 }
 
-/* Sticky Header: Search Bar, Categories Bar & Filters/Sort Bar */
+/* Header: Search Bar, Categories Bar & Filters/Sort Bar */
 .home-sticky-header {
-  position: sticky;
-  top: 70px;
-  z-index: 990;
+  position: static !important;
   background: #ffffff;
   padding-top: 8px;
   padding-bottom: 6px;
   border-bottom: 1px solid #f1f5f9;
-  transition: box-shadow 0.25s ease, border-color 0.25s ease, padding 0.25s ease;
-}
-
-@media (max-width: 700px) {
-  .home-sticky-header {
-    top: 60px;
-  }
-}
-
-.home-sticky-header.is-sticky {
-  border-bottom: 1px solid #e2e8f0;
-  box-shadow: 0 4px 14px -3px rgba(0, 0, 0, 0.07);
 }
 
 .home-sticky-header .home-search-wrapper {
-  overflow: hidden;
-  max-height: 100px;
-  opacity: 1;
-  transform: translateY(0);
   margin-bottom: 8px;
-  transition: max-height 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              opacity 0.25s ease,
-              margin-bottom 0.3s cubic-bezier(0.4, 0, 0.2, 1),
-              transform 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-}
-
-.home-sticky-header.search-hidden .home-search-wrapper {
-  max-height: 0;
-  opacity: 0;
-  margin-bottom: 0;
-  transform: translateY(-8px);
-  pointer-events: none;
 }
 
 .home-sticky-header .home-search {
@@ -271,8 +238,7 @@
 .home-results-header {
   display: flex;
   align-items: center;
-  justify-content: space-between;
-  gap: 14px;
+  gap: 12px;
   margin: 4px 0 0;
   padding-bottom: 4px;
   border-bottom: none;
@@ -284,6 +250,11 @@
   align-items: center;
   gap: 10px;
   flex-wrap: wrap;
+  margin-right: auto;
+}
+
+.home-available-filter-btn {
+  flex-shrink: 0;
 }
 
 .home-results-title-group h2 {
@@ -653,7 +624,9 @@
   border-radius: 16px;
   border: 1px solid #e2e8f0;
   text-align: center;
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.03);
 }
 
@@ -822,15 +795,39 @@
   }
 
   .home-results-header {
-    flex-direction: column;
-    align-items: flex-start;
-    gap: 8px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px 10px;
     margin-bottom: 4px;
+    flex-wrap: wrap;
+  }
+
+  .home-results-title-group {
+    margin-right: 0;
+    gap: 8px;
+    min-width: 0;
+  }
+
+  .home-results-title-group h2 {
+    font-size: 18px;
+  }
+
+  .home-available-filter-btn {
+    margin-left: auto;
+    flex-shrink: 0;
+    padding: 6px 12px;
+    font-size: 12.5px;
   }
 
   .home-results-actions {
     width: 100%;
+    display: flex;
+    align-items: center;
     justify-content: space-between;
+    gap: 8px;
+    flex-wrap: wrap;
   }
 
   .items-grid {
@@ -860,10 +857,6 @@
   }
 }
 
-
-
-
-
 /* =========================================
    RENT-HUB LOCATION DISCOVERY PANEL
    Refined Modern Green Design
@@ -879,7 +872,9 @@
   background: linear-gradient(115deg, #f0fdf4 0%, #e9f8ee 60%, #f7fdf8 100%);
   box-shadow: 0 5px 18px rgba(21, 128, 61, 0.07);
   overflow: hidden;
-  transition: box-shadow 0.25s ease, border-color 0.25s ease;
+  transition:
+    box-shadow 0.25s ease,
+    border-color 0.25s ease;
 }
 
 .nearby-location-panel:hover {
@@ -1036,7 +1031,9 @@
   font-weight: 700;
   outline: none;
   cursor: pointer;
-  transition: border-color 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .nearby-radius-content select:hover {
@@ -1045,7 +1042,7 @@
 
 .nearby-radius-content select:focus {
   border-color: #15803d;
-  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.10);
+  box-shadow: 0 0 0 3px rgba(21, 128, 61, 0.1);
 }
 
 .nearby-info-divider {
@@ -1136,10 +1133,6 @@
     min-width: 0;
   }
 }
-
-
-
-
 
 /* Facebook Marketplace Style Location Filter */
 
@@ -1272,8 +1265,6 @@
     align-self: flex-end;
   }
 }
-
-
 
 /* Rent-Hub Green Theme - Nearby Location Filter */
 

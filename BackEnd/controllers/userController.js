@@ -1,7 +1,20 @@
 const db = require('../config/db');
 
+// Ensure preferred_language column exists in users_details
+let isLangColumnChecked = false;
+const ensureLanguageColumn = async () => {
+  if (isLangColumnChecked) return;
+  try {
+    await db.execute(`ALTER TABLE users_details ADD COLUMN preferred_language VARCHAR(10) DEFAULT 'en'`);
+  } catch (e) {
+    // Column already exists or error ignored
+  }
+  isLangColumnChecked = true;
+};
+
 // GET SINGLE USER PROFILE BY ID (Public view)
 exports.getUser = async (req, res) => {
+  await ensureLanguageColumn();
   const userId = req.params.id;
   try {
     const [rows] = await db.execute('SELECT * FROM users_details WHERE user_id = ?', [userId]);
@@ -118,6 +131,11 @@ exports.updateUser = async (req, res) => {
       values.push(map_location_name || null);
     }
 
+    if (req.body.preferred_language) {
+      query += `, preferred_language = ?`;
+      values.push(req.body.preferred_language);
+    }
+
     if (profile_pic_url) {
       query += `, profile_pic_url = ?`;
       values.push(profile_pic_url);
@@ -184,6 +202,37 @@ exports.updateMapLocation = async (req, res) => {
   } catch (error) {
     console.error('Map Location Update Error:', error);
     res.status(500).json({ success: false, message: 'Server error while updating map location.' });
+  }
+};
+
+// UPDATE SPECIFICALLY PREFERRED LANGUAGE
+exports.updateLanguage = async (req, res) => {
+  await ensureLanguageColumn();
+  const userId = req.params.id;
+  const { language } = req.body;
+
+  if (!language) {
+    return res.status(400).json({ success: false, message: 'Language is required.' });
+  }
+
+  try {
+    await db.execute(
+      'UPDATE users_details SET preferred_language = ? WHERE user_id = ?',
+      [language, userId]
+    );
+
+    const [rows] = await db.execute('SELECT * FROM users_details WHERE user_id = ?', [userId]);
+    const updatedUser = rows.length > 0 ? rows[0] : null;
+
+    res.status(200).json({
+      success: true,
+      message: 'Language updated successfully!',
+      language,
+      user: updatedUser
+    });
+  } catch (error) {
+    console.error('Update Language Error:', error);
+    res.status(500).json({ success: false, message: 'Server error while updating language.' });
   }
 };
 

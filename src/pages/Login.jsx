@@ -7,7 +7,7 @@ import logo from "../assets/logo.png";
 
 export default function Login({ onLoginSuccess, user }) {
   const navigate = useNavigate();
-  const { t } = useTranslation();
+  const { t, i18n } = useTranslation();
 
   // If already logged in, redirect immediately and NEVER show the login form
   const isAlreadyLoggedIn = Boolean(
@@ -60,6 +60,14 @@ export default function Login({ onLoginSuccess, user }) {
         // Token සහ User details Browser එකේ save කිරීම
         localStorage.setItem("token", data.token);
         localStorage.setItem("user", JSON.stringify(data.user));
+
+        const userLang = data.user?.preferred_language || data.user?.language;
+        if (userLang) {
+          localStorage.setItem("language", userLang);
+          if (i18n.language !== userLang) {
+            i18n.changeLanguage(userLang);
+          }
+        }
 
         if (onLoginSuccess) onLoginSuccess(data.user);
 

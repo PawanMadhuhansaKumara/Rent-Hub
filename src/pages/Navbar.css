@@ -39,6 +39,51 @@
   box-shadow: 0 2px 6px rgba(0, 0, 0, 0.1);
 }
 
+/* Center Search Bar for Home Page (Desktop & Tablet) */
+.navbar-center-search {
+  flex: 1;
+  max-width: 540px;
+  margin: 0 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.navbar-center-search .home-search {
+  width: 100%;
+  max-width: 100%;
+  min-height: 42px;
+  height: 42px;
+  margin: 0;
+  border-radius: 9999px;
+  padding: 0 16px;
+  background: #ffffff;
+  border: 1.5px solid rgba(255, 255, 255, 0.4);
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+}
+
+.navbar-center-search .home-search input {
+  padding: 8px 0;
+  font-size: 14px;
+}
+
+.navbar-center-search .search-icon {
+  font-size: 22px;
+}
+
+@media (max-width: 1000px) {
+  .navbar-center-search {
+    max-width: 360px;
+    margin: 0 10px;
+  }
+}
+
+@media (max-width: 700px) {
+  .navbar-center-search {
+    display: none !important;
+  }
+}
+
 /* Center Navigation */
 .navbar-menu {
   display: flex;

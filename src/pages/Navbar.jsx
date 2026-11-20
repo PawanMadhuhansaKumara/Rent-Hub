@@ -8,11 +8,13 @@ import "../responsive.css";
 import logo from "../assets/logoSmall.png";
 import LanguageSelecter from "../components/LanguageSelecter";
 import CartIcon from "../components/CartIcon";
+import SearchBar from "../components/SearchBar";
 
-export default function Navbar({ user, setUser }) {
+export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }) {
   const navigate = useNavigate();
   const location = useLocation();
   const { t, i18n } = useTranslation();
+  const isHomePage = location.pathname === "/";
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -21,9 +23,28 @@ export default function Navbar({ user, setUser }) {
     navigate("/login");
   };
 
-  const changeLanguage = (language) => {
+  const changeLanguage = async (language) => {
     i18n.changeLanguage(language);
     localStorage.setItem("language", language);
+
+    try {
+      const uId = activeUser?.user_id || activeUser?.id;
+      if (uId) {
+        const updated = { ...activeUser, preferred_language: language };
+        if (setUser) setUser(updated);
+        localStorage.setItem("user", JSON.stringify(updated));
+        window.dispatchEvent(new Event("user_updated"));
+        window.dispatchEvent(new Event("storage"));
+
+        await fetch(`http://localhost:5001/api/users/${uId}/language`, {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ language }),
+        });
+      }
+    } catch (e) {
+      console.error("Failed to sync language to database:", e);
+    }
   };
 
   const isActive = (path) => location.pathname === path;
@@ -252,6 +273,16 @@ export default function Navbar({ user, setUser }) {
       <Link to="/" className="navbar-brand">
         <img src={logo} alt="Rent-Hub Logo" className="navbar-logo" />
       </Link>
+
+      {/* Middle: Search Bar (Desktop & Tablet on Home Page only) */}
+      {isHomePage && setSearchTerm && (
+        <div className="navbar-center-search">
+          <SearchBar
+            searchTerm={searchTerm}
+            setSearchTerm={setSearchTerm}
+          />
+        </div>
+      )}
 
       {/* Right Side Actions */}
       <div className="navbar-actions">

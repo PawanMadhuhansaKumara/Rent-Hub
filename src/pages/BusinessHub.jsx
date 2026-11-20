@@ -61,7 +61,12 @@ export default function BusinessHub({ user }) {
         setItems(Array.isArray(data) ? data : []);
       } catch (err) {
         console.error("Error loading inventory:", err);
-        setError("Could not load your items at this moment.");
+        setError(
+          t(
+            "businessHub.errorLoadingDesc",
+            "Could not load your items at this moment.",
+          ),
+        );
       } finally {
         setLoading(false);
       }
@@ -99,7 +104,10 @@ export default function BusinessHub({ user }) {
       : `${API_URL}${rawAvatar.startsWith("/") ? "" : "/"}${rawAvatar}`
     : null;
 
-  const userName = currentUser?.full_name || currentUser?.name || "Business Owner";
+  const userName =
+    currentUser?.full_name ||
+    currentUser?.name ||
+    t("businessHub.businessOwner", "Business Owner");
 
   return (
     <main className="business-hub-page">
@@ -107,22 +115,21 @@ export default function BusinessHub({ user }) {
         {/* Header Bar */}
         <div className="business-hub-header">
           <div className="business-hub-header-left">
-            
             <div>
               <h1 className="business-hub-title">
-                {t("navigation.businessHub") || "Business Hub"}
-                <span className="business-hub-badge">Seller Center</span>
+                {t("businessHub.title", "Business Hub")}
+                <span className="business-hub-badge">
+                  {t("businessHub.sellerCenter", "Seller Center")}
+                </span>
               </h1>
               <p className="business-hub-subtitle">
-                Manage your rental inventory, track availability, and grow your earnings.
+                {t(
+                  "businessHub.subtitle",
+                  "Manage your rental inventory, track availability, and grow your earnings.",
+                )}
               </p>
             </div>
           </div>
-
-          <Link to="/add-item" className="business-hub-add-btn">
-            <Plus size={18} />
-            <span>List New Item</span>
-          </Link>
         </div>
 
         {/* Store Welcome Card */}
@@ -143,22 +150,26 @@ export default function BusinessHub({ user }) {
               )}
             </div>
             <div className="welcome-text">
-              <h2>{userName}'s Rental Store</h2>
-              <p>
-                <Sparkles size={14} color="#a7f3d0" />
-                Active Storefront • Sri Lanka
-              </p>
+              <h2>
+                {t("businessHub.userRentalStore", {
+                  name: userName,
+                  defaultValue: `${userName}'s Rental Store`,
+                })}
+              </h2>
             </div>
           </div>
 
           <div className="welcome-actions">
             <Link to="/profile" className="welcome-btn-white">
               <Eye size={15} />
-              View Public Store
+              {t("businessHub.viewPublicStore", "View Public Store")}
             </Link>
-            <Link to="/my-items?tab=my-items" className="welcome-btn-translucent">
+            <Link
+              to="/my-items?tab=my-items"
+              className="welcome-btn-translucent"
+            >
               <List size={15} />
-              Manage Inventory
+              {t("businessHub.manageInventory", "Manage Inventory")}
             </Link>
           </div>
         </div>
@@ -170,9 +181,13 @@ export default function BusinessHub({ user }) {
               <Package size={24} />
             </div>
             <div className="stat-content">
-              <p className="stat-label">Total Listings</p>
+              <p className="stat-label">
+                {t("businessHub.totalListings", "Total Listings")}
+              </p>
               <p className="stat-value">{totalListings}</p>
-              <p className="stat-sub">Items in your catalog</p>
+              <p className="stat-sub">
+                {t("businessHub.totalListingsDesc", "Items in your catalog")}
+              </p>
             </div>
           </div>
 
@@ -181,9 +196,13 @@ export default function BusinessHub({ user }) {
               <CheckCircle2 size={24} />
             </div>
             <div className="stat-content">
-              <p className="stat-label">Available for Rent</p>
+              <p className="stat-label">
+                {t("businessHub.availableForRent", "Available for Rent")}
+              </p>
               <p className="stat-value">{availableCount}</p>
-              <p className="stat-sub">Ready for customers</p>
+              <p className="stat-sub">
+                {t("businessHub.availableForRentDesc", "Ready for customers")}
+              </p>
             </div>
           </div>
 
@@ -192,9 +211,16 @@ export default function BusinessHub({ user }) {
               <Clock size={24} />
             </div>
             <div className="stat-content">
-              <p className="stat-label">Rented / Out of Stock</p>
+              <p className="stat-label">
+                {t("businessHub.rentedOutOfStock", "Rented / Out of Stock")}
+              </p>
               <p className="stat-value">{rentedCount}</p>
-              <p className="stat-sub">Currently with renters</p>
+              <p className="stat-sub">
+                {t(
+                  "businessHub.rentedOutOfStockDesc",
+                  "Currently with renters",
+                )}
+              </p>
             </div>
           </div>
 
@@ -203,11 +229,16 @@ export default function BusinessHub({ user }) {
               <TrendingUp size={24} />
             </div>
             <div className="stat-content">
-              <p className="stat-label">Catalog Price Value</p>
-              <p className="stat-value">
-                Rs. {totalPortfolioValue.toLocaleString("en-LK")}
+              <p className="stat-label">
+                {t("businessHub.catalogValue", "Catalog Price Value")}
               </p>
-              <p className="stat-sub">Combined listing rates</p>
+              <p className="stat-value">
+                {t("item.currency", "LKR")}{" "}
+                {totalPortfolioValue.toLocaleString("en-LK")}
+              </p>
+              <p className="stat-sub">
+                {t("businessHub.catalogValueDesc", "Combined listing rates")}
+              </p>
             </div>
           </div>
         </div>
@@ -215,7 +246,7 @@ export default function BusinessHub({ user }) {
         {/* Quick Actions Grid */}
         <div className="business-actions-section">
           <div className="section-heading-row">
-            <h3>Quick Operations</h3>
+            <h3>{t("businessHub.quickOperations", "Quick Operations")}</h3>
           </div>
 
           <div className="business-actions-grid">
@@ -224,30 +255,53 @@ export default function BusinessHub({ user }) {
                 <Plus size={20} />
               </div>
               <div className="action-info">
-                <h4>Add New Item</h4>
-                <p>Upload photos, set rates & stock</p>
+                <h4>{t("businessHub.addNewItem", "Add New Item")}</h4>
+                <p>
+                  {t(
+                    "businessHub.addNewItemDesc",
+                    "Upload photos, set rates & stock",
+                  )}
+                </p>
               </div>
               <ArrowRight size={18} className="action-arrow" />
             </Link>
 
-            <Link to="/my-items?tab=rent-requests&filter=received&from=business-hub" className="action-card">
+            <Link
+              to="/my-items?tab=rent-requests&filter=received&from=business-hub"
+              className="action-card"
+            >
               <div className="action-icon">
                 <ShoppingBag size={20} />
               </div>
               <div className="action-info">
-                <h4>Rental Requests</h4>
-                <p>Review customer booking requests</p>
+                <h4>{t("businessHub.rentalRequests", "Rental Requests")}</h4>
+                <p>
+                  {t(
+                    "businessHub.rentalRequestsDesc",
+                    "Review customer booking requests",
+                  )}
+                </p>
               </div>
               <ArrowRight size={18} className="action-arrow" />
             </Link>
 
-            <Link to="/my-items?tab=rented-items&subtab=sented-out&from=business-hub" className="action-card">
+            <Link
+              to="/my-items?tab=rented-items&subtab=sented-out&from=business-hub"
+              className="action-card"
+            >
               <div className="action-icon">
                 <Clock size={20} />
               </div>
               <div className="action-info">
-                <h4>Active Rented Items</h4>
-                <p>Track return dates & item status</p>
+                <h4>
+                  {t("businessHub.activeRentedItems", "Active Rented Items")}
+                </h4>
+                <p>
+                  {t(
+                    "businessHub.activeRentedItemsDesc",
+                    "Track return dates & item status",
+                  )}
+                </p>
               </div>
               <ArrowRight size={18} className="action-arrow" />
             </Link>
@@ -257,8 +311,13 @@ export default function BusinessHub({ user }) {
                 <Package size={20} />
               </div>
               <div className="action-info">
-                <h4>Full Inventory</h4>
-                <p>Edit prices, availability & details</p>
+                <h4>{t("businessHub.fullInventory", "Full Inventory")}</h4>
+                <p>
+                  {t(
+                    "businessHub.fullInventoryDesc",
+                    "Edit prices, availability & details",
+                  )}
+                </p>
               </div>
               <ArrowRight size={18} className="action-arrow" />
             </Link>
@@ -268,7 +327,7 @@ export default function BusinessHub({ user }) {
         {/* Recent Listings Preview */}
         <div className="business-listings-section">
           <div className="section-heading-row">
-            <h3>Your Recent Listings</h3>
+            <h3>{t("businessHub.recentListings", "Your Recent Listings")}</h3>
             {items.length > 0 && (
               <Link
                 to="/my-items?tab=my-items"
@@ -279,7 +338,10 @@ export default function BusinessHub({ user }) {
                   textDecoration: "none",
                 }}
               >
-                View all ({items.length}) →
+                {t("businessHub.viewAllCount", {
+                  count: items.length,
+                  defaultValue: `View all (${items.length}) →`,
+                })}
               </Link>
             )}
           </div>
@@ -287,14 +349,14 @@ export default function BusinessHub({ user }) {
           {loading ? (
             <div className="business-hub-loader">
               <div className="hub-spinner" />
-              <p>Loading inventory...</p>
+              <p>{t("businessHub.loadingInventory", "Loading inventory...")}</p>
             </div>
           ) : error ? (
             <div className="business-empty-state">
               <div className="empty-state-icon">
                 <AlertCircle size={28} />
               </div>
-              <h4>Error Loading Items</h4>
+              <h4>{t("businessHub.errorLoading", "Error Loading Items")}</h4>
               <p>{error}</p>
             </div>
           ) : items.length === 0 ? (
@@ -302,11 +364,16 @@ export default function BusinessHub({ user }) {
               <div className="empty-state-icon">
                 <Package size={28} />
               </div>
-              <h4>No items listed yet</h4>
-              <p>Start earning by listing your tools, cameras, equipment, or party gear for rent.</p>
+              <h4>{t("businessHub.noItems", "No items listed yet")}</h4>
+              <p>
+                {t(
+                  "businessHub.noItemsDesc",
+                  "Start earning by listing your tools, cameras, equipment, or party gear for rent.",
+                )}
+              </p>
               <Link to="/add-item" className="business-hub-add-btn">
                 <Plus size={16} />
-                List Your First Item
+                {t("businessHub.listFirstItem", "List Your First Item")}
               </Link>
             </div>
           ) : (
@@ -347,14 +414,26 @@ export default function BusinessHub({ user }) {
                       <div className="listing-row-info">
                         <h4>{item.title}</h4>
                         <div className="listing-row-meta">
-                          <span>{item.category || "General"}</span>
+                          <span>
+                            {item.category
+                              ? t(
+                                  `categories.${item.category.toLowerCase()}`,
+                                  item.category,
+                                )
+                              : t("categories.general", "General")}
+                          </span>
                           <span>•</span>
                           <span
                             className={`listing-status-tag ${
                               isAvail ? "available" : "unavailable"
                             }`}
                           >
-                            {isAvail ? `In Stock (${item.available})` : "Rented Out"}
+                            {isAvail
+                              ? t("businessHub.inStock", {
+                                  count: item.available,
+                                  defaultValue: `In Stock (${item.available})`,
+                                })
+                              : t("businessHub.rentedOut", "Rented Out")}
                           </span>
                         </div>
                       </div>
@@ -362,14 +441,22 @@ export default function BusinessHub({ user }) {
 
                     <div className="listing-row-right">
                       <div className="listing-price-tag">
-                        Rs. {Number(item.price || 0).toLocaleString("en-LK")}
-                        <span> / {item.priceType || "day"}</span>
+                        {t("item.currency", "LKR")}{" "}
+                        {Number(item.price || 0).toLocaleString("en-LK")}
+                        <span>
+                          {" "}
+                          /{" "}
+                          {t(
+                            `item.${(item.priceType || "day").toLowerCase()}`,
+                            item.priceType || "day",
+                          )}
+                        </span>
                       </div>
                       <Link
                         to={`/item/${item.id}`}
                         className="listing-view-btn"
                       >
-                        View Item
+                        {t("businessHub.viewItem", "View Item")}
                       </Link>
                     </div>
                   </div>
@@ -385,9 +472,12 @@ export default function BusinessHub({ user }) {
             <Sparkles size={22} />
           </div>
           <div className="tips-content">
-            <h4>Boost Your Rental Income</h4>
+            <h4>{t("businessHub.tipsTitle", "Boost Your Rental Income")}</h4>
             <p>
-              High quality pictures, quick replies to chat inquiries, and offering fair daily rates help items rent 3x faster on Rent-Hub.
+              {t(
+                "businessHub.tipsDesc",
+                "High quality pictures, quick replies to chat inquiries, and offering fair daily rates help items rent 3x faster on Rent-Hub.",
+              )}
             </p>
           </div>
         </div>

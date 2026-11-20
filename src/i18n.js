@@ -17,9 +17,23 @@ const resources = {
   },
 };
 
+const getInitialLanguage = () => {
+  const saved = localStorage.getItem("language");
+  if (saved) return saved;
+  try {
+    const userStr = localStorage.getItem("user");
+    if (userStr) {
+      const user = JSON.parse(userStr);
+      if (user?.preferred_language) return user.preferred_language;
+      if (user?.language) return user.language;
+    }
+  } catch {}
+  return "en";
+};
+
 i18n.use(initReactI18next).init({
   resources,
-  lng: localStorage.getItem("language") || "en",
+  lng: getInitialLanguage(),
   fallbackLng: "en",
   interpolation: {
     escapeValue: false,

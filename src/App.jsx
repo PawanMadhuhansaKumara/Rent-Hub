@@ -1,5 +1,6 @@
 import AddItem from "./AddItem";
 import React, { useState, useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import {
   BrowserRouter as Router,
   Routes,
@@ -32,6 +33,8 @@ function RentsRedirect() {
 
 
 export default function App() {
+  const { i18n } = useTranslation();
+  const [searchTerm, setSearchTerm] = useState("");
   const [user, setUser] = useState(() => {
     try {
       const saved = localStorage.getItem("user");
@@ -77,6 +80,34 @@ export default function App() {
     }
   };
 
+  // Sync language from database
+  const syncUserLanguage = async (currentU) => {
+    const uId = currentU?.user_id || currentU?.id;
+    if (!uId) return;
+    try {
+      const res = await fetch(`http://localhost:5001/api/users/${uId}`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && data.user) {
+          const dbLang = data.user.preferred_language || data.user.language;
+          if (dbLang) {
+            localStorage.setItem("language", dbLang);
+            if (i18n.language !== dbLang) {
+              i18n.changeLanguage(dbLang);
+            }
+            if (currentU.preferred_language !== dbLang) {
+              const updated = { ...currentU, preferred_language: dbLang };
+              setUser(updated);
+              localStorage.setItem("user", JSON.stringify(updated));
+            }
+          }
+        }
+      }
+    } catch (e) {
+      console.error("Failed to sync user language from DB:", e);
+    }
+  };
+
   useEffect(() => {
     // App එක Load වෙනවිට LocalStorage එකේ User කෙනෙක් ඉන්නවාදැයි පරීක්ෂා කිරීම
     const savedUser = localStorage.getItem("user");
@@ -84,7 +115,15 @@ export default function App() {
       try {
         const parsed = JSON.parse(savedUser);
         setUser(parsed);
+        const userLang = parsed.preferred_language || parsed.language;
+        if (userLang) {
+          localStorage.setItem("language", userLang);
+          if (i18n.language !== userLang) {
+            i18n.changeLanguage(userLang);
+          }
+        }
         refreshUserTrustScore(parsed);
+        syncUserLanguage(parsed);
       } catch (err) {
         console.error(err);
       }
@@ -118,10 +157,25 @@ export default function App() {
 
   return (
     <Router>
-      <Navbar user={user} setUser={setUser} />
+      <Navbar
+        user={user}
+        setUser={setUser}
+        searchTerm={searchTerm}
+        setSearchTerm={setSearchTerm}
+      />
 
       <Routes>
-        <Route path="/" element={<Home user={user} setUser={setUser} />} />
+        <Route
+          path="/"
+          element={
+            <Home
+              user={user}
+              setUser={setUser}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+            />
+          }
+        />
         <Route path="/buyer-location-test"element={<BuyerLocationTest />}/>
         <Route
           path="/login"
