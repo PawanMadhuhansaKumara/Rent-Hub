@@ -2,7 +2,28 @@ import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { useNavigate, useParams } from "react-router-dom";
 import {
-  Camera,CheckCircle2, Phone,MapPin, Clock, Mail, Star, Heart, Plus, Edit3, Settings, X, User,AtSign, ArrowLeft, Package, Calendar, Eye, Trash2, ChevronDown, CornerDownRight, Coins,
+  Camera,
+  CheckCircle2,
+  Phone,
+  MapPin,
+  Clock,
+  Mail,
+  Star,
+  Heart,
+  Plus,
+  Edit3,
+  Settings,
+  X,
+  User,
+  AtSign,
+  ArrowLeft,
+  Package,
+  Calendar,
+  Eye,
+  Trash2,
+  ChevronDown,
+  CornerDownRight,
+  Coins,
 } from "lucide-react";
 import SettingsPopup from "../components/SettingsPopup";
 import LeaveReviewModal from "../components/LeaveReviewModal";
@@ -10,7 +31,6 @@ import GoogleMapIcon from "../components/GoogleMapIcon";
 import MapLocationPickerModal from "../components/MapLocationPickerModal";
 import ShopDistanceModal from "../components/ShopDistanceModal";
 import CashPointsTopupModal from "../components/CashPointsTopupModal";
-
 
 const isItemRented = (item) => {
   if (!item) return false;
@@ -67,10 +87,13 @@ export default function Profile({ user, setUser }) {
     map_latitude: user?.map_latitude ? parseFloat(user.map_latitude) : null,
     map_longitude: user?.map_longitude ? parseFloat(user.map_longitude) : null,
     map_location_name: user?.map_location_name || "",
-    about:
-      user?.about ||
-      "Rent smarter. Live better.",
-    trust_score: user?.trust_score !== undefined ? user.trust_score : (user?.user_rating ? user.user_rating * 20 : 50),
+    about: user?.about || "Rent smarter. Live better.",
+    trust_score:
+      user?.trust_score !== undefined
+        ? user.trust_score
+        : user?.user_rating
+          ? user.user_rating * 20
+          : 50,
     max_rental_limit: user?.rental_limit || user?.max_rental_limit || 1000,
     cash_points: user?.cash_points !== undefined ? Number(user.cash_points) : 0,
     reviews_count: user?.reviews_count || 12,
@@ -108,14 +131,17 @@ export default function Profile({ user, setUser }) {
 
     setSubmittingReply(true);
     try {
-      const res = await fetch(`http://localhost:5001/api/reviews/${reviewId}/reply`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          sellerId,
-          reply: replyText.trim(),
-        }),
-      });
+      const res = await fetch(
+        `http://localhost:5001/api/reviews/${reviewId}/reply`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            sellerId,
+            reply: replyText.trim(),
+          }),
+        },
+      );
 
       const data = await res.json();
       if (res.ok && data.success) {
@@ -127,8 +153,8 @@ export default function Profile({ user, setUser }) {
                   sellerReply: data.sellerReply,
                   sellerReplyAt: data.sellerReplyAt,
                 }
-              : r
-          )
+              : r,
+          ),
         );
         setReplyingReviewId(null);
         setEditingReplyId(null);
@@ -145,15 +171,23 @@ export default function Profile({ user, setUser }) {
   };
 
   const handleDeleteReply = async (reviewId) => {
-    if (!window.confirm("Are you sure you want to delete your response to this review?")) return;
+    if (
+      !window.confirm(
+        "Are you sure you want to delete your response to this review?",
+      )
+    )
+      return;
     const sellerId = profile.user_id;
 
     try {
-      const res = await fetch(`http://localhost:5001/api/reviews/${reviewId}/reply`, {
-        method: "DELETE",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ sellerId }),
-      });
+      const res = await fetch(
+        `http://localhost:5001/api/reviews/${reviewId}/reply`,
+        {
+          method: "DELETE",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ sellerId }),
+        },
+      );
 
       const data = await res.json();
       if (res.ok && data.success) {
@@ -165,8 +199,8 @@ export default function Profile({ user, setUser }) {
                   sellerReply: null,
                   sellerReplyAt: null,
                 }
-              : r
-          )
+              : r,
+          ),
         );
       } else {
         alert(data.message || "Failed to delete reply.");
@@ -206,7 +240,7 @@ export default function Profile({ user, setUser }) {
               ? (
                   updatedList.reduce(
                     (acc, curr) => acc + Number(curr.rating),
-                    0
+                    0,
                   ) / total
                 ).toFixed(1)
               : 0;
@@ -269,8 +303,12 @@ export default function Profile({ user, setUser }) {
 
         const headers = { Authorization: `Bearer ${token}` };
         const [buyerResponse, sellerResponse] = await Promise.all([
-          fetch("http://localhost:5001/api/rent-requests/history/buyer", { headers }),
-          fetch("http://localhost:5001/api/rent-requests/history/seller", { headers }),
+          fetch("http://localhost:5001/api/rent-requests/history/buyer", {
+            headers,
+          }),
+          fetch("http://localhost:5001/api/rent-requests/history/seller", {
+            headers,
+          }),
         ]);
 
         const [buyerData, sellerData] = await Promise.all([
@@ -279,18 +317,28 @@ export default function Profile({ user, setUser }) {
         ]);
 
         if (!buyerResponse.ok || !buyerData.success) {
-          throw new Error(buyerData.message || "Failed to load buyer rental history.");
+          throw new Error(
+            buyerData.message || "Failed to load buyer rental history.",
+          );
         }
         if (!sellerResponse.ok || !sellerData.success) {
-          throw new Error(sellerData.message || "Failed to load seller rental history.");
+          throw new Error(
+            sellerData.message || "Failed to load seller rental history.",
+          );
         }
 
         const combinedHistory = [
           ...(Array.isArray(buyerData.history)
-            ? buyerData.history.map((rental) => ({ ...rental, historyType: "buyer" }))
+            ? buyerData.history.map((rental) => ({
+                ...rental,
+                historyType: "buyer",
+              }))
             : []),
           ...(Array.isArray(sellerData.history)
-            ? sellerData.history.map((rental) => ({ ...rental, historyType: "seller" }))
+            ? sellerData.history.map((rental) => ({
+                ...rental,
+                historyType: "seller",
+              }))
             : []),
         ].sort((a, b) => {
           const dateA = new Date(a.completedAt || a.createdAt || 0).getTime();
@@ -311,80 +359,73 @@ export default function Profile({ user, setUser }) {
     fetchRentalHistory();
   }, [activeTab, isOwnProfile]);
 
-  // If viewing someone else's profile via /profile/:userId, fetch their data
+  // Fetch profile user data from backend (both for own profile and public view)
   useEffect(() => {
-    if (paramUserId && !isOwnProfile) {
-      fetch(`http://localhost:5001/api/users/${paramUserId}`)
+    const targetUserId = paramUserId || user?.user_id || user?.id;
+    if (targetUserId) {
+      fetch(`http://localhost:5001/api/users/${targetUserId}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.success && data.user) {
             const u = data.user;
-            setProfile({
+            setProfile((prev) => ({
+              ...prev,
               user_id: u.user_id,
-              full_name: u.full_name || "RentHub Shop",
-              username: u.username || "",
-              phone_no: u.phone_no || "",
-              email: u.email || "",
-              address: u.address || "",
-              nearest_city: u.nearest_city || "",
-              map_latitude: u.map_latitude ? parseFloat(u.map_latitude) : null,
-              map_longitude: u.map_longitude ? parseFloat(u.map_longitude) : null,
-              map_location_name: u.map_location_name || "",
-              about: u.about || "Rent smarter. Live better.",
-              trust_score: u.trust_score !== undefined ? u.trust_score : (u.user_rating ? u.user_rating * 20 : 50),
-              max_rental_limit: u.max_rental_limit || 1000,
-              avg_trust_rating: u.avg_trust_rating || 10,
-              reviews_count: u.reviews_count || 0,
-              likes_count: u.likes_count || 0,
+              full_name: u.full_name || prev.full_name || "RentHub Shop",
+              username: u.username || prev.username || "",
+              phone_no: u.phone_no || prev.phone_no || "",
+              email: u.email || prev.email || "",
+              address: u.address || prev.address || "",
+              nearest_city: u.nearest_city || prev.nearest_city || "",
+              map_latitude: u.map_latitude ? parseFloat(u.map_latitude) : prev.map_latitude,
+              map_longitude: u.map_longitude ? parseFloat(u.map_longitude) : prev.map_longitude,
+              map_location_name: u.map_location_name || prev.map_location_name || "",
+              about: u.about || prev.about || "Rent smarter. Live better.",
+              trust_score:
+                u.trust_score !== undefined
+                  ? u.trust_score
+                  : u.user_rating
+                    ? u.user_rating * 20
+                    : prev.trust_score || 50,
+              max_rental_limit: u.max_rental_limit || prev.max_rental_limit || 1000,
+              avg_trust_rating: u.avg_trust_rating || prev.avg_trust_rating || 10,
+              reviews_count: u.reviews_count || prev.reviews_count || 0,
+              likes_count: u.likes_count || prev.likes_count || 0,
               profile_pic_url: u.profile_pic_url
                 ? u.profile_pic_url.startsWith("http")
                   ? u.profile_pic_url
                   : `http://localhost:5001${u.profile_pic_url}`
-                : "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?auto=format&fit=crop&q=80&w=300",
+                : prev.profile_pic_url,
               coverphoto: u.coverphoto
                 ? u.coverphoto.startsWith("http")
                   ? u.coverphoto
                   : `http://localhost:5001${u.coverphoto}`
-                : "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=1000",
-              cash_points: u.cash_points !== undefined ? Number(u.cash_points) : 0,
-              is_verified: u.is_verified || 0,
-            });
+                : prev.coverphoto,
+              cash_points:
+                u.cash_points !== undefined ? Number(u.cash_points) : prev.cash_points || 0,
+              is_verified: u.is_verified ?? prev.is_verified ?? 0,
+            }));
+            if (isOwnProfile && setUser) {
+              setUser(data.user);
+              localStorage.setItem("user", JSON.stringify(data.user));
+            }
           }
         })
-        .catch((err) => console.error("Fetch public profile error:", err));
+        .catch((err) => console.error("Fetch profile data error:", err));
     } else if (isOwnProfile && user) {
       setProfile((prev) => ({
         ...prev,
         user_id: user.user_id,
-        full_name: user.full_name || prev.full_name,
-        username: user.username || prev.username,
-        phone_no: user.phone_no || prev.phone_no,
-        email: user.email || prev.email,
-        address: user.address || prev.address,
-        nearest_city: user.nearest_city || prev.nearest_city,
-        map_latitude: user.map_latitude !== undefined ? (user.map_latitude ? parseFloat(user.map_latitude) : null) : prev.map_latitude,
-        map_longitude: user.map_longitude !== undefined ? (user.map_longitude ? parseFloat(user.map_longitude) : null) : prev.map_longitude,
-        map_location_name: user.map_location_name !== undefined ? user.map_location_name : prev.map_location_name,
+        full_name: user.full_name || prev.full_name || "RentHub Shop",
+        username: user.username || prev.username || "",
+        phone_no: user.phone_no || prev.phone_no || "",
+        email: user.email || prev.email || "",
+        address: user.address || prev.address || "",
+        nearest_city: user.nearest_city || prev.nearest_city || "",
         about: user.about || prev.about,
-        trust_score: user.trust_score !== undefined ? user.trust_score : prev.trust_score,
-        max_rental_limit: user.rental_limit || user.max_rental_limit || prev.max_rental_limit || 1000,
-        cash_points: user.cash_points !== undefined ? Number(user.cash_points) : (prev.cash_points || 0),
-        reviews_count: user.reviews_count || prev.reviews_count,
-        likes_count: user.likes_count || prev.likes_count,
-        profile_pic_url: user.profile_pic_url
-          ? user.profile_pic_url.startsWith("http")
-            ? user.profile_pic_url
-            : `http://localhost:5001${user.profile_pic_url}`
-          : prev.profile_pic_url,
-        coverphoto: user.coverphoto
-          ? user.coverphoto.startsWith("http")
-            ? user.coverphoto
-            : `http://localhost:5001${user.coverphoto}`
-          : prev.coverphoto,
-        is_verified: user.is_verified ?? prev.is_verified,
       }));
     }
-  }, [paramUserId, isOwnProfile, user]);
+  }, [paramUserId, isOwnProfile, user?.user_id, user?.id]);
 
   // Live Trust Score loader from backend (ensures accurate calculation)
   useEffect(() => {
@@ -486,7 +527,7 @@ export default function Profile({ user, setUser }) {
     }
   };
 
-    // Profile එකෙන් Item Status එක (Available <-> Rented Out) මාරු කිරීම
+  // Profile එකෙන් Item Status එක (Available <-> Rented Out) මාරු කිරීම
   const handleToggleStatus = async (itemId, currentIsRented) => {
     const newStatus = currentIsRented ? "Available" : "Rented Out";
 
@@ -503,8 +544,8 @@ export default function Profile({ user, setUser }) {
                   ? Math.max(1, Number(it.available_quantity) || 1)
                   : 0,
             }
-          : it
-      )
+          : it,
+      ),
     );
 
     // 2. Database එකට sync කිරීම
@@ -636,141 +677,488 @@ export default function Profile({ user, setUser }) {
     }
   };
 
-
-
-
-
   return (
-    <div style={styles.desktopPageBackground}>
-      <div style={styles.desktopContainer}>
-        {/* Cover Photo Banner */}
-        <div style={styles.desktopCoverWrapper}>
-          <img src={profile.coverphoto} alt="Cover" style={styles.coverImg} />
-          <button
-            type="button"
-            onClick={handleBack}
-            style={styles.backBtn}
-            title="Go Back"
-            aria-label="Go Back"
-          >
-            <ArrowLeft size={18} color="#1f2937" />
-          </button>
+    <div className="profile-page-wrapper">
+      <div className="profile-main-card">
+        {/* Top Navigation Bar with Back Button & Title */}
+        <div className="profile-top-bar">
+          <div className="profile-top-left">
+            <button
+              type="button"
+              onClick={handleBack}
+              className="profile-back-btn"
+              title="Go Back"
+              aria-label="Go Back"
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <span className="profile-page-heading">
+              {isOwnProfile
+                ? t("profile.myProfile", "My Profile")
+                : t("profile.userProfile", "Seller Profile")}
+            </span>
+          </div>
         </div>
 
-        {/* Profile Content Body */}
-        <div style={styles.desktopProfileBody}>
-          <div style={styles.desktopHeaderRow}>
-            <div
-              style={{ display: "flex", gap: "24px", alignItems: "flex-end" }}
-            >
-              <div style={styles.desktopAvatarWrapper}>
-                <div style={{ position: "relative", display: "inline-block" }}>
-                  <img
-                    src={profile.profile_pic_url}
-                    alt="Profile"
-                    style={styles.desktopProfileImg}
-                  />
-                </div>
-              </div>
-
-              {/* Name adjusted slightly downwards so cover photo won't cover it */}
-              <div style={{ marginBottom: "5px", paddingTop: "10px" }}>
-                <div
-                  style={{ display: "flex", alignItems: "center", gap: "8px" }}
-                >
-                  <h2 style={styles.desktopUserName}>{profile.full_name}</h2>
-                  {profile.is_verified ? (
-                    <CheckCircle2 size={22} color="#00aa5b" fill="#00aa5b" />
-                  ) : null}
-                </div>
-                <p style={styles.desktopUserTagline}>{profile.about}</p>
-                <p style={styles.locationText}>
-                  <MapPin size={14} color="#666" /> {profile.address},{" "}
-                  {profile.nearest_city} &nbsp;|&nbsp; <Mail size={14} color="#666" />{" "}
-                  {profile.email}
-                </p>
-
-                {/* Google Map Location Badge right below the address line */}
-                <div style={{ marginTop: "6px", display: "flex", alignItems: "center", gap: "10px", flexWrap: "wrap" }}>
-                  <button
-                    type="button"
-                    onClick={() => {
-                      if (isOwnProfile && !profile.map_latitude) {
-                        setShowMapPicker(true);
-                      } else {
-                        setShowDistanceModal(true);
-                      }
-                    }}
-                    style={{
-                      display: "inline-flex",
-                      alignItems: "center",
-                      gap: "7px",
-                      padding: "5px 12px",
-                      borderRadius: "20px",
-                      backgroundColor: "#f0fdf4",
-                      border: "1px solid #bbf7d0",
-                      color: "#166534",
-                      fontSize: "12px",
-                      fontWeight: "600",
-                      cursor: "pointer",
-                      boxShadow: "0 1px 2px rgba(0,0,0,0.04)",
-                      transition: "all 0.2s ease",
-                    }}
-                    title="Click to view shop location, route & distance on map"
-                  >
-                    <GoogleMapIcon size={16} />
-                    <span>
-                      {profile.map_location_name || (profile.nearest_city ? `${profile.nearest_city}` : t("map.viewOnMap"))}
-                    </span>
-                    <span style={{ fontSize: "11px", color: "#15803d", fontWeight: "700" }}>
-                      {t("map.viewDistanceRoute")}
-                    </span>
-                  </button>
-
-                  {isOwnProfile && (
-                    <button
-                      type="button"
-                      onClick={() => setShowMapPicker(true)}
-                      style={{
-                        background: "none",
-                        border: "none",
-                        color: "#00aa5b",
-                        fontSize: "12px",
-                        fontWeight: "600",
-                        cursor: "pointer",
-                        textDecoration: "underline",
-                        padding: "2px 4px",
-                      }}
-                    >
-                      {profile.map_latitude ? t("map.changeMapPin") : t("map.setMapLocation")}
-                    </button>
-                  )}
-                </div>
-              </div>
+        {/* Profile Header (Avatar, User Info & Action Buttons) */}
+        <div className="profile-header-card">
+          <div className="profile-header-left">
+            {/* Profile Picture */}
+            <div className="profile-avatar-wrapper">
+              <img
+                src={profile.profile_pic_url}
+                alt={profile.full_name || "Profile"}
+                className="profile-avatar-img"
+                onError={(e) => {
+                  e.currentTarget.onerror = null;
+                  e.currentTarget.src =
+                    "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?auto=format&fit=crop&q=80&w=300";
+                }}
+              />
             </div>
 
-            {isOwnProfile && (
-              <div style={styles.desktopActionBtns}>
-                <button
-                  onClick={() => navigate("/add-item")}
-                  style={styles.primaryBtn}
-                >
-                  <Plus size={16} /> {t("profile.addItem")}
-                </button>
-                <button
-                  onClick={() => setShowEditProfile(true)}
-                  style={styles.secondaryBtn}
-                >
-                  <Edit3 size={16} /> {t("profile.editProfile")}
-                </button>
-                <SettingsPopup onOpenMapLocation={() => setShowMapPicker(true)} />
+            {/* User details on the right side of the profile picture */}
+            <div className="profile-info-block">
+              <div className="profile-name-row">
+                <h1 className="profile-user-name">
+                  {profile.full_name || profile.username || "RentHub Shop"}
+                </h1>
+                {profile.is_verified ? (
+                  <span className="profile-verified-chip" title="Verified Member">
+                    <CheckCircle2 size={14} color="#00aa5b" fill="#00aa5b" />
+                    <span>{t("profile.verified", "Verified")}</span>
+                  </span>
+                ) : null}
               </div>
-            )}
+
+              {profile.about && (
+                <p className="profile-user-about">{profile.about}</p>
+              )}
+
+              <div className="profile-meta-list">
+                {(profile.address || profile.nearest_city) && (
+                  <span className="profile-meta-item">
+                    <MapPin size={14} color="#00aa5b" />
+                    <span>
+                      {[profile.address, profile.nearest_city]
+                        .filter(Boolean)
+                        .join(", ")}
+                    </span>
+                  </span>
+                )}
+
+                {profile.email && (
+                  <span className="profile-meta-item">
+                    <Mail size={14} color="#00aa5b" />
+                    <span>{profile.email}</span>
+                  </span>
+                )}
+
+                {profile.phone_no && (
+                  <span className="profile-meta-item">
+                    <Phone size={14} color="#00aa5b" />
+                    <span>{profile.phone_no}</span>
+                  </span>
+                )}
+              </div>
+
+              {/* Google Map Location Badge right below the address line */}
+              <div className="profile-map-row">
+                <button
+                  type="button"
+                  onClick={() => {
+                    if (isOwnProfile && !profile.map_latitude) {
+                      setShowMapPicker(true);
+                    } else {
+                      setShowDistanceModal(true);
+                    }
+                  }}
+                  className="profile-map-button"
+                  title="Click to view shop location, route & distance on map"
+                >
+                  <GoogleMapIcon size={16} />
+                  <span>
+                    {profile.map_location_name ||
+                      (profile.nearest_city
+                        ? `${profile.nearest_city}`
+                        : t("map.viewOnMap"))}
+                  </span>
+                  <span className="profile-map-button-route">
+                    {t("map.viewDistanceRoute")}
+                  </span>
+                </button>
+
+                {isOwnProfile && (
+                  <button
+                    type="button"
+                    onClick={() => setShowMapPicker(true)}
+                    className="profile-change-pin-btn"
+                  >
+                    {profile.map_latitude
+                      ? t("map.changeMapPin")
+                      : t("map.setMapLocation")}
+                  </button>
+                )}
+              </div>
+            </div>
           </div>
 
-          {/* Stats Bar Layout (Total Items, Trust Score, Reviews, Cash Points) - 100% Mobile Responsive */}
-          <style>{`
-            .profile-stats-bar-grid {
+          {/* Action Buttons Right Aligned */}
+          {isOwnProfile && (
+            <div className="profile-actions-wrapper">
+              <button
+                type="button"
+                onClick={() => navigate("/add-item")}
+                className="profile-primary-btn"
+              >
+                <Plus size={16} /> {t("profile.addItem")}
+              </button>
+              <button
+                type="button"
+                onClick={() => setShowEditProfile(true)}
+                className="profile-secondary-btn"
+              >
+                <Edit3 size={16} /> {t("profile.editProfile")}
+              </button>
+              <SettingsPopup
+                onOpenMapLocation={() => setShowMapPicker(true)}
+              />
+            </div>
+          )}
+        </div>
+
+        {/* Global Embedded Styles for Profile Layout & Responsiveness */}
+        <style>{`
+          .profile-page-wrapper {
+            background-color: #f8fafc;
+            min-height: 100vh;
+            padding: 30px 20px 60px 20px;
+            display: flex;
+            justify-content: center;
+            font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+            box-sizing: border-box;
+          }
+
+          .profile-main-card {
+            width: 100%;
+            max-width: 1100px;
+            background-color: #ffffff;
+            border-radius: 24px;
+            box-shadow: 0 4px 25px rgba(0, 0, 0, 0.04);
+            border: 1px solid #e2e8f0;
+            padding: 30px 34px;
+            box-sizing: border-box;
+            margin-bottom: 40px;
+          }
+
+          .profile-top-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 24px;
+            padding-bottom: 16px;
+            border-bottom: 1px solid #f1f5f9;
+          }
+
+          .profile-top-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+          }
+
+          .profile-back-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 12px;
+            background-color: #f1f5f9;
+            border: 1px solid #e2e8f0;
+            color: #1e293b;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          }
+
+          .profile-back-btn:hover {
+            background-color: #e2e8f0;
+            color: #0f172a;
+            transform: translateX(-2px);
+          }
+
+          .profile-page-heading {
+            margin: 0;
+            font-size: 16px;
+            font-weight: 700;
+            color: #475569;
+          }
+
+          .profile-header-card {
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-start;
+            gap: 24px;
+            flex-wrap: wrap;
+          }
+
+          .profile-header-left {
+            display: flex;
+            align-items: flex-start;
+            gap: 22px;
+            flex: 1;
+            min-width: 280px;
+          }
+
+          .profile-avatar-wrapper {
+            position: relative;
+            flex-shrink: 0;
+          }
+
+          .profile-avatar-img {
+            width: 110px;
+            height: 110px;
+            border-radius: 50%;
+            object-fit: cover;
+            border: 3.5px solid #ffffff;
+            box-shadow: 0 4px 16px rgba(0, 0, 0, 0.08);
+            background-color: #f1f5f9;
+          }
+
+          .profile-info-block {
+            flex: 1;
+            min-width: 0;
+          }
+
+          .profile-name-row {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            flex-wrap: wrap;
+            margin-bottom: 4px;
+          }
+
+          .profile-user-name {
+            margin: 0;
+            font-size: 25px;
+            font-weight: 800;
+            color: #0f172a;
+            letter-spacing: -0.02em;
+            word-break: break-word;
+          }
+
+          .profile-verified-chip {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background-color: #ecfdf5;
+            border: 1px solid #a7f3d0;
+            color: #059669;
+            font-size: 11px;
+            font-weight: 700;
+            padding: 3px 8px;
+            border-radius: 9999px;
+          }
+
+          .profile-user-about {
+            margin: 0 0 10px 0;
+            font-size: 14px;
+            color: #475569;
+            line-height: 1.5;
+            word-break: break-word;
+          }
+
+          .profile-meta-list {
+            display: flex;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+            margin-bottom: 12px;
+          }
+
+          .profile-meta-item {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 13px;
+            color: #64748b;
+            font-weight: 500;
+          }
+
+          .profile-map-row {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+            margin-top: 4px;
+          }
+
+          .profile-map-button {
+            display: inline-flex;
+            align-items: center;
+            gap: 7px;
+            padding: 6px 14px;
+            border-radius: 20px;
+            background-color: #f0fdf4;
+            border: 1px solid #bbf7d0;
+            color: #166534;
+            font-size: 12px;
+            fontWeight: 600;
+            cursor: pointer;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.04);
+            transition: all 0.2s ease;
+          }
+
+          .profile-map-button:hover {
+            background-color: #dcfce7;
+            border-color: #86efac;
+          }
+
+          .profile-map-button-route {
+            font-size: 11px;
+            color: #15803d;
+            font-weight: 700;
+          }
+
+          .profile-change-pin-btn {
+            background: none;
+            border: none;
+            color: #00aa5b;
+            font-size: 12px;
+            font-weight: 600;
+            cursor: pointer;
+            text-decoration: underline;
+            padding: 2px 4px;
+          }
+
+          .profile-actions-wrapper {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            flex-wrap: wrap;
+          }
+
+          .profile-primary-btn {
+            background-color: #e8f8f0;
+            color: #00aa5b;
+            border: 1px solid #c7e9d7;
+            padding: 9px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+            box-shadow: 0 1px 2px rgba(0, 0, 0, 0.03);
+          }
+
+          .profile-primary-btn:hover {
+            background-color: #00aa5b;
+            color: #ffffff;
+          }
+
+          .profile-secondary-btn {
+            background-color: #f8fafc;
+            color: #334155;
+            border: 1px solid #e2e8f0;
+            padding: 9px 18px;
+            border-radius: 12px;
+            font-weight: 700;
+            font-size: 13px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s ease;
+          }
+
+          .profile-secondary-btn:hover {
+            background-color: #f1f5f9;
+            border-color: #cbd5e1;
+          }
+
+          .profile-tabs-scroll-row {
+            display: flex;
+            border-bottom: 2px solid #f1f5f9;
+            gap: 14px;
+            margin-top: 25px;
+            overflow-x: auto;
+            white-space: nowrap;
+            -webkit-overflow-scrolling: touch;
+            scrollbar-width: none;
+          }
+          .profile-tabs-scroll-row::-webkit-scrollbar {
+            display: none;
+          }
+
+          /* Responsive Rules */
+          @media (max-width: 900px) {
+            .profile-main-card {
+              padding: 24px 20px;
+            }
+          }
+
+          @media (max-width: 768px) {
+            .profile-page-wrapper {
+              padding: 14px 10px 40px 10px;
+            }
+            .profile-main-card {
+              padding: 18px 14px;
+              border-radius: 18px;
+              margin-bottom: 24px;
+            }
+            .profile-header-card {
+              flex-direction: column;
+              gap: 18px;
+            }
+            .profile-header-left {
+              gap: 16px;
+              width: 100%;
+            }
+            .profile-avatar-img {
+              width: 85px;
+              height: 85px;
+            }
+            .profile-user-name {
+              font-size: 20px;
+            }
+            .profile-actions-wrapper {
+              width: 100%;
+              justify-content: flex-start;
+              padding-top: 10px;
+              border-top: 1px solid #f1f5f9;
+              gap: 8px;
+            }
+            .profile-primary-btn,
+            .profile-secondary-btn {
+              flex: 1;
+              justify-content: center;
+              padding: 10px 12px;
+            }
+          }
+
+          @media (max-width: 480px) {
+            .profile-avatar-img {
+              width: 74px;
+              height: 74px;
+            }
+            .profile-user-name {
+              font-size: 18px;
+            }
+            .profile-meta-list {
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 6px;
+            }
+            .profile-map-row {
+              flex-direction: column;
+              align-items: flex-start;
+              gap: 8px;
+            }
+          }
+
+          .profile-stats-bar-grid {
               display: grid !important;
               grid-template-columns: repeat(4, minmax(0, 1fr)) !important;
               gap: 12px !important;
@@ -879,30 +1267,40 @@ export default function Profile({ user, setUser }) {
               onClick={() => {
                 setActiveTab("shop");
                 setTimeout(() => {
-                  document.getElementById("profile-shop-section")?.scrollIntoView({ behavior: "smooth" });
+                  document
+                    .getElementById("profile-shop-section")
+                    ?.scrollIntoView({ behavior: "smooth" });
                 }, 50);
               }}
               style={{
                 cursor: "pointer",
                 padding: "6px 8px",
                 borderRadius: "12px",
-                backgroundColor: activeTab === "shop" ? "#e6f7ef" : "transparent",
+                backgroundColor:
+                  activeTab === "shop" ? "#e6f7ef" : "transparent",
                 transition: "all 0.2s ease",
               }}
               title="Click to view shop items"
               role="button"
               tabIndex={0}
             >
-              <div style={styles.statIconBg} className="profile-stat-icon-wrapper">
+              <div
+                style={styles.statIconBg}
+                className="profile-stat-icon-wrapper"
+              >
                 <Package size={20} color="#00aa5b" />
               </div>
               <div style={{ minWidth: 0, overflow: "hidden" }}>
-                <span style={styles.statBoxVal} className="profile-stat-val">{items.length}</span>
-                <span style={styles.statBoxLbl} className="profile-stat-lbl">Total Items</span>
+                <span style={styles.statBoxVal} className="profile-stat-val">
+                  {items.length}
+                </span>
+                <span style={styles.statBoxLbl} className="profile-stat-lbl">
+                  Total Items
+                </span>
               </div>
             </div>
 
-            <div 
+            <div
               className="profile-stat-box profile-stat-item-with-border"
               style={{
                 padding: "6px 8px",
@@ -910,12 +1308,19 @@ export default function Profile({ user, setUser }) {
               }}
               title={`Trust Score: ${profile.trust_score || 50}% | Max Rental Limit: LKR ${(profile.max_rental_limit || 1000).toLocaleString()}`}
             >
-              <div style={styles.statIconBg} className="profile-stat-icon-wrapper">
+              <div
+                style={styles.statIconBg}
+                className="profile-stat-icon-wrapper"
+              >
                 <CheckCircle2 size={20} color="#00aa5b" />
               </div>
               <div style={{ minWidth: 0, overflow: "hidden" }}>
-                <span style={styles.statBoxVal} className="profile-stat-val">{profile.trust_score || 50}%</span>
-                <span style={styles.statBoxLbl} className="profile-stat-lbl">Trust Score</span>
+                <span style={styles.statBoxVal} className="profile-stat-val">
+                  {profile.trust_score || 50}%
+                </span>
+                <span style={styles.statBoxLbl} className="profile-stat-lbl">
+                  Trust Score
+                </span>
               </div>
             </div>
 
@@ -924,21 +1329,27 @@ export default function Profile({ user, setUser }) {
               onClick={() => {
                 setActiveTab("reviews");
                 setTimeout(() => {
-                  document.getElementById("profile-reviews-section")?.scrollIntoView({ behavior: "smooth" });
+                  document
+                    .getElementById("profile-reviews-section")
+                    ?.scrollIntoView({ behavior: "smooth" });
                 }, 50);
               }}
               style={{
                 cursor: "pointer",
                 padding: "6px 8px",
                 borderRadius: "12px",
-                backgroundColor: activeTab === "reviews" ? "#e6f7ef" : "transparent",
+                backgroundColor:
+                  activeTab === "reviews" ? "#e6f7ef" : "transparent",
                 transition: "all 0.2s ease",
               }}
               title="Click to view customer reviews & comments"
               role="button"
               tabIndex={0}
             >
-              <div style={styles.statIconBg} className="profile-stat-icon-wrapper">
+              <div
+                style={styles.statIconBg}
+                className="profile-stat-icon-wrapper"
+              >
                 <Star size={20} color="#00aa5b" fill="#00aa5b" />
               </div>
               <div style={{ minWidth: 0, overflow: "hidden" }}>
@@ -946,8 +1357,8 @@ export default function Profile({ user, setUser }) {
                   {profile.user_rating && profile.user_rating > 0
                     ? Number(profile.user_rating).toFixed(1)
                     : profile.reviews_count > 0
-                    ? "5.0"
-                    : "0.0"}
+                      ? "5.0"
+                      : "0.0"}
                 </span>
                 <span style={styles.statBoxLbl} className="profile-stat-lbl">
                   {profile.reviews_count > 0
@@ -967,7 +1378,9 @@ export default function Profile({ user, setUser }) {
                 padding: "6px 10px",
                 borderRadius: "12px",
                 backgroundColor: isOwnProfile ? "#fefce8" : "transparent",
-                border: isOwnProfile ? "1.5px solid #fef08a" : "1px solid transparent",
+                border: isOwnProfile
+                  ? "1.5px solid #fef08a"
+                  : "1px solid transparent",
                 transition: "all 0.2s ease",
                 boxSizing: "border-box",
               }}
@@ -979,22 +1392,36 @@ export default function Profile({ user, setUser }) {
               role={isOwnProfile ? "button" : undefined}
               tabIndex={isOwnProfile ? 0 : undefined}
             >
-              <div style={{ ...styles.statIconBg, backgroundColor: "#fef9c3" }} className="profile-stat-icon-wrapper">
+              <div
+                style={{ ...styles.statIconBg, backgroundColor: "#fef9c3" }}
+                className="profile-stat-icon-wrapper"
+              >
                 <Coins size={20} color="#ca8a04" />
               </div>
               <div style={{ minWidth: 0, overflow: "hidden" }}>
-                <span style={{ ...styles.statBoxVal, color: "#854d0e" }} className="profile-stat-val">
+                <span
+                  style={{ ...styles.statBoxVal, color: "#854d0e" }}
+                  className="profile-stat-val"
+                >
                   {Number(profile.cash_points || 0).toLocaleString()}
                 </span>
-                <span style={{ ...styles.statBoxLbl, color: "#a16207" }} className="profile-stat-lbl">
-                  Cash Points {isOwnProfile && <span style={{ color: "#16a34a", fontWeight: "800" }}>+</span>}
+                <span
+                  style={{ ...styles.statBoxLbl, color: "#a16207" }}
+                  className="profile-stat-lbl"
+                >
+                  Cash Points{" "}
+                  {isOwnProfile && (
+                    <span style={{ color: "#16a34a", fontWeight: "800" }}>
+                      +
+                    </span>
+                  )}
                 </span>
               </div>
             </div>
           </div>
 
           {/* Tabs Navigation */}
-          <div style={styles.desktopTabsRow}>
+          <div className="profile-tabs-scroll-row" style={styles.desktopTabsRow}>
             <button
               onClick={() => setActiveTab("shop")}
               style={{
@@ -1012,7 +1439,8 @@ export default function Profile({ user, setUser }) {
                 ...(activeTab === "reviews" ? styles.activeTabBtn : {}),
               }}
             >
-              <Star size={16} /> {t("profile.reviews")} ({profile.reviews_count})
+              <Star size={16} /> {t("profile.reviews")} ({profile.reviews_count}
+              )
             </button>
 
             {isOwnProfile && (
@@ -1087,7 +1515,7 @@ export default function Profile({ user, setUser }) {
                             style={styles.desktopItemImg}
                           />
 
-                                                    {/* Availability Status Badge (Click to toggle) */}
+                          {/* Availability Status Badge (Click to toggle) */}
                           <div
                             style={{
                               ...styles.badgeOverlay,
@@ -1099,7 +1527,9 @@ export default function Profile({ user, setUser }) {
                                 handleToggleStatus(item.id, isRented);
                               }
                             }}
-                            title={isOwnProfile ? "Click to toggle availability" : ""}
+                            title={
+                              isOwnProfile ? "Click to toggle availability" : ""
+                            }
                           >
                             <span
                               style={{
@@ -1107,7 +1537,9 @@ export default function Profile({ user, setUser }) {
                                 fontWeight: "bold",
                                 padding: "4px 10px",
                                 borderRadius: "14px",
-                                backgroundColor: isRented ? "#dc2626" : "#00aa5b",
+                                backgroundColor: isRented
+                                  ? "#dc2626"
+                                  : "#00aa5b",
                                 color: "#ffffff",
                                 boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
                                 display: "inline-flex",
@@ -1128,7 +1560,6 @@ export default function Profile({ user, setUser }) {
                               {isRented ? "Rented Out" : "Available"}
                             </span>
                           </div>
-
                         </div>
 
                         <div style={{ padding: "14px" }}>
@@ -1157,17 +1588,27 @@ export default function Profile({ user, setUser }) {
                           </p>
 
                           {/* Bookings & Views Indicators + Delete Button */}
-                            <div style={styles.cardFooterMeta}>
+                          <div style={styles.cardFooterMeta}>
                             <span style={styles.metaBadgeText}>
-                            <Calendar size={13} color="#00aa5b" /> {item.bookings ?? 0} {item.bookings === 1 ? "booking" : "bookings"}
+                              <Calendar size={13} color="#00aa5b" />{" "}
+                              {item.bookings ?? 0}{" "}
+                              {item.bookings === 1 ? "booking" : "bookings"}
                             </span>
                             <span style={styles.metaBadgeText}>
-                              <Eye size={13} color="#666" /> {item.views ?? 0} views
+                              <Eye size={13} color="#666" /> {item.views ?? 0}{" "}
+                              views
                             </span>
                           </div>
 
-                                                    {isOwnProfile && (
-                            <div style={{ display: "flex", flexDirection: "column", gap: "8px", marginTop: "12px" }}>
+                          {isOwnProfile && (
+                            <div
+                              style={{
+                                display: "flex",
+                                flexDirection: "column",
+                                gap: "8px",
+                                marginTop: "12px",
+                              }}
+                            >
                               {/* Status Toggle Button (Available <-> Rented Out) */}
                               <button
                                 type="button"
@@ -1177,7 +1618,9 @@ export default function Profile({ user, setUser }) {
                                 }}
                                 style={{
                                   width: "100%",
-                                  backgroundColor: isRented ? "#f0fdf4" : "#fef2f2",
+                                  backgroundColor: isRented
+                                    ? "#f0fdf4"
+                                    : "#fef2f2",
                                   color: isRented ? "#16a34a" : "#dc2626",
                                   border: `1px solid ${isRented ? "#bbf7d0" : "#fecaca"}`,
                                   padding: "7px 10px",
@@ -1195,11 +1638,13 @@ export default function Profile({ user, setUser }) {
                               >
                                 {isRented ? (
                                   <>
-                                    <CheckCircle2 size={14} color="#16a34a" /> Mark as Available
+                                    <CheckCircle2 size={14} color="#16a34a" />{" "}
+                                    Mark as Available
                                   </>
                                 ) : (
                                   <>
-                                    <Clock size={14} color="#dc2626" /> Mark as Rented Out
+                                    <Clock size={14} color="#dc2626" /> Mark as
+                                    Rented Out
                                   </>
                                 )}
                               </button>
@@ -1244,7 +1689,9 @@ export default function Profile({ user, setUser }) {
                   boxShadow: "0 2px 8px rgba(0,0,0,0.04)",
                 }}
               >
-                <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
+                <div
+                  style={{ display: "flex", alignItems: "center", gap: "20px" }}
+                >
                   <div
                     style={{
                       width: "72px",
@@ -1258,27 +1705,49 @@ export default function Profile({ user, setUser }) {
                       border: "1px solid #fef08a",
                     }}
                   >
-                    <span style={{ fontSize: "24px", fontWeight: "800", color: "#a16207", lineHeight: 1 }}>
+                    <span
+                      style={{
+                        fontSize: "24px",
+                        fontWeight: "800",
+                        color: "#a16207",
+                        lineHeight: 1,
+                      }}
+                    >
                       {profile.user_rating && profile.user_rating > 0
                         ? Number(profile.user_rating).toFixed(1)
                         : "0.0"}
                     </span>
-                    <div style={{ display: "flex", gap: "2px", marginTop: "4px" }}>
+                    <div
+                      style={{ display: "flex", gap: "2px", marginTop: "4px" }}
+                    >
                       {[1, 2, 3, 4, 5].map((s) => (
                         <Star
                           key={s}
                           size={10}
                           color="#eab308"
-                          fill={s <= Math.round(profile.user_rating || 0) ? "#eab308" : "none"}
+                          fill={
+                            s <= Math.round(profile.user_rating || 0)
+                              ? "#eab308"
+                              : "none"
+                          }
                         />
                       ))}
                     </div>
                   </div>
                   <div>
-                    <h3 style={{ margin: "0 0 4px 0", fontSize: "18px", fontWeight: "700", color: "#0f172a" }}>
+                    <h3
+                      style={{
+                        margin: "0 0 4px 0",
+                        fontSize: "18px",
+                        fontWeight: "700",
+                        color: "#0f172a",
+                      }}
+                    >
                       Customer Reviews & Ratings
                     </h3>
-                    <p style={{ margin: 0, fontSize: "13px", color: "#64748b" }}>
+                    <p
+                      style={{ margin: 0, fontSize: "13px", color: "#64748b" }}
+                    >
                       Based on{" "}
                       <strong>
                         {profile.reviews_count || sellerReviews.length}{" "}
@@ -1292,7 +1761,13 @@ export default function Profile({ user, setUser }) {
 
               {/* Reviews List */}
               {loadingReviews ? (
-                <div style={{ padding: "40px", textAlign: "center", color: "#64748b" }}>
+                <div
+                  style={{
+                    padding: "40px",
+                    textAlign: "center",
+                    color: "#64748b",
+                  }}
+                >
                   <p>Loading reviews...</p>
                 </div>
               ) : sellerReviews.length === 0 ? (
@@ -1305,16 +1780,33 @@ export default function Profile({ user, setUser }) {
                     border: "1px dashed #cbd5e1",
                   }}
                 >
-                  <Star size={40} color="#cbd5e1" style={{ marginBottom: "12px" }} />
-                  <h4 style={{ margin: "0 0 6px 0", color: "#334155", fontSize: "16px" }}>
+                  <Star
+                    size={40}
+                    color="#cbd5e1"
+                    style={{ marginBottom: "12px" }}
+                  />
+                  <h4
+                    style={{
+                      margin: "0 0 6px 0",
+                      color: "#334155",
+                      fontSize: "16px",
+                    }}
+                  >
                     No reviews yet
                   </h4>
                   <p style={{ margin: 0, color: "#64748b", fontSize: "13px" }}>
-                    Reviews from customers who completed rentals will be featured here.
+                    Reviews from customers who completed rentals will be
+                    featured here.
                   </p>
                 </div>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "16px",
+                  }}
+                >
                   {sellerReviews.slice(0, visibleProfileReviews).map((rev) => {
                     const buyerPic = rev.buyerPic
                       ? rev.buyerPic.startsWith("http")
@@ -1354,7 +1846,13 @@ export default function Profile({ user, setUser }) {
                             marginBottom: "12px",
                           }}
                         >
-                          <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "12px",
+                            }}
+                          >
                             {buyerPic ? (
                               <img
                                 src={buyerPic}
@@ -1382,12 +1880,27 @@ export default function Profile({ user, setUser }) {
                                   fontSize: "16px",
                                 }}
                               >
-                                {rev.buyerName ? rev.buyerName[0].toUpperCase() : "U"}
+                                {rev.buyerName
+                                  ? rev.buyerName[0].toUpperCase()
+                                  : "U"}
                               </div>
                             )}
                             <div>
-                              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
-                                <h5 style={{ margin: "0 0 2px 0", fontSize: "14px", fontWeight: "700", color: "#0f172a" }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "6px",
+                                }}
+                              >
+                                <h5
+                                  style={{
+                                    margin: "0 0 2px 0",
+                                    fontSize: "14px",
+                                    fontWeight: "700",
+                                    color: "#0f172a",
+                                  }}
+                                >
                                   {rev.buyerName || "Verified Renter"}
                                 </h5>
                                 {isMyReview && (
@@ -1405,13 +1918,22 @@ export default function Profile({ user, setUser }) {
                                   </span>
                                 )}
                               </div>
-                              <p style={{ margin: 0, fontSize: "12px", color: "#64748b" }}>
+                              <p
+                                style={{
+                                  margin: 0,
+                                  fontSize: "12px",
+                                  color: "#64748b",
+                                }}
+                              >
                                 {rev.createdAt
-                                  ? new Date(rev.createdAt).toLocaleDateString("en-US", {
-                                      month: "short",
-                                      day: "numeric",
-                                      year: "numeric",
-                                    })
+                                  ? new Date(rev.createdAt).toLocaleDateString(
+                                      "en-US",
+                                      {
+                                        month: "short",
+                                        day: "numeric",
+                                        year: "numeric",
+                                      },
+                                    )
                                   : "Recent Review"}
                                 {rev.buyerCity ? ` • ${rev.buyerCity}` : ""}
                               </p>
@@ -1426,16 +1948,33 @@ export default function Profile({ user, setUser }) {
                               gap: "6px",
                             }}
                           >
-                            <div style={{ display: "flex", alignItems: "center", gap: "4px" }}>
+                            <div
+                              style={{
+                                display: "flex",
+                                alignItems: "center",
+                                gap: "4px",
+                              }}
+                            >
                               {[1, 2, 3, 4, 5].map((star) => (
                                 <Star
                                   key={star}
                                   size={16}
                                   color="#eab308"
-                                  fill={star <= Number(rev.rating) ? "#eab308" : "none"}
+                                  fill={
+                                    star <= Number(rev.rating)
+                                      ? "#eab308"
+                                      : "none"
+                                  }
                                 />
                               ))}
-                              <span style={{ marginLeft: "4px", fontSize: "13px", fontWeight: "700", color: "#b45309" }}>
+                              <span
+                                style={{
+                                  marginLeft: "4px",
+                                  fontSize: "13px",
+                                  fontWeight: "700",
+                                  color: "#b45309",
+                                }}
+                              >
                                 {Number(rev.rating).toFixed(1)}
                               </span>
                             </div>
@@ -1480,7 +2019,9 @@ export default function Profile({ user, setUser }) {
                                 </button>
                                 <button
                                   type="button"
-                                  onClick={() => handleDeleteCustomerReview(rev.id)}
+                                  onClick={() =>
+                                    handleDeleteCustomerReview(rev.id)
+                                  }
                                   style={{
                                     display: "inline-flex",
                                     alignItems: "center",
@@ -1524,7 +2065,12 @@ export default function Profile({ user, setUser }) {
                               <img
                                 src={itemImg}
                                 alt={rev.itemTitle}
-                                style={{ width: "20px", height: "20px", borderRadius: "4px", objectFit: "cover" }}
+                                style={{
+                                  width: "20px",
+                                  height: "20px",
+                                  borderRadius: "4px",
+                                  objectFit: "cover",
+                                }}
                               />
                             )}
                             <span>
@@ -1535,11 +2081,25 @@ export default function Profile({ user, setUser }) {
 
                         {/* Comment text */}
                         {rev.comment ? (
-                          <p style={{ margin: 0, fontSize: "14px", color: "#334155", lineHeight: "1.5" }}>
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: "14px",
+                              color: "#334155",
+                              lineHeight: "1.5",
+                            }}
+                          >
                             "{rev.comment}"
                           </p>
                         ) : (
-                          <p style={{ margin: 0, fontSize: "13px", color: "#94a3b8", fontStyle: "italic" }}>
+                          <p
+                            style={{
+                              margin: 0,
+                              fontSize: "13px",
+                              color: "#94a3b8",
+                              fontStyle: "italic",
+                            }}
+                          >
                             (Rating only, no written comment provided)
                           </p>
                         )}
@@ -1564,18 +2124,38 @@ export default function Profile({ user, setUser }) {
                                 marginBottom: "6px",
                               }}
                             >
-                              <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "8px",
+                                }}
+                              >
                                 <CornerDownRight size={15} color="#15803d" />
-                                <span style={{ fontSize: "13px", fontWeight: "700", color: "#166534" }}>
+                                <span
+                                  style={{
+                                    fontSize: "13px",
+                                    fontWeight: "700",
+                                    color: "#166534",
+                                  }}
+                                >
                                   Response from Shop Owner
                                 </span>
                                 {rev.sellerReplyAt && (
-                                  <span style={{ fontSize: "11px", color: "#64748b" }}>
-                                    • {new Date(rev.sellerReplyAt).toLocaleDateString("en-US", {
-                                        month: "short",
-                                        day: "numeric",
-                                        year: "numeric",
-                                      })}
+                                  <span
+                                    style={{
+                                      fontSize: "11px",
+                                      color: "#64748b",
+                                    }}
+                                  >
+                                    •{" "}
+                                    {new Date(
+                                      rev.sellerReplyAt,
+                                    ).toLocaleDateString("en-US", {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    })}
                                   </span>
                                 )}
                               </div>
@@ -1620,127 +2200,179 @@ export default function Profile({ user, setUser }) {
                                 </div>
                               )}
                             </div>
-                            <p style={{ margin: 0, fontSize: "13px", color: "#1e293b", lineHeight: "1.5" }}>
+                            <p
+                              style={{
+                                margin: 0,
+                                fontSize: "13px",
+                                color: "#1e293b",
+                                lineHeight: "1.5",
+                              }}
+                            >
                               {rev.sellerReply}
                             </p>
                           </div>
                         )}
 
                         {/* Reply Form (When Shop Owner clicks Reply or Edit) */}
-                        {isOwnProfile && (replyingReviewId === rev.id || editingReplyId === rev.id) && (
-                          <div
-                            style={{
-                              marginTop: "14px",
-                              backgroundColor: "#f8fafc",
-                              border: "1px solid #cbd5e1",
-                              borderRadius: "12px",
-                              padding: "14px",
-                            }}
-                          >
-                            <label style={{ display: "block", fontSize: "12px", fontWeight: "700", color: "#334155", marginBottom: "6px" }}>
-                              {editingReplyId === rev.id ? "Edit your response:" : "Write a response to this customer:"}
-                            </label>
-                            <textarea
-                              rows={3}
-                              value={replyText}
-                              onChange={(e) => setReplyText(e.target.value)}
-                              placeholder="Thank the customer or address their feedback..."
+                        {isOwnProfile &&
+                          (replyingReviewId === rev.id ||
+                            editingReplyId === rev.id) && (
+                            <div
                               style={{
-                                width: "100%",
-                                boxSizing: "border-box",
-                                padding: "10px 12px",
-                                borderRadius: "8px",
+                                marginTop: "14px",
+                                backgroundColor: "#f8fafc",
                                 border: "1px solid #cbd5e1",
-                                fontSize: "13px",
-                                fontFamily: "inherit",
-                                resize: "vertical",
-                                outline: "none",
+                                borderRadius: "12px",
+                                padding: "14px",
                               }}
-                            />
-                            <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "10px" }}>
+                            >
+                              <label
+                                style={{
+                                  display: "block",
+                                  fontSize: "12px",
+                                  fontWeight: "700",
+                                  color: "#334155",
+                                  marginBottom: "6px",
+                                }}
+                              >
+                                {editingReplyId === rev.id
+                                  ? "Edit your response:"
+                                  : "Write a response to this customer:"}
+                              </label>
+                              <textarea
+                                rows={3}
+                                value={replyText}
+                                onChange={(e) => setReplyText(e.target.value)}
+                                placeholder="Thank the customer or address their feedback..."
+                                style={{
+                                  width: "100%",
+                                  boxSizing: "border-box",
+                                  padding: "10px 12px",
+                                  borderRadius: "8px",
+                                  border: "1px solid #cbd5e1",
+                                  fontSize: "13px",
+                                  fontFamily: "inherit",
+                                  resize: "vertical",
+                                  outline: "none",
+                                }}
+                              />
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "flex-end",
+                                  gap: "8px",
+                                  marginTop: "10px",
+                                }}
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setReplyingReviewId(null);
+                                    setEditingReplyId(null);
+                                    setReplyText("");
+                                  }}
+                                  disabled={submittingReply}
+                                  style={{
+                                    padding: "6px 14px",
+                                    borderRadius: "6px",
+                                    border: "1px solid #cbd5e1",
+                                    backgroundColor: "#ffffff",
+                                    color: "#475569",
+                                    fontSize: "12px",
+                                    fontWeight: "600",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  Cancel
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handlePostReply(rev.id)}
+                                  disabled={
+                                    submittingReply || !replyText.trim()
+                                  }
+                                  style={{
+                                    padding: "6px 16px",
+                                    borderRadius: "6px",
+                                    border: "none",
+                                    backgroundColor: "#00aa5b",
+                                    color: "#ffffff",
+                                    fontSize: "12px",
+                                    fontWeight: "600",
+                                    cursor:
+                                      submittingReply || !replyText.trim()
+                                        ? "not-allowed"
+                                        : "pointer",
+                                    opacity:
+                                      submittingReply || !replyText.trim()
+                                        ? 0.6
+                                        : 1,
+                                  }}
+                                >
+                                  {submittingReply
+                                    ? "Posting..."
+                                    : "Post Reply"}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                        {/* Reply Button (When no reply yet and owner is viewing) */}
+                        {isOwnProfile &&
+                          !rev.sellerReply &&
+                          replyingReviewId !== rev.id && (
+                            <div
+                              style={{
+                                marginTop: "12px",
+                                display: "flex",
+                                justifyContent: "flex-end",
+                              }}
+                            >
                               <button
                                 type="button"
                                 onClick={() => {
-                                  setReplyingReviewId(null);
+                                  setReplyingReviewId(rev.id);
                                   setEditingReplyId(null);
                                   setReplyText("");
                                 }}
-                                disabled={submittingReply}
                                 style={{
-                                  padding: "6px 14px",
+                                  display: "inline-flex",
+                                  alignItems: "center",
+                                  gap: "6px",
+                                  padding: "6px 12px",
                                   borderRadius: "6px",
-                                  border: "1px solid #cbd5e1",
-                                  backgroundColor: "#ffffff",
-                                  color: "#475569",
+                                  border: "1px solid #bbf7d0",
+                                  backgroundColor: "#f0fdf4",
+                                  color: "#16a34a",
                                   fontSize: "12px",
                                   fontWeight: "600",
                                   cursor: "pointer",
+                                  transition: "all 0.15s ease",
                                 }}
                               >
-                                Cancel
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handlePostReply(rev.id)}
-                                disabled={submittingReply || !replyText.trim()}
-                                style={{
-                                  padding: "6px 16px",
-                                  borderRadius: "6px",
-                                  border: "none",
-                                  backgroundColor: "#00aa5b",
-                                  color: "#ffffff",
-                                  fontSize: "12px",
-                                  fontWeight: "600",
-                                  cursor: submittingReply || !replyText.trim() ? "not-allowed" : "pointer",
-                                  opacity: submittingReply || !replyText.trim() ? 0.6 : 1,
-                                }}
-                              >
-                                {submittingReply ? "Posting..." : "Post Reply"}
+                                <CornerDownRight size={14} />
+                                <span>Reply to Review</span>
                               </button>
                             </div>
-                          </div>
-                        )}
-
-                        {/* Reply Button (When no reply yet and owner is viewing) */}
-                        {isOwnProfile && !rev.sellerReply && replyingReviewId !== rev.id && (
-                          <div style={{ marginTop: "12px", display: "flex", justifyContent: "flex-end" }}>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setReplyingReviewId(rev.id);
-                                setEditingReplyId(null);
-                                setReplyText("");
-                              }}
-                              style={{
-                                display: "inline-flex",
-                                alignItems: "center",
-                                gap: "6px",
-                                padding: "6px 12px",
-                                borderRadius: "6px",
-                                border: "1px solid #bbf7d0",
-                                backgroundColor: "#f0fdf4",
-                                color: "#16a34a",
-                                fontSize: "12px",
-                                fontWeight: "600",
-                                cursor: "pointer",
-                                transition: "all 0.15s ease",
-                              }}
-                            >
-                              <CornerDownRight size={14} />
-                              <span>Reply to Review</span>
-                            </button>
-                          </div>
-                        )}
+                          )}
                       </div>
                     );
                   })}
 
                   {/* See more reviews button (loads 3 more each time) */}
                   {sellerReviews.length > visibleProfileReviews && (
-                    <div style={{ display: "flex", justifyContent: "center", marginTop: "12px" }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        justifyContent: "center",
+                        marginTop: "12px",
+                      }}
+                    >
                       <button
                         type="button"
-                        onClick={() => setVisibleProfileReviews((prev) => prev + 3)}
+                        onClick={() =>
+                          setVisibleProfileReviews((prev) => prev + 3)
+                        }
                         style={{
                           display: "flex",
                           alignItems: "center",
@@ -1758,7 +2390,8 @@ export default function Profile({ user, setUser }) {
                       >
                         <span>See more reviews</span>
                         <span style={{ fontSize: "12px", opacity: 0.85 }}>
-                          ({sellerReviews.length - visibleProfileReviews} remaining)
+                          ({sellerReviews.length - visibleProfileReviews}{" "}
+                          remaining)
                         </span>
                         <ChevronDown size={16} />
                       </button>
@@ -1782,7 +2415,13 @@ export default function Profile({ user, setUser }) {
                 }}
               >
                 <div>
-                  <h3 style={{ margin: "0 0 5px", fontSize: "20px", color: "#0f172a" }}>
+                  <h3
+                    style={{
+                      margin: "0 0 5px",
+                      fontSize: "20px",
+                      color: "#0f172a",
+                    }}
+                  >
                     Rental History
                   </h3>
                   <p style={{ margin: 0, color: "#64748b", fontSize: "13px" }}>
@@ -1800,7 +2439,13 @@ export default function Profile({ user, setUser }) {
                   No completed rental transactions found.
                 </div>
               ) : (
-                <div style={{ display: "flex", flexDirection: "column", gap: "14px" }}>
+                <div
+                  style={{
+                    display: "flex",
+                    flexDirection: "column",
+                    gap: "14px",
+                  }}
+                >
                   {rentalHistory.map((rental) => {
                     const itemImage = rental.itemImage
                       ? rental.itemImage.startsWith("http")
@@ -1850,46 +2495,104 @@ export default function Profile({ user, setUser }) {
                           }}
                         />
                         <div style={{ flex: "1 1 220px", minWidth: 0 }}>
-                          <h4 style={{ margin: "0 0 8px", color: "#0f172a", fontSize: "16px" }}>
+                          <h4
+                            style={{
+                              margin: "0 0 8px",
+                              color: "#0f172a",
+                              fontSize: "16px",
+                            }}
+                          >
                             {rental.itemTitle || "Rental item"}
                           </h4>
-                          <p style={{ margin: "4px 0", color: "#64748b", fontSize: "13px" }}>
-                            <Calendar size={13} style={{ verticalAlign: "middle", marginRight: "5px" }} />
-                            {formatDate(rental.startDate)} – {formatDate(rental.endDate)}
+                          <p
+                            style={{
+                              margin: "4px 0",
+                              color: "#64748b",
+                              fontSize: "13px",
+                            }}
+                          >
+                            <Calendar
+                              size={13}
+                              style={{
+                                verticalAlign: "middle",
+                                marginRight: "5px",
+                              }}
+                            />
+                            {formatDate(rental.startDate)} –{" "}
+                            {formatDate(rental.endDate)}
                           </p>
-                          <p style={{ margin: "4px 0", color: "#64748b", fontSize: "13px" }}>
-                            Quantity: {rental.quantity || 1} · {rental.totalDays || 1} day(s)
+                          <p
+                            style={{
+                              margin: "4px 0",
+                              color: "#64748b",
+                              fontSize: "13px",
+                            }}
+                          >
+                            Quantity: {rental.quantity || 1} ·{" "}
+                            {rental.totalDays || 1} day(s)
                           </p>
-                          <div style={{ display: "flex", alignItems: "center", gap: "8px", marginTop: "9px" }}>
+                          <div
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              gap: "8px",
+                              marginTop: "9px",
+                            }}
+                          >
                             {otherUserImage ? (
                               <img
                                 src={otherUserImage}
                                 alt={rental.otherUserName || "User"}
-                                style={{ width: "25px", height: "25px", borderRadius: "50%", objectFit: "cover" }}
+                                style={{
+                                  width: "25px",
+                                  height: "25px",
+                                  borderRadius: "50%",
+                                  objectFit: "cover",
+                                }}
                               />
                             ) : (
                               <User size={22} color="#64748b" />
                             )}
-                            <span style={{ color: "#475569", fontSize: "13px" }}>
-                              {rental.historyType === "buyer" ? "Rented from" : "Rented to"}:{" "}
+                            <span
+                              style={{ color: "#475569", fontSize: "13px" }}
+                            >
+                              {rental.historyType === "buyer"
+                                ? "Rented from"
+                                : "Rented to"}
+                              :{" "}
                               <strong>{rental.otherUserName || "User"}</strong>
                             </span>
                           </div>
                         </div>
                         <div style={{ marginLeft: "auto", textAlign: "right" }}>
-                          <strong style={{ display: "block", color: "#0f172a", fontSize: "17px" }}>
-                            LKR {Number(rental.totalPrice || 0).toLocaleString("en-LK", { minimumFractionDigits: 2 })}
+                          <strong
+                            style={{
+                              display: "block",
+                              color: "#0f172a",
+                              fontSize: "17px",
+                            }}
+                          >
+                            LKR{" "}
+                            {Number(rental.totalPrice || 0).toLocaleString(
+                              "en-LK",
+                              { minimumFractionDigits: 2 },
+                            )}
                           </strong>
                           <span
                             style={{
                               display: "block",
                               marginTop: "5px",
-                              color: rental.historyType === "buyer" ? "#2563eb" : "#7c3aed",
+                              color:
+                                rental.historyType === "buyer"
+                                  ? "#2563eb"
+                                  : "#7c3aed",
                               fontSize: "11px",
                               fontWeight: "700",
                             }}
                           >
-                            {rental.historyType === "buyer" ? "Rented" : "Rented Out"}
+                            {rental.historyType === "buyer"
+                              ? "Rented"
+                              : "Rented Out"}
                           </span>
                           <span
                             style={{
@@ -1905,7 +2608,13 @@ export default function Profile({ user, setUser }) {
                           >
                             Completed
                           </span>
-                          <p style={{ margin: "7px 0 0", color: "#94a3b8", fontSize: "11px" }}>
+                          <p
+                            style={{
+                              margin: "7px 0 0",
+                              color: "#94a3b8",
+                              fontSize: "11px",
+                            }}
+                          >
                             Transaction #{rental.transactionId}
                           </p>
                         </div>
@@ -1916,7 +2625,6 @@ export default function Profile({ user, setUser }) {
               )}
             </div>
           )}
-        </div>
 
         {/* EDIT PROFILE POPUP */}
         {isOwnProfile && showEditProfile && (
@@ -2123,14 +2831,29 @@ export default function Profile({ user, setUser }) {
                     marginBottom: "12px",
                   }}
                 >
-                  <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: "10px",
+                    }}
+                  >
                     <GoogleMapIcon size={22} />
                     <div>
-                      <div style={{ fontSize: "13px", fontWeight: "700", color: "#166534" }}>
+                      <div
+                        style={{
+                          fontSize: "13px",
+                          fontWeight: "700",
+                          color: "#166534",
+                        }}
+                      >
                         {t("map.shopMapLocation")}
                       </div>
                       <div style={{ fontSize: "11px", color: "#4b5563" }}>
-                        {profile.map_location_name || (profile.map_latitude ? `${profile.map_latitude.toFixed(4)}, ${profile.map_longitude.toFixed(4)}` : t("map.noMapLocationSet"))}
+                        {profile.map_location_name ||
+                          (profile.map_latitude
+                            ? `${profile.map_latitude.toFixed(4)}, ${profile.map_longitude.toFixed(4)}`
+                            : t("map.noMapLocationSet"))}
                       </div>
                     </div>
                   </div>
@@ -2154,7 +2877,9 @@ export default function Profile({ user, setUser }) {
                     }}
                   >
                     <MapPin size={14} />
-                    {profile.map_latitude ? t("map.updateMapPin") : t("map.setMapLocation")}
+                    {profile.map_latitude
+                      ? t("map.updateMapPin")
+                      : t("map.setMapLocation")}
                   </button>
                 </div>
 
@@ -2186,7 +2911,7 @@ export default function Profile({ user, setUser }) {
                 const updatedList = prev.map((r) =>
                   r.id === updated.reviewId
                     ? { ...r, rating: updated.rating, comment: updated.comment }
-                    : r
+                    : r,
                 );
                 const total = updatedList.length;
                 const avg =
@@ -2194,7 +2919,7 @@ export default function Profile({ user, setUser }) {
                     ? (
                         updatedList.reduce(
                           (acc, curr) => acc + Number(curr.rating),
-                          0
+                          0,
                         ) / total
                       ).toFixed(1)
                     : 0;
@@ -2209,7 +2934,7 @@ export default function Profile({ user, setUser }) {
             onReviewDeleted={(deleted) => {
               setSellerReviews((prev) => {
                 const updatedList = prev.filter(
-                  (r) => r.id !== deleted.reviewId
+                  (r) => r.id !== deleted.reviewId,
                 );
                 const total = updatedList.length;
                 const avg =
@@ -2217,7 +2942,7 @@ export default function Profile({ user, setUser }) {
                     ? (
                         updatedList.reduce(
                           (acc, curr) => acc + Number(curr.rating),
-                          0
+                          0,
                         ) / total
                       ).toFixed(1)
                     : 0;
@@ -2334,12 +3059,17 @@ const styles = {
   desktopHeaderRow: {
     display: "flex",
     justifyContent: "space-between",
-    alignItems: "flex-end",
-    marginTop: "-45px", // Adjusted so name sits nicely and isn't hidden by cover photo
+    alignItems: "flex-start",
+    marginTop: "0px",
     flexWrap: "wrap",
     gap: "20px",
   },
-  desktopAvatarWrapper: { position: "relative" },
+  desktopAvatarWrapper: {
+    position: "relative",
+    marginTop: "-60px",
+    zIndex: 2,
+    flexShrink: 0,
+  },
   desktopProfileImg: {
     width: "120px",
     height: "120px",
@@ -2347,7 +3077,7 @@ const styles = {
     border: "4px solid #ffffff",
     objectFit: "cover",
     backgroundColor: "#eee",
-    boxShadow: "0 4px 12px rgba(0,0,0,0.1)",
+    boxShadow: "0 4px 12px rgba(0,0,0,0.15)",
   },
   desktopUserName: {
     margin: 0,
@@ -2355,7 +3085,11 @@ const styles = {
     fontWeight: "bold",
     color: "#111",
   },
-  desktopUserTagline: { margin: "2px 0 4px 0", fontSize: "14px", color: "#555" },
+  desktopUserTagline: {
+    margin: "2px 0 4px 0",
+    fontSize: "14px",
+    color: "#555",
+  },
   locationText: {
     margin: 0,
     fontSize: "12px",
@@ -2364,7 +3098,13 @@ const styles = {
     alignItems: "center",
     gap: "4px",
   },
-  desktopActionBtns: { display: "flex", gap: "10px", alignItems: "center" },
+  desktopActionBtns: {
+    display: "flex",
+    gap: "10px",
+    alignItems: "center",
+    paddingTop: "12px",
+    flexWrap: "wrap",
+  },
   primaryBtn: {
     backgroundColor: "#e8f8f0", // Stats box eke thiyena light green background eka
     color: "#00aa5b", // Green color text
@@ -2393,7 +3133,7 @@ const styles = {
     gap: "6px",
     boxShadow: "0 2px 6px rgba(0,0,0,0.02)",
   },
-  
+
   statsBarContainer: {
     display: "grid",
     gridTemplateColumns: "repeat(4, minmax(0, 1fr))",
