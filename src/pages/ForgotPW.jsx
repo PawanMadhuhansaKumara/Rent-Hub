@@ -9,6 +9,14 @@ export default function ForgotPW({ user }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  const handleBack = () => {
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate("/login");
+    }
+  };
+
   const isAlreadyLoggedIn = Boolean(
     user ||
     (() => {
@@ -146,6 +154,19 @@ export default function ForgotPW({ user }) {
           {/* STEP 1: ENTER PHONE NUMBER */}
           {step === 1 && (
             <>
+              <div style={{ display: "flex", alignItems: "center", marginBottom: "16px" }}>
+                <button
+                  type="button"
+                  onClick={handleBack}
+                  style={styles.backBtn}
+                  title="Back to Login"
+                  aria-label="Back to Login"
+                >
+                  <ArrowLeft size={16} style={{ marginRight: "4px" }} />
+                  <span>{t("common.back", "Back to Login")}</span>
+                </button>
+              </div>
+
               <h3 style={styles.cardTitle}>Reset Password</h3>
               <p style={styles.cardSubtitle}>
                 Enter the phone number associated with your account.

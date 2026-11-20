@@ -1,13 +1,21 @@
 import React, { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Phone, Lock, CheckCircle2 } from "lucide-react";
+import { Phone, Lock, CheckCircle2, ArrowLeft } from "lucide-react";
 import "../responsive.css";
 import logo from "../assets/logo.png";
 
 export default function Login({ onLoginSuccess, user }) {
   const navigate = useNavigate();
   const { t, i18n } = useTranslation();
+
+  const handleBack = () => {
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate("/");
+    }
+  };
 
   // If already logged in, redirect immediately and NEVER show the login form
   const isAlreadyLoggedIn = Boolean(
@@ -102,6 +110,22 @@ export default function Login({ onLoginSuccess, user }) {
 
         {/* Right Side: Login Form Card */}
         <div className="login-card" style={styles.card}>
+          <div style={styles.headerBox}>
+            <button
+              type="button"
+              onClick={handleBack}
+              style={styles.backBtn}
+              title="Go Back"
+              aria-label="Go Back"
+            >
+              <ArrowLeft size={18} color="#00aa5b" />
+            </button>
+            <div style={styles.brandBadge}>
+              <CheckCircle2 size={16} color="#00aa5b" />
+              <span style={{ color: "#00aa5b", fontWeight: "bold", fontSize: "12px" }}>RentHub Access</span>
+            </div>
+          </div>
+
           {errorMsg && <div style={styles.errorAlert}>{errorMsg}</div>}
 
           <form onSubmit={handleLogin} style={styles.form}>
@@ -217,6 +241,26 @@ const styles = {
     backgroundColor: "#ffffff",
     border: "1px solid #eaeaea",
     boxSizing: "border-box",
+  },
+
+  headerBox: {
+    display: "flex",
+    justifyContent: "space-between",
+    alignItems: "center",
+    marginBottom: "16px",
+  },
+
+  backBtn: {
+    backgroundColor: "#e8f8f0",
+    border: "1px solid #c7e9d7",
+    borderRadius: "50%",
+    width: "36px",
+    height: "36px",
+    display: "flex",
+    alignItems: "center",
+    justifyContent: "center",
+    cursor: "pointer",
+    transition: "all 0.2s ease",
   },
 
   title: {

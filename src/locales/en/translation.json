@@ -1,4 +1,7 @@
 {
+  "common": {
+    "back": "Back"
+  },
   "search": {
     "placeholder": "Search items by name or category..."
   },

@@ -7,6 +7,7 @@ import {
   useSearchParams,
 } from "react-router-dom";
 import {
+  ArrowLeft,
   MessageCircle,
   User,
   MapPin,
@@ -87,6 +88,14 @@ export default function ItemDetails() {
   const [replyText, setReplyText] = useState("");
   const [submittingReply, setSubmittingReply] = useState(false);
   const navigate = useNavigate();
+
+  const handleBack = () => {
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate("/");
+    }
+  };
 
   const currentUserId = currentUser
     ? Number(currentUser.id || currentUser.user_id)
@@ -667,9 +676,16 @@ export default function ItemDetails() {
         <span className="details-message-icon">!</span>
         <h2>Item unavailable</h2>
         <p>{error || "We couldn't find this item."}</p>
-        <Link to="/" className="details-back-button">
-          ← Back to Home
-        </Link>
+        <button
+          type="button"
+          onClick={handleBack}
+          className="details-back-button"
+          title="Go Back"
+          aria-label="Go Back"
+        >
+          <ArrowLeft size={16} style={{ marginRight: "6px" }} />
+          <span>{t("common.back", "Back")}</span>
+        </button>
       </div>
     );
   }
@@ -703,9 +719,16 @@ export default function ItemDetails() {
     <main className="item-details-page">
       <div className="details-container">
         <div className="details-breadcrumb">
-          <Link to="/" className="details-back-button">
-            ← Back to Home
-          </Link>
+          <button
+            type="button"
+            onClick={handleBack}
+            className="details-back-button"
+            title="Go Back"
+            aria-label="Go Back"
+          >
+            <ArrowLeft size={16} style={{ marginRight: "6px" }} />
+            <span>{t("common.back", "Back")}</span>
+          </button>
         </div>
 
         <div className="item-details-card">

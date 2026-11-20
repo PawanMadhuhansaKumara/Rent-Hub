@@ -8,6 +8,14 @@ export default function Register({ user }) {
   const navigate = useNavigate();
   const { t } = useTranslation();
 
+  const handleBack = () => {
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate("/");
+    }
+  };
+
   const isAlreadyLoggedIn = Boolean(
     user ||
     (() => {
@@ -135,7 +143,7 @@ export default function Register({ user }) {
       <div className="register-card" style={styles.card}>
         {/* Top Header & Back Button */}
         <div style={styles.headerBox}>
-          <button onClick={() => navigate("/")} style={styles.backBtn} title="Back to Home">
+          <button type="button" onClick={handleBack} style={styles.backBtn} title="Go Back" aria-label="Go Back">
             <ArrowLeft size={18} color="#00aa5b" />
           </button>
           <div style={styles.brandBadge}>

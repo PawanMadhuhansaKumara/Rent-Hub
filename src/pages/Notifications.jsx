@@ -192,7 +192,21 @@ export default function Notifications({ user }) {
       {/* Header */}
       <div className="notifications-header">
         <div className="notifications-title-area">
-          
+          <button
+            type="button"
+            className="notifications-back-btn"
+            onClick={() => {
+              if (window.history.state && window.history.state.idx > 0) {
+                navigate(-1);
+              } else {
+                navigate("/");
+              }
+            }}
+            title="Go Back"
+            aria-label="Go Back"
+          >
+            <ArrowLeft size={18} />
+          </button>
           <div className="notifications-main-heading">
             <h1>{t("navigation.notifications") || "Notifications"}</h1>
             {unreadCount > 0 && (

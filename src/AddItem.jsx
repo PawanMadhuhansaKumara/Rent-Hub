@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
+import { ArrowLeft } from "lucide-react";
 import "./AddItem.css";
 
 const initialForm = {
@@ -22,6 +23,14 @@ export default function AddItem({ onItemAdded }) {
   const [message, setMessage] = useState("");
   const [isError, setIsError] = useState(false);
   const navigate = useNavigate();
+
+  const handleBack = () => {
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate("/profile");
+    }
+  };
 
   function handleChange(event) {
     const { name, value } = event.target;
@@ -125,6 +134,19 @@ export default function AddItem({ onItemAdded }) {
   return (
     <main className="add-item-page">
       <div className="add-item-container">
+        <div style={{ marginBottom: "16px" }}>
+          <button
+            type="button"
+            onClick={handleBack}
+            className="add-item-top-back-btn"
+            title="Go Back"
+            aria-label="Go Back"
+          >
+            <ArrowLeft size={16} />
+            <span>{t("common.back", "Back")}</span>
+          </button>
+        </div>
+
         <div className="add-item-heading">
           <span className="add-item-eyebrow">RENT-HUB MARKETPLACE</span>
           <h1>{t("addItemPage.title", "List Your Item")}</h1>
@@ -301,10 +323,10 @@ export default function AddItem({ onItemAdded }) {
               <button
                 type="button"
                 className="back-button"
-                onClick={() => navigate("/profile")}
+                onClick={handleBack}
                 disabled={loading}
               >
-                {t("map.cancel", "Back")}
+                {t("common.back", "Back")}
               </button>
             </div>
 

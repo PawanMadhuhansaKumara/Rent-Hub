@@ -1,7 +1,9 @@
 import React, { useState } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
+import { ArrowLeft, CheckCircle2 } from "lucide-react";
 
 export default function QRCustomerPayPage() {
+  const navigate = useNavigate();
   const [params] = useSearchParams();
   const bank = params.get("bank") || "Bank";
   const holder = params.get("holder") || "Seller";
@@ -14,6 +16,14 @@ export default function QRCustomerPayPage() {
   const [cvv, setCvv] = useState("");
   const [paidSuccess, setPaidSuccess] = useState(false);
 
+  const handleBack = () => {
+    if (window.history.state && window.history.state.idx > 0) {
+      navigate(-1);
+    } else {
+      navigate("/");
+    }
+  };
+
   const handleCardPay = async (e) => {
     e.preventDefault();
     if (!amount || Number(amount) <= 0) {
@@ -21,22 +31,59 @@ export default function QRCustomerPayPage() {
       return;
     }
 
-    // අවශ්‍ය නම් ඔබේ Backend POST API එකට { sellerId, amount, paymentMethod: 'qr_card', paymentStatus: 'paid' } යවන්න
     setPaidSuccess(true);
   };
 
   if (paidSuccess) {
     return (
-      <div style={{ maxWidth: "420px", margin: "40px auto", padding: "24px", background: "#fff", borderRadius: "14px", textAlign: "center" }}>
-        <h3 style={{ color: "#15803d" }}>Payment Successful!</h3>
-        <p>Paid <strong>LKR {Number(amount).toLocaleString()}</strong> to <strong>{holder}</strong> ({bank}).</p>
+      <div style={{ maxWidth: "420px", margin: "40px auto", padding: "24px", background: "#fff", borderRadius: "14px", textAlign: "center", border: "1px solid #e2e8f0" }}>
+        <CheckCircle2 size={48} color="#15803d" style={{ marginBottom: "12px" }} />
+        <h3 style={{ color: "#15803d", margin: "0 0 8px 0" }}>Payment Successful!</h3>
+        <p style={{ color: "#475569" }}>Paid <strong>LKR {Number(amount).toLocaleString()}</strong> to <strong>{holder}</strong> ({bank}).</p>
+        <button
+          type="button"
+          onClick={handleBack}
+          style={{
+            marginTop: "16px",
+            padding: "9px 20px",
+            borderRadius: "8px",
+            background: "#15803d",
+            color: "#fff",
+            border: "none",
+            fontWeight: 600,
+            cursor: "pointer",
+          }}
+        >
+          Done
+        </button>
       </div>
     );
   }
 
   return (
     <div style={{ maxWidth: "420px", margin: "30px auto", padding: "20px", background: "#fff", borderRadius: "14px", border: "1px solid #e2e8f0" }}>
-      <h3>Pay via Card (QR)</h3>
+      <div style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px" }}>
+        <button
+          type="button"
+          onClick={handleBack}
+          style={{
+            width: "36px",
+            height: "36px",
+            borderRadius: "50%",
+            border: "1px solid #e2e8f0",
+            background: "#ffffff",
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "center",
+            cursor: "pointer",
+          }}
+          title="Go Back"
+          aria-label="Go Back"
+        >
+          <ArrowLeft size={16} color="#334155" />
+        </button>
+        <h3 style={{ margin: 0 }}>Pay via Card (QR)</h3>
+      </div>
       <div style={{ background: "#f8fafc", padding: "10px", borderRadius: "8px", marginBottom: "14px", fontSize: "13px" }}>
         <div><strong>To:</strong> {holder}</div>
         <div><strong>Bank:</strong> {bank}</div>

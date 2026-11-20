@@ -115,6 +115,21 @@ export default function BusinessHub({ user }) {
         {/* Header Bar */}
         <div className="business-hub-header">
           <div className="business-hub-header-left">
+            <button
+              type="button"
+              className="business-hub-back-btn"
+              onClick={() => {
+                if (window.history.state && window.history.state.idx > 0) {
+                  navigate(-1);
+                } else {
+                  navigate("/");
+                }
+              }}
+              title="Go Back"
+              aria-label="Go Back"
+            >
+              <ArrowLeft size={18} />
+            </button>
             <div>
               <h1 className="business-hub-title">
                 {t("businessHub.title", "Business Hub")}

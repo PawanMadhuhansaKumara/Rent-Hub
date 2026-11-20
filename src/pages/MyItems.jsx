@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from "react";
-import { useSearchParams } from "react-router-dom";
+import { useSearchParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
-import { Clock, Inbox, ShoppingCart, Package } from "lucide-react";
+import { Clock, Inbox, ShoppingCart, Package, ArrowLeft } from "lucide-react";
 
 import RentRequestForm from "../components/RentRequestForm";
 import RentRequestSuccessModal from "../components/RentRequestSuccessModal";
@@ -19,6 +19,7 @@ const API_URL = "http://localhost:5001";
 export default function MyItems({ user }) {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
+  const navigate = useNavigate();
 
   const currentUser =
     user ||
@@ -1193,6 +1194,40 @@ export default function MyItems({ user }) {
   return (
     <div className="my-items-page">
       <div className="my-items-container">
+        {/* Header Bar with Back Button */}
+        <div className="my-items-header">
+          <div className="my-items-header-left">
+            <button
+              type="button"
+              className="my-items-back-btn"
+              onClick={() => {
+                if (window.history.state && window.history.state.idx > 0) {
+                  navigate(-1);
+                } else {
+                  navigate(isFromBusinessHub ? "/business-hub" : "/");
+                }
+              }}
+              title="Go Back"
+              aria-label="Go Back"
+            >
+              <ArrowLeft size={18} />
+            </button>
+            <div>
+              <h1 className="my-items-title">
+                {isFromBusinessHub
+                  ? t("businessHub.sellerCenter", "Seller Center")
+                  : t("navigation.myRentals", "Rentals & Requests")}
+              </h1>
+              <p className="my-items-subtitle">
+                {t(
+                  "rentsPage.subtitle",
+                  "Manage your rental inventory, active rents, and incoming requests.",
+                )}
+              </p>
+            </div>
+          </div>
+        </div>
+
         {/* Navigation Tabs (Fixed Order) */}
         <div className="my-items-tabs">
           {tabsConfig.map((tab) => (
