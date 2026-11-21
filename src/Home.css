@@ -92,10 +92,10 @@
   padding: 26px 30px 22px;
   overflow: hidden;
   position: relative;
-  background: linear-gradient(115deg, var(--bg-card) 0%, var(--primary-light) 65%, var(--primary-light) 100%);
-  border: 1px solid var(--primary-border);
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
   border-radius: 22px;
-  box-shadow: 0 8px 25px rgba(22, 101, 52, 0.07);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.05);
 }
 
 /* Main banner layout */

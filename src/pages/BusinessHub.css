@@ -158,7 +158,7 @@
 
 /* Store Welcome Card */
 .business-welcome-card {
-  background: linear-gradient(135deg, #15803D 0%, #16A34A 60%, #16A34A 100%);
+  background: linear-gradient(135deg, #064E3B 0%, #0F5F2C 55%, #14532D 100%);
   border-radius: 18px;
   padding: 24px 28px;
   color: #FFFFFF;
@@ -166,7 +166,8 @@
   display: flex;
   flex-direction: column;
   align-items: stretch;
-  box-shadow: 0 10px 25px -5px rgba(6, 78, 59, 0.25);
+  box-shadow: 0 10px 25px -5px rgba(6, 78, 59, 0.35);
+  border: 1px solid rgba(255, 255, 255, 0.15);
   gap: 18px;
 }
 
@@ -178,9 +179,9 @@
 
 /* Total Earned Hero Banner between Store Name and Action Buttons */
 .business-total-earn-card {
-  background: rgba(255, 255, 255, 0.12);
+  background: rgba(0, 0, 0, 0.2);
   backdrop-filter: blur(8px);
-  border: 1.5px solid rgba(255, 255, 255, 0.25);
+  border: 1.5px solid rgba(255, 255, 255, 0.22);
   border-radius: 14px;
   padding: 16px 20px;
   display: flex;
@@ -193,10 +194,10 @@
 }
 
 .business-total-earn-card:hover {
-  background: rgba(255, 255, 255, 0.18);
-  border-color: rgba(255, 255, 255, 0.45);
+  background: rgba(0, 0, 0, 0.28);
+  border-color: rgba(255, 255, 255, 0.4);
   transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.15);
+  box-shadow: 0 8px 20px rgba(0, 0, 0, 0.25);
 }
 
 .total-earn-left {
@@ -209,11 +210,11 @@
   width: 52px;
   height: 52px;
   border-radius: 14px;
-  background: var(--badge-yellow-bg);
+  background: #fef3c7;
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4px 12px rgba(202, 138, 4, 0.3);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   flex-shrink: 0;
 }
 
@@ -230,16 +231,17 @@
   text-transform: uppercase;
   letter-spacing: 0.5px;
   color: #FDE047;
+  text-shadow: 0 1px 2px rgba(0, 0, 0, 0.3);
 }
 
 .total-earn-fee-pill {
   font-size: 10px;
   font-weight: 700;
-  background: rgba(254, 240, 138, 0.2);
+  background: rgba(0, 0, 0, 0.25);
   color: #FEF08A;
   padding: 2px 8px;
   border-radius: 10px;
-  border: 1px solid rgba(254, 240, 138, 0.4);
+  border: 1px solid rgba(254, 240, 138, 0.35);
 }
 
 .total-earn-value {
@@ -248,11 +250,12 @@
   color: #FFFFFF;
   letter-spacing: -0.5px;
   margin: 3px 0;
+  text-shadow: 0 1px 3px rgba(0, 0, 0, 0.25);
 }
 
 .total-earn-sub {
   font-size: 12.5px;
-  color: rgba(255, 255, 255, 0.9);
+  color: rgba(255, 255, 255, 0.95);
   display: flex;
   align-items: center;
   gap: 6px;
@@ -265,8 +268,8 @@
 }
 
 .total-earn-withdraw-cta {
-  background: var(--bg-card);
-  color: var(--primary);
+  background: #FFFFFF;
+  color: #064E3B;
   font-size: 13px;
   font-weight: 800;
   padding: 10px 18px;
@@ -274,13 +277,15 @@
   display: flex;
   align-items: center;
   gap: 6px;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.12);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
   transition: all 0.2s ease;
   flex-shrink: 0;
+  border: 1px solid rgba(255, 255, 255, 0.6);
 }
 
 .total-earn-withdraw-cta:hover {
-  background: var(--primary-light);
+  background: #F0FDF4;
+  color: #047857;
   transform: scale(1.03);
 }
 
@@ -357,9 +362,9 @@
 }
 
 .mini-stat-pill {
-  background: rgba(255, 255, 255, 0.14);
+  background: rgba(0, 0, 0, 0.18);
   backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.24);
+  border: 1px solid rgba(255, 255, 255, 0.18);
   border-radius: 12px;
   padding: 10px 14px;
   display: flex;
@@ -369,7 +374,8 @@
 }
 
 .mini-stat-pill:hover {
-  background: rgba(255, 255, 255, 0.22);
+  background: rgba(0, 0, 0, 0.28);
+  border-color: rgba(255, 255, 255, 0.35);
   transform: translateY(-1px);
 }
 
@@ -384,23 +390,23 @@
 }
 
 .mini-stat-icon.green {
-  background: rgba(34, 197, 94, 0.25);
-  color: var(--primary-text);
+  background: rgba(34, 197, 94, 0.3);
+  color: #86EFAC;
 }
 
 .mini-stat-icon.blue {
-  background: rgba(59, 130, 246, 0.25);
-  color: var(--badge-blue-text);
+  background: rgba(59, 130, 246, 0.3);
+  color: #93C5FD;
 }
 
 .mini-stat-icon.amber {
-  background: rgba(245, 158, 11, 0.25);
-  color: var(--badge-yellow-text);
+  background: rgba(245, 158, 11, 0.3);
+  color: #FDE047;
 }
 
 .mini-stat-icon.purple {
-  background: rgba(168, 85, 247, 0.25);
-  color: var(--badge-purple-text);
+  background: rgba(168, 85, 247, 0.3);
+  color: #E9D5FF;
 }
 
 .mini-stat-text {
@@ -411,8 +417,8 @@
 
 .mini-stat-label {
   font-size: 11px;
-  font-weight: 600;
-  color: rgba(255, 255, 255, 0.85);
+  font-weight: 700;
+  color: rgba(255, 255, 255, 0.9);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -421,12 +427,85 @@
 }
 
 .mini-stat-num {
-  font-size: 15px;
-  font-weight: 700;
+  font-size: 16px;
+  font-weight: 800;
   color: #FFFFFF;
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
+}
+
+/* Business Welcome Card Dark Mode */
+[data-theme="dark"] .business-welcome-card {
+  background: linear-gradient(135deg, #1E293B 0%, #064E3B 100%) !important;
+  border: 1px solid var(--border-light) !important;
+  box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.4) !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .business-welcome-card .business-total-earn-card {
+  background: rgba(255, 255, 255, 0.06) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.15) !important;
+}
+
+[data-theme="dark"] .business-welcome-card .business-total-earn-card:hover {
+  background: rgba(255, 255, 255, 0.1) !important;
+  border-color: rgba(255, 255, 255, 0.25) !important;
+}
+
+[data-theme="dark"] .business-welcome-card .total-earn-value,
+[data-theme="dark"] .business-welcome-card .total-earn-available,
+[data-theme="dark"] .business-welcome-card .mini-stat-num,
+[data-theme="dark"] .business-welcome-card .welcome-text h2 {
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .business-welcome-card .total-earn-sub,
+[data-theme="dark"] .business-welcome-card .mini-stat-label,
+[data-theme="dark"] .business-welcome-card .welcome-text p {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+[data-theme="dark"] .business-welcome-card .mini-stat-pill {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+[data-theme="dark"] .business-welcome-card .mini-stat-pill:hover {
+  background: rgba(255, 255, 255, 0.14) !important;
+}
+
+[data-theme="dark"] .business-welcome-card .mini-stat-icon.green {
+  background: rgba(34, 197, 94, 0.2) !important;
+  color: #4ADE80 !important;
+}
+
+[data-theme="dark"] .business-welcome-card .mini-stat-icon.blue {
+  background: rgba(59, 130, 246, 0.2) !important;
+  color: #60A5FA !important;
+}
+
+[data-theme="dark"] .business-welcome-card .mini-stat-icon.amber {
+  background: rgba(245, 158, 11, 0.2) !important;
+  color: #FBBF24 !important;
+}
+
+[data-theme="dark"] .business-welcome-card .mini-stat-icon.purple {
+  background: rgba(168, 85, 247, 0.2) !important;
+  color: #C084FC !important;
+}
+
+[data-theme="dark"] .business-welcome-card .total-earn-withdraw-cta {
+  background: #192434 !important;
+  color: #4ADE80 !important;
+  border: 1px solid rgba(74, 222, 128, 0.3) !important;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.25) !important;
+}
+
+[data-theme="dark"] .business-welcome-card .total-earn-withdraw-cta:hover {
+  background: #233348 !important;
+  color: #86EFAC !important;
+  border-color: rgba(74, 222, 128, 0.5) !important;
 }
 
 .welcome-actions {

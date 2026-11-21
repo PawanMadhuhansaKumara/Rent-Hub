@@ -18,7 +18,7 @@ export default function AppBar() {
         justifyContent: "space-between",
         alignItems: "center",
         padding: "15px 30px",
-        backgroundColor: "var(--badge-blue-text)",
+        background: "var(--navbar-bg)",
       }}
     >
       <h2 style={{ color: "white", margin: 0 }}>Rent Hub</h2>
