@@ -220,8 +220,8 @@
 .navbar-login:hover,
 .navbar-login.active {
   background: var(--primary-hover);
-  color: var(--text-main);
-  border-color: var(--primary-text);
+  color: var(--text-inverse);
+  border-color: var(--primary-border);
   transform: translateY(-1px);
   box-shadow: 0 4px 10px rgba(0, 0, 0, 0.15);
 }
