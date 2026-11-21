@@ -269,9 +269,14 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
 
   return (
     <nav className="navbar">
-      {/* Logo */}
+      {/* Logo - Kept in light mode (pure white pill) so "HUB." is always visible in both light & dark mode */}
       <Link to="/" className="navbar-brand">
-        <img src={logo} alt="Rent-Hub Logo" className="navbar-logo" />
+        <img
+          src={logo}
+          alt="Rent-Hub Logo"
+          className="navbar-logo"
+          style={{ backgroundColor: "#FFFFFF" }}
+        />
       </Link>
 
       {/* Middle: Search Bar (Desktop & Tablet on Home Page only, when logged in) */}
