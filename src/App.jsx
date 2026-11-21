@@ -20,6 +20,7 @@ import MyItems from "./pages/MyItems";
 import BusinessHub from "./pages/BusinessHub";
 import Notifications from "./pages/Notifications";
 import BuyerLocationTest from "./BuyerLocationTest";
+import NotificationToastManager from "./components/NotificationToastManager";
 
 function RentsRedirect() {
   const location = useLocation();
@@ -157,6 +158,7 @@ export default function App() {
 
   return (
     <Router>
+      <NotificationToastManager user={user} />
       <Navbar
         user={user}
         setUser={setUser}

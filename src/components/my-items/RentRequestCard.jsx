@@ -31,7 +31,6 @@ export default function RentRequestCard({
   onRateItem,
   API_URL = "http://localhost:5001",
 }) {
-  const [paymentStatus, setPaymentStatus] = useState(req.payment_status || req.paymentStatus || "pending");
   const isSender =
     Number(req.buyerId || req.buyer_id) === Number(userId) ||
     (!req.sellerId && !req.seller_id) ||
@@ -273,24 +272,26 @@ export default function RentRequestCard({
 
       {/* 1. CUSTOMER SIDE: Approved Rent Request - Waiting for shop handover */}
       {isSender && isApproved && (
-        <div className="rent-request-actions">
-          {/* QR Scan button */}
-          <button
-            type="button"
-            className="req-btn"
-            onClick={() => setShowQRModal(true)}
+        <div className="rent-request-actions" style={{ marginTop: "12px" }}>
+          <div
+            style={{
+              width: "100%",
+              padding: "10px 14px",
+              backgroundColor: "var(--badge-green-bg, #f0fdf4)",
+              border: "1px solid var(--badge-green-border, #bbf7d0)",
+              borderRadius: "8px",
+              display: "flex",
+              alignItems: "center",
+              gap: "8px",
+              fontSize: "12px",
+              fontWeight: "600",
+              color: "var(--primary, #166534)",
+              boxSizing: "border-box",
+            }}
           >
-            QR Scan to Pay
-          </button>
-
-          {/* Card Pay button */}
-          <button
-            type="button"
-            className="req-btn"
-            onClick={() => setShowCardModal(true)}
-          >
-            Pay with Card
-          </button>
+            <CheckCircle2 size={16} color="var(--primary, #16a34a)" />
+            <span>Approved! Visit the shop to collect your item. Shop will mark as picked up upon handover.</span>
+          </div>
         </div>
       )}
 
