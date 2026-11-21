@@ -869,8 +869,8 @@ export default function Profile({ user, setUser }) {
             }}
           />
         )}
-        {/* CASH POINTS TOP-UP MODAL (VIA GATEWAY) */}
-        {showTopupModal && (
+        {/* CASH POINTS TOP-UP MODAL (VIA GATEWAY - ONLY FOR PROFILE OWNER) */}
+        {showTopupModal && isOwnProfile && (
           <CashPointsTopupModal
             isOpen={showTopupModal}
             onClose={() => setShowTopupModal(false)}

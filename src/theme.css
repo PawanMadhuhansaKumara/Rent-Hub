@@ -1937,3 +1937,34 @@ body[data-theme="dark"] .navbar-logo,
   filter: none !important;
   opacity: 1 !important;
 }
+
+/* ==============================================================
+   NAVBAR CART & CHAT ACTION ICONS IN DARK MODE
+   Keeps Cart and Chat icons pure crisp white and clearly visible
+   with glass-morphism borders, matching light mode clarity.
+   ============================================================== */
+[data-theme="dark"] .navbar-chat-btn,
+[data-theme="dark"] .cart-icon-button,
+html[data-theme="dark"] .navbar-chat-btn,
+html[data-theme="dark"] .cart-icon-button {
+  color: #FFFFFF !important;
+  background: rgba(255, 255, 255, 0.16) !important;
+  border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.3) !important;
+}
+
+[data-theme="dark"] .navbar-chat-btn:hover,
+[data-theme="dark"] .cart-icon-button:hover,
+html[data-theme="dark"] .navbar-chat-btn:hover,
+html[data-theme="dark"] .cart-icon-button:hover {
+  background: rgba(255, 255, 255, 0.28) !important;
+  border-color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .navbar-chat-btn svg,
+[data-theme="dark"] .cart-icon-button svg,
+html[data-theme="dark"] .navbar-chat-btn svg,
+html[data-theme="dark"] .cart-icon-button svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}

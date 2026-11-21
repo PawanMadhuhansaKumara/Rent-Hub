@@ -316,7 +316,7 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
               title="Messages & Inquiries"
               aria-label="Messages"
             >
-              <MessageCircle size={21} color="var(--text-inverse)" />
+              <MessageCircle size={21} color="#FFFFFF" />
               {unreadCount > 0 && (
                 <span className="navbar-chat-badge">
                   {unreadCount > 9 ? "9+" : unreadCount}
