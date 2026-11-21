@@ -511,7 +511,12 @@
   cursor: pointer;
   transition: all 0.2s ease;
   padding: 0;
-  color: var(--text-inverse);
+  color: #FFFFFF !important;
+}
+
+.cart-icon-button svg {
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
 }
 
 .cart-icon-button:hover {

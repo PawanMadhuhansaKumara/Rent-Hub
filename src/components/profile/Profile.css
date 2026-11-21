@@ -271,6 +271,10 @@
   margin-top: 25px;
 }
 
+.profile-stats-bar-grid.profile-stats-bar-3cols {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
 .profile-stat-box {
   display: flex;
   align-items: center;
@@ -416,6 +420,9 @@
     gap: 12px 10px !important;
     padding: 12px 10px !important;
   }
+  .profile-stats-bar-grid.profile-stats-bar-3cols {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+  }
   .profile-stat-box, .profile-stat-cashpoints {
     gap: 8px !important;
     padding: 6px 8px !important;
@@ -428,6 +435,23 @@
   }
   .profile-stat-lbl {
     font-size: 11px !important;
+  }
+}
+
+@media (max-width: 520px) {
+  .profile-stats-bar-grid.profile-stats-bar-3cols {
+    grid-template-columns: repeat(3, minmax(0, 1fr)) !important;
+    gap: 6px !important;
+    padding: 10px 8px !important;
+  }
+  .profile-stats-bar-grid.profile-stats-bar-3cols .profile-stat-icon-wrapper {
+    padding: 6px !important;
+  }
+  .profile-stats-bar-grid.profile-stats-bar-3cols .profile-stat-val {
+    font-size: 13px !important;
+  }
+  .profile-stats-bar-grid.profile-stats-bar-3cols .profile-stat-lbl {
+    font-size: 10px !important;
   }
 }
 

@@ -12,7 +12,7 @@ export default function ProfileStatsBar({
 }) {
   const { t } = useTranslation();
   return (
-    <div className="profile-stats-bar-grid">
+    <div className={`profile-stats-bar-grid ${!isOwnProfile ? "profile-stats-bar-3cols" : ""}`}>
       {/* 1. Total Items */}
       <div
         className="profile-stat-box profile-stat-item-with-border"
@@ -68,7 +68,7 @@ export default function ProfileStatsBar({
 
       {/* 3. Reviews */}
       <div
-        className="profile-stat-box profile-stat-item-with-border"
+        className={`profile-stat-box ${isOwnProfile ? "profile-stat-item-with-border" : ""}`}
         onClick={() => {
           setActiveTab("reviews");
           setTimeout(() => {
@@ -108,54 +108,50 @@ export default function ProfileStatsBar({
         </div>
       </div>
 
-      {/* 4. Cash Points */}
-      <div
-        className="profile-stat-cashpoints"
-        onClick={() => {
-          if (isOwnProfile && setShowTopupModal) {
-            setShowTopupModal(true);
-          }
-        }}
-        style={{
-          cursor: isOwnProfile ? "pointer" : "default",
-          padding: "6px 8px",
-          borderRadius: "12px",
-          backgroundColor: isOwnProfile ? "var(--bg-card-elevated)" : "transparent",
-          border: isOwnProfile ? "1px dashed var(--border-strong)" : "none",
-          transition: "all 0.2s ease",
-        }}
-        title={
-          isOwnProfile
-            ? "Click to Top Up Cash Points via Payment Gateway"
-            : "Seller Cash Points"
-        }
-        role={isOwnProfile ? "button" : undefined}
-        tabIndex={isOwnProfile ? 0 : undefined}
-      >
+      {/* 4. Cash Points (Only visible to the account owner) */}
+      {isOwnProfile && (
         <div
-          className="profile-stat-icon-wrapper"
-          style={{ backgroundColor: "var(--bg-card-hover)" }}
+          className="profile-stat-cashpoints"
+          onClick={() => {
+            if (isOwnProfile && setShowTopupModal) {
+              setShowTopupModal(true);
+            }
+          }}
+          style={{
+            cursor: "pointer",
+            padding: "6px 8px",
+            borderRadius: "12px",
+            backgroundColor: "var(--bg-card-elevated)",
+            border: "1px dashed var(--border-strong)",
+            transition: "all 0.2s ease",
+          }}
+          title="Click to Top Up Cash Points via Payment Gateway"
+          role="button"
+          tabIndex={0}
         >
-          <Coins size={20} color="var(--badge-yellow-text)" />
-        </div>
-        <div style={{ minWidth: 0, overflow: "hidden" }}>
-          <span
-            className="profile-stat-val"
-            style={{ color: "var(--badge-yellow-text)" }}
+          <div
+            className="profile-stat-icon-wrapper"
+            style={{ backgroundColor: "var(--bg-card-hover)" }}
           >
-            {Number(profile?.cash_points || 0).toLocaleString()}
-          </span>
-          <span
-            className="profile-stat-lbl"
-            style={{ color: "var(--badge-yellow-text)" }}
-          >
-            {t("stats.cashPoints", "Cash Points")}{" "}
-            {isOwnProfile && (
+            <Coins size={20} color="var(--badge-yellow-text)" />
+          </div>
+          <div style={{ minWidth: 0, overflow: "hidden" }}>
+            <span
+              className="profile-stat-val"
+              style={{ color: "var(--badge-yellow-text)" }}
+            >
+              {Number(profile?.cash_points || 0).toLocaleString()}
+            </span>
+            <span
+              className="profile-stat-lbl"
+              style={{ color: "var(--badge-yellow-text)" }}
+            >
+              {t("stats.cashPoints", "Cash Points")}{" "}
               <span style={{ color: "var(--primary)", fontWeight: "800" }}>+</span>
-            )}
-          </span>
+            </span>
+          </div>
         </div>
-      </div>
+      )}
     </div>
   );
 }
