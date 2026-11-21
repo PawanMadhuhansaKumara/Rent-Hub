@@ -40,13 +40,18 @@
 
 .category-btn.active {
   background: var(--primary);
-  color: var(--text-inverse);
-  border-color: var(--primary-border);
+  color: #FFFFFF !important;
+  border-color: var(--primary);
   box-shadow: 0 3px 8px rgba(21, 128, 61, 0.25);
 }
 
 .category-btn.active .category-icon {
-  color: var(--text-inverse);
+  color: #FFFFFF !important;
+  stroke: #FFFFFF !important;
+}
+
+.category-btn.active span {
+  color: #FFFFFF !important;
 }
 
 .category-icon {
@@ -69,6 +74,6 @@
 }
 
 .category-btn.active .category-count {
-  background: rgba(255, 255, 255, 0.25);
-  color: var(--text-inverse);
+  background: rgba(255, 255, 255, 0.25) !important;
+  color: #FFFFFF !important;
 }
