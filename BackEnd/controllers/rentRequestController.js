@@ -1300,7 +1300,7 @@ exports.getRentalHistory = async (req, res) => {
         ON ${otherUserColumn} = u.user_id
 
       WHERE ${userColumn} = ?
-        AND LOWER(r.status) = 'completed'
+        AND LOWER(r.status) IN ('completed', 'returned', 'return_pending')
 
       ORDER BY r.updated_at DESC
     `;

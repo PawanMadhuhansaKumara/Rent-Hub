@@ -277,75 +277,154 @@ export default function Profile({ user, setUser }) {
     const fetchRentalHistory = async () => {
       setLoadingHistory(true);
       setHistoryError("");
+
+      // Helper to read local completed/returned/handed-over requests
+      const getLocalHistory = () => {
+        try {
+          const raw = localStorage.getItem("rent_hub_requests");
+          if (!raw) return [];
+          const allReqs = JSON.parse(raw);
+          if (!Array.isArray(allReqs)) return [];
+
+          const currentUserId = profile.user_id || user?.id || user?.user_id;
+
+          return allReqs
+            .filter((r) => {
+              const status = r.status?.toLowerCase();
+              return (
+                status === "completed" ||
+                status === "returned" ||
+                status === "return_pending"
+              );
+            })
+            .map((r) => {
+              const isBuyer =
+                Number(r.buyerId || r.buyer_id) === Number(currentUserId) ||
+                (!r.sellerId && !r.seller_id) ||
+                r.reqType === "sent";
+
+              return {
+                transactionId: r.id || r.requestId || `${r.itemId}-${r.id}`,
+                itemId: r.itemId || r.item_id,
+                itemTitle: r.itemTitle || r.item_title || "Rental item",
+                itemImage: r.itemImage || r.item_image || r.image,
+                startDate: r.startDate || r.start_date,
+                endDate: r.endDate || r.end_date,
+                quantity: r.quantity || 1,
+                totalDays: r.totalDays || r.total_days || 1,
+                totalPrice: r.totalPrice || r.total_price || 0,
+                status: r.status || "Completed",
+                trustRating: r.trust_rating || r.trustRating || 10,
+                otherUserName: isBuyer
+                  ? r.sellerName || r.seller_name || "Shop Owner"
+                  : r.buyerName || r.buyer_name || r.requesterName || "Customer",
+                otherUserPhone: isBuyer ? r.sellerPhone : r.buyerPhone,
+                otherUserPic: isBuyer ? r.sellerPic : r.buyerPic,
+                historyType: isBuyer ? "buyer" : "seller",
+                completedAt:
+                  r.completedAt ||
+                  r.updatedAt ||
+                  r.updated_at ||
+                  r.createdAt ||
+                  r.created_at ||
+                  new Date().toISOString(),
+              };
+            });
+        } catch (e) {
+          console.warn("Failed to parse local history:", e);
+          return [];
+        }
+      };
+
       try {
         const token =
           localStorage.getItem("token") ||
           localStorage.getItem("authToken") ||
           localStorage.getItem("accessToken");
 
-        if (!token) {
-          setRentalHistory([]);
-          setHistoryError("Please log in again to view your rental history.");
-          return;
+        let apiList = [];
+        if (token) {
+          const headers = { Authorization: `Bearer ${token}` };
+          const [buyerRes, sellerRes] = await Promise.allSettled([
+            fetch("http://localhost:5001/api/rent-requests/history/buyer", {
+              headers,
+            }),
+            fetch("http://localhost:5001/api/rent-requests/history/seller", {
+              headers,
+            }),
+          ]);
+
+          if (buyerRes.status === "fulfilled" && buyerRes.value.ok) {
+            const bData = await buyerRes.value.json();
+            if (bData.success && Array.isArray(bData.history)) {
+              apiList.push(
+                ...bData.history.map((rental) => ({
+                  ...rental,
+                  historyType: "buyer",
+                }))
+              );
+            }
+          }
+
+          if (sellerRes.status === "fulfilled" && sellerRes.value.ok) {
+            const sData = await sellerRes.value.json();
+            if (sData.success && Array.isArray(sData.history)) {
+              apiList.push(
+                ...sData.history.map((rental) => ({
+                  ...rental,
+                  historyType: "seller",
+                }))
+              );
+            }
+          }
         }
 
-        const headers = { Authorization: `Bearer ${token}` };
-        const [buyerResponse, sellerResponse] = await Promise.all([
-          fetch("http://localhost:5001/api/rent-requests/history/buyer", {
-            headers,
-          }),
-          fetch("http://localhost:5001/api/rent-requests/history/seller", {
-            headers,
-          }),
-        ]);
+        const localList = getLocalHistory();
 
-        const [buyerData, sellerData] = await Promise.all([
-          buyerResponse.json(),
-          sellerResponse.json(),
-        ]);
-
-        if (!buyerResponse.ok || !buyerData.success) {
-          throw new Error(
-            buyerData.message || "Failed to load buyer rental history.",
-          );
-        }
-        if (!sellerResponse.ok || !sellerData.success) {
-          throw new Error(
-            sellerData.message || "Failed to load seller rental history.",
-          );
-        }
-
-        const combinedHistory = [
-          ...(Array.isArray(buyerData.history)
-            ? buyerData.history.map((rental) => ({
-                ...rental,
-                historyType: "buyer",
-              }))
-            : []),
-          ...(Array.isArray(sellerData.history)
-            ? sellerData.history.map((rental) => ({
-                ...rental,
-                historyType: "seller",
-              }))
-            : []),
-        ].sort((a, b) => {
-          const dateA = new Date(a.completedAt || a.createdAt || 0).getTime();
-          const dateB = new Date(b.completedAt || b.createdAt || 0).getTime();
-          return dateB - dateA;
+        // Merge backend records with local records, keyed by transactionId
+        const historyMap = new Map();
+        [...apiList, ...localList].forEach((item) => {
+          const key = String(item.transactionId || item.id);
+          if (!historyMap.has(key)) {
+            historyMap.set(key, item);
+          } else {
+            historyMap.set(key, { ...historyMap.get(key), ...item });
+          }
         });
+
+        const combinedHistory = Array.from(historyMap.values()).sort(
+          (a, b) => {
+            const dateA = new Date(a.completedAt || a.createdAt || 0).getTime();
+            const dateB = new Date(b.completedAt || b.createdAt || 0).getTime();
+            return dateB - dateA;
+          }
+        );
 
         setRentalHistory(combinedHistory);
       } catch (error) {
         console.error("Fetch rental history error:", error);
-        setRentalHistory([]);
-        setHistoryError(error.message || "Unable to load rental history.");
+        const localOnly = getLocalHistory();
+        if (localOnly.length > 0) {
+          setRentalHistory(localOnly);
+        } else {
+          setRentalHistory([]);
+          setHistoryError("Unable to load rental history.");
+        }
       } finally {
         setLoadingHistory(false);
       }
     };
 
     fetchRentalHistory();
-  }, [activeTab, isOwnProfile]);
+
+    const handleUpdate = () => fetchRentalHistory();
+    window.addEventListener("rent_requests_updated", handleUpdate);
+    window.addEventListener("storage", handleUpdate);
+    return () => {
+      window.removeEventListener("rent_requests_updated", handleUpdate);
+      window.removeEventListener("storage", handleUpdate);
+    };
+  }, [activeTab, isOwnProfile, profile.user_id, user?.id, user?.user_id]);
 
   // Fetch profile user data from backend (both for own profile and public view)
   useEffect(() => {

@@ -726,6 +726,7 @@ export default function MyItems({ user }) {
         headers: { "Content-Type": "application/json" },
       });
       window.dispatchEvent(new Event("rent_requests_updated"));
+      window.dispatchEvent(new Event("storage"));
     } catch (err) {
       console.error("Customer return error:", err);
     }
@@ -835,6 +836,18 @@ export default function MyItems({ user }) {
               ? {
                   ...r,
                   status: newStatus,
+                  customerPicked:
+                    newStatus?.toLowerCase() === "rented"
+                      ? 1
+                      : r.customerPicked,
+                  customer_picked:
+                    newStatus?.toLowerCase() === "rented"
+                      ? 1
+                      : r.customer_picked,
+                  customerPickedAt:
+                    newStatus?.toLowerCase() === "rented"
+                      ? r.customerPickedAt || new Date().toISOString()
+                      : r.customerPickedAt,
                   ...(verificationData
                     ? { verification: verificationData }
                     : {}),
@@ -1104,13 +1117,21 @@ export default function MyItems({ user }) {
         Number(r.buyerId || r.buyer_id) === Number(userId) ||
         (!r.sellerId && !r.seller_id) ||
         r.reqType === "sent";
+      const status = r.status?.toLowerCase();
+      // Items that are handed over, returned, completed, or cancelled must leave active rented items
+      if (
+        status === "completed" ||
+        status === "returned" ||
+        status === "return_pending" ||
+        status === "declined" ||
+        status === "cancelled" ||
+        status === "rejected"
+      ) {
+        return false;
+      }
       const isConfirmed =
-        r.status?.toLowerCase() === "rented" ||
-        r.status?.toLowerCase() === "return_pending" ||
-        r.status === "Approved" ||
-        r.status?.toLowerCase() === "approved" ||
-        r.status?.toLowerCase() === "completed" ||
-        r.status?.toLowerCase() === "returned";
+        status === "rented" ||
+        Number(r.customerPicked ?? r.customer_picked) === 1;
       if (!isBuyer || !isConfirmed) return false;
 
       const itemKey = String(r.id || r.requestId || `${r.itemId}-${r.id}`);
@@ -1181,13 +1202,19 @@ export default function MyItems({ user }) {
               ) &&
               r.status?.toLowerCase() !== "declined" &&
               r.status?.toLowerCase() !== "cancelled" &&
-              r.status?.toLowerCase() !== "rented",
+              r.status?.toLowerCase() !== "rented" &&
+              r.status?.toLowerCase() !== "return_pending" &&
+              r.status?.toLowerCase() !== "completed" &&
+              r.status?.toLowerCase() !== "returned",
           ).length
         : requests.filter(
             (r) =>
               r.status?.toLowerCase() !== "declined" &&
               r.status?.toLowerCase() !== "cancelled" &&
-              r.status?.toLowerCase() !== "rented",
+              r.status?.toLowerCase() !== "rented" &&
+              r.status?.toLowerCase() !== "return_pending" &&
+              r.status?.toLowerCase() !== "completed" &&
+              r.status?.toLowerCase() !== "returned",
           ).length,
     },
     {

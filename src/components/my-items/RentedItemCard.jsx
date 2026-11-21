@@ -334,7 +334,7 @@ export default function RentedItemCard({
             title="Click when you have returned this item to the shop"
           >
             <RotateCcw size={16} />
-            <span>Mark as Returned </span>
+            <span>Handover / Mark as Returned</span>
           </button>
         </div>
       )}

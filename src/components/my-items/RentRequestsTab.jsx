@@ -93,23 +93,27 @@ export default function RentRequestsTab({
   };
 
   // Filter requests for Rent Requests tab:
-  // - For buyer (Sent by Me): keep Pending, Approved, Rented, and Completed visible so buyer can track their orders and Rate & Review
-  // - For seller (Received): once handed over (rented/completed), it moves to Sented Out tab
+  // - Pending and Approved requests waiting for pickup are shown in Rent Requests.
+  // - Once picked up / handed over (status === 'rented' or 'return_pending' or 'completed'),
+  //   it moves to Rented Items for both seller and buyer.
   const activeRequests = requests.filter((r) => {
     const status = r.status?.toLowerCase();
-    if (status === "declined" || status === "cancelled") return false;
-
-    const isSender =
-      Number(r.buyerId || r.buyer_id) === Number(userId) ||
-      (!r.sellerId && !r.seller_id) ||
-      r.reqType === "sent";
-
-    if (isSender) {
-      return true;
+    if (
+      status === "declined" ||
+      status === "cancelled" ||
+      status === "completed" ||
+      status === "returned"
+    ) {
+      return false;
     }
 
-    if (status === "completed") return false;
-    if (status === "rented" && !pickedUpNotices[String(r.id)]) return false;
+    if (status === "rented" || status === "return_pending") {
+      if (pickedUpNotices[String(r.id)]) {
+        return true;
+      }
+      return false;
+    }
+
     return true;
   });
 

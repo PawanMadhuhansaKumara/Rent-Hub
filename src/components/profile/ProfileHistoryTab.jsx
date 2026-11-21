@@ -100,13 +100,13 @@ export default function ProfileHistoryTab({
             const itemImage = rental.itemImage
               ? rental.itemImage.startsWith("http")
                 ? rental.itemImage
-                : `http://localhost:5001${rental.itemImage}`
+                : `http://localhost:5001${rental.itemImage.startsWith("/") ? "" : "/"}${rental.itemImage}`
               : "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=300";
 
             const otherUserImage = rental.otherUserPic
               ? rental.otherUserPic.startsWith("http")
                 ? rental.otherUserPic
-                : `http://localhost:5001${rental.otherUserPic}`
+                : `http://localhost:5001${rental.otherUserPic.startsWith("/") ? "" : "/"}${rental.otherUserPic}`
               : null;
 
             const formatDate = (value) =>
@@ -245,13 +245,21 @@ export default function ProfileHistoryTab({
                       marginTop: "8px",
                       padding: "5px 10px",
                       borderRadius: "20px",
-                      background: "var(--badge-green-bg)",
-                      color: "var(--primary)",
+                      background:
+                        rental.status?.toLowerCase() === "return_pending"
+                          ? "var(--badge-yellow-bg)"
+                          : "var(--badge-green-bg)",
+                      color:
+                        rental.status?.toLowerCase() === "return_pending"
+                          ? "var(--badge-yellow-text)"
+                          : "var(--primary)",
                       fontSize: "11px",
                       fontWeight: "700",
                     }}
                   >
-                    {t("profile.completed", "Completed")}
+                    {rental.status?.toLowerCase() === "return_pending"
+                      ? "Handover Pending"
+                      : t("profile.completed", "Completed")}
                   </span>
                   <p
                     style={{
