@@ -25,6 +25,11 @@ import "./Home.css";
 import ItemCard from "../components/ItemCard";
 import HomeStickyBar from "../components/HomeStickyBar";
 import BuyerLocationPicker from "../components/BuyerLocationPicker";
+import {
+  getCachedItems,
+  setCachedItems,
+  areItemsEqual,
+} from "../utils/itemsCache";
 
 const API_URL = "http://localhost:5001/api/items";
 
@@ -34,8 +39,12 @@ export default function Home({
   setSearchTerm: propSetSearchTerm,
 }) {
   const { t } = useTranslation();
-  const [items, setItems] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const [items, setItems] = useState(() => getCachedItems() || []);
+  const [loading, setLoading] = useState(
+    () => !getCachedItems() || getCachedItems().length === 0,
+  );
+  const itemsRef = useRef(items);
+  itemsRef.current = items;
   const [error, setError] = useState("");
   const [localSearchTerm, setLocalSearchTerm] = useState("");
   const searchTerm =
@@ -93,11 +102,15 @@ export default function Home({
     }
   }, [location.state]);
 
-  const loadItems = () => {
-    setLoading(true);
+  const loadItems = (isSilent = false) => {
+    const hasItems = itemsRef.current && itemsRef.current.length > 0;
+    if (!isSilent && !hasItems) {
+      setLoading(true);
+    }
     setError("");
 
     let requestURL = API_URL;
+    let cacheKey = "all";
 
     // Buyer location selected
     if (buyerLocation) {
@@ -108,6 +121,7 @@ export default function Home({
       });
 
       requestURL = `${API_URL}/nearby?${params.toString()}`;
+      cacheKey = `${buyerLocation.latitude}_${buyerLocation.longitude}_${radius}`;
     }
 
     fetch(requestURL)
@@ -124,26 +138,42 @@ export default function Home({
             ? data.items
             : [];
 
-        setItems(itemList);
-      })
-      .catch((err) => setError(err.message))
-      .finally(() => setLoading(false));
-  };
-  useEffect(() => {
-    loadItems();
+        // Check if data actually changed compared to current items
+        const isSame = areItemsEqual(itemsRef.current, itemList);
 
-    window.addEventListener("items_updated", loadItems);
-    window.addEventListener("rent_requests_updated", loadItems);
-    window.addEventListener("user_updated", loadItems);
-    window.addEventListener("focus", loadItems);
+        if (!isSame || cacheKey !== "all") {
+          setCachedItems(itemList, cacheKey);
+          setItems(itemList);
+        }
+      })
+      .catch((err) => {
+        if (!itemsRef.current || itemsRef.current.length === 0) {
+          setError(err.message);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  };
+
+  useEffect(() => {
+    // Initial fetch: silent if we already have cached items, showing skeleton only on initial cold start
+    const hasExisting = itemsRef.current && itemsRef.current.length > 0;
+    loadItems(hasExisting);
+
+    // Live update listeners: always run silently in the background and only update if data changed
+    const handleSilentRefresh = () => loadItems(true);
+
+    window.addEventListener("items_updated", handleSilentRefresh);
+    window.addEventListener("rent_requests_updated", handleSilentRefresh);
+    window.addEventListener("user_updated", handleSilentRefresh);
 
     return () => {
-      window.removeEventListener("items_updated", loadItems);
-      window.removeEventListener("rent_requests_updated", loadItems);
-      window.removeEventListener("user_updated", loadItems);
-      window.removeEventListener("focus", loadItems);
+      window.removeEventListener("items_updated", handleSilentRefresh);
+      window.removeEventListener("rent_requests_updated", handleSilentRefresh);
+      window.removeEventListener("user_updated", handleSilentRefresh);
     };
-  }, [location.pathname, location.key, buyerLocation, radius]);
+  }, [buyerLocation, radius]);
 
   // Compute item counts per category
   const itemCounts = useMemo(() => {
