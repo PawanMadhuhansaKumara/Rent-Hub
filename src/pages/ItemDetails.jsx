@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   Link,
@@ -32,6 +32,7 @@ import LeaveReviewModal from "../components/LeaveReviewModal";
 import GoogleMapIcon from "../components/GoogleMapIcon";
 import ShopDistanceModal from "../components/ShopDistanceModal";
 import EditItemModal from "../components/EditItemModal";
+import { getCachedItemById } from "../utils/itemsCache";
 
 const API_URL = "http://localhost:5001";
 
@@ -59,8 +60,11 @@ export default function ItemDetails() {
   const { id } = useParams();
   const { t } = useTranslation();
 
-  const [item, setItem] = useState(null);
-  const [loading, setLoading] = useState(true);
+  const cachedMatch = getCachedItemById(id);
+  const [item, setItem] = useState(() => cachedMatch || null);
+  const [loading, setLoading] = useState(() => !cachedMatch);
+  const itemRef = useRef(item);
+  itemRef.current = item;
   const [error, setError] = useState("");
   const [showRequestForm, setShowRequestForm] = useState(false);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
@@ -364,9 +368,22 @@ export default function ItemDetails() {
   ].join("-");
 
   useEffect(() => {
-    const fetchItem = async () => {
+    const cached = getCachedItemById(id);
+    if (cached) {
+      setItem(cached);
+      itemRef.current = cached;
+      setLoading(false);
+    } else if (!itemRef.current || String(itemRef.current.id) !== String(id)) {
+      setItem(null);
+      itemRef.current = null;
+      setLoading(true);
+    }
+
+    const fetchItem = async (isSilent = false) => {
       try {
-        setLoading(true);
+        if (!isSilent && !itemRef.current) {
+          setLoading(true);
+        }
         setError("");
 
         const response = await fetch(`${API_URL}/api/items`);
@@ -383,25 +400,39 @@ export default function ItemDetails() {
         );
 
         if (!selectedItem) {
-          setError("Item not found.");
+          if (!itemRef.current) setError("Item not found.");
           return;
         }
 
-        setItem(selectedItem);
+        const cur = itemRef.current;
+        const hasChanged =
+          !cur ||
+          cur.available !== selectedItem.available ||
+          cur.available_quantity !== selectedItem.available_quantity ||
+          cur.price !== selectedItem.price ||
+          cur.title !== selectedItem.title;
+
+        if (hasChanged) {
+          setItem(selectedItem);
+          itemRef.current = selectedItem;
+        }
       } catch {
-        setError("Unable to load item details. Please try again.");
+        if (!itemRef.current) {
+          setError("Unable to load item details. Please try again.");
+        }
       } finally {
         setLoading(false);
       }
     };
 
-    fetchItem();
+    fetchItem(Boolean(itemRef.current));
 
-    window.addEventListener("items_updated", fetchItem);
-    window.addEventListener("rent_requests_updated", fetchItem);
+    const handleSilentRefresh = () => fetchItem(true);
+    window.addEventListener("items_updated", handleSilentRefresh);
+    window.addEventListener("rent_requests_updated", handleSilentRefresh);
     return () => {
-      window.removeEventListener("items_updated", fetchItem);
-      window.removeEventListener("rent_requests_updated", fetchItem);
+      window.removeEventListener("items_updated", handleSilentRefresh);
+      window.removeEventListener("rent_requests_updated", handleSilentRefresh);
     };
   }, [id]);
 
