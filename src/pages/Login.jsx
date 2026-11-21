@@ -3,7 +3,7 @@ import { Link, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Phone, Lock, CheckCircle2, ArrowLeft } from "lucide-react";
 import "../responsive.css";
-import logo from "../assets/logo.png";
+import logo from "../assets/logoLight.png";
 
 export default function Login({ onLoginSuccess, user }) {
   const navigate = useNavigate();
@@ -230,7 +230,7 @@ const styles = {
     width: "100%",
     maxWidth: "400px",
     objectFit: "contain",
-    mixBlendMode: "multiply",
+    filter: "drop-shadow(0 0 1.5px rgba(0, 0, 0, 0.45)) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.08))",
   },
 
   card: {

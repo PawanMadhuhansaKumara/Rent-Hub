@@ -107,8 +107,11 @@
   max-width: 440px;
   height: auto;
   object-fit: contain;
-  mix-blend-mode: multiply;
-  filter: drop-shadow(0 6px 16px rgba(0, 0, 0, 0.06));
+  filter: drop-shadow(0 0 1.5px rgba(0, 0, 0, 0.45)) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.08));
+}
+
+[data-theme="dark"] .login-logo-img {
+  filter: drop-shadow(0 0 1.5px rgba(255, 255, 255, 0.45)) drop-shadow(0 4px 12px rgba(0, 0, 0, 0.2));
 }
 
 /* Right Half: Form Section (Dominant & Focused) */

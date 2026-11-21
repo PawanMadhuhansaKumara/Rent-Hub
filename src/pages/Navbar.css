@@ -34,12 +34,16 @@
   height: 44px;
   max-width: 160px;
   object-fit: contain;
-  background: #FFFFFF !important;
-  background-color: #FFFFFF !important;
-  padding: 4px 10px;
-  border-radius: 10px;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12);
+  background: transparent !important;
+  background-color: transparent !important;
+  padding: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: none !important;
   filter: none !important;
+}
+
+[data-theme="dark"] .navbar-logo {
+  filter: drop-shadow(0 0 1px rgba(255, 255, 255, 0.45));
 }
 
 /* Center Search Bar for Home Page (Desktop & Tablet) */

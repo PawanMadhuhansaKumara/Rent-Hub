@@ -162,7 +162,7 @@
   --navbar-bg:              #15803D;
   --navbar-border:          #166534;
   --navbar-text:            #ffffff;
-  --navbar-logo-bg:         #ffffff;
+  --navbar-logo-bg:         transparent;
 
   /* Bottom Navigation */
   --bottom-nav-bg:          #ffffff;
@@ -238,7 +238,7 @@
   --navbar-bg:              linear-gradient(135deg, #1E293B 0%, #064E3B 100%);
   --navbar-border:          var(--dark-border-light);
   --navbar-text:            #15803D;
-  --navbar-logo-bg:         #ffffff;
+  --navbar-logo-bg:         transparent;
 
   /* Bottom Navigation */
   --bottom-nav-bg:          #0f172a;
@@ -334,12 +334,12 @@ input::placeholder, textarea::placeholder {
   border-bottom-color: var(--dark-border-light) !important;
 }
 
-/* Navbar Brand Logo: Keep crisp white pill so dark letters are always 100% visible */
+/* Navbar Brand Logo */
 .navbar-logo,
 [data-theme="dark"] .navbar-logo {
-  background: #ffffff !important;
-  background-color: #ffffff !important;
-  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+  background: transparent !important;
+  background-color: transparent !important;
+  box-shadow: none !important;
 }
 
 /* Navbar Action Icons in Dark Mode: Crisp white with glass-morphism borders */

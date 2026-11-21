@@ -5,7 +5,7 @@ import { MessageCircle, X, Clock, Trash2, Bell } from "lucide-react";
 import ChatBox from "../components/ChatBox";
 import "./Navbar.css";
 import "../responsive.css";
-import logo from "../assets/logoSmall.png";
+import logo from "../assets/logoLight.png";
 import LanguageSelecter from "../components/LanguageSelecter";
 import CartIcon from "../components/CartIcon";
 import SearchBar from "../components/SearchBar";
@@ -269,13 +269,12 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
 
   return (
     <nav className="navbar">
-      {/* Logo - Kept in light mode (pure white pill) so "HUB." is always visible in both light & dark mode */}
+      {/* Logo */}
       <Link to="/" className="navbar-brand">
         <img
           src={logo}
           alt="Rent-Hub Logo"
           className="navbar-logo"
-          style={{ backgroundColor: "#FFFFFF" }}
         />
       </Link>
 
