@@ -258,7 +258,7 @@
   --navbar-bg: #0B132B;
   --navbar-border: var(--dark-border-light);
   --navbar-text: #4ADE80;
-  --navbar-logo-bg: #1E293B;
+  --navbar-logo-bg: #FFFFFF;
 
   /* Bottom Navigation */
   --bottom-nav-bg: #0F172A;
@@ -934,9 +934,12 @@ body {
 }
 
 [data-theme="dark"] .navbar-logo {
-  background: var(--palette-mint) !important;
-  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.25) !important;
+  background: #FFFFFF !important;
+  background-color: #FFFFFF !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
   border-radius: 10px;
+  filter: none !important;
+  opacity: 1 !important;
 }
 
 [data-theme="dark"] .navbar-login {
@@ -1915,4 +1918,22 @@ body {
 [data-theme="dark"] [style*="border: 1px solid rgb(241, 245, 249)"],
 [data-theme="dark"] [style*="border: 1px solid #eaeaea"] {
   border-color: var(--dark-border-light) !important;
+}
+
+/* ==============================================================
+   RENT-HUB LOGO PRESERVATION
+   Ensures ONLY the RentHub logo in the navbar stays in light mode
+   (crisp white background pill) so "HUB." is always 100% visible.
+   ============================================================== */
+[data-theme="dark"] .navbar-logo,
+html[data-theme="dark"] .navbar-logo,
+body[data-theme="dark"] .navbar-logo,
+[data-theme="dark"] .navbar-brand .navbar-logo,
+[data-theme="dark"] img.navbar-logo,
+.navbar .navbar-logo {
+  background: #FFFFFF !important;
+  background-color: #FFFFFF !important;
+  box-shadow: 0 2px 6px rgba(0, 0, 0, 0.12) !important;
+  filter: none !important;
+  opacity: 1 !important;
 }
