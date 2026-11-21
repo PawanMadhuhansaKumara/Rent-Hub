@@ -269,8 +269,8 @@ export default function SellerEarningsModal({
         <div
           style={{
             padding: "20px 24px",
-            background: "linear-gradient(135deg, var(--primary-hover) 0%, var(--primary) 100%)",
-            color: "var(--text-inverse)",
+            background: "linear-gradient(135deg, #15803D 0%, #16A34A 100%)",
+            color: "#FFFFFF",
             display: "flex",
             alignItems: "center",
             justifyContent: "space-between",
@@ -288,19 +288,19 @@ export default function SellerEarningsModal({
                 justifyContent: "center",
               }}
             >
-              <Coins size={24} color="var(--badge-yellow-border)" />
+              <Coins size={24} color="#FDE047" />
             </div>
             <div>
               <div style={{ display: "flex", alignItems: "center", gap: "8px" }}>
-                <h3 style={{ margin: 0, fontSize: "19px", fontWeight: "800" }}>
+                <h3 style={{ margin: 0, fontSize: "19px", fontWeight: "800", color: "#FFFFFF" }}>
                   {t("earnings.title", "Store Earnings & Payouts")}
                 </h3>
                 <span
                   style={{
                     fontSize: "11px",
                     fontWeight: "700",
-                    backgroundColor: "var(--badge-green-bg)",
-                    color: "var(--primary-hover)",
+                    backgroundColor: "rgba(255, 255, 255, 0.25)",
+                    color: "#FFFFFF",
                     padding: "2px 8px",
                     borderRadius: "12px",
                   }}
@@ -312,7 +312,7 @@ export default function SellerEarningsModal({
                 style={{
                   margin: "2px 0 0",
                   fontSize: "12.5px",
-                  color: "var(--badge-green-bg)",
+                  color: "rgba(255, 255, 255, 0.88)",
                 }}
               >
                 {t("earnings.feeDeducted", "10% platform fee deducted automatically from each rental")}
@@ -322,7 +322,7 @@ export default function SellerEarningsModal({
           <button
             onClick={onClose}
             style={{
-              background: "rgba(255, 255, 255, 0.15)",
+              background: "rgba(255, 255, 255, 0.2)",
               border: "none",
               borderRadius: "50%",
               width: "36px",
@@ -330,7 +330,7 @@ export default function SellerEarningsModal({
               display: "flex",
               alignItems: "center",
               justifyContent: "center",
-              color: "var(--text-inverse)",
+              color: "#FFFFFF",
               cursor: "pointer",
               transition: "all 0.2s ease",
             }}
@@ -514,7 +514,7 @@ export default function SellerEarningsModal({
                   onClick={() => setActiveTab("withdraw")}
                   style={{
                     backgroundColor: "var(--primary)",
-                    color: "var(--text-inverse)",
+                    color: "#FFFFFF",
                     border: "none",
                     borderRadius: "8px",
                     padding: "8px 14px",
@@ -979,7 +979,7 @@ export default function SellerEarningsModal({
                     padding: "12px 20px",
                     borderRadius: "10px",
                     backgroundColor: "var(--primary)",
-                    color: "var(--text-inverse)",
+                    color: "#FFFFFF",
                     border: "none",
                     fontSize: "14px",
                     fontWeight: "700",
@@ -1029,7 +1029,7 @@ export default function SellerEarningsModal({
                       marginBottom: "16px",
                     }}
                   >
-                    <CheckCircle2 size={48} color="var(--text-inverse)" strokeWidth={2.5} />
+                    <CheckCircle2 size={48} color="#FFFFFF" strokeWidth={2.5} />
                   </div>
 
                   <span
@@ -1079,7 +1079,7 @@ export default function SellerEarningsModal({
                         padding: "10px 20px",
                         borderRadius: "10px",
                         backgroundColor: "var(--primary)",
-                        color: "var(--text-inverse)",
+                        color: "#FFFFFF",
                         border: "none",
                         fontWeight: "700",
                         fontSize: "13.5px",
@@ -1120,7 +1120,7 @@ export default function SellerEarningsModal({
                   <div
                     style={{
                       background: "linear-gradient(135deg, var(--badge-blue-text) 0%, var(--badge-blue-text) 100%)",
-                      color: "var(--text-inverse)",
+                      color: "#FFFFFF",
                       borderRadius: "16px",
                       padding: "18px 22px",
                       marginBottom: "20px",
@@ -1174,7 +1174,7 @@ export default function SellerEarningsModal({
                           padding: "8px 16px",
                           borderRadius: "8px",
                           backgroundColor: "var(--badge-yellow-text)",
-                          color: "var(--text-inverse)",
+                          color: "#FFFFFF",
                           border: "none",
                           fontSize: "12.5px",
                           fontWeight: "700",
@@ -1320,7 +1320,7 @@ export default function SellerEarningsModal({
                         padding: "13px",
                         borderRadius: "10px",
                         backgroundColor: "var(--primary)",
-                        color: "var(--text-inverse)",
+                        color: "#FFFFFF",
                         border: "none",
                         fontSize: "14px",
                         fontWeight: "700",

@@ -117,10 +117,10 @@
 :root,
 [data-theme="light"] {
   /* Brand / Primary Emerald Green */
-  --primary: var(--primary-color);
-  --primary-hover: var(--primary-hover);
-  --primary-light: var(--primary-light);
-  --primary-border: var(--primary-color);
+  --primary: #16A34A;
+  --primary-hover: #15803D;
+  --primary-light: #DCFCE7;
+  --primary-border: #16A34A;
   --primary-text: #FFFFFF;
 
   /* Legacy aliases for backward compatibility */
@@ -1605,9 +1605,32 @@ body {
 }
 
 [data-theme="dark"] .business-welcome-card {
-  background: linear-gradient(135deg, var(--dark-bg-elevated) 0%, var(--palette-deep) 100%) !important;
-  border-color: var(--border-light) !important;
-  color: var(--text-main) !important;
+  background: linear-gradient(135deg, #1E293B 0%, #064E3B 100%) !important;
+  border: 1px solid var(--border-light) !important;
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .business-welcome-card .total-earn-value,
+[data-theme="dark"] .business-welcome-card .total-earn-available,
+[data-theme="dark"] .business-welcome-card .mini-stat-num,
+[data-theme="dark"] .business-welcome-card .welcome-text h2 {
+  color: #FFFFFF !important;
+}
+
+[data-theme="dark"] .business-welcome-card .total-earn-sub,
+[data-theme="dark"] .business-welcome-card .mini-stat-label,
+[data-theme="dark"] .business-welcome-card .welcome-text p {
+  color: rgba(255, 255, 255, 0.85) !important;
+}
+
+[data-theme="dark"] .business-welcome-card .mini-stat-pill {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border-color: rgba(255, 255, 255, 0.15) !important;
+}
+
+[data-theme="dark"] .business-welcome-card .total-earn-withdraw-cta {
+  background: var(--bg-card) !important;
+  color: #4ADE80 !important;
 }
 
 [data-theme="dark"] .hub-quick-card,
@@ -1653,7 +1676,7 @@ body {
 [data-theme="dark"] .quick-ops-jump-btn {
   background: var(--primary) !important;
   border-color: var(--border-focus) !important;
-  color: var(--palette-mint) !important;
+  color: #FFFFFF !important;
 }
 
 /* ==========================================================================
