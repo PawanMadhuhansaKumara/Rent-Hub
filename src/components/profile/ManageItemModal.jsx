@@ -7,13 +7,8 @@ import {
   Clock,
   Trash2,
   ExternalLink,
-  Tag,
-  DollarSign,
   AlertCircle,
-  Sparkles,
-  Layers,
   Camera,
-  Image as ImageIcon,
 } from "lucide-react";
 
 export default function ManageItemModal({
@@ -205,39 +200,162 @@ export default function ManageItemModal({
     : "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=300";
 
   return (
-    <div
-      style={{
-        position: "fixed",
-        inset: 0,
-        backgroundColor: "rgba(15, 23, 42, 0.65)",
-        backdropFilter: "blur(5px)",
-        WebkitBackdropFilter: "blur(5px)",
-        display: "flex",
-        alignItems: "center",
-        justifyContent: "center",
-        zIndex: 9999,
-        padding: "16px",
-      }}
-      onClick={onClose}
-    >
-      <div
-        style={{
-          background: "var(--bg-modal, var(--bg-card, #ffffff))",
-          borderRadius: "22px",
-          width: "100%",
-          maxWidth: "500px",
-          boxShadow:
-            "0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 30px rgba(22, 163, 74, 0.15)",
-          overflow: "hidden",
-          animation: "fadeIn 0.25s ease-out",
-          border: "1px solid var(--border-light, #e2e8f0)",
-          color: "var(--text-main, #0f172a)",
-          display: "flex",
-          flexDirection: "column",
-          maxHeight: "90vh",
-        }}
-        onClick={(e) => e.stopPropagation()}
-      >
+    <div className="manage-modal-overlay" onClick={onClose}>
+      {/* Responsive Inline CSS Styles */}
+      <style>{`
+        .manage-modal-overlay {
+          position: fixed;
+          inset: 0;
+          background-color: rgba(15, 23, 42, 0.65);
+          backdrop-filter: blur(5px);
+          -webkit-backdrop-filter: blur(5px);
+          display: flex;
+          align-items: center;
+          justify-content: center;
+          z-index: 9999;
+          padding: 16px;
+          box-sizing: border-box;
+        }
+
+        .manage-modal-box {
+          background: var(--bg-modal, var(--bg-card, #ffffff));
+          border-radius: 22px;
+          width: 100%;
+          max-width: 500px;
+          box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25), 0 0 30px rgba(22, 163, 74, 0.15);
+          overflow: hidden;
+          animation: fadeIn 0.25s ease-out;
+          border: 1px solid var(--border-light, #e2e8f0);
+          color: var(--text-main, #0f172a);
+          display: flex;
+          flex-direction: column;
+          max-height: 90vh;
+          box-sizing: border-box;
+        }
+
+        .manage-modal-header {
+          background: linear-gradient(135deg, var(--primary, #00aa5b) 0%, var(--primary-hover, #008748) 100%);
+          padding: 16px 20px;
+          color: var(--text-inverse, #ffffff);
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          flex-shrink: 0;
+        }
+
+        .manage-modal-body {
+          padding: 20px;
+          overflow-y: auto;
+          display: flex;
+          flex-direction: column;
+          gap: 16px;
+          box-sizing: border-box;
+        }
+
+        .manage-quick-card {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          background-color: var(--bg-app-alt, #f8fafc);
+          border: 1px solid var(--border-light, #e2e8f0);
+          border-radius: 14px;
+          padding: 12px;
+          gap: 12px;
+          box-sizing: border-box;
+        }
+
+        .manage-quick-info {
+          display: flex;
+          align-items: center;
+          gap: 12px;
+          min-width: 0;
+          flex: 1;
+        }
+
+        .manage-two-col {
+          display: flex;
+          gap: 10px;
+        }
+
+        .manage-two-col > div {
+          flex: 1;
+          min-width: 0;
+        }
+
+        .manage-avail-grid {
+          display: grid;
+          grid-template-columns: 1fr 1fr;
+          gap: 10px;
+        }
+
+        .manage-bottom-actions {
+          display: flex;
+          align-items: center;
+          justify-content: space-between;
+          gap: 10px;
+          padding-top: 12px;
+          border-top: 1px solid var(--border-light, #e2e8f0);
+          box-sizing: border-box;
+        }
+
+        /* MOBILE RESPONSIVE OPTIMIZATIONS (screens <= 480px) */
+        @media (max-width: 480px) {
+          .manage-modal-overlay {
+            padding: 8px !important;
+            align-items: flex-end !important;
+          }
+
+          .manage-modal-box {
+            max-height: 94vh !important;
+            max-height: calc(100dvh - 16px) !important;
+            border-radius: 20px 20px 14px 14px !important;
+          }
+
+          .manage-modal-header {
+            padding: 14px 16px !important;
+          }
+
+          .manage-modal-body {
+            padding: 14px !important;
+            gap: 14px !important;
+          }
+
+          .manage-quick-card {
+            flex-direction: column !important;
+            align-items: stretch !important;
+            gap: 10px !important;
+            padding: 10px !important;
+          }
+
+          .manage-quick-card button {
+            width: 100% !important;
+            justify-content: center !important;
+          }
+
+          .manage-two-col {
+            flex-direction: column !important;
+            gap: 12px !important;
+          }
+
+          .manage-avail-grid {
+            grid-template-columns: 1fr !important;
+            gap: 8px !important;
+          }
+
+          .manage-bottom-actions {
+            flex-direction: column-reverse !important;
+            gap: 8px !important;
+          }
+
+          .manage-bottom-actions button {
+            width: 100% !important;
+            justify-content: center !important;
+            padding: 10px 14px !important;
+          }
+        }
+      `}</style>
+
+      <div className="manage-modal-box" onClick={(e) => e.stopPropagation()}>
         {/* Hidden File Input for Changing Photo */}
         <input
           type="file"
@@ -250,19 +368,8 @@ export default function ManageItemModal({
         {/* ============================================================== */}
         {/* GREEN GRADIENT HEADER                                          */}
         {/* ============================================================== */}
-        <div
-          style={{
-            background:
-              "linear-gradient(135deg, var(--primary, #00aa5b) 0%, var(--primary-hover, #008748) 100%)",
-            padding: "18px 20px",
-            color: "var(--text-inverse, #ffffff)",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            flexShrink: 0,
-          }}
-        >
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
+        <div className="manage-modal-header">
+          <div style={{ display: "flex", alignItems: "center", gap: "10px", minWidth: 0 }}>
             <div
               style={{
                 width: "36px",
@@ -272,26 +379,34 @@ export default function ManageItemModal({
                 display: "flex",
                 alignItems: "center",
                 justifyContent: "center",
+                flexShrink: 0,
               }}
             >
               <Package size={20} color="var(--text-inverse, #ffffff)" />
             </div>
-            <div>
+            <div style={{ minWidth: 0 }}>
               <h3
                 style={{
                   margin: 0,
                   fontSize: "16px",
                   fontWeight: "700",
                   color: "#ffffff",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
                 }}
               >
                 {t("manageItem.title", "Manage Item")}
               </h3>
               <span
                 style={{
-                  fontSize: "12px",
+                  fontSize: "11.5px",
                   opacity: 0.9,
                   color: "rgba(255, 255, 255, 0.9)",
+                  display: "block",
+                  whiteSpace: "nowrap",
+                  overflow: "hidden",
+                  textOverflow: "ellipsis",
                 }}
               >
                 {t(
@@ -317,6 +432,7 @@ export default function ManageItemModal({
               color: "var(--text-inverse, #ffffff)",
               cursor: "pointer",
               transition: "background 0.2s",
+              flexShrink: 0,
             }}
             onMouseEnter={(e) =>
               (e.currentTarget.style.backgroundColor =
@@ -333,37 +449,18 @@ export default function ManageItemModal({
         </div>
 
         {/* ============================================================== */}
-        {/* BODY (SCROLLABLE)                                              */}
+        {/* BODY (SCROLLABLE & FULLY RESPONSIVE)                           */}
         {/* ============================================================== */}
-        <div
-          style={{
-            padding: "20px",
-            overflowY: "auto",
-            display: "flex",
-            flexDirection: "column",
-            gap: "16px",
-          }}
-        >
+        <div className="manage-modal-body">
           {/* ITEM QUICK CARD WITH PHOTO CHANGER & AVAILABILITY TOGGLE */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              backgroundColor: "var(--bg-app-alt, #f8fafc)",
-              border: "1px solid var(--border-light, #e2e8f0)",
-              borderRadius: "14px",
-              padding: "12px",
-              gap: "12px",
-            }}
-          >
-            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+          <div className="manage-quick-card">
+            <div className="manage-quick-info">
               {/* Photo Box with Camera Overlay */}
               <div
                 style={{
                   position: "relative",
-                  width: "60px",
-                  height: "60px",
+                  width: "56px",
+                  height: "56px",
                   flexShrink: 0,
                   cursor: "pointer",
                 }}
@@ -374,8 +471,8 @@ export default function ManageItemModal({
                   src={imagePreview || itemImg}
                   alt={item.title}
                   style={{
-                    width: "60px",
-                    height: "60px",
+                    width: "56px",
+                    height: "56px",
                     borderRadius: "12px",
                     objectFit: "cover",
                     border: imagePreview
@@ -408,14 +505,13 @@ export default function ManageItemModal({
                 </div>
               </div>
 
-              <div>
+              <div style={{ minWidth: 0, flex: 1 }}>
                 <h4
                   style={{
                     margin: "0 0 2px 0",
                     fontSize: "14px",
                     fontWeight: "700",
                     color: "var(--text-main, #0f172a)",
-                    maxWidth: "180px",
                     whiteSpace: "nowrap",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
@@ -521,7 +617,7 @@ export default function ManageItemModal({
                 fontWeight: "600",
               }}
             >
-              <AlertCircle size={16} />
+              <AlertCircle size={16} style={{ flexShrink: 0 }} />
               <span>{errorMsg}</span>
             </div>
           )}
@@ -541,7 +637,7 @@ export default function ManageItemModal({
                 fontWeight: "600",
               }}
             >
-              <CheckCircle2 size={16} />
+              <CheckCircle2 size={16} style={{ flexShrink: 0 }} />
               <span>{successMsg}</span>
             </div>
           )}
@@ -565,8 +661,8 @@ export default function ManageItemModal({
             </div>
 
             {/* Category & Condition Row */}
-            <div style={styles.twoColumnRow}>
-              <div style={{ flex: 1 }}>
+            <div className="manage-two-col">
+              <div>
                 <label style={styles.fieldLabel}>Category</label>
                 <select
                   style={styles.prettySelect}
@@ -584,7 +680,7 @@ export default function ManageItemModal({
                 </select>
               </div>
 
-              <div style={{ flex: 1 }}>
+              <div>
                 <label style={styles.fieldLabel}>Condition</label>
                 <select
                   style={styles.prettySelect}
@@ -600,8 +696,8 @@ export default function ManageItemModal({
             </div>
 
             {/* Price & Period Row */}
-            <div style={styles.twoColumnRow}>
-              <div style={{ flex: 1 }}>
+            <div className="manage-two-col">
+              <div>
                 <label style={styles.fieldLabel}>Price (LKR)</label>
                 <input
                   type="number"
@@ -614,7 +710,7 @@ export default function ManageItemModal({
                 />
               </div>
 
-              <div style={{ flex: 1 }}>
+              <div>
                 <label style={styles.fieldLabel}>Rental Period</label>
                 <select
                   style={styles.prettySelect}
@@ -656,13 +752,7 @@ export default function ManageItemModal({
             {/* Availability Status Selector */}
             <div>
               <label style={styles.fieldLabel}>Availability Status</label>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "1fr 1fr",
-                  gap: "10px",
-                }}
-              >
+              <div className="manage-avail-grid">
                 <button
                   type="button"
                   onClick={() => setCurrentIsRented(false)}
@@ -699,6 +789,7 @@ export default function ManageItemModal({
                       backgroundColor: "#16a34a",
                       boxShadow: "0 0 0 2px rgba(22, 163, 74, 0.25)",
                       display: "inline-block",
+                      flexShrink: 0,
                     }}
                   />
                   <span>Available (In Stock)</span>
@@ -740,6 +831,7 @@ export default function ManageItemModal({
                       backgroundColor: "#f59e0b",
                       boxShadow: "0 0 0 2px rgba(245, 158, 11, 0.25)",
                       display: "inline-block",
+                      flexShrink: 0,
                     }}
                   />
                   <span>Rented Out (Reserved)</span>
@@ -753,7 +845,7 @@ export default function ManageItemModal({
               disabled={saving}
               style={{
                 width: "100%",
-                padding: "12px 20px",
+                padding: "13px 20px",
                 borderRadius: "12px",
                 backgroundColor: "var(--primary, #00aa5b)",
                 color: "var(--text-inverse, #ffffff)",
@@ -782,16 +874,7 @@ export default function ManageItemModal({
           </form>
 
           {/* BOTTOM SECONDARY ACTIONS: View Page & Delete */}
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "space-between",
-              gap: "10px",
-              paddingTop: "12px",
-              borderTop: "1px solid var(--border-light, #e2e8f0)",
-            }}
-          >
+          <div className="manage-bottom-actions">
             {/* View item public page */}
             <button
               type="button"
@@ -803,7 +886,7 @@ export default function ManageItemModal({
                 backgroundColor: "transparent",
                 border: "1px solid var(--border-light, #cbd5e1)",
                 color: "var(--text-secondary, #475569)",
-                padding: "8px 14px",
+                padding: "9px 14px",
                 borderRadius: "10px",
                 fontSize: "12.5px",
                 fontWeight: "600",
@@ -834,7 +917,7 @@ export default function ManageItemModal({
                 backgroundColor: "var(--badge-red-bg, #fef2f2)",
                 border: "1px solid var(--badge-red-border, #fecaca)",
                 color: "var(--badge-red-text, #b91c1c)",
-                padding: "8px 14px",
+                padding: "9px 14px",
                 borderRadius: "10px",
                 fontSize: "12.5px",
                 fontWeight: "700",
@@ -862,10 +945,6 @@ export default function ManageItemModal({
 }
 
 const styles = {
-  twoColumnRow: {
-    display: "flex",
-    gap: "10px",
-  },
   fieldLabel: {
     display: "block",
     fontSize: "12px",
