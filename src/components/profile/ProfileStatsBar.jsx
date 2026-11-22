@@ -9,6 +9,7 @@ export default function ProfileStatsBar({
   setActiveTab = () => {},
   isOwnProfile = false,
   setShowTopupModal = () => {},
+  onOpenTrustScore = () => {},
 }) {
   const { t } = useTranslation();
   return (
@@ -47,13 +48,18 @@ export default function ProfileStatsBar({
       {/* 2. Trust Score */}
       <div
         className="profile-stat-box profile-stat-item-with-border"
+        onClick={() => onOpenTrustScore && onOpenTrustScore()}
         style={{
+          cursor: "pointer",
           padding: "6px 8px",
           borderRadius: "12px",
+          transition: "all 0.2s ease",
         }}
-        title={`Trust Score: ${profile?.trust_score || 50}% | Max Rental Limit: LKR ${(
+        title={`Click to view Trust Score & limits (Trust: ${profile?.trust_score || 50}% | Limit: LKR ${(
           profile?.max_rental_limit || 1000
-        ).toLocaleString()}`}
+        ).toLocaleString()})`}
+        role="button"
+        tabIndex={0}
       >
         <div className="profile-stat-icon-wrapper">
           <CheckCircle2 size={20} color="var(--primary)" />

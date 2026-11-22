@@ -25,6 +25,7 @@ import "./Home.css";
 import ItemCard from "../components/ItemCard";
 import HomeStickyBar from "../components/HomeStickyBar";
 import BuyerLocationPicker from "../components/BuyerLocationPicker";
+import TrustScoreModal from "../components/TrustScoreModal";
 import {
   getCachedItems,
   setCachedItems,
@@ -56,6 +57,7 @@ export default function Home({
   const [showBuyerPicker, setShowBuyerPicker] = useState(false);
   const [buyerLocation, setBuyerLocation] = useState(null);
   const [radius, setRadius] = useState("all");
+  const [showTrustModal, setShowTrustModal] = useState(false);
 
   // Check if current user is logged in
   const currentUser =
@@ -490,7 +492,11 @@ export default function Home({
             {/* --- SECTION 2: LOCKED ITEMS (Exceeds Limit) --- */}
             {lockedItems.length > 0 && (
               <div>
-                <div style={styles.lockedHeader}>
+                <div
+                  style={{ ...styles.lockedHeader, cursor: "pointer" }}
+                  onClick={() => setShowTrustModal(true)}
+                  title="Click to view your Trust Score details & how to increase your limit"
+                >
                   <h3
                     style={{
                       ...styles.subSectionTitle,
@@ -508,7 +514,10 @@ export default function Home({
                   </h3>
                   <span style={styles.lockedSubnote}>
                     Complete more rentals and return on time to increase your
-                    LKR {userLimit.toLocaleString()} limit!
+                    LKR {userLimit.toLocaleString()} limit!{" "}
+                    <strong style={{ color: "var(--primary)", textDecoration: "underline" }}>
+                      View Details →
+                    </strong>
                   </span>
                 </div>
                 <div className="items-grid" style={{ opacity: 0.9 }}>
@@ -616,6 +625,18 @@ export default function Home({
           setBuyerLocation(selectedLocation);
         }}
       />
+      {/* Trust Score & Rental Limit Modal */}
+      {showTrustModal && (
+        <TrustScoreModal
+          isOpen={showTrustModal}
+          onClose={() => setShowTrustModal(false)}
+          userId={currentUser?.user_id || currentUser?.id}
+          trustScore={userTrustScore}
+          rentalLimit={userLimit}
+          completedRentals={completedRentals}
+          accountDays={accountDays}
+        />
+      )}
     </main>
   );
 }

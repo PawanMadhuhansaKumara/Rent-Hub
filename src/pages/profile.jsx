@@ -5,6 +5,7 @@ import LeaveReviewModal from "../components/LeaveReviewModal";
 import MapLocationPickerModal from "../components/MapLocationPickerModal";
 import ShopDistanceModal from "../components/ShopDistanceModal";
 import CashPointsTopupModal from "../components/CashPointsTopupModal";
+import TrustScoreModal from "../components/TrustScoreModal";
 import {
   ProfileHeader,
   ProfileStatsBar,
@@ -50,6 +51,7 @@ export default function Profile({ user, setUser }) {
   const [showMapPicker, setShowMapPicker] = useState(false);
   const [showDistanceModal, setShowDistanceModal] = useState(false);
   const [showTopupModal, setShowTopupModal] = useState(false);
+  const [showTrustModal, setShowTrustModal] = useState(false);
 
   // Hidden File Input References for Modal (Profile & Cover)
   const profileInputRef = useRef(null);
@@ -771,6 +773,7 @@ export default function Profile({ user, setUser }) {
           profile={profile}
           isOwnProfile={isOwnProfile}
           setShowTopupModal={setShowTopupModal}
+          onOpenTrustScore={() => setShowTrustModal(true)}
           styles={styles}
         />
 
@@ -853,6 +856,19 @@ export default function Profile({ user, setUser }) {
             handleSaveProfile={handleSaveProfile}
             setShowMapPicker={setShowMapPicker}
             t={t}
+          />
+        )}
+
+        {/* Trust Score & Limits Modal */}
+        {showTrustModal && (
+          <TrustScoreModal
+            isOpen={showTrustModal}
+            onClose={() => setShowTrustModal(false)}
+            userId={paramUserId || user?.user_id || user?.id}
+            trustScore={profile.trust_score}
+            rentalLimit={profile.max_rental_limit}
+            completedRentals={profile.completed_rentals}
+            avgTrustRating={profile.avg_trust_rating}
           />
         )}
 
