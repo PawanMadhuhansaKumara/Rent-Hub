@@ -106,41 +106,50 @@ export default function ProfileShopTab({
                     className="profile-item-img"
                   />
 
-                  {/* Availability Status Badge (Top Left) */}
+                  {/* Modern Glassmorphic Availability Status Badge (Top Left) */}
                   <div
                     style={{
                       position: "absolute",
                       top: "10px",
                       left: "10px",
+                      zIndex: 2,
                     }}
                   >
                     <span
                       style={{
                         fontSize: "11px",
                         fontWeight: "700",
-                        padding: "4px 10px",
-                        borderRadius: "14px",
+                        letterSpacing: "0.2px",
+                        padding: "5px 11px",
+                        borderRadius: "20px",
                         backgroundColor: isRented
-                          ? "var(--badge-red-text, #dc2626)"
-                          : "var(--primary, #00aa5b)",
-                        color: "var(--text-inverse, #ffffff)",
-                        boxShadow: "0 2px 6px rgba(0,0,0,0.18)",
+                          ? "rgba(255, 241, 242, 0.94)"
+                          : "rgba(240, 253, 244, 0.94)",
+                        color: isRented ? "#be123c" : "#15803d",
+                        border: isRented
+                          ? "1px solid rgba(244, 63, 94, 0.35)"
+                          : "1px solid rgba(34, 197, 94, 0.35)",
+                        backdropFilter: "blur(8px)",
+                        WebkitBackdropFilter: "blur(8px)",
+                        boxShadow: "0 4px 12px rgba(0, 0, 0, 0.08)",
                         display: "inline-flex",
                         alignItems: "center",
-                        gap: "5px",
-                        backdropFilter: "blur(4px)",
+                        gap: "6px",
                       }}
                     >
                       <span
                         style={{
-                          width: "6px",
-                          height: "6px",
+                          width: "7px",
+                          height: "7px",
                           borderRadius: "50%",
-                          backgroundColor: "#ffffff",
+                          backgroundColor: isRented ? "#e11d48" : "#16a34a",
+                          boxShadow: isRented
+                            ? "0 0 0 2px rgba(225, 29, 72, 0.25)"
+                            : "0 0 0 2px rgba(22, 163, 74, 0.25)",
                           display: "inline-block",
                         }}
                       />
-                      {isRented ? "Rented Out" : "Available"}
+                      <span>{isRented ? "Rented Out" : "Available"}</span>
                     </span>
                   </div>
 

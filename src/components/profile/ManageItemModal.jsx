@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import {
   X,
@@ -12,6 +12,8 @@ import {
   AlertCircle,
   Sparkles,
   Layers,
+  Camera,
+  Image as ImageIcon,
 } from "lucide-react";
 
 export default function ManageItemModal({
@@ -26,6 +28,7 @@ export default function ManageItemModal({
   API_URL = "http://localhost:5001",
 }) {
   const { t } = useTranslation();
+  const fileInputRef = useRef(null);
 
   const [title, setTitle] = useState("");
   const [category, setCategory] = useState("Tools");
@@ -35,6 +38,10 @@ export default function ManageItemModal({
   const [quantity, setQuantity] = useState("1");
   const [description, setDescription] = useState("");
   const [currentIsRented, setCurrentIsRented] = useState(false);
+
+  // Image Upload States
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState(null);
 
   const [saving, setSaving] = useState(false);
   const [errorMsg, setErrorMsg] = useState("");
@@ -57,12 +64,25 @@ export default function ManageItemModal({
 
       const rentedStatus = isItemRented ? isItemRented(item) : false;
       setCurrentIsRented(rentedStatus);
+
+      setImageFile(null);
+      setImagePreview(null);
       setErrorMsg("");
       setSuccessMsg("");
     }
   }, [item, isItemRented]);
 
   if (!isOpen || !item) return null;
+
+  // Handle Image File Selection
+  const handleImageChange = (e) => {
+    const file = e.target.files?.[0];
+    if (file) {
+      setImageFile(file);
+      const previewUrl = URL.createObjectURL(file);
+      setImagePreview(previewUrl);
+    }
+  };
 
   // Handle Quick Toggle Availability
   const handleQuickStatusToggle = async () => {
@@ -87,7 +107,7 @@ export default function ManageItemModal({
     }
   };
 
-  // Handle Save Item Details
+  // Handle Save Item Details (including Image via FormData)
   const handleSave = async (e) => {
     e.preventDefault();
     setErrorMsg("");
@@ -106,25 +126,34 @@ export default function ManageItemModal({
     setSaving(true);
 
     try {
+      const formData = new FormData();
+      formData.append("title", title.trim());
+      formData.append("category", category);
+      formData.append("condition", condition);
+      formData.append("price", Number(price));
+      formData.append("priceType", priceType);
+      formData.append("available_quantity", Number(quantity) || 1);
+      formData.append("available", currentIsRented ? "Rented Out" : "Available");
+      formData.append("description", description.trim());
+
+      if (imageFile) {
+        formData.append("image", imageFile);
+      }
+
       const res = await fetch(`${API_URL}/api/items/${item.id}`, {
         method: "PUT",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          title: title.trim(),
-          category,
-          condition,
-          price: Number(price),
-          priceType,
-          available_quantity: Number(quantity) || 1,
-          available: currentIsRented ? "Rented Out" : "Available",
-          description: description.trim(),
-        }),
+        body: formData,
       });
 
       const data = await res.json();
 
       if (res.ok && data.success) {
-        setSuccessMsg("Item details updated successfully!");
+        setSuccessMsg("Item details and photo updated successfully!");
+
+        const updatedImageUrl =
+          data.item?.image ||
+          data.item?.image_url ||
+          (imagePreview || item.image);
 
         const updatedItem = {
           ...item,
@@ -137,6 +166,8 @@ export default function ManageItemModal({
           available_quantity: Number(quantity) || 1,
           available: currentIsRented ? "Rented Out" : "Available",
           description: description.trim(),
+          image: updatedImageUrl,
+          image_url: updatedImageUrl,
         };
 
         if (onItemUpdated) {
@@ -207,6 +238,15 @@ export default function ManageItemModal({
         }}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Hidden File Input for Changing Photo */}
+        <input
+          type="file"
+          ref={fileInputRef}
+          style={{ display: "none" }}
+          accept="image/*"
+          onChange={handleImageChange}
+        />
+
         {/* ============================================================== */}
         {/* GREEN GRADIENT HEADER                                          */}
         {/* ============================================================== */}
@@ -256,7 +296,7 @@ export default function ManageItemModal({
               >
                 {t(
                   "manageItem.subtitle",
-                  "Edit details, toggle availability or delete"
+                  "Edit details, photo, availability or delete"
                 )}
               </span>
             </div>
@@ -304,7 +344,7 @@ export default function ManageItemModal({
             gap: "16px",
           }}
         >
-          {/* ITEM QUICK CARD & AVAILABILITY TOGGLE */}
+          {/* ITEM QUICK CARD WITH PHOTO CHANGER & AVAILABILITY TOGGLE */}
           <div
             style={{
               display: "flex",
@@ -317,19 +357,57 @@ export default function ManageItemModal({
               gap: "12px",
             }}
           >
-            <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-              <img
-                src={itemImg}
-                alt={item.title}
+            <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+              {/* Photo Box with Camera Overlay */}
+              <div
                 style={{
-                  width: "54px",
-                  height: "54px",
-                  borderRadius: "10px",
-                  objectFit: "cover",
-                  border: "1px solid var(--border-light, #e2e8f0)",
+                  position: "relative",
+                  width: "60px",
+                  height: "60px",
                   flexShrink: 0,
+                  cursor: "pointer",
                 }}
-              />
+                onClick={() => fileInputRef.current?.click()}
+                title="Click to change item photo"
+              >
+                <img
+                  src={imagePreview || itemImg}
+                  alt={item.title}
+                  style={{
+                    width: "60px",
+                    height: "60px",
+                    borderRadius: "12px",
+                    objectFit: "cover",
+                    border: imagePreview
+                      ? "2px solid var(--primary, #00aa5b)"
+                      : "1px solid var(--border-light, #e2e8f0)",
+                    boxShadow: "0 2px 6px rgba(0,0,0,0.08)",
+                  }}
+                />
+                <div
+                  style={{
+                    position: "absolute",
+                    bottom: "-4px",
+                    right: "-4px",
+                    backgroundColor: "var(--primary, #00aa5b)",
+                    color: "#ffffff",
+                    border: "2px solid #ffffff",
+                    borderRadius: "50%",
+                    width: "22px",
+                    height: "22px",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    boxShadow: "0 2px 4px rgba(0,0,0,0.25)",
+                    transition: "transform 0.15s ease",
+                  }}
+                  onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.1)")}
+                  onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
+                >
+                  <Camera size={11} color="#ffffff" />
+                </div>
+              </div>
+
               <div>
                 <h4
                   style={{
@@ -337,7 +415,7 @@ export default function ManageItemModal({
                     fontSize: "14px",
                     fontWeight: "700",
                     color: "var(--text-main, #0f172a)",
-                    maxWidth: "200px",
+                    maxWidth: "180px",
                     whiteSpace: "nowrap",
                     overflow: "hidden",
                     textOverflow: "ellipsis",
@@ -345,15 +423,37 @@ export default function ManageItemModal({
                 >
                   {item.title}
                 </h4>
-                <span
+                <div
                   style={{
                     fontSize: "12.5px",
                     fontWeight: "700",
                     color: "var(--primary, #00aa5b)",
+                    marginBottom: "4px",
                   }}
                 >
                   Rs. {item.price} / {item.priceType || "day"}
-                </span>
+                </div>
+                <button
+                  type="button"
+                  onClick={() => fileInputRef.current?.click()}
+                  style={{
+                    fontSize: "11px",
+                    fontWeight: "700",
+                    color: imageFile ? "var(--primary, #00aa5b)" : "var(--text-secondary, #475569)",
+                    background: imageFile ? "var(--badge-green-bg, #dcfce7)" : "var(--bg-card-hover, #e2e8f0)",
+                    border: "none",
+                    borderRadius: "6px",
+                    padding: "3px 8px",
+                    cursor: "pointer",
+                    display: "inline-flex",
+                    alignItems: "center",
+                    gap: "4px",
+                    transition: "all 0.15s ease",
+                  }}
+                >
+                  <Camera size={11} />
+                  <span>{imageFile ? "✓ Photo Selected" : "Change Photo"}</span>
+                </button>
               </div>
             </div>
 
@@ -362,39 +462,46 @@ export default function ManageItemModal({
               type="button"
               onClick={handleQuickStatusToggle}
               style={{
-                padding: "6px 12px",
+                padding: "7px 14px",
                 borderRadius: "20px",
                 border: currentIsRented
-                  ? "1px solid var(--badge-yellow-border, #fcd34d)"
-                  : "1px solid var(--badge-green-bg, #bbf7d0)",
+                  ? "1px solid rgba(245, 158, 11, 0.4)"
+                  : "1px solid rgba(34, 197, 94, 0.4)",
                 backgroundColor: currentIsRented
-                  ? "var(--badge-yellow-bg, #fef3c7)"
-                  : "var(--badge-green-bg, #dcfce7)",
+                  ? "#fffbeb"
+                  : "#f0fdf4",
                 color: currentIsRented
-                  ? "var(--badge-yellow-text, #b45309)"
-                  : "var(--primary-hover, #15803d)",
+                  ? "#b45309"
+                  : "#15803d",
                 fontSize: "12px",
                 fontWeight: "700",
                 display: "inline-flex",
                 alignItems: "center",
                 gap: "6px",
                 cursor: "pointer",
+                boxShadow: currentIsRented
+                  ? "0 2px 8px rgba(245, 158, 11, 0.15)"
+                  : "0 2px 8px rgba(22, 163, 74, 0.15)",
                 transition: "all 0.2s ease",
                 flexShrink: 0,
               }}
+              onMouseEnter={(e) => (e.currentTarget.style.transform = "scale(1.04)")}
+              onMouseLeave={(e) => (e.currentTarget.style.transform = "scale(1)")}
               title="Click to toggle Available vs Rented Out"
             >
-              {currentIsRented ? (
-                <>
-                  <Clock size={14} />
-                  <span>Rented Out</span>
-                </>
-              ) : (
-                <>
-                  <CheckCircle2 size={14} />
-                  <span>Available</span>
-                </>
-              )}
+              <span
+                style={{
+                  width: "7px",
+                  height: "7px",
+                  borderRadius: "50%",
+                  backgroundColor: currentIsRented ? "#f59e0b" : "#16a34a",
+                  boxShadow: currentIsRented
+                    ? "0 0 0 2px rgba(245, 158, 11, 0.25)"
+                    : "0 0 0 2px rgba(22, 163, 74, 0.25)",
+                  display: "inline-block",
+                }}
+              />
+              <span>{currentIsRented ? "Rented Out" : "Available"}</span>
             </button>
           </div>
 
@@ -544,6 +651,100 @@ export default function ManageItemModal({
                 value={description}
                 onChange={(e) => setDescription(e.target.value)}
               />
+            </div>
+
+            {/* Availability Status Selector */}
+            <div>
+              <label style={styles.fieldLabel}>Availability Status</label>
+              <div
+                style={{
+                  display: "grid",
+                  gridTemplateColumns: "1fr 1fr",
+                  gap: "10px",
+                }}
+              >
+                <button
+                  type="button"
+                  onClick={() => setCurrentIsRented(false)}
+                  style={{
+                    padding: "10px 14px",
+                    borderRadius: "12px",
+                    border: !currentIsRented
+                      ? "2px solid #16a34a"
+                      : "1px solid var(--border-light, #e2e8f0)",
+                    backgroundColor: !currentIsRented
+                      ? "rgba(240, 253, 244, 0.95)"
+                      : "var(--bg-app-alt, #f8fafc)",
+                    color: !currentIsRented
+                      ? "#15803d"
+                      : "var(--text-secondary, #64748b)",
+                    fontSize: "12.5px",
+                    fontWeight: "700",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    transition: "all 0.2s ease",
+                    boxShadow: !currentIsRented
+                      ? "0 2px 8px rgba(22, 163, 74, 0.15)"
+                      : "none",
+                  }}
+                >
+                  <span
+                    style={{
+                      width: "8px",
+                      height: "8px",
+                      borderRadius: "50%",
+                      backgroundColor: "#16a34a",
+                      boxShadow: "0 0 0 2px rgba(22, 163, 74, 0.25)",
+                      display: "inline-block",
+                    }}
+                  />
+                  <span>Available (In Stock)</span>
+                </button>
+
+                <button
+                  type="button"
+                  onClick={() => setCurrentIsRented(true)}
+                  style={{
+                    padding: "10px 14px",
+                    borderRadius: "12px",
+                    border: currentIsRented
+                      ? "2px solid #f59e0b"
+                      : "1px solid var(--border-light, #e2e8f0)",
+                    backgroundColor: currentIsRented
+                      ? "rgba(254, 243, 199, 0.95)"
+                      : "var(--bg-app-alt, #f8fafc)",
+                    color: currentIsRented
+                      ? "#b45309"
+                      : "var(--text-secondary, #64748b)",
+                    fontSize: "12.5px",
+                    fontWeight: "700",
+                    cursor: "pointer",
+                    display: "flex",
+                    alignItems: "center",
+                    justifyContent: "center",
+                    gap: "8px",
+                    transition: "all 0.2s ease",
+                    boxShadow: currentIsRented
+                      ? "0 2px 8px rgba(245, 158, 11, 0.15)"
+                      : "none",
+                  }}
+                >
+                  <span
+                    style={{
+                      width: "8px",
+                      height: "8px",
+                      borderRadius: "50%",
+                      backgroundColor: "#f59e0b",
+                      boxShadow: "0 0 0 2px rgba(245, 158, 11, 0.25)",
+                      display: "inline-block",
+                    }}
+                  />
+                  <span>Rented Out (Reserved)</span>
+                </button>
+              </div>
             </div>
 
             {/* SAVE BUTTON */}
