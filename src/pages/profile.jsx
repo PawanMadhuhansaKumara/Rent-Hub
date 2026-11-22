@@ -799,6 +799,12 @@ export default function Profile({ user, setUser }) {
             isItemRented={isItemRented}
             handleToggleStatus={handleToggleStatus}
             handleDeleteItem={handleDeleteItem}
+            onItemUpdated={(updated) => {
+              setItems((prev) =>
+                prev.map((it) => (it.id === updated.id ? { ...it, ...updated } : it))
+              );
+            }}
+            navigate={navigate}
             styles={styles}
             t={t}
           />

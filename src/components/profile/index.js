@@ -5,3 +5,4 @@ export { default as ProfileShopTab } from "./ProfileShopTab";
 export { default as ProfileReviewsTab } from "./ProfileReviewsTab";
 export { default as ProfileHistoryTab } from "./ProfileHistoryTab";
 export { default as EditProfileModal } from "./EditProfileModal";
+export { default as ManageItemModal } from "./ManageItemModal";

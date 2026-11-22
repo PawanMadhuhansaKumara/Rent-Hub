@@ -1,5 +1,10 @@
-import React from "react";
-import { Calendar, Eye, CheckCircle2, Clock, Trash2 } from "lucide-react";
+import React, { useState } from "react";
+import {
+  Calendar,
+  Eye,
+  SlidersHorizontal,
+} from "lucide-react";
+import ManageItemModal from "./ManageItemModal";
 
 export default function ProfileShopTab({
   items = [],
@@ -7,9 +12,20 @@ export default function ProfileShopTab({
   isItemRented,
   handleToggleStatus,
   handleDeleteItem,
+  onItemUpdated,
   navigate,
-  t,
+  t = (k, f) => (typeof f === "string" ? f : k),
 }) {
+  const [managingItem, setManagingItem] = useState(null);
+
+  const handleCardClick = (item) => {
+    if (isOwnProfile) {
+      setManagingItem(item);
+    } else if (navigate) {
+      navigate(`/item/${item.id}`);
+    }
+  };
+
   return (
     <div id="profile-shop-section" style={{ marginTop: "24px" }}>
       <div
@@ -31,7 +47,7 @@ export default function ProfileShopTab({
           {isOwnProfile ? "My Items" : "Shop Items"}
         </h3>
         <span
-          onClick={() => navigate("/add-item")}
+          onClick={() => navigate && navigate("/add-item")}
           style={{
             fontSize: "13px",
             color: "var(--primary)",
@@ -39,7 +55,7 @@ export default function ProfileShopTab({
             cursor: "pointer",
           }}
         >
-          View All &rarr;
+          {isOwnProfile ? "+ Add New Item" : "View All →"}
         </span>
       </div>
 
@@ -65,9 +81,17 @@ export default function ProfileShopTab({
               <div
                 key={item.id || idx}
                 className="profile-item-card"
-                style={{ cursor: "pointer" }}
-                onClick={() => navigate(`/item/${item.id}`)}
-                title="Click to view & manage this item"
+                style={{
+                  cursor: "pointer",
+                  transition: "transform 0.2s ease, box-shadow 0.2s ease",
+                  position: "relative",
+                }}
+                onClick={() => handleCardClick(item)}
+                title={
+                  isOwnProfile
+                    ? "Click to manage item details, availability & options"
+                    : "Click to view item"
+                }
               >
                 <div className="profile-item-img-container">
                   <img
@@ -82,37 +106,29 @@ export default function ProfileShopTab({
                     className="profile-item-img"
                   />
 
-                  {/* Availability Status Badge (Click to toggle) */}
+                  {/* Availability Status Badge (Top Left) */}
                   <div
                     style={{
                       position: "absolute",
                       top: "10px",
                       left: "10px",
-                      cursor: isOwnProfile ? "pointer" : "default",
                     }}
-                    onClick={(e) => {
-                      if (isOwnProfile && handleToggleStatus) {
-                        e.stopPropagation();
-                        handleToggleStatus(item.id, isRented);
-                      }
-                    }}
-                    title={
-                      isOwnProfile ? "Click to toggle availability" : ""
-                    }
                   >
                     <span
                       style={{
                         fontSize: "11px",
-                        fontWeight: "bold",
+                        fontWeight: "700",
                         padding: "4px 10px",
                         borderRadius: "14px",
-                        backgroundColor: isRented ? "var(--badge-red-text)" : "var(--primary)",
-                        color: "var(--text-inverse)",
-                        boxShadow: "0 2px 6px rgba(0,0,0,0.15)",
+                        backgroundColor: isRented
+                          ? "var(--badge-red-text, #dc2626)"
+                          : "var(--primary, #00aa5b)",
+                        color: "var(--text-inverse, #ffffff)",
+                        boxShadow: "0 2px 6px rgba(0,0,0,0.18)",
                         display: "inline-flex",
                         alignItems: "center",
                         gap: "5px",
-                        transition: "all 0.2s",
+                        backdropFilter: "blur(4px)",
                       }}
                     >
                       <span
@@ -120,13 +136,50 @@ export default function ProfileShopTab({
                           width: "6px",
                           height: "6px",
                           borderRadius: "50%",
-                          backgroundColor: "var(--bg-card)",
+                          backgroundColor: "#ffffff",
                           display: "inline-block",
                         }}
                       />
                       {isRented ? "Rented Out" : "Available"}
                     </span>
                   </div>
+
+                  {/* Top-Right Manage Icon Button for Owner */}
+                  {isOwnProfile && (
+                    <button
+                      type="button"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        setManagingItem(item);
+                      }}
+                      style={{
+                        position: "absolute",
+                        top: "10px",
+                        right: "10px",
+                        backgroundColor: "rgba(255, 255, 255, 0.92)",
+                        backdropFilter: "blur(6px)",
+                        border: "1px solid rgba(0, 0, 0, 0.08)",
+                        borderRadius: "50%",
+                        width: "32px",
+                        height: "32px",
+                        display: "flex",
+                        alignItems: "center",
+                        justifyContent: "center",
+                        cursor: "pointer",
+                        boxShadow: "0 2px 8px rgba(0,0,0,0.15)",
+                        transition: "all 0.2s ease",
+                      }}
+                      onMouseEnter={(e) =>
+                        (e.currentTarget.style.transform = "scale(1.1)")
+                      }
+                      onMouseLeave={(e) =>
+                        (e.currentTarget.style.transform = "scale(1)")
+                      }
+                      title="Manage Item (Edit, Availability, Delete)"
+                    >
+                      <SlidersHorizontal size={14} color="var(--primary, #00aa5b)" />
+                    </button>
+                  )}
                 </div>
 
                 <div style={{ padding: "14px" }}>
@@ -136,6 +189,9 @@ export default function ProfileShopTab({
                       fontSize: "15px",
                       fontWeight: "bold",
                       color: "var(--text-main)",
+                      whiteSpace: "nowrap",
+                      overflow: "hidden",
+                      textOverflow: "ellipsis",
                     }}
                   >
                     {item.title}
@@ -149,7 +205,7 @@ export default function ProfileShopTab({
                       margin: "4px 0 10px 0",
                     }}
                   >
-                    Rs. {item.price}{" "}
+                    Rs. {Number(item.price || 0).toLocaleString()}{" "}
                     <span
                       style={{
                         fontSize: "11px",
@@ -169,7 +225,6 @@ export default function ProfileShopTab({
                       alignItems: "center",
                       borderTop: "1px solid var(--bg-card-hover)",
                       paddingTop: "8px",
-                      marginBottom: "8px",
                     }}
                   >
                     <span
@@ -198,76 +253,54 @@ export default function ProfileShopTab({
                     </span>
                   </div>
 
+                  {/* Clean Manage Item Action Button for Owner */}
                   {isOwnProfile && (
-                    <div
-                      style={{
-                        display: "flex",
-                        flexDirection: "column",
-                        gap: "8px",
-                        marginTop: "12px",
-                      }}
-                    >
-                      {/* Status Toggle Button (Available <-> Rented Out) */}
+                    <div style={{ marginTop: "12px" }}>
                       <button
                         type="button"
                         onClick={(e) => {
                           e.stopPropagation();
-                          handleToggleStatus(item.id, isRented);
+                          setManagingItem(item);
                         }}
                         style={{
                           width: "100%",
-                          backgroundColor: isRented ? "var(--badge-green-bg)" : "var(--badge-red-bg)",
-                          color: isRented ? "var(--primary)" : "var(--badge-red-text)",
-                          border: `1px solid ${isRented ? "var(--badge-green-bg)" : "var(--badge-red-border)"}`,
-                          padding: "7px 10px",
-                          borderRadius: "8px",
+                          backgroundColor: "var(--bg-app-alt, #f8fafc)",
+                          color: "var(--text-main, #1e293b)",
+                          border: "1px solid var(--border-light, #e2e8f0)",
+                          padding: "7px 12px",
+                          borderRadius: "10px",
                           fontSize: "12px",
-                          fontWeight: "bold",
+                          fontWeight: "700",
                           cursor: "pointer",
                           display: "flex",
                           alignItems: "center",
                           justifyContent: "center",
                           gap: "6px",
-                          transition: "all 0.2s",
+                          transition: "all 0.2s ease",
                         }}
-                        title="Click to change availability status"
+                        onMouseEnter={(e) => {
+                          e.currentTarget.style.borderColor =
+                            "var(--primary, #00aa5b)";
+                          e.currentTarget.style.color =
+                            "var(--primary, #00aa5b)";
+                          e.currentTarget.style.backgroundColor =
+                            "var(--badge-green-bg, #f0fdf4)";
+                        }}
+                        onMouseLeave={(e) => {
+                          e.currentTarget.style.borderColor =
+                            "var(--border-light, #e2e8f0)";
+                          e.currentTarget.style.color =
+                            "var(--text-main, #1e293b)";
+                          e.currentTarget.style.backgroundColor =
+                            "var(--bg-app-alt, #f8fafc)";
+                        }}
+                        title="Edit details, availability or delete"
                       >
-                        {isRented ? (
-                          <>
-                            <CheckCircle2 size={14} color="var(--primary)" /> Mark as Available
-                          </>
-                        ) : (
-                          <>
-                            <Clock size={14} color="var(--badge-red-text)" /> Mark as Rented Out
-                          </>
-                        )}
-                      </button>
-
-                      {/* Delete Item Button */}
-                      <button
-                        type="button"
-                        onClick={(e) => {
-                          e.stopPropagation();
-                          handleDeleteItem(item.id);
-                        }}
-                        style={{
-                          width: "100%",
-                          backgroundColor: "var(--badge-red-bg)",
-                          color: "var(--badge-red-text)",
-                          border: "none",
-                          padding: "6px",
-                          borderRadius: "8px",
-                          fontSize: "12px",
-                          fontWeight: "bold",
-                          cursor: "pointer",
-                          display: "flex",
-                          alignItems: "center",
-                          justifyContent: "center",
-                          gap: "5px",
-                          transition: "background 0.2s",
-                        }}
-                      >
-                        <Trash2 size={13} /> Delete Item
+                        <SlidersHorizontal
+                          size={13}
+                          color="var(--primary, #00aa5b)"
+                        />
+                        <span>Manage Item</span>
                       </button>
                     </div>
                   )}
@@ -276,6 +309,34 @@ export default function ProfileShopTab({
             );
           })}
         </div>
+      )}
+
+      {/* MANAGE ITEM MODAL POPUP */}
+      {managingItem && (
+        <ManageItemModal
+          isOpen={Boolean(managingItem)}
+          onClose={() => setManagingItem(null)}
+          item={managingItem}
+          isItemRented={isItemRented}
+          onItemUpdated={(updated) => {
+            if (onItemUpdated) {
+              onItemUpdated(updated);
+            }
+            setManagingItem(null);
+          }}
+          onToggleStatus={(itemId, isRented) => {
+            if (handleToggleStatus) {
+              handleToggleStatus(itemId, isRented);
+            }
+          }}
+          onDeleteItem={(itemId) => {
+            if (handleDeleteItem) {
+              handleDeleteItem(itemId);
+            }
+            setManagingItem(null);
+          }}
+          navigate={navigate}
+        />
       )}
     </div>
   );
