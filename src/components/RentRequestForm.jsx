@@ -21,7 +21,7 @@ export default function RentRequestForm({
   price = 0,
   itemTitle,
   currentUser,
-  API_URL = "http://localhost:5001",
+  API_URL = "http://https://rent-hub-ashen.vercel.app",
 }) {
   const { t } = useTranslation();
   const [isSubmitting, setIsSubmitting] = useState(false);

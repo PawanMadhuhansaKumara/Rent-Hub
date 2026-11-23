@@ -17,7 +17,7 @@ export default function LanguageSelecter() {
         window.dispatchEvent(new Event("user_updated"));
         window.dispatchEvent(new Event("storage"));
 
-        await fetch(`http://localhost:5001/api/users/${userId}/language`, {
+        await fetch(`http://https://rent-hub-ashen.vercel.app/api/users/${userId}/language`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ language }),

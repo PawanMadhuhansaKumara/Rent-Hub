@@ -186,13 +186,13 @@ export default function ProfileReviewsTab({
             const buyerPic = rev.buyerPic
               ? rev.buyerPic.startsWith("http")
                 ? rev.buyerPic
-                : `http://localhost:5001${rev.buyerPic}`
+                : `http://https://rent-hub-ashen.vercel.app${rev.buyerPic}`
               : null;
 
             const itemImg = rev.itemImage
               ? rev.itemImage.startsWith("http")
                 ? rev.itemImage
-                : `http://localhost:5001${rev.itemImage}`
+                : `http://https://rent-hub-ashen.vercel.app${rev.itemImage}`
               : null;
 
             const isMyReview =

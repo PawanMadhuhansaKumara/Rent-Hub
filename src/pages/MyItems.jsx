@@ -14,7 +14,7 @@ import InventoryItemsTab from "../components/my-items/InventoryItemsTab";
 
 import "./MyItems.css";
 
-const API_URL = "http://localhost:5001";
+const API_URL = "http://https://rent-hub-ashen.vercel.app";
 
 export default function MyItems({ user }) {
   const { t } = useTranslation();

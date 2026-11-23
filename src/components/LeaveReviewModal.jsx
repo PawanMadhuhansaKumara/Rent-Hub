@@ -9,7 +9,7 @@ export default function LeaveReviewModal({
   currentUser,
   onReviewSubmitted,
   onReviewDeleted,
-  API_URL = "http://localhost:5001",
+  API_URL = "http://https://rent-hub-ashen.vercel.app",
 }) {
   // Review ID resolution:
   // 1. Explicit review ID on rental item (item.reviewId or item.review_id)

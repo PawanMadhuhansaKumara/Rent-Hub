@@ -13,7 +13,7 @@ import {
 } from "lucide-react";
 import "./NotificationToastManager.css";
 
-const API_URL = "http://localhost:5001";
+const API_URL = "http://https://rent-hub-ashen.vercel.app";
 const TOAST_DURATION = 6000; // 6 seconds
 
 // Synthesize pleasant chime using Web Audio API (zero dependencies, 100% reliable)

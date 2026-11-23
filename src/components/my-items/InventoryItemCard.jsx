@@ -8,7 +8,7 @@ import { Link } from "react-router-dom";
 export default function InventoryItemCard({
   item,
   onStatusChange,
-  API_URL = "http://localhost:5001",
+  API_URL = "http://https://rent-hub-ashen.vercel.app",
 }) {
   const imageUrl = item.image
     ? item.image.startsWith("http")

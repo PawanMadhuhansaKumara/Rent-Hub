@@ -36,7 +36,7 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
         window.dispatchEvent(new Event("user_updated"));
         window.dispatchEvent(new Event("storage"));
 
-        await fetch(`http://localhost:5001/api/users/${uId}/language`, {
+        await fetch(`http://https://rent-hub-ashen.vercel.app/api/users/${uId}/language`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ language }),
@@ -84,7 +84,7 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
     }
     try {
       const res = await fetch(
-        `http://localhost:5001/api/chat/unread-count/${userId}`,
+        `http://https://rent-hub-ashen.vercel.app/api/chat/unread-count/${userId}`,
       );
       if (res.ok) {
         const data = await res.json();
@@ -101,7 +101,7 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
     setLoadingChats(true);
     try {
       const res = await fetch(
-        `http://localhost:5001/api/chat/user-conversations/${userId}`,
+        `http://https://rent-hub-ashen.vercel.app/api/chat/user-conversations/${userId}`,
       );
       if (res.ok) {
         const data = await res.json();
@@ -126,7 +126,7 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
       return;
     }
     try {
-      const res = await fetch(`http://localhost:5001/api/notifications/${userId}`);
+      const res = await fetch(`http://https://rent-hub-ashen.vercel.app/api/notifications/${userId}`);
       if (res.ok) {
         const data = await res.json();
         setUnreadNotifCount(data.unreadCount || 0);
@@ -237,7 +237,7 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
     setIsDeletingChat(true);
 
     try {
-      const res = await fetch(`http://localhost:5001/api/chat/conversations/${convId}`, {
+      const res = await fetch(`http://https://rent-hub-ashen.vercel.app/api/chat/conversations/${convId}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId }),
@@ -439,7 +439,7 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
                               conv.item_image
                                 ? conv.item_image.startsWith("http")
                                   ? conv.item_image
-                                  : `http://localhost:5001${conv.item_image.startsWith("/") ? "" : "/"}${conv.item_image}`
+                                  : `http://https://rent-hub-ashen.vercel.app${conv.item_image.startsWith("/") ? "" : "/"}${conv.item_image}`
                                 : "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=100"
                             }
                             alt={conv.item_title}
@@ -518,7 +518,7 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
                 activeUser.profile_pic_url
                   ? activeUser.profile_pic_url.startsWith("http")
                     ? activeUser.profile_pic_url
-                    : `http://localhost:5001${activeUser.profile_pic_url}`
+                    : `http://https://rent-hub-ashen.vercel.app${activeUser.profile_pic_url}`
                   : "https://via.placeholder.com/40"
               }
               alt="Profile"

@@ -34,7 +34,7 @@ import ShopDistanceModal from "../components/ShopDistanceModal";
 import EditItemModal from "../components/EditItemModal";
 import { getCachedItemById } from "../utils/itemsCache";
 
-const API_URL = "http://localhost:5001";
+const API_URL = "http://https://rent-hub-ashen.vercel.app";
 
 export const isItemRented = (item) => {
   if (!item) return false;

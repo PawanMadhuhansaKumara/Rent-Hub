@@ -41,7 +41,7 @@ export default function BottomNav({ user }) {
     const fetchCount = async () => {
       try {
         const res = await fetch(
-          `http://localhost:5001/api/notifications/${userId}`,
+          `http://https://rent-hub-ashen.vercel.app/api/notifications/${userId}`,
         );
         if (res.ok) {
           const data = await res.json();

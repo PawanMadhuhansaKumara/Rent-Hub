@@ -14,7 +14,7 @@ import {
 } from "lucide-react";
 import GoogleMapIcon from "./GoogleMapIcon";
 
-const API_URL = "http://localhost:5001";
+const API_URL = "http://https://rent-hub-ashen.vercel.app";
 
 // Default coordinates: Sri Lanka center (around Kandy / Colombo)
 const DEFAULT_LAT = 6.9271;

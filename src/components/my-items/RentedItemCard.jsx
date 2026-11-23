@@ -24,7 +24,7 @@ export default function RentedItemCard({
   onCustomerReturn,
   isReturning = false,
   onRateItem,
-  API_URL = "http://localhost:5001",
+  API_URL = "http://https://rent-hub-ashen.vercel.app",
 }) {
   const { t } = useTranslation();
   const isSentedOut = item.rentType === "sented-out";

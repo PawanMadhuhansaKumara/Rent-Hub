@@ -18,7 +18,7 @@ export default function CashPointsTopupModal({
   currentUser,
   currentBalance = 0,
   onSuccess,
-  API_URL = "http://localhost:5001",
+  API_URL = "http://https://rent-hub-ashen.vercel.app",
 }) {
   const { t } = useTranslation();
   const [amount, setAmount] = useState(1000);

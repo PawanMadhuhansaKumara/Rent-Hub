@@ -42,7 +42,7 @@ export default function ChatBox({
 
       // If no conversationId provided, call /api/chat/start
       if (!activeConvId && itemId && sellerId && currentUserId) {
-        const res = await fetch("http://localhost:5001/api/chat/start", {
+        const res = await fetch("http://https://rent-hub-ashen.vercel.app/api/chat/start", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -120,7 +120,7 @@ export default function ChatBox({
   // Fetch messages from backend
   const fetchMessages = async (convId, showLoading = true) => {
     try {
-      const res = await fetch(`http://localhost:5001/api/chat/messages/${convId}`);
+      const res = await fetch(`http://https://rent-hub-ashen.vercel.app/api/chat/messages/${convId}`);
       const contentType = res.headers.get("content-type") || "";
       if (res.ok && contentType.includes("application/json")) {
         const data = await res.json();
@@ -138,7 +138,7 @@ export default function ChatBox({
   const markMessagesAsRead = async (convId) => {
     if (!currentUserId || !convId) return;
     try {
-      await fetch(`http://localhost:5001/api/chat/mark-read/${convId}`, {
+      await fetch(`http://https://rent-hub-ashen.vercel.app/api/chat/mark-read/${convId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId: currentUserId }),
@@ -162,7 +162,7 @@ export default function ChatBox({
 
       // If conversationId not established yet, create it on the fly
       if (!targetConvId && itemId && sellerId && currentUserId) {
-        const startRes = await fetch("http://localhost:5001/api/chat/start", {
+        const startRes = await fetch("http://https://rent-hub-ashen.vercel.app/api/chat/start", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
@@ -203,7 +203,7 @@ export default function ChatBox({
       setMessages((prev) => [...prev, tempMessage]);
       setError("");
 
-      const res = await fetch("http://localhost:5001/api/chat/send", {
+      const res = await fetch("http://https://rent-hub-ashen.vercel.app/api/chat/send", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -287,7 +287,7 @@ export default function ChatBox({
     try {
       if (confirmModal.type === "message") {
         const messageId = confirmModal.id;
-        const res = await fetch(`http://localhost:5001/api/chat/messages/${messageId}`, {
+        const res = await fetch(`http://https://rent-hub-ashen.vercel.app/api/chat/messages/${messageId}`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: currentUserId }),
@@ -301,7 +301,7 @@ export default function ChatBox({
           alert(data.message || "Failed to delete message.");
         }
       } else if (confirmModal.type === "conversation") {
-        const res = await fetch(`http://localhost:5001/api/chat/conversations/${confirmModal.id}`, {
+        const res = await fetch(`http://https://rent-hub-ashen.vercel.app/api/chat/conversations/${confirmModal.id}`, {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ userId: currentUserId }),
@@ -336,7 +336,7 @@ export default function ChatBox({
   const formattedItemImage = displayImage
     ? displayImage.startsWith("http")
       ? displayImage
-      : `http://localhost:5001${displayImage.startsWith("/") ? "" : "/"}${displayImage}`
+      : `http://https://rent-hub-ashen.vercel.app${displayImage.startsWith("/") ? "" : "/"}${displayImage}`
     : "https://images.unsplash.com/photo-1516035069371-29a1b244cc32?auto=format&fit=crop&q=80&w=150";
 
   // The other person in this conversation
@@ -440,7 +440,7 @@ export default function ChatBox({
                 src={
                   otherPartyPic.startsWith("http")
                     ? otherPartyPic
-                    : `http://localhost:5001${otherPartyPic}`
+                    : `http://https://rent-hub-ashen.vercel.app${otherPartyPic}`
                 }
                 alt="Avatar"
                 style={styles.avatarImg}

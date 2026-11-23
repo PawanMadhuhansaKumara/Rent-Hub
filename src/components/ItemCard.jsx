@@ -16,7 +16,7 @@ export default function ItemCard({ item }) {
     }
 
     // Card එක click කළ සැනින් view එකක් record කිරීම
-    fetch(`http://localhost:5001/api/items/${item.id}/view`, {
+    fetch(`http://https://rent-hub-ashen.vercel.app/api/items/${item.id}/view`, {
       method: "POST",
     }).catch(() => {});
 
@@ -26,14 +26,14 @@ export default function ItemCard({ item }) {
   const imageUrl = item.image
     ? item.image.startsWith("http")
       ? item.image
-      : `http://localhost:5001${item.image.startsWith("/") ? "" : "/"}${item.image}`
+      : `http://https://rent-hub-ashen.vercel.app${item.image.startsWith("/") ? "" : "/"}${item.image}`
     : null;
 
   const rawAvatar = item.userProfilePic || item.user_profile_pic;
   const avatarUrl = rawAvatar
     ? rawAvatar.startsWith("http")
       ? rawAvatar
-      : `http://localhost:5001${rawAvatar.startsWith("/") ? "" : "/"}${rawAvatar}`
+      : `http://https://rent-hub-ashen.vercel.app${rawAvatar.startsWith("/") ? "" : "/"}${rawAvatar}`
     : null;
 
   const authorName =

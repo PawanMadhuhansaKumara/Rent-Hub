@@ -29,7 +29,7 @@ export default function RentRequestCard({
   onCustomerReturn,
   onReturnItem,
   onRateItem,
-  API_URL = "http://localhost:5001",
+  API_URL = "http://https://rent-hub-ashen.vercel.app",
 }) {
   const isSender =
     Number(req.buyerId || req.buyer_id) === Number(userId) ||

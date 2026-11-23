@@ -50,7 +50,7 @@ export default function App() {
     const uId = currentU?.user_id || currentU?.id;
     if (!uId) return;
     try {
-      const res = await fetch(`http://localhost:5001/api/users/${uId}/trust-score`);
+      const res = await fetch(`http://https://rent-hub-ashen.vercel.app/api/users/${uId}/trust-score`);
       if (res.ok) {
         const data = await res.json();
         if (data.success) {
@@ -86,7 +86,7 @@ export default function App() {
     const uId = currentU?.user_id || currentU?.id;
     if (!uId) return;
     try {
-      const res = await fetch(`http://localhost:5001/api/users/${uId}`);
+      const res = await fetch(`http://https://rent-hub-ashen.vercel.app/api/users/${uId}`);
       if (res.ok) {
         const data = await res.json();
         if (data.success && data.user) {

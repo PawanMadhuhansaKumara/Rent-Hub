@@ -16,7 +16,7 @@ export default function NotificationCard({
   notification,
   onMarkAsRead,
   onDelete,
-  API_URL = "http://localhost:5001",
+  API_URL = "http://https://rent-hub-ashen.vercel.app",
 }) {
   const navigate = useNavigate();
 
