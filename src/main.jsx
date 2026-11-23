@@ -16,9 +16,9 @@ try {
 // Automatically route https://rent-hub-ashen.vercel.app API calls & images to current host IP when accessed from phone/network
 if (
   typeof window !== "undefined" &&
-  window.location.hostname &&
   window.location.hostname !== "localhost" &&
-  window.location.hostname !== "127.0.0.1"
+  window.location.hostname !== "127.0.0.1" &&
+  !window.location.hostname.endsWith(".vercel.app")
 ) {
   const currentHost = window.location.hostname;
 
