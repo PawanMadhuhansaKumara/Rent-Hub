@@ -14,7 +14,7 @@ import { useTranslation } from "react-i18next";
 import NotificationCard from "../components/NotificationCard";
 import "./Notifications.css";
 
-const API_URL = "http://https://rent-hub-ashen.vercel.app";
+const API_URL = "https://rent-hub-ashen.vercel.app";
 
 export default function Notifications({ user }) {
   const { t } = useTranslation();

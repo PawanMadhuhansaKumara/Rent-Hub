@@ -99,7 +99,7 @@ export default function ProfileShopTab({
                       item.image
                         ? item.image.startsWith("http")
                           ? item.image
-                          : `http://https://rent-hub-ashen.vercel.app${item.image}`
+                          : `https://rent-hub-ashen.vercel.app${item.image}`
                         : "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=300"
                     }
                     alt={item.title}

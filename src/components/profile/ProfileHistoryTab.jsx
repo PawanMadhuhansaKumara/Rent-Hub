@@ -100,13 +100,13 @@ export default function ProfileHistoryTab({
             const itemImage = rental.itemImage
               ? rental.itemImage.startsWith("http")
                 ? rental.itemImage
-                : `http://https://rent-hub-ashen.vercel.app${rental.itemImage.startsWith("/") ? "" : "/"}${rental.itemImage}`
+                : `https://rent-hub-ashen.vercel.app${rental.itemImage.startsWith("/") ? "" : "/"}${rental.itemImage}`
               : "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=300";
 
             const otherUserImage = rental.otherUserPic
               ? rental.otherUserPic.startsWith("http")
                 ? rental.otherUserPic
-                : `http://https://rent-hub-ashen.vercel.app${rental.otherUserPic.startsWith("/") ? "" : "/"}${rental.otherUserPic}`
+                : `https://rent-hub-ashen.vercel.app${rental.otherUserPic.startsWith("/") ? "" : "/"}${rental.otherUserPic}`
               : null;
 
             const formatDate = (value) =>

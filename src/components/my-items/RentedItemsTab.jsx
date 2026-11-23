@@ -22,7 +22,7 @@ export default function RentedItemsTab({
   onMarkPicked,
   onRateItem,
   onNavigateTab,
-  API_URL = "http://https://rent-hub-ashen.vercel.app",
+  API_URL = "https://rent-hub-ashen.vercel.app",
   hideRentedIn = false,
 }) {
   const { t } = useTranslation();

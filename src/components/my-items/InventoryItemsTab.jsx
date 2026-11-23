@@ -13,7 +13,7 @@ export default function InventoryItemsTab({
   error,
   onStatusChange,
   onRetry,
-  API_URL = "http://https://rent-hub-ashen.vercel.app",
+  API_URL = "https://rent-hub-ashen.vercel.app",
 }) {
   if (loading && (!items || items.length === 0)) {
     return (

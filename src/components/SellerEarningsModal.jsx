@@ -36,7 +36,7 @@ export default function SellerEarningsModal({
   isOpen,
   onClose,
   userId,
-  API_URL = "http://https://rent-hub-ashen.vercel.app",
+  API_URL = "https://rent-hub-ashen.vercel.app",
   onEarningsUpdated,
 }) {
   const { t } = useTranslation();

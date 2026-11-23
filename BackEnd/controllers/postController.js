@@ -26,7 +26,7 @@ exports.getPosts = async (req, res) => {
       image: post.image_url
         ? post.image_url.startsWith('http')
           ? post.image_url
-          : `http://https://rent-hub-ashen.vercel.app${post.image_url.startsWith('/') ? '' : '/'}${post.image_url}`
+          : `https://rent-hub-ashen.vercel.app${post.image_url.startsWith('/') ? '' : '/'}${post.image_url}`
         : null,
       createdAt: post.created_at
     }));

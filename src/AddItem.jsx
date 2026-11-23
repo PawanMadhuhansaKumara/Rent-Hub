@@ -97,7 +97,7 @@ export default function AddItem({ onItemAdded }) {
       formData.append("description", form.description.trim());
       formData.append("image", imageFile);
 
-      const response = await fetch("http://https://rent-hub-ashen.vercel.app/api/items", {
+      const response = await fetch("https://rent-hub-ashen.vercel.app/api/items", {
         method: "POST",
         body: formData,
       });

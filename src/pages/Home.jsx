@@ -32,7 +32,7 @@ import {
   areItemsEqual,
 } from "../utils/itemsCache";
 
-const API_URL = "http://https://rent-hub-ashen.vercel.app/api/items";
+const API_URL = "https://rent-hub-ashen.vercel.app/api/items";
 
 export default function Home({
   user,

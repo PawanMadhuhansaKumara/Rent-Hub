@@ -14,7 +14,7 @@ export default function BusinessRecentListings({
   items = [],
   loading = false,
   error = "",
-  API_URL = "http://https://rent-hub-ashen.vercel.app",
+  API_URL = "https://rent-hub-ashen.vercel.app",
 }) {
   const { t } = useTranslation();
 

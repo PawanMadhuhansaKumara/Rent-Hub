@@ -11,7 +11,7 @@ import {
   isItemAvailable,
 } from "../components/business-hub";
 
-const API_URL = "http://https://rent-hub-ashen.vercel.app";
+const API_URL = "https://rent-hub-ashen.vercel.app";
 
 export default function BusinessHub({ user }) {
   const { t } = useTranslation();

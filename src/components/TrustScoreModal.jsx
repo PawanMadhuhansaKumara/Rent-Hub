@@ -53,7 +53,7 @@ export default function TrustScoreModal({
     if (!isOpen || !userId) return;
 
     setLoading(true);
-    fetch(`http://https://rent-hub-ashen.vercel.app/api/users/${userId}/trust-score`)
+    fetch(`https://rent-hub-ashen.vercel.app/api/users/${userId}/trust-score`)
       .then((res) => res.json())
       .then((data) => {
         if (data && data.success) {

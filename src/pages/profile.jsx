@@ -87,12 +87,12 @@ export default function Profile({ user, setUser }) {
     profile_pic_url: user?.profile_pic_url
       ? user.profile_pic_url.startsWith("http")
         ? user.profile_pic_url
-        : `http://https://rent-hub-ashen.vercel.app${user.profile_pic_url}`
+        : `https://rent-hub-ashen.vercel.app${user.profile_pic_url}`
       : "https://images.unsplash.com/photo-1599305445671-ac291c95aaa9?auto=format&fit=crop&q=80&w=300",
     coverphoto: user?.coverphoto
       ? user.coverphoto.startsWith("http")
         ? user.coverphoto
-        : `http://https://rent-hub-ashen.vercel.app${user.coverphoto}`
+        : `https://rent-hub-ashen.vercel.app${user.coverphoto}`
       : "https://images.unsplash.com/photo-1506744038136-46273834b3fb?auto=format&fit=crop&q=80&w=1000",
     is_verified: user?.is_verified || 1,
   });
@@ -122,7 +122,7 @@ export default function Profile({ user, setUser }) {
     setSubmittingReply(true);
     try {
       const res = await fetch(
-        `http://https://rent-hub-ashen.vercel.app/api/reviews/${reviewId}/reply`,
+        `https://rent-hub-ashen.vercel.app/api/reviews/${reviewId}/reply`,
         {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -171,7 +171,7 @@ export default function Profile({ user, setUser }) {
 
     try {
       const res = await fetch(
-        `http://https://rent-hub-ashen.vercel.app/api/reviews/${reviewId}/reply`,
+        `https://rent-hub-ashen.vercel.app/api/reviews/${reviewId}/reply`,
         {
           method: "DELETE",
           headers: { "Content-Type": "application/json" },
@@ -214,7 +214,7 @@ export default function Profile({ user, setUser }) {
     }
 
     try {
-      const res = await fetch(`http://https://rent-hub-ashen.vercel.app/api/reviews/${reviewId}`, {
+      const res = await fetch(`https://rent-hub-ashen.vercel.app/api/reviews/${reviewId}`, {
         method: "DELETE",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ buyerId: loggedInUserId }),
@@ -255,7 +255,7 @@ export default function Profile({ user, setUser }) {
     const targetUserId = paramUserId || profile.user_id;
     if (targetUserId) {
       setLoadingReviews(true);
-      fetch(`http://https://rent-hub-ashen.vercel.app/api/reviews/seller/${targetUserId}`)
+      fetch(`https://rent-hub-ashen.vercel.app/api/reviews/seller/${targetUserId}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.success) {
@@ -348,10 +348,10 @@ export default function Profile({ user, setUser }) {
         if (token) {
           const headers = { Authorization: `Bearer ${token}` };
           const [buyerRes, sellerRes] = await Promise.allSettled([
-            fetch("http://https://rent-hub-ashen.vercel.app/api/rent-requests/history/buyer", {
+            fetch("https://rent-hub-ashen.vercel.app/api/rent-requests/history/buyer", {
               headers,
             }),
-            fetch("http://https://rent-hub-ashen.vercel.app/api/rent-requests/history/seller", {
+            fetch("https://rent-hub-ashen.vercel.app/api/rent-requests/history/seller", {
               headers,
             }),
           ]);
@@ -432,7 +432,7 @@ export default function Profile({ user, setUser }) {
   useEffect(() => {
     const targetUserId = paramUserId || user?.user_id || user?.id;
     if (targetUserId) {
-      fetch(`http://https://rent-hub-ashen.vercel.app/api/users/${targetUserId}`)
+      fetch(`https://rent-hub-ashen.vercel.app/api/users/${targetUserId}`)
         .then((res) => res.json())
         .then((data) => {
           if (data.success && data.user) {
@@ -463,12 +463,12 @@ export default function Profile({ user, setUser }) {
               profile_pic_url: u.profile_pic_url
                 ? u.profile_pic_url.startsWith("http")
                   ? u.profile_pic_url
-                  : `http://https://rent-hub-ashen.vercel.app${u.profile_pic_url}`
+                  : `https://rent-hub-ashen.vercel.app${u.profile_pic_url}`
                 : prev.profile_pic_url,
               coverphoto: u.coverphoto
                 ? u.coverphoto.startsWith("http")
                   ? u.coverphoto
-                  : `http://https://rent-hub-ashen.vercel.app${u.coverphoto}`
+                  : `https://rent-hub-ashen.vercel.app${u.coverphoto}`
                 : prev.coverphoto,
               cash_points:
                 u.cash_points !== undefined ? Number(u.cash_points) : prev.cash_points || 0,
@@ -500,7 +500,7 @@ export default function Profile({ user, setUser }) {
   useEffect(() => {
     const targetId = paramUserId || user?.user_id || user?.id;
     if (targetId) {
-      fetch(`http://https://rent-hub-ashen.vercel.app/api/users/${targetId}/trust-score`)
+      fetch(`https://rent-hub-ashen.vercel.app/api/users/${targetId}/trust-score`)
         .then((res) => res.json())
         .then((data) => {
           if (data.success) {
@@ -542,7 +542,7 @@ export default function Profile({ user, setUser }) {
   const fetchItems = async () => {
     try {
       const res = await fetch(
-        `http://https://rent-hub-ashen.vercel.app/api/items/${profile.user_id}`,
+        `https://rent-hub-ashen.vercel.app/api/items/${profile.user_id}`,
       );
       if (res.ok) {
         const data = await res.json();
@@ -556,7 +556,7 @@ export default function Profile({ user, setUser }) {
   const fetchUserPosts = async () => {
     try {
       const res = await fetch(
-        `http://https://rent-hub-ashen.vercel.app/api/posts/${profile.user_id}`,
+        `https://rent-hub-ashen.vercel.app/api/posts/${profile.user_id}`,
       );
       if (res.ok) {
         const data = await res.json();
@@ -571,7 +571,7 @@ export default function Profile({ user, setUser }) {
   const handleStatusChange = async (itemId, newStatus) => {
     try {
       const res = await fetch(
-        `http://https://rent-hub-ashen.vercel.app/api/items/status/${itemId}`,
+        `https://rent-hub-ashen.vercel.app/api/items/status/${itemId}`,
         {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
@@ -619,7 +619,7 @@ export default function Profile({ user, setUser }) {
 
     // 2. Database එකට sync කිරීම
     try {
-      await fetch(`http://https://rent-hub-ashen.vercel.app/api/items/status/${itemId}`, {
+      await fetch(`https://rent-hub-ashen.vercel.app/api/items/status/${itemId}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ available: newStatus }),
@@ -638,7 +638,7 @@ export default function Profile({ user, setUser }) {
   const handleDeleteItem = async (itemId) => {
     if (!window.confirm("Are you sure you want to delete this item?")) return;
     try {
-      const res = await fetch(`http://https://rent-hub-ashen.vercel.app/api/items/${itemId}`, {
+      const res = await fetch(`https://rent-hub-ashen.vercel.app/api/items/${itemId}`, {
         method: "DELETE",
       });
       const data = await res.json();
@@ -703,7 +703,7 @@ export default function Profile({ user, setUser }) {
 
     try {
       const res = await fetch(
-        `http://https://rent-hub-ashen.vercel.app/api/users/${profile.user_id}`,
+        `https://rent-hub-ashen.vercel.app/api/users/${profile.user_id}`,
         {
           method: "PUT",
           body: formData,
@@ -718,12 +718,12 @@ export default function Profile({ user, setUser }) {
           profile_pic_url: data.user.profile_pic_url
             ? data.user.profile_pic_url.startsWith("http")
               ? data.user.profile_pic_url
-              : `http://https://rent-hub-ashen.vercel.app${data.user.profile_pic_url}`
+              : `https://rent-hub-ashen.vercel.app${data.user.profile_pic_url}`
             : prev.profile_pic_url,
           coverphoto: data.user.coverphoto
             ? data.user.coverphoto.startsWith("http")
               ? data.user.coverphoto
-              : `http://https://rent-hub-ashen.vercel.app${data.user.coverphoto}`
+              : `https://rent-hub-ashen.vercel.app${data.user.coverphoto}`
             : prev.coverphoto,
         }));
         localStorage.setItem("user", JSON.stringify(data.user));
@@ -933,7 +933,7 @@ export default function Profile({ user, setUser }) {
                 return updatedList;
               });
             }}
-            API_URL="http://https://rent-hub-ashen.vercel.app"
+            API_URL="https://rent-hub-ashen.vercel.app"
           />
         )}
 

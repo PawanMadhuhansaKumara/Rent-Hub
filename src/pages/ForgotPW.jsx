@@ -64,7 +64,7 @@ export default function ForgotPW({ user }) {
 
     setLoading(true);
     try {
-      const response = await fetch("http://https://rent-hub-ashen.vercel.app/api/forgot-password/send-otp", {
+      const response = await fetch("https://rent-hub-ashen.vercel.app/api/forgot-password/send-otp", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ phone_no: phoneNo.trim() }),
@@ -108,7 +108,7 @@ export default function ForgotPW({ user }) {
 
     setLoading(true);
     try {
-      const response = await fetch("http://https://rent-hub-ashen.vercel.app/api/forgot-password/reset-password", {
+      const response = await fetch("https://rent-hub-ashen.vercel.app/api/forgot-password/reset-password", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({

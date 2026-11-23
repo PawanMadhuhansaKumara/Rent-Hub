@@ -81,7 +81,7 @@ export default function SettingsPopup({ handleLogout, onOpenMapLocation }) {
         return;
       }
 
-      const res = await fetch(`http://https://rent-hub-ashen.vercel.app/api/users/${userId}`, {
+      const res = await fetch(`https://rent-hub-ashen.vercel.app/api/users/${userId}`, {
         method: "DELETE",
       });
 

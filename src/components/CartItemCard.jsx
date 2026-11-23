@@ -28,7 +28,7 @@ export default function CartItemCard({
     category,
   } = cartItem;
 
-  const API_URL = "http://https://rent-hub-ashen.vercel.app";
+  const API_URL = "https://rent-hub-ashen.vercel.app";
 
   const imageUrl = image
     ? image.startsWith("http")

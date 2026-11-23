@@ -27,7 +27,7 @@ export default function RentRequestsTab({
   onCustomerReturn,
   onReturnItem,
   onRateItem,
-  API_URL = "http://https://rent-hub-ashen.vercel.app",
+  API_URL = "https://rent-hub-ashen.vercel.app",
   hideSentByMe = false,
 }) {
   const { t } = useTranslation();

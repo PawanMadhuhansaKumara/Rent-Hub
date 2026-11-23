@@ -146,7 +146,7 @@ export default function AcceptReturnModal({
         >
           {itemImage ? (
             <img
-              src={itemImage.startsWith("http") ? itemImage : `http://https://rent-hub-ashen.vercel.app${itemImage.startsWith("/") ? "" : "/"}${itemImage}`}
+              src={itemImage.startsWith("http") ? itemImage : `https://rent-hub-ashen.vercel.app${itemImage.startsWith("/") ? "" : "/"}${itemImage}`}
               alt={itemTitle}
               style={{ width: "48px", height: "48px", objectFit: "cover", borderRadius: "8px" }}
             />

@@ -10,7 +10,7 @@ import {
   Sparkles,
 } from "lucide-react";
 
-const API_URL = "http://https://rent-hub-ashen.vercel.app";
+const API_URL = "https://rent-hub-ashen.vercel.app";
 
 const CATEGORIES = [
   "Tools",

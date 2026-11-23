@@ -20,7 +20,7 @@ export default function ManageItemModal({
   onToggleStatus,
   onDeleteItem,
   navigate,
-  API_URL = "http://https://rent-hub-ashen.vercel.app",
+  API_URL = "https://rent-hub-ashen.vercel.app",
 }) {
   const { t } = useTranslation();
   const fileInputRef = useRef(null);
