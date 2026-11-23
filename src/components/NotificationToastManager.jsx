@@ -218,7 +218,16 @@ export default function NotificationToastManager({ user }) {
 
     // Navigate to target link
     if (toast.linkUrl) {
-      navigate(toast.linkUrl);
+      let targetUrl = toast.linkUrl;
+      const reqId = toast.requestId || toast.request_id;
+      if (
+        reqId &&
+        (toast.type === "review_request" || toast.title?.includes("Rental Completed")) &&
+        !targetUrl.includes("reviewRequestId")
+      ) {
+        targetUrl += `${targetUrl.includes("?") ? "&" : "?"}reviewRequestId=${reqId}`;
+      }
+      navigate(targetUrl);
     } else {
       navigate("/notifications");
     }

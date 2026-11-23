@@ -370,7 +370,9 @@ export default function RentedItemCard({
          ========================================================================= */}
       {!isSentedOut && (
         item.requestStatus?.toLowerCase() === "completed" ||
-        item.requestStatus?.toLowerCase() === "returned"
+        item.requestStatus?.toLowerCase() === "returned" ||
+        item.status?.toLowerCase() === "completed" ||
+        item.status?.toLowerCase() === "returned"
       ) && (() => {
         const hasReview = Boolean(item.reviewId || item.review_id || item.hasReviewed);
         const currentRating = hasReview ? (item.reviewRating || item.review_rating || 5) : 5;

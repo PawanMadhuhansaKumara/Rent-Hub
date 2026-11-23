@@ -317,6 +317,12 @@ export default function Profile({ user, setUser }) {
                 totalPrice: r.totalPrice || r.total_price || 0,
                 status: r.status || "Completed",
                 trustRating: r.trust_rating || r.trustRating || 10,
+                sellerId: r.sellerId || r.seller_id,
+                buyerId: r.buyerId || r.buyer_id,
+                reviewId: r.reviewId || r.review_id || null,
+                reviewRating: r.reviewRating || r.review_rating || null,
+                reviewComment: r.reviewComment || r.review_comment || null,
+                hasReviewed: Boolean(r.reviewId || r.review_id || r.hasReviewed),
                 otherUserName: isBuyer
                   ? r.sellerName || r.seller_name || "Shop Owner"
                   : r.buyerName || r.buyer_name || r.requesterName || "Customer",
@@ -845,6 +851,7 @@ export default function Profile({ user, setUser }) {
             historyError={historyError}
             styles={styles}
             t={t}
+            onRateItem={(it) => setEditingCustomerReview(it)}
           />
         )}
 
@@ -886,6 +893,21 @@ export default function Profile({ user, setUser }) {
             item={editingCustomerReview}
             currentUser={loggedInUser}
             onReviewSubmitted={(updated) => {
+              setRentalHistory((prev) =>
+                prev.map((r) =>
+                  String(r.transactionId) === String(updated.requestId) ||
+                  String(r.id) === String(updated.requestId) ||
+                  String(r.reviewId) === String(updated.reviewId)
+                    ? {
+                        ...r,
+                        reviewId: updated.reviewId,
+                        reviewRating: updated.rating,
+                        reviewComment: updated.comment,
+                        hasReviewed: true,
+                      }
+                    : r
+                )
+              );
               setSellerReviews((prev) => {
                 const updatedList = prev.map((r) =>
                   r.id === updated.reviewId
@@ -911,6 +933,20 @@ export default function Profile({ user, setUser }) {
               });
             }}
             onReviewDeleted={(deleted) => {
+              setRentalHistory((prev) =>
+                prev.map((r) =>
+                  String(r.transactionId) === String(deleted.requestId) ||
+                  String(r.reviewId) === String(deleted.reviewId)
+                    ? {
+                        ...r,
+                        reviewId: null,
+                        reviewRating: null,
+                        reviewComment: null,
+                        hasReviewed: false,
+                      }
+                    : r
+                )
+              );
               setSellerReviews((prev) => {
                 const updatedList = prev.filter(
                   (r) => r.id !== deleted.reviewId,

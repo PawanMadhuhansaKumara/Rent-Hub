@@ -701,6 +701,34 @@ export default function MyItems({ user }) {
   const [returningItemId, setReturningItemId] = useState(null);
   const [selectedReviewItem, setSelectedReviewItem] = useState(null);
 
+  // Automatically open review modal if navigated from review notification
+  useEffect(() => {
+    const reviewReqId = searchParams.get("reviewRequestId");
+    if (!reviewReqId) return;
+
+    if (requests && requests.length > 0) {
+      const match = requests.find(
+        (r) =>
+          String(r.id) === String(reviewReqId) ||
+          String(r.requestId) === String(reviewReqId)
+      );
+      if (match) {
+        setSelectedReviewItem({
+          ...match,
+          requestId: match.requestId || match.request_id || match.id,
+          itemId: match.itemId || match.item_id,
+          sellerId: match.sellerId || match.seller_id,
+          title: match.title || match.itemTitle,
+          image: match.image || match.itemImage,
+          reviewId: match.reviewId || match.review_id || null,
+          reviewRating: match.reviewRating || match.review_rating || 5,
+          reviewComment: match.reviewComment || match.review_comment || "",
+          hasReviewed: Boolean(match.reviewId || match.review_id || match.hasReviewed),
+        });
+      }
+    }
+  }, [searchParams, requests]);
+
   // 1. CUSTOMER MARKS ITEM AS RETURNED
   const handleCustomerReturn = async (rentedItem) => {
     if (!rentedItem) return;
@@ -1414,6 +1442,7 @@ export default function MyItems({ user }) {
           onClose={() => setSelectedReviewItem(null)}
           item={selectedReviewItem}
           currentUser={currentUser}
+          API_URL={API_URL}
           onReviewSubmitted={(reviewData) => {
             setRequests((prev) => {
               const updated = prev.map((r) =>

@@ -756,7 +756,7 @@ exports.updateRequestStatus = async (req, res) => {
             itemId: requestDetails.item_id,
             requestId: requestId,
             imageUrl: requestDetails.item_image,
-            linkUrl: "/my-items?tab=rented-items&subtab=rented-in",
+            linkUrl: `/my-items?tab=rented-items&subtab=rented-in&reviewRequestId=${requestId}`,
           });
         } catch (notifErr) {
           console.warn("Could not dispatch review prompt notification:", notifErr.message);
@@ -1029,7 +1029,7 @@ exports.confirmHandover = async (req, res) => {
         itemId,
         requestId,
         imageUrl: itemImage,
-        linkUrl: "/my-items?tab=rented-items&subtab=rented-in",
+        linkUrl: `/my-items?tab=rented-items&subtab=rented-in&reviewRequestId=${requestId}`,
       });
     } catch (notifErr) {
       console.warn("Notification error in confirmHandover:", notifErr.message);
@@ -1175,7 +1175,7 @@ exports.acceptReturnedItem = async (req, res) => {
         itemId: rental.item_id,
         requestId: requestId,
         imageUrl: rental.item_image,
-        linkUrl: "/my-items?tab=rented-items&subtab=rented-in",
+        linkUrl: `/my-items?tab=rented-items&subtab=rented-in&reviewRequestId=${requestId}`,
       });
     } catch (notifErr) {
       console.warn("Could not dispatch review prompt:", notifErr.message);
@@ -1289,7 +1289,12 @@ exports.getRentalHistory = async (req, res) => {
         u.full_name AS otherUserName,
         u.phone_no AS otherUserPhone,
         u.profile_pic_url AS otherUserPic,
-        u.nearest_city AS otherUserCity
+        u.nearest_city AS otherUserCity,
+
+        rev.id AS reviewId,
+        rev.rating AS reviewRating,
+        rev.comment AS reviewComment,
+        rev.seller_reply AS reviewSellerReply
 
       FROM rent_requests r
 
@@ -1298,6 +1303,9 @@ exports.getRentalHistory = async (req, res) => {
 
       LEFT JOIN users_details u
         ON ${otherUserColumn} = u.user_id
+
+      LEFT JOIN reviews rev
+        ON r.id = rev.request_id
 
       WHERE ${userColumn} = ?
         AND LOWER(r.status) IN ('completed', 'returned', 'return_pending')

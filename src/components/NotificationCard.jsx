@@ -120,6 +120,14 @@ export default function NotificationCard({
           targetUrl = "/my-items?tab=rent-requests";
         }
       }
+      const reqId = notification.requestId || notification.request_id;
+      if (
+        reqId &&
+        (type === "review_request" || title?.includes("Rental Completed")) &&
+        !targetUrl.includes("reviewRequestId")
+      ) {
+        targetUrl += `${targetUrl.includes("?") ? "&" : "?"}reviewRequestId=${reqId}`;
+      }
       navigate(targetUrl);
     }
   };
