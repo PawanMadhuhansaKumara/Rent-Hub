@@ -511,12 +511,12 @@
   cursor: pointer;
   transition: all 0.2s ease;
   padding: 0;
-  color: #FFFFFF !important;
+  color: #ffffff !important;
 }
 
 .cart-icon-button svg {
-  color: #FFFFFF !important;
-  stroke: #FFFFFF !important;
+  color: #ffffff !important;
+  stroke: #ffffff !important;
 }
 
 .cart-icon-button:hover {
@@ -1028,7 +1028,7 @@
   align-items: stretch;
   gap: 20px;
   background: var(--bg-card);
-  border: 1px solid var(--border-light);
+  border: 1.5px solid var(--border-card, rgba(21, 128, 61, 0.45));
   border-radius: 16px;
   padding: 16px;
   box-shadow: 0 2px 10px rgba(0, 0, 0, 0.04);
@@ -1041,8 +1041,8 @@
 
 .cart-item-card:hover {
   transform: translateY(-2px);
-  box-shadow: 0 8px 24px rgba(15, 23, 42, 0.08);
-  border-color: var(--border-light);
+  box-shadow: 0 8px 24px rgba(21, 128, 61, 0.1);
+  border-color: var(--border-card-hover, var(--primary));
 }
 
 /* Checkbox */

@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { Link } from "react-router-dom";
+import { useTranslation } from "react-i18next";
 import {
   User,
   Calendar,
@@ -12,6 +13,8 @@ import {
   Edit3,
   Clock,
   RotateCcw,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { formatRentalDate, formatRequestTime } from "../../utils/dateUtils";
 
@@ -31,6 +34,9 @@ export default function RentRequestCard({
   onRateItem,
   API_URL = "https://rent-hub-ashen.vercel.app",
 }) {
+  const { t } = useTranslation();
+  const [isExpanded, setIsExpanded] = useState(false);
+
   const isSender =
     Number(req.buyerId || req.buyer_id) === Number(userId) ||
     (!req.sellerId && !req.seller_id) ||
@@ -77,43 +83,52 @@ export default function RentRequestCard({
     : "badge-pending";
 
   return (
-    <div className="rent-request-card">
+    <div className={`rent-request-card ${isExpanded ? "is-expanded" : ""}`}>
       <div className="rent-request-top">
-        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center", flex: 1, minWidth: 0 }}>
           {imageUrl && (
             <img
               src={imageUrl}
               alt={req.itemTitle}
               className="rent-request-thumb"
               style={{
-                width: "48px",
-                height: "48px",
+                width: "44px",
+                height: "44px",
                 borderRadius: "8px",
                 objectFit: "cover",
                 border: "1px solid var(--border-light)",
+                flexShrink: 0,
               }}
               onError={(e) => {
                 e.currentTarget.style.display = "none";
               }}
             />
           )}
-          <div>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <span className="rent-request-time">
               {formatRequestTime(req.createdAt || req.created_at)}
             </span>
-            <h4 className="rent-request-item-title">{req.itemTitle}</h4>
+            <h4 className="rent-request-item-title" title={req.itemTitle}>{req.itemTitle}</h4>
+            {/* Mobile quick essential price */}
+            <span className="rent-request-mobile-price">
+              Rs. {Number(req.totalPrice || 0).toLocaleString()}
+            </span>
           </div>
         </div>
 
         <div
+          className="rent-request-top-badges"
           style={{
             display: "flex",
             alignItems: "center",
             gap: "8px",
             flexWrap: "wrap",
+            justifyContent: "flex-end",
+            flexShrink: 0,
           }}
         >
           <span
+            className="rent-card-badge-desktop"
             style={{
               fontSize: "11px",
               fontWeight: "600",
@@ -129,6 +144,7 @@ export default function RentRequestCard({
 
           {(req.paymentMethod || req.payment_method) && (
             <span
+              className="rent-card-badge-desktop"
               style={{
                 fontSize: "11px",
                 fontWeight: "700",
@@ -168,7 +184,7 @@ export default function RentRequestCard({
         </div>
       </div>
 
-      <div className="rent-request-meta-grid">
+      <div className={`rent-request-meta-grid ${isExpanded ? "expanded" : "collapsed"}`}>
         <div className="rent-request-meta-item rent-request-user-meta">
           <User size={16} color="var(--primary)" style={{ marginTop: "2px", flexShrink: 0 }} />
           <div style={{ flex: 1, minWidth: 0 }}>
@@ -202,7 +218,7 @@ export default function RentRequestCard({
           </div>
         </div>
 
-        <div className="rent-request-meta-item">
+        <div className="rent-request-meta-item rent-request-meta-price">
           <ShoppingBag size={16} color="var(--primary)" style={{ marginTop: "2px", flexShrink: 0 }} />
           <div>
             <span className="rent-request-user-label">
@@ -213,6 +229,76 @@ export default function RentRequestCard({
             </span>
           </div>
         </div>
+
+        {/* Mobile extra details shown when expanded */}
+        <div className="rent-card-mobile-extra">
+          <div className="rent-card-mobile-extra-badges">
+            <span
+              style={{
+                fontSize: "11px",
+                fontWeight: "600",
+                padding: "3px 8px",
+                borderRadius: "12px",
+                backgroundColor: isSender ? "var(--badge-blue-bg)" : "var(--badge-purple-bg)",
+                color: isSender ? "var(--badge-blue-text)" : "var(--badge-purple-text)",
+                border: isSender ? "1px solid var(--badge-blue-bg)" : "1px solid var(--badge-purple-bg)",
+              }}
+            >
+              {isSender ? "Sent Request" : "Received"}
+            </span>
+
+            {(req.paymentMethod || req.payment_method) && (
+              <span
+                style={{
+                  fontSize: "11px",
+                  fontWeight: "700",
+                  padding: "3px 8px",
+                  borderRadius: "12px",
+                  backgroundColor:
+                    (req.paymentMethod || req.payment_method) === "cashpoints"
+                      ? "var(--badge-yellow-bg)"
+                      : (req.paymentMethod || req.payment_method) === "card"
+                      ? "var(--badge-blue-bg)"
+                      : "var(--badge-green-bg)",
+                  color:
+                    (req.paymentMethod || req.payment_method) === "cashpoints"
+                      ? "var(--badge-yellow-text)"
+                      : (req.paymentMethod || req.payment_method) === "card"
+                      ? "var(--badge-blue-text)"
+                      : "var(--primary)",
+                  border:
+                    (req.paymentMethod || req.payment_method) === "cashpoints"
+                      ? "1px solid var(--badge-yellow-text)"
+                      : (req.paymentMethod || req.payment_method) === "card"
+                      ? "1px solid var(--badge-blue-bg)"
+                      : "1px solid var(--badge-green-bg)",
+                }}
+              >
+                {(req.paymentMethod || req.payment_method) === "cashpoints"
+                  ? "🪙 Points (Paid)"
+                  : (req.paymentMethod || req.payment_method) === "card"
+                  ? "💳 Card (Paid)"
+                  : "💵 Cash on Pickup"}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile See More / See Less Toggle Button */}
+      <div className="rent-card-toggle-wrap">
+        <button
+          type="button"
+          className="rent-card-toggle-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsExpanded((prev) => !prev);
+          }}
+          aria-expanded={isExpanded}
+        >
+          <span>{isExpanded ? t("common.seeLess", "See Less") : t("common.seeMore", "See More")}</span>
+          {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+        </button>
       </div>
 
       {isPending && (

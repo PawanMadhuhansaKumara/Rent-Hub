@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { Link } from "react-router-dom";
 import {
@@ -11,6 +11,8 @@ import {
   Edit3,
   Clock,
   RotateCcw,
+  ChevronDown,
+  ChevronUp,
 } from "lucide-react";
 import { formatRentalDate } from "../../utils/dateUtils";
 
@@ -27,6 +29,7 @@ export default function RentedItemCard({
   API_URL = "https://rent-hub-ashen.vercel.app",
 }) {
   const { t } = useTranslation();
+  const [isExpanded, setIsExpanded] = useState(false);
   const isSentedOut = item.rentType === "sented-out";
   const targetUserId = isSentedOut ? item.renterId : item.sellerId;
   const targetUserName = isSentedOut
@@ -44,36 +47,37 @@ export default function RentedItemCard({
     <div
       className={`rent-request-card ${
         isSentedOut ? "rented-border" : "rented-in-border"
-      }`}
+      } ${isExpanded ? "is-expanded" : ""}`}
     >
-      {/* Top Header Row: 48px Image, Title, Type Badge & Status */}
+      {/* Top Header Row: 44px Image, Title, Price & Status */}
       <div className="rent-request-top">
-        <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
+        <div style={{ display: "flex", gap: "10px", alignItems: "center", flex: 1, minWidth: 0 }}>
           {imageUrl && (
             <img
               src={imageUrl}
               alt={item.title}
               className="rent-request-thumb"
               style={{
-                width: "48px",
-                height: "48px",
+                width: "44px",
+                height: "44px",
                 borderRadius: "8px",
                 objectFit: "cover",
                 border: "1px solid var(--border-light)",
+                flexShrink: 0,
               }}
               onError={(e) => {
                 e.currentTarget.style.display = "none";
               }}
             />
           )}
-          <div>
+          <div style={{ flex: 1, minWidth: 0 }}>
             <span className="rent-request-time">
               {item.category ||
                 (isSentedOut
                   ? t("rentsPage.sentedOutRental", "Sented Out Rental")
                   : t("rentsPage.rentedInItem", "Rented In Item"))}
             </span>
-            <h4 className="rent-request-item-title">
+            <h4 className="rent-request-item-title" title={item.title}>
               <Link
                 to={`/item/${item.itemId || item.id}`}
                 className="rented-item-title-link"
@@ -81,18 +85,32 @@ export default function RentedItemCard({
                 {item.title}
               </Link>
             </h4>
+            {/* Mobile quick price */}
+            <span className="rent-request-mobile-price">
+              Rs. {Number(item.totalPrice || item.price || 0).toLocaleString()}
+              {!item.totalPrice && (
+                <span style={{ fontSize: "11px", fontWeight: "normal", color: "var(--text-muted)" }}>
+                  {" "}
+                  / {item.priceType || "day"}
+                </span>
+              )}
+            </span>
           </div>
         </div>
 
         <div
+          className="rent-request-top-badges"
           style={{
             display: "flex",
             alignItems: "center",
             gap: "8px",
             flexWrap: "wrap",
+            justifyContent: "flex-end",
+            flexShrink: 0,
           }}
         >
           <span
+            className="rent-card-badge-desktop"
             style={{
               fontSize: "11px",
               fontWeight: "600",
@@ -110,6 +128,7 @@ export default function RentedItemCard({
 
           {(item.paymentMethod || item.payment_method) && (
             <span
+              className="rent-card-badge-desktop"
               style={{
                 fontSize: "11px",
                 fontWeight: "700",
@@ -167,8 +186,8 @@ export default function RentedItemCard({
         </div>
       </div>
 
-      {/* Meta Grid: Rented To/From, Rental Period, Price */}
-      <div className="rent-request-meta-grid">
+      {/* Meta Grid: Rented To/From, Rental Period, Price (Expandable on Mobile) */}
+      <div className={`rent-request-meta-grid ${isExpanded ? "expanded" : "collapsed"}`}>
         {/* User (Rented To / From) */}
         <div className="rent-request-meta-item rent-request-user-meta">
           <User
@@ -220,7 +239,7 @@ export default function RentedItemCard({
         </div>
 
         {/* Total Price / Rate */}
-        <div className="rent-request-meta-item">
+        <div className="rent-request-meta-item rent-request-meta-price">
           <ShoppingBag
             size={16}
             color={isSentedOut ? "var(--badge-yellow-text)" : "var(--badge-blue-text)"}
@@ -248,6 +267,78 @@ export default function RentedItemCard({
             </span>
           </div>
         </div>
+
+        {/* Mobile extra details shown when expanded */}
+        <div className="rent-card-mobile-extra">
+          <div className="rent-card-mobile-extra-badges">
+            <span
+              style={{
+                fontSize: "11px",
+                fontWeight: "600",
+                padding: "3px 8px",
+                borderRadius: "12px",
+                backgroundColor: isSentedOut ? "var(--badge-yellow-bg)" : "var(--badge-blue-bg)",
+                color: isSentedOut ? "var(--badge-yellow-text)" : "var(--badge-blue-text)",
+                border: isSentedOut ? "1px solid var(--badge-yellow-border)" : "1px solid var(--badge-blue-bg)",
+              }}
+            >
+              {isSentedOut
+                ? t("rentsPage.filters.sentedOut", "Sented Out")
+                : t("rentsPage.filters.rentedIn", "Rented In")}
+            </span>
+
+            {(item.paymentMethod || item.payment_method) && (
+              <span
+                style={{
+                  fontSize: "11px",
+                  fontWeight: "700",
+                  padding: "3px 8px",
+                  borderRadius: "12px",
+                  backgroundColor:
+                    (item.paymentMethod || item.payment_method) === "cashpoints"
+                      ? "var(--badge-yellow-bg)"
+                      : (item.paymentMethod || item.payment_method) === "card"
+                      ? "var(--badge-blue-bg)"
+                      : "var(--badge-green-bg)",
+                  color:
+                    (item.paymentMethod || item.payment_method) === "cashpoints"
+                      ? "var(--badge-yellow-text)"
+                      : (item.paymentMethod || item.payment_method) === "card"
+                      ? "var(--badge-blue-text)"
+                      : "var(--primary)",
+                  border:
+                    (item.paymentMethod || item.payment_method) === "cashpoints"
+                      ? "1px solid var(--badge-yellow-text)"
+                      : (item.paymentMethod || item.payment_method) === "card"
+                      ? "1px solid var(--badge-blue-bg)"
+                      : "1px solid var(--badge-green-bg)",
+                }}
+              >
+                {(item.paymentMethod || item.payment_method) === "cashpoints"
+                  ? "🪙 Points (Paid)"
+                  : (item.paymentMethod || item.payment_method) === "card"
+                  ? "💳 Card (Paid)"
+                  : "💵 Cash on Pickup"}
+              </span>
+            )}
+          </div>
+        </div>
+      </div>
+
+      {/* Mobile See More / See Less Toggle Button */}
+      <div className="rent-card-toggle-wrap">
+        <button
+          type="button"
+          className="rent-card-toggle-btn"
+          onClick={(e) => {
+            e.stopPropagation();
+            setIsExpanded((prev) => !prev);
+          }}
+          aria-expanded={isExpanded}
+        >
+          <span>{isExpanded ? t("common.seeLess", "See Less") : t("common.seeMore", "See More")}</span>
+          {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
+        </button>
       </div>
 
       {/* =========================================================================

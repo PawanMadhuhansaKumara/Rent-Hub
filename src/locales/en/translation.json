@@ -1,6 +1,8 @@
 {
   "common": {
-    "back": "Back"
+    "back": "Back",
+    "seeMore": "See More",
+    "seeLess": "See Less"
   },
   "search": {
     "placeholder": "Search items by name or category..."
