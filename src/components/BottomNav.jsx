@@ -85,6 +85,10 @@ export default function BottomNav({ user }) {
       }
 
       // Desktop: focus top AppBar search bar
+      const mainContent = document.querySelector(".app-main-content");
+      if (mainContent) {
+        mainContent.scrollTo({ top: 0, behavior: "smooth" });
+      }
       window.scrollTo({ top: 0, behavior: "smooth" });
       window.dispatchEvent(new CustomEvent("focus_rents_search"));
 
@@ -213,11 +217,11 @@ export default function BottomNav({ user }) {
 
 const styles = {
   bottomNav: {
-    position: "fixed",
-    bottom: 0,
-    left: 0,
     width: "100%",
-    height: "70px",
+    minHeight: "65px",
+    height: "calc(65px + env(safe-area-inset-bottom, 0px))",
+    paddingBottom: "env(safe-area-inset-bottom, 0px)",
+    boxSizing: "border-box",
     backgroundColor: "var(--bottom-nav-bg)",
     borderTop: "1px solid var(--bottom-nav-border)",
     display: "flex",

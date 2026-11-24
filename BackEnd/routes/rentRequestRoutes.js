@@ -3,6 +3,8 @@ const router = express.Router();
 const rentRequestController = require("../controllers/rentRequestController");
 const authMiddleware = require("../middleware/authMiddleware");
 router.post("/", rentRequestController.createRentRequest);
+router.get("/check-overdue", rentRequestController.checkOverdueRentals);
+router.post("/check-overdue", rentRequestController.checkOverdueRentals);
 router.post("/:id/handover", rentRequestController.confirmHandover);
 router.post("/handover", rentRequestController.confirmHandover);
 router.get("/buyer/:buyerId", rentRequestController.getBuyerRequests);

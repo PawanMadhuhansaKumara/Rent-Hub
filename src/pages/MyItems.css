@@ -819,6 +819,59 @@
   box-shadow: 0 6px 16px rgba(21, 128, 61, 0.1);
 }
 
+/* Late / Overdue Rent Item Cards (Red Color Fade & Glow) */
+.rent-request-card.late-rent {
+  position: relative !important;
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.14) 0%, rgba(239, 68, 68, 0.03) 45%, var(--bg-card) 85%) !important;
+  border: 1.5px solid rgba(239, 68, 68, 0.65) !important;
+  box-shadow: 0 4px 20px rgba(239, 68, 68, 0.16), 0 1px 3px rgba(239, 68, 68, 0.08) !important;
+}
+
+.rent-request-card.late-rent::before {
+  content: "";
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3.5px;
+  background: linear-gradient(90deg, #ef4444 0%, #f87171 50%, #ef4444 100%);
+  border-top-left-radius: 13px;
+  border-top-right-radius: 13px;
+  z-index: 2;
+}
+
+.rent-request-card.late-rent:hover {
+  border-color: #ef4444 !important;
+  box-shadow: 0 6px 24px rgba(239, 68, 68, 0.24) !important;
+}
+
+[data-theme="dark"] .rent-request-card.late-rent {
+  background: linear-gradient(135deg, rgba(239, 68, 68, 0.22) 0%, rgba(239, 68, 68, 0.05) 55%, var(--bg-card) 95%) !important;
+  border-color: rgba(239, 68, 68, 0.75) !important;
+  box-shadow: 0 4px 22px rgba(239, 68, 68, 0.25) !important;
+}
+
+.rent-late-alert-banner {
+  margin-top: 10px;
+  padding: 9px 12px;
+  background: rgba(239, 68, 68, 0.09);
+  border: 1px solid rgba(239, 68, 68, 0.32);
+  border-radius: 9px;
+  display: flex;
+  align-items: flex-start;
+  gap: 8px;
+  font-size: 12px;
+  color: #dc2626;
+  line-height: 1.4;
+  box-sizing: border-box;
+}
+
+[data-theme="dark"] .rent-late-alert-banner {
+  background: rgba(239, 68, 68, 0.16);
+  border-color: rgba(239, 68, 68, 0.45);
+  color: #fca5a5;
+}
+
 .rent-request-thumb {
   width: 40px !important;
   height: 40px !important;
@@ -1208,7 +1261,7 @@
 /* Mobile */
 @media (max-width: 600px) {
   .my-items-page {
-    padding: 18px 14px 90px;
+    padding: 18px 14px calc(90px + env(safe-area-inset-bottom, 0px));
   }
 
   .my-items-title {

@@ -13,8 +13,9 @@ import {
   RotateCcw,
   ChevronDown,
   ChevronUp,
+  AlertTriangle,
 } from "lucide-react";
-import { formatRentalDate } from "../../utils/dateUtils";
+import { formatRentalDate, isRentalLate, getDaysOverdue } from "../../utils/dateUtils";
 
 /**
  * RentedItemCard
@@ -36,6 +37,9 @@ export default function RentedItemCard({
     ? item.renterName || "Customer"
     : item.sellerName || "Item Owner";
 
+  const isLate = isRentalLate(item);
+  const daysOverdue = isLate ? getDaysOverdue(item) : 0;
+
   const itemImg = item.image || item.image_url;
   const imageUrl = itemImg
     ? itemImg.startsWith("http")
@@ -47,7 +51,7 @@ export default function RentedItemCard({
     <div
       className={`rent-request-card ${
         isSentedOut ? "rented-border" : "rented-in-border"
-      } ${isExpanded ? "is-expanded" : ""}`}
+      } ${isLate ? "late-rent" : ""} ${isExpanded ? "is-expanded" : ""}`}
     >
       {/* Top Header Row: 44px Image, Title, Price & Status */}
       <div className="rent-request-top">
@@ -183,6 +187,27 @@ export default function RentedItemCard({
               ? "Rented / Active"
               : item.requestStatus || (isSentedOut ? "Rented Out" : "Active Rental")}
           </span>
+
+          {isLate && (
+            <span
+              className="rent-card-badge-desktop"
+              style={{
+                fontSize: "11px",
+                fontWeight: "700",
+                padding: "3px 8px",
+                borderRadius: "12px",
+                backgroundColor: "rgba(239, 68, 68, 0.15)",
+                color: "#ef4444",
+                border: "1px solid rgba(239, 68, 68, 0.4)",
+                display: "inline-flex",
+                alignItems: "center",
+                gap: "4px",
+              }}
+            >
+              <AlertTriangle size={12} color="#ef4444" />
+              <span>Late ({daysOverdue}d overdue)</span>
+            </span>
+          )}
         </div>
       </div>
 
@@ -321,6 +346,26 @@ export default function RentedItemCard({
                   : "💵 Cash on Pickup"}
               </span>
             )}
+
+            {isLate && (
+              <span
+                style={{
+                  fontSize: "11px",
+                  fontWeight: "700",
+                  padding: "3px 8px",
+                  borderRadius: "12px",
+                  backgroundColor: "rgba(239, 68, 68, 0.15)",
+                  color: "#ef4444",
+                  border: "1px solid rgba(239, 68, 68, 0.4)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: "4px",
+                }}
+              >
+                <AlertTriangle size={12} color="#ef4444" />
+                <span>Late ({daysOverdue}d overdue)</span>
+              </span>
+            )}
           </div>
         </div>
       </div>
@@ -340,6 +385,23 @@ export default function RentedItemCard({
           {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
         </button>
       </div>
+
+      {/* Late / Overdue Warning Alert Banner */}
+      {isLate && (
+        <div className="rent-late-alert-banner">
+          <AlertTriangle size={16} color="#ef4444" style={{ flexShrink: 0, marginTop: "1px" }} />
+          <div style={{ flex: 1, minWidth: 0 }}>
+            <strong style={{ display: "block", marginBottom: "2px", fontWeight: "700" }}>
+              ⚠️ Return Overdue ({daysOverdue} day{daysOverdue > 1 ? "s" : ""} late)
+            </strong>
+            <span>
+              {isSentedOut
+                ? `This item was scheduled to be returned on ${formatRentalDate(item.endDate || item.end_date)}. The customer has not returned it yet.`
+                : `This rental expired on ${formatRentalDate(item.endDate || item.end_date)}. Please return the item to ${targetUserName} immediately to avoid trust penalties.`}
+            </span>
+          </div>
+        </div>
+      )}
 
       {/* =========================================================================
           1. SHOP OWNER VIEW (Sented Out): Customer ආපසු භාරදුන් විට අඩුපාඩු නැත්නම් බාරගන්නා Button එක

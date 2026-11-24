@@ -9,6 +9,7 @@ import {
   MessageCircle,
   Clock,
   Trash2,
+  AlertTriangle,
 } from "lucide-react";
 import { formatCompactTime } from "../utils/dateUtils";
 
@@ -83,6 +84,15 @@ export default function NotificationCard({
           border: "var(--badge-yellow-border)",
           tag: "Request",
           tagColor: "var(--badge-yellow-text)",
+        };
+      case "overdue_rental":
+      case "late_rental":
+        return {
+          icon: <AlertTriangle size={15} color="#ef4444" />,
+          bg: "rgba(239, 68, 68, 0.15)",
+          border: "rgba(239, 68, 68, 0.4)",
+          tag: "Overdue",
+          tagColor: "#ef4444",
         };
       default:
         return {

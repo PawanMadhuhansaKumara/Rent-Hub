@@ -10,6 +10,7 @@ import {
   Clock,
   X,
   ExternalLink,
+  AlertTriangle,
 } from "lucide-react";
 import "./NotificationToastManager.css";
 
@@ -140,6 +141,13 @@ export default function NotificationToastManager({ user }) {
     if (!userId) return;
 
     try {
+      // Periodically trigger overdue check (every 5 minutes)
+      const lastOverdueCheck = Number(sessionStorage.getItem("last_overdue_check") || 0);
+      if (Date.now() - lastOverdueCheck > 5 * 60 * 1000) {
+        sessionStorage.setItem("last_overdue_check", String(Date.now()));
+        fetch(`${API_URL}/api/rent-requests/check-overdue`).catch(() => {});
+      }
+
       const res = await fetch(`${API_URL}/api/notifications/${userId}`);
       if (!res.ok) return;
 
@@ -341,6 +349,14 @@ function ToastItem({ toast, onClose, onClick }) {
           color: "#d97706",
           badge: "New Request",
           badgeBg: "rgba(217, 119, 6, 0.15)",
+        };
+      case "overdue_rental":
+      case "late_rental":
+        return {
+          icon: <AlertTriangle size={18} color="#ef4444" />,
+          color: "#ef4444",
+          badge: "Overdue",
+          badgeBg: "rgba(239, 68, 68, 0.15)",
         };
       default:
         return {

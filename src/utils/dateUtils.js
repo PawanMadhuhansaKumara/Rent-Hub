@@ -89,3 +89,80 @@ export const formatCompactTime = (dateVal) => {
     return "Recently";
   }
 };
+
+/**
+ * Checks if a rental item or request is overdue (late return).
+ * A rental is late if:
+ * 1. It is currently active / picked up / rented (not completed, returned, declined, or cancelled).
+ * 2. The end_date is in the past.
+ */
+export const isRentalLate = (item) => {
+  if (!item) return false;
+  const status = (item.requestStatus || item.status || "").toLowerCase();
+
+  // If completed, returned, declined, cancelled, or rejected, it is not late
+  if (
+    status === "completed" ||
+    status === "returned" ||
+    status === "declined" ||
+    status === "cancelled" ||
+    status === "rejected"
+  ) {
+    return false;
+  }
+
+  const endRaw = item.endDate || item.end_date;
+  if (!endRaw) return false;
+
+  try {
+    let clean = String(endRaw).trim();
+    let endDate;
+    if (clean.includes("T")) {
+      endDate = new Date(clean);
+    } else {
+      const match = clean.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if (match) {
+        const year = parseInt(match[1], 10);
+        const month = parseInt(match[2], 10) - 1;
+        const day = parseInt(match[3], 10);
+        endDate = new Date(year, month, day, 23, 59, 59, 999);
+      } else {
+        endDate = new Date(clean);
+      }
+    }
+
+    if (isNaN(endDate.getTime())) return false;
+    return Date.now() > endDate.getTime();
+  } catch {
+    return false;
+  }
+};
+
+/**
+ * Returns number of days a rental is overdue (e.g. 1, 2, 5).
+ */
+export const getDaysOverdue = (item) => {
+  if (!isRentalLate(item)) return 0;
+  const endRaw = item.endDate || item.end_date;
+  try {
+    let clean = String(endRaw).trim();
+    let endDate;
+    if (clean.includes("T")) {
+      endDate = new Date(clean);
+    } else {
+      const match = clean.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+      if (match) {
+        const year = parseInt(match[1], 10);
+        const month = parseInt(match[2], 10) - 1;
+        const day = parseInt(match[3], 10);
+        endDate = new Date(year, month, day, 23, 59, 59, 999);
+      } else {
+        endDate = new Date(clean);
+      }
+    }
+    const diffMs = Date.now() - endDate.getTime();
+    return Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+  } catch {
+    return 1;
+  }
+};

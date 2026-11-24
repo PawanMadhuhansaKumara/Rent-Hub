@@ -147,6 +147,134 @@ const sendNotification = async ({
   }
 };
 
+// Check and send overdue rental notifications to both shop owner and renter every 6 hours
+const checkAndNotifyOverdueRentals = async () => {
+  try {
+    await initRentRequestsTable();
+    // Query active rentals that have end_date
+    const query = `
+      SELECT r.id AS requestId, r.item_id AS itemId, r.buyer_id AS buyerId, r.seller_id AS sellerId,
+             r.start_date AS startDate, r.end_date AS endDate, r.status, r.customer_picked,
+             i.title AS itemTitle, i.image_url AS itemImage,
+             b.full_name AS buyerName, s.full_name AS sellerName
+      FROM rent_requests r
+      LEFT JOIN items i ON r.item_id = i.id
+      LEFT JOIN users_details b ON r.buyer_id = b.user_id
+      LEFT JOIN users_details s ON r.seller_id = s.user_id
+      WHERE LOWER(r.status) NOT IN ('completed', 'returned', 'declined', 'cancelled', 'rejected')
+        AND (LOWER(r.status) = 'rented' OR LOWER(r.status) = 'return_pending' OR r.customer_picked = 1)
+        AND r.end_date IS NOT NULL AND r.end_date != ''
+    `;
+    const [rows] = await db.execute(query);
+
+    const now = Date.now();
+    const sixHoursMs = 6 * 60 * 60 * 1000;
+
+    for (const rent of rows) {
+      const endRaw = rent.endDate;
+      if (!endRaw) continue;
+
+      let clean = String(endRaw).trim();
+      let endDate;
+      if (clean.includes("T")) {
+        endDate = new Date(clean);
+      } else {
+        const match = clean.match(/^(\d{4})-(\d{1,2})-(\d{1,2})/);
+        if (match) {
+          const year = parseInt(match[1], 10);
+          const month = parseInt(match[2], 10) - 1;
+          const day = parseInt(match[3], 10);
+          endDate = new Date(year, month, day, 23, 59, 59, 999);
+        } else {
+          endDate = new Date(clean);
+        }
+      }
+
+      if (isNaN(endDate.getTime())) continue;
+
+      // Check if current time is past the end date
+      if (now > endDate.getTime()) {
+        const diffMs = now - endDate.getTime();
+        const daysOverdue = Math.max(1, Math.ceil(diffMs / (1000 * 60 * 60 * 24)));
+        const formattedDate = endDate.toLocaleDateString("en-US", { month: "short", day: "numeric", year: "numeric" });
+        const itemTitle = rent.itemTitle || "Rented Item";
+        const buyerName = rent.buyerName || "Customer";
+        const sellerName = rent.sellerName || "Shop Owner";
+
+        // 1. Notify BUYER / USER (every 6 hours)
+        if (rent.buyerId) {
+          let shouldSendBuyer = true;
+          try {
+            const [buyerNotifs] = await db.execute(`
+              SELECT created_at FROM notifications
+              WHERE user_id = ? AND request_id = ? AND type = 'overdue_rental'
+              ORDER BY id DESC LIMIT 1
+            `, [rent.buyerId, rent.requestId]);
+
+            if (buyerNotifs && buyerNotifs.length > 0) {
+              const lastBuyerSent = new Date(buyerNotifs[0].created_at).getTime();
+              if (now - lastBuyerSent < sixHoursMs) {
+                shouldSendBuyer = false;
+              }
+            }
+          } catch (e) {}
+
+          if (shouldSendBuyer) {
+            await sendNotification({
+              userId: rent.buyerId,
+              title: `⚠️ Return Overdue: ${itemTitle}`,
+              message: `Your rental period for "${itemTitle}" expired on ${formattedDate} (${daysOverdue} day${daysOverdue > 1 ? "s" : ""} late). Please return the item to ${sellerName} immediately to prevent trust penalties.`,
+              type: "overdue_rental",
+              itemId: rent.itemId,
+              requestId: rent.requestId,
+              imageUrl: rent.itemImage,
+              linkUrl: "/my-items?tab=rented-items&subtab=rented-in",
+            });
+          }
+        }
+
+        // 2. Notify SHOP / SELLER (every 6 hours)
+        if (rent.sellerId) {
+          let shouldSendSeller = true;
+          try {
+            const [sellerNotifs] = await db.execute(`
+              SELECT created_at FROM notifications
+              WHERE user_id = ? AND request_id = ? AND type = 'overdue_rental'
+              ORDER BY id DESC LIMIT 1
+            `, [rent.sellerId, rent.requestId]);
+
+            if (sellerNotifs && sellerNotifs.length > 0) {
+              const lastSellerSent = new Date(sellerNotifs[0].created_at).getTime();
+              if (now - lastSellerSent < sixHoursMs) {
+                shouldSendSeller = false;
+              }
+            }
+          } catch (e) {}
+
+          if (shouldSendSeller) {
+            await sendNotification({
+              userId: rent.sellerId,
+              title: `⚠️ Overdue Rental Alert: ${itemTitle}`,
+              message: `The rental for "${itemTitle}" rented by ${buyerName} expired on ${formattedDate} (${daysOverdue} day${daysOverdue > 1 ? "s" : ""} late). The item has not been returned yet.`,
+              type: "overdue_rental",
+              itemId: rent.itemId,
+              requestId: rent.requestId,
+              imageUrl: rent.itemImage,
+              linkUrl: "/my-items?tab=rented-items&subtab=sented-out",
+            });
+          }
+        }
+      }
+    }
+  } catch (err) {
+    console.warn("Check overdue rentals error:", err.message);
+  }
+};
+
+// Check every 10 minutes and on startup
+setInterval(checkAndNotifyOverdueRentals, 10 * 60 * 1000);
+setTimeout(checkAndNotifyOverdueRentals, 3000);
+
 // =========================================================================
 // HELPER FUNCTIONS: QUANTITY DEDUCT & RESTORE
 // =========================================================================
@@ -1388,6 +1516,23 @@ exports.getRentalHistory = async (req, res) => {
     return res.status(500).json({
       success: false,
       message: "Failed to load rental history.",
+    });
+  }
+};
+
+// EXPORT OVERDUE CHECK CONTROLLER ENDPOINT
+exports.checkOverdueRentals = async (req, res) => {
+  try {
+    await checkAndNotifyOverdueRentals();
+    return res.status(200).json({
+      success: true,
+      message: "Overdue rentals checked and notifications dispatched.",
+    });
+  } catch (error) {
+    console.error("Check Overdue Rentals Error:", error);
+    return res.status(500).json({
+      success: false,
+      message: "Failed to check overdue rentals: " + error.message,
     });
   }
 };

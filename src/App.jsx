@@ -31,6 +31,18 @@ function RentsRedirect() {
   return <Navigate to="/my-items?tab=rent-requests" replace />;
 }
 
+function ScrollToTop() {
+  const { pathname } = useLocation();
+  useEffect(() => {
+    const mainContent = document.querySelector(".app-main-content");
+    if (mainContent) {
+      mainContent.scrollTo(0, 0);
+    }
+    window.scrollTo(0, 0);
+  }, [pathname]);
+  return null;
+}
+
 
 
 export default function App() {
@@ -158,86 +170,91 @@ export default function App() {
 
   return (
     <Router>
-      <NotificationToastManager user={user} />
-      <Navbar
-        user={user}
-        setUser={setUser}
-        searchTerm={searchTerm}
-        setSearchTerm={setSearchTerm}
-      />
+      <ScrollToTop />
+      <div className="app-shell">
+        <NotificationToastManager user={user} />
+        <Navbar
+          user={user}
+          setUser={setUser}
+          searchTerm={searchTerm}
+          setSearchTerm={setSearchTerm}
+        />
 
-      <Routes>
-        <Route
-          path="/"
-          element={
-            <Home
-              user={user}
-              setUser={setUser}
-              searchTerm={searchTerm}
-              setSearchTerm={setSearchTerm}
+        <div className="app-main-content">
+          <Routes>
+            <Route
+              path="/"
+              element={
+                <Home
+                  user={user}
+                  setUser={setUser}
+                  searchTerm={searchTerm}
+                  setSearchTerm={setSearchTerm}
+                />
+              }
             />
-          }
-        />
-        <Route path="/buyer-location-test"element={<BuyerLocationTest />}/>
-        <Route
-          path="/login"
-          element={user ? <Navigate to="/" replace /> : <Login onLoginSuccess={setUser} user={user} />}
-        />
-        <Route
-          path="/register"
-          element={user ? <Navigate to="/" replace /> : <Register user={user} />}
-        />
-        <Route
-          path="/forgot-password"
-          element={user ? <Navigate to="/" replace /> : <ForgotPW user={user} />}
-        />
+            <Route path="/buyer-location-test" element={<BuyerLocationTest />} />
+            <Route
+              path="/login"
+              element={user ? <Navigate to="/" replace /> : <Login onLoginSuccess={setUser} user={user} />}
+            />
+            <Route
+              path="/register"
+              element={user ? <Navigate to="/" replace /> : <Register user={user} />}
+            />
+            <Route
+              path="/forgot-password"
+              element={user ? <Navigate to="/" replace /> : <ForgotPW user={user} />}
+            />
 
-        <Route path="/item/:id" element={<ItemDetails />} />
+            <Route path="/item/:id" element={<ItemDetails />} />
 
-        <Route
-          path="/profile"
-          element={user ? <Profile user={user} setUser={setUser} /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/profile/:userId"
-          element={<Profile user={user} setUser={setUser} />}
-        />
+            <Route
+              path="/profile"
+              element={user ? <Profile user={user} setUser={setUser} /> : <Navigate to="/login" replace />}
+            />
+            <Route
+              path="/profile/:userId"
+              element={<Profile user={user} setUser={setUser} />}
+            />
 
-        <Route
-          path="/add-item"
-          element={user ? <AddItem /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/my-items"
-          element={user ? <MyItems user={user} searchTerm={searchTerm} setSearchTerm={setSearchTerm} /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/MyItems"
-          element={user ? <MyItems user={user} searchTerm={searchTerm} setSearchTerm={setSearchTerm} /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/business-hub"
-          element={user ? <BusinessHub user={user} /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/BusinessHub"
-          element={user ? <BusinessHub user={user} /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/notifications"
-          element={user ? <Notifications user={user} /> : <Navigate to="/login" replace />}
-        />
-        <Route
-          path="/add-post"
-          element={<Navigate to="/add-item" replace />}
-        />
-        <Route path="/rents" element={<RentsRedirect />} />
-        <Route path="/rents/*" element={<RentsRedirect />} />
-        <Route path="*" element={<Navigate to="/" replace />} />
-      </Routes>
+            <Route
+              path="/add-item"
+              element={user ? <AddItem /> : <Navigate to="/login" replace />}
+            />
+            <Route
+              path="/my-items"
+              element={user ? <MyItems user={user} searchTerm={searchTerm} setSearchTerm={setSearchTerm} /> : <Navigate to="/login" replace />}
+            />
+            <Route
+              path="/MyItems"
+              element={user ? <MyItems user={user} searchTerm={searchTerm} setSearchTerm={setSearchTerm} /> : <Navigate to="/login" replace />}
+            />
+            <Route
+              path="/business-hub"
+              element={user ? <BusinessHub user={user} /> : <Navigate to="/login" replace />}
+            />
+            <Route
+              path="/BusinessHub"
+              element={user ? <BusinessHub user={user} /> : <Navigate to="/login" replace />}
+            />
+            <Route
+              path="/notifications"
+              element={user ? <Notifications user={user} /> : <Navigate to="/login" replace />}
+            />
+            <Route
+              path="/add-post"
+              element={<Navigate to="/add-item" replace />}
+            />
+            <Route path="/rents" element={<RentsRedirect />} />
+            <Route path="/rents/*" element={<RentsRedirect />} />
+            <Route path="*" element={<Navigate to="/" replace />} />
+          </Routes>
+        </div>
 
-      {/* Show Bottom Navigation only when user is logged in */}
-      {user && <BottomNav user={user} />}
+        {/* Show Bottom Navigation only when user is logged in */}
+        {user && <BottomNav user={user} />}
+      </div>
     </Router>
   );
 }

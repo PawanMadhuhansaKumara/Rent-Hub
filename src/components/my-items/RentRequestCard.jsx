@@ -15,8 +15,9 @@ import {
   RotateCcw,
   ChevronDown,
   ChevronUp,
+  AlertTriangle,
 } from "lucide-react";
-import { formatRentalDate, formatRequestTime } from "../../utils/dateUtils";
+import { formatRentalDate, formatRequestTime, isRentalLate, getDaysOverdue } from "../../utils/dateUtils";
 
 /**
  * RentRequestCard
@@ -74,6 +75,9 @@ export default function RentRequestCard({
     req.status?.toLowerCase() === "cancelled" ||
     req.status?.toLowerCase() === "rejected";
 
+  const isLate = (isCustomerPicked || isRented) && isRentalLate(req);
+  const daysOverdue = isLate ? getDaysOverdue(req) : 0;
+
   const statusBadgeClass = isRented
     ? "badge-rented"
     : isApproved
@@ -83,7 +87,7 @@ export default function RentRequestCard({
     : "badge-pending";
 
   return (
-    <div className={`rent-request-card ${isExpanded ? "is-expanded" : ""}`}>
+    <div className={`rent-request-card ${isLate ? "late-rent" : ""} ${isExpanded ? "is-expanded" : ""}`}>
       <div className="rent-request-top">
         <div style={{ display: "flex", gap: "10px", alignItems: "center", flex: 1, minWidth: 0 }}>
           {imageUrl && (

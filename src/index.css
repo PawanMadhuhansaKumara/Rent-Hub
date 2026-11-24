@@ -29,8 +29,14 @@
   }
 }
 
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
 body {
   margin: 0;
+  min-height: 100dvh;
+  overflow-x: clip;
   background-color: var(--bg-app, var(--bg-card)) !important;
   color: var(--text-main, var(--text-main));
 }
@@ -38,11 +44,27 @@ body {
 #root {
   width: 100%;
   margin: 0;
-  min-height: 100svh;
+  min-height: 100dvh;
   display: flex;
   flex-direction: column;
   box-sizing: border-box;
   background-color: var(--bg-app, var(--bg-card));
+  overflow-x: clip;
+}
+
+.app-shell {
+  width: 100%;
+  min-height: 100dvh;
+  display: flex;
+  flex-direction: column;
+  box-sizing: border-box;
+}
+
+.app-main-content {
+  flex: 1 0 auto;
+  width: 100%;
+  display: flex;
+  flex-direction: column;
 }
 
 h1,
