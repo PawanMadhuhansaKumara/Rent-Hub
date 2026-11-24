@@ -56,6 +56,23 @@ exports.addToCart = async (req, res) => {
       console.warn("Item availability check error in addToCart:", checkErr.message);
     }
 
+    // Deduplication check: prevent duplicate items in cart on fast clicks or retries
+    try {
+      const [existingCart] = await db.execute(
+        "SELECT id FROM cart WHERE user_id = ? AND item_id = ?",
+        [user_id, item_id]
+      );
+      if (existingCart && existingCart.length > 0) {
+        return res.status(200).json({
+          success: true,
+          message: "Item is already in your cart.",
+          cartId: existingCart[0].id,
+        });
+      }
+    } catch (cartDupErr) {
+      console.warn("Cart duplicate check warning:", cartDupErr.message);
+    }
+
     try {
       const query = `INSERT INTO cart (user_id, item_id, quantity, start_date, end_date, created_at) VALUES (?, ?, ?, ?, ?, NOW())`;
       const values = [

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useRef } from "react";
 import { useSearchParams, useNavigate } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Clock, Inbox, ShoppingCart, Package, ArrowLeft } from "lucide-react";
@@ -448,220 +448,240 @@ export default function MyItems({ user }) {
   const [rentStartDate, setRentStartDate] = useState("");
   const [rentEndDate, setRentEndDate] = useState("");
   const [rentQuantity, setRentQuantity] = useState(1);
+  const [isSubmittingRent, setIsSubmittingRent] = useState(false);
+  const submittingRentRef = useRef(false);
+  const submittingCartRentRef = useRef(false);
+  const [returningCustomerReqId, setReturningCustomerReqId] = useState(null);
 
   const handleRentNow = async () => {
-    if (selectedCartIds.length === 0) {
-      alert("Please select at least one item from the cart to rent.");
-      return;
-    }
-    const selectedItems = cartItems.filter(
-      (ci) => selectedCartIds.includes(ci.id) && !isItemCurrentlyRented(ci),
-    );
+    if (submittingRentRef.current) return;
+    submittingRentRef.current = true;
+    setIsSubmittingRent(true);
 
-    if (selectedItems.length === 0) {
-      alert("Selected items are currently rented out and cannot be rented.");
-      return;
-    }
+    try {
+      if (selectedCartIds.length === 0) {
+        alert("Please select at least one item from the cart to rent.");
+        return;
+      }
+      const selectedItems = cartItems.filter(
+        (ci) => selectedCartIds.includes(ci.id) && !isItemCurrentlyRented(ci),
+      );
 
-    if (selectedItems.length === 1) {
-      const targetItem = selectedItems[0];
-      setRentModalItem(targetItem);
-      setRentStartDate(targetItem.startDate || "");
-      setRentEndDate(targetItem.endDate || "");
-      setRentQuantity(targetItem.quantity || 1);
-      return;
-    }
+      if (selectedItems.length === 0) {
+        alert("Selected items are currently rented out and cannot be rented.");
+        return;
+      }
 
-    for (const item of selectedItems) {
-      const s = item.startDate ? new Date(item.startDate) : new Date();
-      const e = item.endDate
-        ? new Date(item.endDate)
-        : new Date(Date.now() + 86400000);
-      const diffDays = Math.max(1, Math.ceil((e - s) / (1000 * 60 * 60 * 24)));
-      const numPrice = Number(item.price) || 0;
-      const numQty = Number(item.quantity) || 1;
-      const itemPriceType = item.priceType || item.price_type || "day";
-      const total =
+      if (selectedItems.length === 1) {
+        const targetItem = selectedItems[0];
+        setRentModalItem(targetItem);
+        setRentStartDate(targetItem.startDate || "");
+        setRentEndDate(targetItem.endDate || "");
+        setRentQuantity(targetItem.quantity || 1);
+        return;
+      }
+
+      for (const item of selectedItems) {
+        const s = item.startDate ? new Date(item.startDate) : new Date();
+        const e = item.endDate
+          ? new Date(item.endDate)
+          : new Date(Date.now() + 86400000);
+        const diffDays = Math.max(1, Math.ceil((e - s) / (1000 * 60 * 60 * 24)));
+        const numPrice = Number(item.price) || 0;
+        const numQty = Number(item.quantity) || 1;
+        const itemPriceType = item.priceType || item.price_type || "day";
+        const total =
+          itemPriceType === "day"
+            ? numPrice * numQty * diffDays
+            : numPrice * numQty;
+
+        const payload = {
+          itemId: item.itemId || item.item_id || item.id,
+          buyerId: userId,
+          sellerId: item.sellerId || item.user_id,
+          startDate: item.startDate || new Date().toISOString().split("T")[0],
+          endDate:
+            item.endDate ||
+            new Date(Date.now() + 86400000).toISOString().split("T")[0],
+          quantity: numQty,
+          totalPrice: total,
+          status: "Pending",
+        };
+
+        try {
+          await fetch(`${API_URL}/api/rent-requests`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(payload),
+          });
+        } catch (err) {}
+
+        const localReq = {
+          id: Date.now() + Math.random(),
+          ...payload,
+          createdAt: new Date().toISOString(),
+          itemTitle: item.title || item.itemTitle,
+          itemImage: item.image || item.image_url,
+          itemPrice: numPrice,
+          priceType: itemPriceType,
+          sellerName: item.sellerName || "Owner",
+        };
+
+        try {
+          const saved = JSON.parse(
+            localStorage.getItem("rent_hub_requests") || "[]",
+          );
+          localStorage.setItem(
+            "rent_hub_requests",
+            JSON.stringify([localReq, ...saved]),
+          );
+        } catch {}
+
+        handleRemoveFromCart(item.id);
+      }
+
+      fetchBuyerRequests();
+      setSuccessModalTitle(`${selectedItems.length} selected item(s)`);
+      setShowSuccessModal(true);
+    } finally {
+      submittingRentRef.current = false;
+      setIsSubmittingRent(false);
+    }
+  };
+
+  const handleCartRentSubmit = async (paymentData) => {
+    if (submittingCartRentRef.current) return false;
+    submittingCartRentRef.current = true;
+
+    try {
+      if (paymentData && paymentData.preventDefault) {
+        paymentData.preventDefault();
+      }
+      if (!rentModalItem) return false;
+
+      if (isItemCurrentlyRented(rentModalItem)) {
+        alert("This item is currently rented out and cannot be rented.");
+        return false;
+      }
+
+      if (!rentStartDate || !rentEndDate) {
+        alert("Please select rental start and end dates.");
+        return false;
+      }
+
+      const chosenMethod = paymentData?.paymentMethod || "cash";
+      const isPaid = Boolean(paymentData?.isPaid);
+
+      const s = new Date(rentStartDate);
+      const eDate = new Date(rentEndDate);
+      const diffDays = Math.max(
+        1,
+        Math.ceil((eDate - s) / (1000 * 60 * 60 * 24)),
+      );
+      const numPrice = Number(rentModalItem.price) || 0;
+      const numQty = Number(rentQuantity) || 1;
+      const itemPriceType =
+        rentModalItem.priceType || rentModalItem.price_type || "day";
+      const calculatedTotal =
         itemPriceType === "day"
           ? numPrice * numQty * diffDays
           : numPrice * numQty;
 
-      const payload = {
-        itemId: item.itemId || item.item_id || item.id,
+      const requestPayload = {
+        itemId: rentModalItem.itemId || rentModalItem.item_id || rentModalItem.id,
         buyerId: userId,
-        sellerId: item.sellerId || item.user_id,
-        startDate: item.startDate || new Date().toISOString().split("T")[0],
-        endDate:
-          item.endDate ||
-          new Date(Date.now() + 86400000).toISOString().split("T")[0],
+        sellerId: rentModalItem.sellerId || rentModalItem.user_id,
+        startDate: rentStartDate,
+        endDate: rentEndDate,
         quantity: numQty,
-        totalPrice: total,
+        totalPrice: calculatedTotal,
+        paymentMethod: chosenMethod,
+        paymentStatus: isPaid ? "paid" : "pending",
         status: "Pending",
       };
 
+      let created = null;
       try {
-        await fetch(`${API_URL}/api/rent-requests`, {
+        const res = await fetch(`${API_URL}/api/rent-requests`, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(payload),
+          body: JSON.stringify(requestPayload),
         });
-      } catch (err) {}
-
-      const localReq = {
-        id: Date.now() + Math.random(),
-        ...payload,
-        createdAt: new Date().toISOString(),
-        itemTitle: item.title || item.itemTitle,
-        itemImage: item.image || item.image_url,
-        itemPrice: numPrice,
-        priceType: itemPriceType,
-        sellerName: item.sellerName || "Owner",
-      };
-
-      try {
-        const saved = JSON.parse(
-          localStorage.getItem("rent_hub_requests") || "[]",
-        );
-        localStorage.setItem(
-          "rent_hub_requests",
-          JSON.stringify([localReq, ...saved]),
-        );
-      } catch {}
-
-      handleRemoveFromCart(item.id);
-    }
-
-    fetchBuyerRequests();
-    setSuccessModalTitle(`${selectedItems.length} selected item(s)`);
-    setShowSuccessModal(true);
-  };
-
-  const handleCartRentSubmit = async (paymentData) => {
-    if (paymentData && paymentData.preventDefault) {
-      paymentData.preventDefault();
-    }
-    if (!rentModalItem) return false;
-
-    if (isItemCurrentlyRented(rentModalItem)) {
-      alert("This item is currently rented out and cannot be rented.");
-      return false;
-    }
-
-    if (!rentStartDate || !rentEndDate) {
-      alert("Please select rental start and end dates.");
-      return false;
-    }
-
-    const chosenMethod = paymentData?.paymentMethod || "cash";
-    const isPaid = Boolean(paymentData?.isPaid);
-
-    const s = new Date(rentStartDate);
-    const eDate = new Date(rentEndDate);
-    const diffDays = Math.max(
-      1,
-      Math.ceil((eDate - s) / (1000 * 60 * 60 * 24)),
-    );
-    const numPrice = Number(rentModalItem.price) || 0;
-    const numQty = Number(rentQuantity) || 1;
-    const itemPriceType =
-      rentModalItem.priceType || rentModalItem.price_type || "day";
-    const calculatedTotal =
-      itemPriceType === "day"
-        ? numPrice * numQty * diffDays
-        : numPrice * numQty;
-
-    const requestPayload = {
-      itemId: rentModalItem.itemId || rentModalItem.item_id || rentModalItem.id,
-      buyerId: userId,
-      sellerId: rentModalItem.sellerId || rentModalItem.user_id,
-      startDate: rentStartDate,
-      endDate: rentEndDate,
-      quantity: numQty,
-      totalPrice: calculatedTotal,
-      paymentMethod: chosenMethod,
-      paymentStatus: isPaid ? "paid" : "pending",
-      status: "Pending",
-    };
-
-    let created = null;
-    try {
-      const res = await fetch(`${API_URL}/api/rent-requests`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestPayload),
-      });
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        alert(data.message || "Failed to submit rental request.");
-        return false;
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          alert(data.message || "Failed to submit rental request.");
+          return false;
+        }
+        if (data.success !== false || data.requestId) {
+          created = {
+            id: data.requestId || data.request?.id || Date.now(),
+            ...requestPayload,
+            paymentMethod: chosenMethod,
+            paymentStatus: isPaid ? "paid" : "pending",
+            createdAt: data.request?.createdAt || new Date().toISOString(),
+            itemTitle: rentModalItem.title || rentModalItem.itemTitle,
+            itemImage: rentModalItem.image || rentModalItem.image_url,
+            itemPrice: numPrice,
+            priceType: itemPriceType,
+            sellerName:
+              rentModalItem.sellerName || rentModalItem.userName || "Item Owner",
+            sellerPhone:
+              rentModalItem.sellerPhone || rentModalItem.phone_no || "",
+          };
+        }
+      } catch (err) {
+        console.warn("API request failed, persisting locally:", err);
       }
-      if (data.success !== false || data.requestId) {
+
+      if (!created) {
         created = {
-          id: data.requestId || data.request?.id || Date.now(),
+          id: Date.now(),
           ...requestPayload,
           paymentMethod: chosenMethod,
           paymentStatus: isPaid ? "paid" : "pending",
-          createdAt: data.request?.createdAt || new Date().toISOString(),
+          createdAt: new Date().toISOString(),
           itemTitle: rentModalItem.title || rentModalItem.itemTitle,
           itemImage: rentModalItem.image || rentModalItem.image_url,
           itemPrice: numPrice,
           priceType: itemPriceType,
           sellerName:
             rentModalItem.sellerName || rentModalItem.userName || "Item Owner",
-          sellerPhone:
-            rentModalItem.sellerPhone || rentModalItem.phone_no || "",
+          sellerPhone: rentModalItem.sellerPhone || rentModalItem.phone_no || "",
         };
       }
-    } catch (err) {
-      console.warn("API request failed, persisting locally:", err);
+
+      try {
+        const saved = JSON.parse(
+          localStorage.getItem("rent_hub_requests") || "[]",
+        );
+        const filtered = saved.filter((r) => String(r.id) !== String(created.id));
+        localStorage.setItem(
+          "rent_hub_requests",
+          JSON.stringify([created, ...filtered]),
+        );
+        window.dispatchEvent(new Event("rent_requests_updated"));
+        window.dispatchEvent(new Event("user_updated"));
+      } catch {}
+
+      if (rentModalItem.id) {
+        handleRemoveFromCart(rentModalItem.id);
+      }
+
+      setRequests((prev) => [
+        created,
+        ...prev.filter((r) => String(r.id) !== String(created.id)),
+      ]);
+      const sentTitle = created.itemTitle;
+      setRentModalItem(null);
+      setRentStartDate("");
+      setRentEndDate("");
+      setRentQuantity(1);
+      setSuccessModalTitle(sentTitle);
+      setShowSuccessModal(true);
+      return true;
+    } finally {
+      submittingCartRentRef.current = false;
     }
-
-    if (!created) {
-      created = {
-        id: Date.now(),
-        ...requestPayload,
-        paymentMethod: chosenMethod,
-        paymentStatus: isPaid ? "paid" : "pending",
-        createdAt: new Date().toISOString(),
-        itemTitle: rentModalItem.title || rentModalItem.itemTitle,
-        itemImage: rentModalItem.image || rentModalItem.image_url,
-        itemPrice: numPrice,
-        priceType: itemPriceType,
-        sellerName:
-          rentModalItem.sellerName || rentModalItem.userName || "Item Owner",
-        sellerPhone: rentModalItem.sellerPhone || rentModalItem.phone_no || "",
-      };
-    }
-
-    try {
-      const saved = JSON.parse(
-        localStorage.getItem("rent_hub_requests") || "[]",
-      );
-      const filtered = saved.filter((r) => String(r.id) !== String(created.id));
-      localStorage.setItem(
-        "rent_hub_requests",
-        JSON.stringify([created, ...filtered]),
-      );
-      window.dispatchEvent(new Event("rent_requests_updated"));
-      window.dispatchEvent(new Event("user_updated"));
-    } catch {}
-
-    if (rentModalItem.id) {
-      handleRemoveFromCart(rentModalItem.id);
-    }
-
-    setRequests((prev) => [
-      created,
-      ...prev.filter((r) => String(r.id) !== String(created.id)),
-    ]);
-    const sentTitle = created.itemTitle;
-    setRentModalItem(null);
-    setRentStartDate("");
-    setRentEndDate("");
-    setRentQuantity(1);
-    setSuccessModalTitle(sentTitle);
-    setShowSuccessModal(true);
-    return true;
   };
 
   // -------------------------------------------------------------
@@ -747,24 +767,25 @@ export default function MyItems({ user }) {
 
   // 1. CUSTOMER MARKS ITEM AS RETURNED
   const handleCustomerReturn = async (rentedItem) => {
-    if (!rentedItem) return;
+    if (!rentedItem || returningCustomerReqId) return;
     const reqId = rentedItem.requestId || rentedItem.id;
     if (!reqId) return;
 
-    // Optimistically update status to return_pending
-    setRequests((prev) => {
-      const updated = prev.map((r) =>
-        String(r.id) === String(reqId)
-          ? { ...r, status: "return_pending" }
-          : r
-      );
-      try {
-        localStorage.setItem("rent_hub_requests", JSON.stringify(updated));
-      } catch {}
-      return updated;
-    });
-
+    setReturningCustomerReqId(reqId);
     try {
+      // Optimistically update status to return_pending
+      setRequests((prev) => {
+        const updated = prev.map((r) =>
+          String(r.id) === String(reqId)
+            ? { ...r, status: "return_pending" }
+            : r
+        );
+        try {
+          localStorage.setItem("rent_hub_requests", JSON.stringify(updated));
+        } catch {}
+        return updated;
+      });
+
       await fetch(`${API_URL}/api/rent-requests/${reqId}/customer-return`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
@@ -773,6 +794,8 @@ export default function MyItems({ user }) {
       window.dispatchEvent(new Event("storage"));
     } catch (err) {
       console.error("Customer return error:", err);
+    } finally {
+      setReturningCustomerReqId(null);
     }
   };
 
@@ -786,7 +809,7 @@ export default function MyItems({ user }) {
   };
 
   const handleConfirmAcceptReturn = async (rating = 10) => {
-    if (!inspectReturnModalItem) return;
+    if (!inspectReturnModalItem || returningItemId) return;
     const rentedItem = inspectReturnModalItem;
     const itemId = rentedItem.itemId || rentedItem.id;
     const reqId = rentedItem.requestId || rentedItem.id;
@@ -963,6 +986,7 @@ export default function MyItems({ user }) {
   };
 
   const handleCustomerMarkPicked = async (reqId) => {
+    if (updatingReqId) return;
     setUpdatingReqId(reqId);
 
     setRequests((prev) => {
@@ -1421,6 +1445,7 @@ export default function MyItems({ user }) {
             onSelectAll={handleSelectAll}
             onRemoveFromCart={handleRemoveFromCart}
             onRentNow={handleRentNow}
+            isSubmittingRent={isSubmittingRent}
             onRetry={fetchCartItems}
           />
         )}

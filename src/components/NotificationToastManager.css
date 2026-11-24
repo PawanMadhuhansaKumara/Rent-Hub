@@ -36,6 +36,11 @@
   box-shadow: 0 16px 40px rgba(15, 23, 42, 0.22), 0 6px 16px rgba(0, 0, 0, 0.12);
 }
 
+.notif-toast-card.closing {
+  animation: toastSlideOut 0.28s cubic-bezier(0.16, 1, 0.3, 1) forwards !important;
+  pointer-events: none;
+}
+
 @keyframes toastSlideIn {
   from {
     opacity: 0;
@@ -44,6 +49,17 @@
   to {
     opacity: 1;
     transform: translateX(0) scale(1);
+  }
+}
+
+@keyframes toastSlideOut {
+  from {
+    opacity: 1;
+    transform: translateX(0) scale(1);
+  }
+  to {
+    opacity: 0;
+    transform: translateX(110%) scale(0.95);
   }
 }
 

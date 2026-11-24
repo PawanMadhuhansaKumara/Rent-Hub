@@ -19,6 +19,7 @@ export default function RentCartTab({
   onSelectAll,
   onRemoveFromCart,
   onRentNow,
+  isSubmittingRent = false,
   onRetry,
 }) {
   const { t } = useTranslation();
@@ -106,7 +107,7 @@ export default function RentCartTab({
           )}
 
           <RentRequestButton
-            disabled={selectedCartIds.length === 0}
+            disabled={selectedCartIds.length === 0 || isSubmittingRent}
             onClick={onRentNow}
           />
         </div>
@@ -136,7 +137,7 @@ export default function RentCartTab({
             </span>
           </div>
           <RentRequestButton
-            disabled={selectedCartIds.length === 0}
+            disabled={selectedCartIds.length === 0 || isSubmittingRent}
             onClick={onRentNow}
           />
         </div>

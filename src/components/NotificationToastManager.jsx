@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
 import { useNavigate } from "react-router-dom";
 import {
   Bell,
@@ -14,7 +14,7 @@ import {
 import "./NotificationToastManager.css";
 
 const API_URL = "https://rent-hub-ashen.vercel.app";
-const TOAST_DURATION = 6000; // 6 seconds
+const TOAST_DURATION = 5000; // 5 seconds auto-dismiss
 
 // Synthesize pleasant chime using Web Audio API (zero dependencies, 100% reliable)
 const playNotificationChime = () => {
@@ -201,9 +201,9 @@ export default function NotificationToastManager({ user }) {
     };
   }, [userId]);
 
-  const removeToast = (id) => {
+  const removeToast = useCallback((id) => {
     setToasts((prev) => prev.filter((t) => t.id !== id));
-  };
+  }, []);
 
   const handleToastClick = async (toast) => {
     removeToast(toast.id);
@@ -251,19 +251,52 @@ export default function NotificationToastManager({ user }) {
 
 function ToastItem({ toast, onClose, onClick }) {
   const [isPaused, setIsPaused] = useState(false);
-  const timerRef = useRef(null);
+  const [isClosing, setIsClosing] = useState(false);
+  const onCloseRef = useRef(onClose);
+  const closingRef = useRef(false);
 
   useEffect(() => {
-    if (isPaused) return;
+    onCloseRef.current = onClose;
+  });
 
+  const remainingTimeRef = useRef(TOAST_DURATION);
+  const startTimeRef = useRef(Date.now());
+  const timerRef = useRef(null);
+
+  const triggerClose = useCallback(() => {
+    if (closingRef.current) return;
+    closingRef.current = true;
+    setIsClosing(true);
+    setTimeout(() => {
+      if (onCloseRef.current) {
+        onCloseRef.current();
+      }
+    }, 280);
+  }, []);
+
+  useEffect(() => {
+    if (isPaused) {
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
+      const elapsed = Date.now() - startTimeRef.current;
+      remainingTimeRef.current = Math.max(1000, remainingTimeRef.current - elapsed);
+      return;
+    }
+
+    startTimeRef.current = Date.now();
     timerRef.current = setTimeout(() => {
-      onClose();
-    }, TOAST_DURATION);
+      triggerClose();
+    }, remainingTimeRef.current);
 
     return () => {
-      if (timerRef.current) clearTimeout(timerRef.current);
+      if (timerRef.current) {
+        clearTimeout(timerRef.current);
+        timerRef.current = null;
+      }
     };
-  }, [isPaused, onClose]);
+  }, [isPaused, triggerClose]);
 
   const getTypeConfig = (type) => {
     switch (type) {
@@ -323,10 +356,12 @@ function ToastItem({ toast, onClose, onClick }) {
 
   return (
     <div
-      className="notif-toast-card"
+      className={`notif-toast-card ${isClosing ? "closing" : ""}`}
       onMouseEnter={() => setIsPaused(true)}
       onMouseLeave={() => setIsPaused(false)}
-      onClick={onClick}
+      onClick={() => {
+        if (!isClosing && onClick) onClick();
+      }}
       role="alert"
     >
       {/* Accent Indicator Bar */}
@@ -356,7 +391,7 @@ function ToastItem({ toast, onClose, onClick }) {
             className="notif-toast-close"
             onClick={(e) => {
               e.stopPropagation();
-              onClose();
+              triggerClose();
             }}
             aria-label="Dismiss notification"
           >

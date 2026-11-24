@@ -117,6 +117,7 @@ export default function RentRequestForm({
   };
 
   const handleFinalPaymentConfirm = async (paymentData) => {
+    if (isSubmitting) return;
     setIsSubmitting(true);
     try {
       const res = await handleRequestSubmit(paymentData);

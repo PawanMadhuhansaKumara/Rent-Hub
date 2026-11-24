@@ -337,7 +337,7 @@
 
 .details-category {
   background: var(--primary-light);
-  color: var(--primary-hover);
+  color: var(--text-secondary);
 }
 
 .details-condition {
@@ -354,7 +354,7 @@
   font-size: 13px;
   font-weight: 600;
   background: var(--primary-light);
-  color: var(--primary-hover);
+  color: var(--dark-text-muted);
   border: 1px solid var(--primary-border);
   cursor: pointer;
   transition: all 0.2s ease;

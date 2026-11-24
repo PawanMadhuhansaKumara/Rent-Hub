@@ -266,6 +266,28 @@ exports.createRentRequest = async (req, res) => {
   }
 
   try {
+    // Deduplication check: Guard against duplicate requests fired rapidly (e.g. double click or connection lag)
+    try {
+      const [existingDup] = await db.execute(
+        `SELECT id, status FROM rent_requests 
+         WHERE buyer_id = ? AND item_id = ? AND start_date = ? AND end_date = ? 
+           AND LOWER(status) NOT IN ('declined', 'cancelled')
+           AND created_at >= NOW() - INTERVAL 6 SECOND 
+         ORDER BY id DESC LIMIT 1`,
+        [buyer_id, item_id, start_date, end_date]
+      );
+      if (existingDup && existingDup.length > 0) {
+        return res.status(200).json({
+          success: true,
+          message: "Rental request already submitted.",
+          requestId: existingDup[0].id,
+          request: existingDup[0],
+        });
+      }
+    } catch (dupErr) {
+      console.warn("Duplicate request check warning:", dupErr.message);
+    }
+
     // Check if the item is already rented out (stock <= 0 or status is Rented Out)
     try {
       const [items] = await db.execute(
@@ -800,6 +822,18 @@ exports.markCustomerPicked = async (req, res) => {
     }
 
     const rental = rRows[0];
+
+    // Concurrency/Idempotency guard: prevent duplicate pickup marking
+    if (Number(rental.customer_picked) === 1) {
+      return res.status(200).json({
+        success: true,
+        message: "Customer pickup has already been marked.",
+        requestId: Number(requestId),
+        customerPicked: 1,
+        customerPickedAt: rental.customer_picked_at || new Date().toISOString(),
+      });
+    }
+
     const grossTotal = parseFloat(rental.total_price || 0);
     const commission = parseFloat((grossTotal * 0.10).toFixed(2));
 
@@ -1082,6 +1116,21 @@ exports.markCustomerReturned = async (req, res) => {
     }
 
     const rental = rRows[0];
+
+    // Concurrency/Idempotency guard: prevent duplicate return submissions & notifications
+    if (
+      rental.status &&
+      (rental.status.toLowerCase() === "return_pending" ||
+        rental.status.toLowerCase() === "completed")
+    ) {
+      return res.status(200).json({
+        success: true,
+        message: "Item return is already recorded.",
+        requestId: Number(requestId),
+        status: rental.status,
+      });
+    }
+
     await db.execute(
       `UPDATE rent_requests SET status = 'return_pending' WHERE id = ?`,
       [requestId]
@@ -1142,6 +1191,18 @@ exports.acceptReturnedItem = async (req, res) => {
     }
 
     const rental = rRows[0];
+
+    // Concurrency/Idempotency guard: prevent duplicate return acceptance, stock double-restoration, or duplicate review prompts
+    if (rental.status && rental.status.toLowerCase() === "completed") {
+      return res.status(200).json({
+        success: true,
+        message: "Return has already been accepted.",
+        requestId: Number(requestId),
+        status: "Completed",
+        trust_rating: rental.trust_rating ?? numericRating,
+      });
+    }
+
     const itemId = rental.item_id;
     const returnQty = Number(rental.quantity || 1);
 

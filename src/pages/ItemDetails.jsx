@@ -81,6 +81,8 @@ export default function ItemDetails() {
   });
   const [isInCart, setIsInCart] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [submittingRequest, setSubmittingRequest] = useState(false);
+  const submittingRequestRef = useRef(false);
   const [itemReviewStats, setItemReviewStats] = useState({
     avgRating: 0,
     totalReviews: 0,
@@ -495,97 +497,123 @@ export default function ItemDetails() {
   };
 
   const handleRequestSubmit = async (paymentData) => {
-    if (paymentData && paymentData.preventDefault) {
-      paymentData.preventDefault();
-    }
-
-    if (!currentUser) {
-      alert("Please login to request a rental.");
-      navigate("/login");
-      return false;
-    }
-
-    if (isLimitExceeded) {
-      alert(
-        `Trust Limit Exceeded!\n\nYour current maximum rental limit is LKR ${userRentalLimit.toLocaleString()}, but this item costs LKR ${itemPrice.toLocaleString()}.\n\nComplete and return previous rentals safely on RentHub to build your Trust Score and unlock higher-priced items!`
-      );
-      return false;
-    }
-
-    if (isRented || available < 1) {
-      alert("This item is currently rented out and cannot be rented.");
-      return false;
-    }
-
-    if (!startDate || !endDate) {
-      alert("Please select the rental start and end dates.");
-      return false;
-    }
-
-    if (endDate < startDate) {
-      alert("End date must be on or after the start date.");
-      return false;
-    }
-
-    if (quantity < 1 || quantity > available)  {
-      alert("Please select a valid quantity.");
-      return false;
-    }
-
-    const chosenMethod = paymentData?.paymentMethod || "cash";
-    const isPaid = Boolean(paymentData?.isPaid);
-
-    const myId = currentUser?.user_id || currentUser?.id;
-    const sellerId = item?.user_id || item?.userId || item?.seller_id;
-
-    // Calculate duration in days and total price
-    const s = new Date(startDate);
-    const e = new Date(endDate);
-    const diffTime = e - s;
-    const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
-    const numPrice = Number(item.price) || 0;
-    const numQty = Number(quantity) || 1;
-    const itemPriceType = item.priceType || item.price_type || "day";
-    const calculatedTotal =
-      itemPriceType === "day"
-        ? numPrice * numQty * diffDays
-        : numPrice * numQty;
-
-    const requestPayload = {
-      itemId: item.id,
-      buyerId: myId,
-      sellerId: sellerId,
-      startDate: startDate,
-      endDate: endDate,
-      quantity: numQty,
-      totalPrice: calculatedTotal,
-      paymentMethod: chosenMethod,
-      paymentStatus: isPaid ? "paid" : "pending",
-      status: "Pending",
-    };
-
-    let createdRequest = null;
+    if (submittingRequestRef.current) return false;
+    submittingRequestRef.current = true;
+    setSubmittingRequest(true);
 
     try {
-      const res = await fetch(`${API_URL}/api/rent-requests`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(requestPayload),
-      });
+      if (paymentData && paymentData.preventDefault) {
+        paymentData.preventDefault();
+      }
 
-      const data = await res.json().catch(() => ({}));
-      if (!res.ok) {
-        alert(data.message || "Failed to submit rental request.");
+      if (!currentUser) {
+        alert("Please login to request a rental.");
+        navigate("/login");
         return false;
       }
 
-      if (data.success !== false || data.requestId) {
+      if (isLimitExceeded) {
+        alert(
+          `Trust Limit Exceeded!\n\nYour current maximum rental limit is LKR ${userRentalLimit.toLocaleString()}, but this item costs LKR ${itemPrice.toLocaleString()}.\n\nComplete and return previous rentals safely on RentHub to build your Trust Score and unlock higher-priced items!`
+        );
+        return false;
+      }
+
+      if (isRented || available < 1) {
+        alert("This item is currently rented out and cannot be rented.");
+        return false;
+      }
+
+      if (!startDate || !endDate) {
+        alert("Please select the rental start and end dates.");
+        return false;
+      }
+
+      if (endDate < startDate) {
+        alert("End date must be on or after the start date.");
+        return false;
+      }
+
+      if (quantity < 1 || quantity > available)  {
+        alert("Please select a valid quantity.");
+        return false;
+      }
+
+      const chosenMethod = paymentData?.paymentMethod || "cash";
+      const isPaid = Boolean(paymentData?.isPaid);
+
+      const myId = currentUser?.user_id || currentUser?.id;
+      const sellerId = item?.user_id || item?.userId || item?.seller_id;
+
+      // Calculate duration in days and total price
+      const s = new Date(startDate);
+      const e = new Date(endDate);
+      const diffTime = e - s;
+      const diffDays = Math.max(1, Math.ceil(diffTime / (1000 * 60 * 60 * 24)));
+      const numPrice = Number(item.price) || 0;
+      const numQty = Number(quantity) || 1;
+      const itemPriceType = item.priceType || item.price_type || "day";
+      const calculatedTotal =
+        itemPriceType === "day"
+          ? numPrice * numQty * diffDays
+          : numPrice * numQty;
+
+      const requestPayload = {
+        itemId: item.id,
+        buyerId: myId,
+        sellerId: sellerId,
+        startDate: startDate,
+        endDate: endDate,
+        quantity: numQty,
+        totalPrice: calculatedTotal,
+        paymentMethod: chosenMethod,
+        paymentStatus: isPaid ? "paid" : "pending",
+        status: "Pending",
+      };
+
+      let createdRequest = null;
+
+      try {
+        const res = await fetch(`${API_URL}/api/rent-requests`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(requestPayload),
+        });
+
+        const data = await res.json().catch(() => ({}));
+        if (!res.ok) {
+          alert(data.message || "Failed to submit rental request.");
+          return false;
+        }
+
+        if (data.success !== false || data.requestId) {
+          createdRequest = {
+            id: data.requestId || data.request?.id || Date.now(),
+            ...requestPayload,
+            paymentMethod: chosenMethod,
+            paymentStatus: isPaid ? "paid" : "pending",
+            createdAt: data.request?.createdAt || new Date().toISOString(),
+            itemTitle: item.title,
+            itemImage: item.image || item.image_url,
+            itemPrice: numPrice,
+            priceType: itemPriceType,
+            sellerName:
+              item.userName || item.user_name || item.sellerName || "Item Owner",
+            sellerPhone: item.userPhone || item.user_phone || item.phone_no || "",
+            sellerCity: item.nearestCity || item.nearest_city || "",
+          };
+        }
+      } catch (err) {
+        console.warn("Rent request API error, saving locally:", err);
+      }
+
+      if (!createdRequest) {
         createdRequest = {
-          id: data.requestId || data.request?.id || Date.now(),
+          id: Date.now(),
           ...requestPayload,
           paymentMethod: chosenMethod,
           paymentStatus: isPaid ? "paid" : "pending",
-          createdAt: data.request?.createdAt || new Date().toISOString(),
+          createdAt: new Date().toISOString(),
           itemTitle: item.title,
           itemImage: item.image || item.image_url,
           itemPrice: numPrice,
@@ -596,54 +624,38 @@ export default function ItemDetails() {
           sellerCity: item.nearestCity || item.nearest_city || "",
         };
       }
-    } catch (err) {
-      console.warn("Rent request API error, saving locally:", err);
-    }
 
-    if (!createdRequest) {
-      createdRequest = {
-        id: Date.now(),
-        ...requestPayload,
-        paymentMethod: chosenMethod,
-        paymentStatus: isPaid ? "paid" : "pending",
-        createdAt: new Date().toISOString(),
-        itemTitle: item.title,
-        itemImage: item.image || item.image_url,
-        itemPrice: numPrice,
-        priceType: itemPriceType,
-        sellerName:
-          item.userName || item.user_name || item.sellerName || "Item Owner",
-        sellerPhone: item.userPhone || item.user_phone || item.phone_no || "",
-        sellerCity: item.nearestCity || item.nearest_city || "",
-      };
-    }
+      try {
+        const saved = JSON.parse(
+          localStorage.getItem("rent_hub_requests") || "[]",
+        );
+        const filtered = saved.filter(
+          (r) => String(r.id) !== String(createdRequest.id),
+        );
+        localStorage.setItem(
+          "rent_hub_requests",
+          JSON.stringify([createdRequest, ...filtered]),
+        );
+        window.dispatchEvent(new Event("rent_requests_updated"));
+        window.dispatchEvent(new Event("user_updated"));
+      } catch (e) {
+        console.error("Local storage update error:", e);
+      }
 
-    try {
-      const saved = JSON.parse(
-        localStorage.getItem("rent_hub_requests") || "[]",
-      );
-      const filtered = saved.filter(
-        (r) => String(r.id) !== String(createdRequest.id),
-      );
-      localStorage.setItem(
-        "rent_hub_requests",
-        JSON.stringify([createdRequest, ...filtered]),
-      );
-      window.dispatchEvent(new Event("rent_requests_updated"));
-      window.dispatchEvent(new Event("user_updated"));
-    } catch (e) {
-      console.error("Local storage update error:", e);
+      setShowRequestForm(false);
+      setStartDate("");
+      setEndDate("");
+      setQuantity(1);
+      setShowSuccessModal(true);
+      return true;
+    } finally {
+      submittingRequestRef.current = false;
+      setSubmittingRequest(false);
     }
-
-    setShowRequestForm(false);
-    setStartDate("");
-    setEndDate("");
-    setQuantity(1);
-    setShowSuccessModal(true);
-    return true;
   };
 
   const handleAddToCart = async () => {
+    if (addingToCart) return;
     if (!currentUser) {
       alert("Please login to add items to your rent cart.");
       navigate("/login");
@@ -839,17 +851,7 @@ export default function ItemDetails() {
 
             <div className="details-title-row">
               <h1 className="details-title-text">{item.title}</h1>
-              {isItemSeller && (
-                <button
-                  type="button"
-                  className="details-edit-item-top-btn"
-                  onClick={() => setShowEditItemModal(true)}
-                  title="Edit this item listing"
-                >
-                  <Edit3 size={15} />
-                  <span>{t("itemEdit.editItem")}</span>
-                </button>
-              )}
+              
             </div>
             {itemReviewStats.totalReviews > 0 ? (
               <div style={{ display: "flex", alignItems: "center", gap: "6px", margin: "6px 0 14px 0" }}>

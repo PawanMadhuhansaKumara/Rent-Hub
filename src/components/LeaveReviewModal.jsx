@@ -74,6 +74,7 @@ export default function LeaveReviewModal({
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    if (submitting) return;
     setErrorMsg("");
 
     const myId = currentUser?.user_id || currentUser?.id;
@@ -171,7 +172,7 @@ export default function LeaveReviewModal({
   };
 
   const handleDelete = async () => {
-    if (!reviewId) return;
+    if (!reviewId || deleting) return;
     if (!window.confirm("Are you sure you want to delete your review and rating?")) return;
 
     const myId = currentUser?.user_id || currentUser?.id;
