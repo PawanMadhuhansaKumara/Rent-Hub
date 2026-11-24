@@ -141,19 +141,84 @@
   background-color: var(--bg-input);
 }
 
-.settings-language {
-  margin-left: 30px;
-  padding: 10px;
-  margin-top: 4px;
-  background: var(--bg-app-alt, var(--bg-card-hover));
-  border-radius: 8px;
+/* Language Selection Area */
+.settings-language-box {
+  margin: 4px 0 12px 30px;
+  padding: 4px 0;
+  display: flex;
+  align-items: center;
 }
 
-.settings-language .navbar-language {
+.settings-language-select {
   width: 100%;
+  height: 42px;
+  padding: 0 36px 0 14px;
+  font-size: 14px;
+  font-weight: 600;
+  border-radius: 10px;
+  border: 1.5px solid var(--border-light, #e2e8f0);
+  background-color: var(--bg-app-alt, #f8fafc);
+  color: var(--text-main, #0f172a);
+  cursor: pointer;
+  outline: none;
+  transition: all 0.2s ease;
+  appearance: none;
+  -webkit-appearance: none;
+  -moz-appearance: none;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2315803D' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+  background-repeat: no-repeat;
+  background-position: right 14px center;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+}
+
+.settings-language-select:hover {
+  border-color: var(--primary, #15803d);
+  background-color: var(--bg-card-hover, #f1f5f9);
+}
+
+.settings-language-select:focus {
+  border-color: var(--primary, #15803d);
+  box-shadow: 0 0 0 3px var(--primary-light, rgba(21, 128, 61, 0.15));
+}
+
+.settings-language-select option {
+  background-color: var(--bg-card, #ffffff);
+  color: var(--text-main, #0f172a);
   padding: 10px;
-  border: 1px solid var(--border-light, var(--border-light));
-  border-radius: 6px;
-  background: var(--bg-card, white);
-  color: var(--text-main, var(--text-main));
+  font-weight: 500;
+}
+
+/* Dark Mode Overrides for Language Select */
+[data-theme="dark"] .settings-language-select {
+  background-color: var(--bg-card-hover, #1e293b);
+  border-color: var(--border-light, #334155);
+  color: var(--text-main, #f8fafc);
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%234ade80' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E");
+}
+
+[data-theme="dark"] .settings-language-select:hover {
+  border-color: var(--primary, #22c55e);
+  background-color: #283548;
+}
+
+[data-theme="dark"] .settings-language-select option {
+  background-color: #1e293b;
+  color: #f8fafc;
+}
+
+/* Fallback protection for any navbar-language inside popup */
+.settings-popup .navbar-language {
+  color: var(--text-main, #0f172a) !important;
+  background-color: var(--bg-app-alt, #f8fafc) !important;
+  border: 1.5px solid var(--border-light, #e2e8f0) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%2315803D' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
+  background-repeat: no-repeat !important;
+  background-position: right 14px center !important;
+}
+
+[data-theme="dark"] .settings-popup .navbar-language {
+  color: var(--text-main, #f8fafc) !important;
+  background-color: var(--bg-card-hover, #1e293b) !important;
+  border: 1.5px solid var(--border-light, #334155) !important;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='14' height='14' viewBox='0 0 24 24' fill='none' stroke='%234ade80' stroke-width='2.5' stroke-linecap='round' stroke-linejoin='round'%3E%3Cpolyline points='6 9 12 15 18 9'%3E%3C/polyline%3E%3C/svg%3E") !important;
 }

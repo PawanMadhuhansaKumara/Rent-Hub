@@ -1,7 +1,7 @@
 import { useTranslation } from "react-i18next";
 import "./components.css";
 
-export default function LanguageSelecter() {
+export default function LanguageSelecter({ className = "navbar-language", style = {} }) {
   const { i18n } = useTranslation();
 
   const changeLanguage = async (language) => {
@@ -30,7 +30,8 @@ export default function LanguageSelecter() {
 
   return (
     <select
-      className="navbar-language"
+      className={className}
+      style={style}
       value={i18n.language?.split("-")[0] || "en"}
       onChange={(e) => changeLanguage(e.target.value)}
       aria-label="Select language"

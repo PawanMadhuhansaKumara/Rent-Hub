@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import { Settings, X, UserRound, Bell, Globe, ShieldCheck, LogOut, Trash2, Sun, Moon } from "lucide-react";
+import { Settings, X, UserRound, Bell, Globe, ShieldCheck, LogOut, Trash2, Sun, Moon, ChevronDown } from "lucide-react";
 import "./SettingsPopup.css";
 import LanguageSelecter from "./LanguageSelecter";
 import LogoutButton from "./LogoutButton";
@@ -168,14 +168,30 @@ export default function SettingsPopup({ handleLogout, onOpenMapLocation }) {
             </div>
 
             <button
-              className="settings-item"
+              className="settings-item settings-language-btn"
               onClick={() => setShowLanguage(!showLanguage)}
+              style={{ justifyContent: "space-between" }}
+              type="button"
             >
-              <Globe size={18} />
-              <span>{t("settings.language", "Language")}</span>
+              <div style={{ display: "flex", alignItems: "center", gap: "12px" }}>
+                <Globe size={18} />
+                <span>{t("settings.language", "Language")}</span>
+              </div>
+              <ChevronDown
+                size={16}
+                style={{
+                  transition: "transform 0.2s ease",
+                  transform: showLanguage ? "rotate(180deg)" : "rotate(0deg)",
+                  color: "var(--text-muted)",
+                }}
+              />
             </button>
 
-            {showLanguage && <LanguageSelecter />}
+            {showLanguage && (
+              <div className="settings-language-box">
+                <LanguageSelecter className="settings-language-select" />
+              </div>
+            )}
 
             <button className="settings-item">
               <ShieldCheck size={18} />
