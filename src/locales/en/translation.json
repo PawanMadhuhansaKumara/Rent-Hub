@@ -1,4 +1,7 @@
 {
+  "helpCenter": {
+    "title": "Help Center"
+  },
   "common": {
     "back": "Back",
     "seeMore": "See More",
@@ -306,6 +309,8 @@
     "subtitle": "Track your rental requests, active rentals, and rented items in one place.",
     "browseItems": "Browse Items",
     "businessHub": "Business Hub",
+    "selectCart": "Select Rent Cart",
+    "newCart": "New Cart",
     "tabs": {
       "requests": "Rent Requests",
       "rented": "Rented Items",

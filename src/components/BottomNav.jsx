@@ -217,9 +217,13 @@ export default function BottomNav({ user }) {
 
 const styles = {
   bottomNav: {
+    position: "fixed",
+    bottom: 0,
+    left: 0,
+    right: 0,
     width: "100%",
-    minHeight: "65px",
-    height: "calc(65px + env(safe-area-inset-bottom, 0px))",
+    minHeight: "60px",
+    height: "calc(60px + env(safe-area-inset-bottom, 0px))",
     paddingBottom: "env(safe-area-inset-bottom, 0px)",
     boxSizing: "border-box",
     backgroundColor: "var(--bottom-nav-bg)",
@@ -229,6 +233,8 @@ const styles = {
     alignItems: "center",
     zIndex: 1000,
     boxShadow: "0 -2px 10px rgba(0,0,0,0.08)",
+    transform: "translateZ(0)",
+    WebkitTransform: "translateZ(0)",
   },
 
   navItem: {

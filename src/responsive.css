@@ -42,81 +42,15 @@
   }
 }
 
-/* -------- MOBILE APP-SHELL (Prevents iOS Safari bounce, bar jump & bottom gap) -------- */
-@media (max-width: 768px) {
-  html,
-  body {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    height: 100dvh;
-    overflow: hidden !important;
-    margin: 0;
-    padding: 0;
-    -webkit-overflow-scrolling: auto;
-  }
-
-  #root,
-  .app-shell {
-    position: fixed;
-    top: 0;
-    left: 0;
-    right: 0;
-    bottom: 0;
-    width: 100%;
-    height: 100%;
-    height: 100dvh;
-    overflow: hidden !important;
-    display: flex;
-    flex-direction: column;
-    margin: 0;
-    padding: 0;
-  }
-
-  .navbar {
-    flex-shrink: 0 !important;
-    position: relative !important;
-    top: 0 !important;
-    z-index: 1000 !important;
-    width: 100% !important;
-  }
-
-  .app-main-content {
-    flex: 1 1 auto;
-    width: 100%;
-    height: 100%;
-    overflow-y: auto !important;
-    overflow-x: hidden !important;
-    -webkit-overflow-scrolling: touch !important;
-    overscroll-behavior-y: contain;
-    position: relative;
-    min-height: 0;
-  }
-
-  .bottom-nav {
-    flex-shrink: 0 !important;
-    position: relative !important;
-    bottom: auto !important;
-    left: auto !important;
-    right: auto !important;
-    width: 100% !important;
-    z-index: 1000 !important;
-  }
-}
-
-/* -------- BOTTOM NAV -------- */
+/* -------- BOTTOM NAV (Clean, Solid Fixed Positioning on iOS & Android) -------- */
 .bottom-nav {
-  position: fixed;
-  bottom: 0;
-  left: 0;
-  right: 0;
-  width: 100%;
-  min-height: 65px;
-  height: calc(65px + env(safe-area-inset-bottom, 0px));
+  position: fixed !important;
+  bottom: 0 !important;
+  left: 0 !important;
+  right: 0 !important;
+  width: 100% !important;
+  min-height: 60px;
+  height: calc(60px + env(safe-area-inset-bottom, 0px));
   padding-bottom: env(safe-area-inset-bottom, 0px);
   box-sizing: border-box;
   background-color: var(--bottom-nav-bg, var(--bg-card));
@@ -124,18 +58,20 @@
   display: flex;
   justify-content: space-around;
   align-items: center;
-  z-index: 1000;
+  z-index: 1000 !important;
   box-shadow: 0 -2px 10px rgba(0, 0, 0, 0.08);
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
-/* Eliminate bottom gap during iOS Safari scroll/rubber-band bounce */
+/* Solid background extension below bottom-nav to eliminate any gap during iOS Safari scroll bounce */
 .bottom-nav::after {
   content: "";
   position: absolute;
   top: 100%;
   left: 0;
   right: 0;
-  height: 200px;
+  height: 350px;
   background-color: var(--bottom-nav-bg, var(--bg-card));
   pointer-events: none;
 }

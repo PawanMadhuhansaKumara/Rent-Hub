@@ -1,17 +1,19 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { Trash2, User, Calendar, ExternalLink } from 'lucide-react';
+import { Trash2, User, Calendar, ExternalLink, ArrowRightLeft } from 'lucide-react';
 import './components.css';
 
 /**
  * CartItemCard
- * Displays a single cart entry with rich styling.
+ * Displays a single cart entry with rich styling and multi-cart movement options.
  */
 export default function CartItemCard({
   cartItem,
   onRemove,
   isSelected = false,
   onToggleSelect,
+  availableCarts = [],
+  onMoveCartItem,
 }) {
   const {
     id,
@@ -79,21 +81,8 @@ export default function CartItemCard({
       {/* Image Wrapper */}
       <div className="cart-item-img-wrapper" style={{ position: "relative" }}>
         {isRented && (
-          <span
-            style={{
-              position: "absolute",
-              top: "6px",
-              left: "6px",
-              background: "var(--badge-red-text)",
-              color: "var(--text-inverse)",
-              fontSize: "10px",
-              fontWeight: "700",
-              padding: "2px 6px",
-              borderRadius: "4px",
-              zIndex: 2,
-            }}
-          >
-            Rented Out
+          <span className="cart-item-rented-badge">
+            Rented
           </span>
         )}
         <img
@@ -106,19 +95,21 @@ export default function CartItemCard({
               "https://images.unsplash.com/photo-1517336714731-489689fd1ca8?auto=format&fit=crop&q=80&w=400";
           }}
         />
-        {category && (
-          <span className="cart-item-category-tag">{category}</span>
-        )}
       </div>
 
       {/* Main Body */}
       <div className="cart-item-body">
         <div className="cart-item-header-row">
-          <h4 className="cart-item-title">
-            <Link to={`/item/${itemId}`} className="cart-item-link" title={title}>
-              {title}
-            </Link>
-          </h4>
+          <div className="cart-item-title-group">
+            <h4 className="cart-item-title">
+              <Link to={`/item/${itemId}`} className="cart-item-link" title={title}>
+                {title}
+              </Link>
+            </h4>
+            {category && (
+              <span className="cart-item-category-pill">{category}</span>
+            )}
+          </div>
 
           {onRemove && (
             <button
@@ -127,7 +118,7 @@ export default function CartItemCard({
               onClick={() => onRemove(id)}
               title="Remove from Cart"
             >
-              <Trash2 size={14} />
+              <Trash2 size={13} />
               <span>Remove</span>
             </button>
           )}
@@ -146,7 +137,7 @@ export default function CartItemCard({
           <span className="cart-item-seller-name">{sellerName || "Owner"}</span>
         </div>
 
-        {/* Meta badges: Quantity, Dates */}
+        {/* Meta badges: Quantity, Dates, Move Cart */}
         <div className="cart-item-meta-row">
           <span className="cart-item-badge cart-badge-qty">
             Qty: <strong>{quantity || 1}</strong>
@@ -157,6 +148,25 @@ export default function CartItemCard({
               <Calendar size={13} />
               <span>{startDate} → {endDate}</span>
             </span>
+          )}
+
+          {availableCarts && availableCarts.length > 1 && onMoveCartItem && (
+            <div className="cart-item-move-wrapper" title="Move item to another cart">
+              <ArrowRightLeft size={12} className="cart-item-move-icon" />
+              <select
+                className="cart-item-move-select"
+                value={cartItem.cartName || "Default"}
+                onChange={(e) => onMoveCartItem(id, e.target.value)}
+              >
+                {availableCarts.map((cName) => (
+                  <option key={cName} value={cName}>
+                    {cName === (cartItem.cartName || "Default")
+                      ? `In: ${cName === "Default" ? "Default Cart" : cName}`
+                      : `Move to: ${cName === "Default" ? "Default Cart" : cName}`}
+                  </option>
+                ))}
+              </select>
+            </div>
           )}
         </div>
 

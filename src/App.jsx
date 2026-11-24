@@ -19,6 +19,8 @@ import ItemDetails from "./pages/ItemDetails";
 import MyItems from "./pages/MyItems";
 import BusinessHub from "./pages/BusinessHub";
 import Notifications from "./pages/Notifications";
+import HelpCenter from "./pages/helpCenter";
+import "./pages/helpCenter.css";
 import BuyerLocationTest from "./BuyerLocationTest";
 import NotificationToastManager from "./components/NotificationToastManager";
 
@@ -242,6 +244,9 @@ export default function App() {
               path="/notifications"
               element={user ? <Notifications user={user} /> : <Navigate to="/login" replace />}
             />
+            <Route path="/help-center" element={<HelpCenter user={user} />} />
+            <Route path="/helpCenter" element={<HelpCenter user={user} />} />
+            <Route path="/help" element={<Navigate to="/help-center" replace />} />
             <Route
               path="/add-post"
               element={<Navigate to="/add-item" replace />}

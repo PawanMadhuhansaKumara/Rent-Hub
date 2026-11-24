@@ -223,7 +223,7 @@
   --text-secondary:         var(--dark-text-secondary);
   --text-muted:             var(--dark-text-muted);
   --text-subtle:            var(--dark-text-subtle);
-  --text-inverse:           #0f172a;
+  --text-inverse:           #ffffff;
   --text-accent:            var(--dark-accent-mint);
   --text-danger:            var(--dark-accent-red);
   --text:                   var(--dark-text-main);
@@ -348,7 +348,8 @@ input::placeholder, textarea::placeholder {
 
 /* Navbar Action Icons in Dark Mode: Crisp white with glass-morphism borders */
 [data-theme="dark"] .navbar-chat-btn,
-[data-theme="dark"] .cart-icon-button {
+[data-theme="dark"] .cart-icon-button,
+[data-theme="dark"] .help-icon-button {
   color: #ffffff !important;
   background: rgba(255, 255, 255, 0.16) !important;
   border: 1.5px solid rgba(255, 255, 255, 0.45) !important;
@@ -356,13 +357,15 @@ input::placeholder, textarea::placeholder {
 }
 
 [data-theme="dark"] .navbar-chat-btn:hover,
-[data-theme="dark"] .cart-icon-button:hover {
+[data-theme="dark"] .cart-icon-button:hover,
+[data-theme="dark"] .help-icon-button:hover {
   background: rgba(255, 255, 255, 0.28) !important;
   border-color: #ffffff !important;
 }
 
 [data-theme="dark"] .navbar-chat-btn svg,
-[data-theme="dark"] .cart-icon-button svg {
+[data-theme="dark"] .cart-icon-button svg,
+[data-theme="dark"] .help-icon-button svg {
   color: #ffffff !important;
   stroke: #ffffff !important;
 }

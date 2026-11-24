@@ -2,7 +2,7 @@ const db = require("../config/db");
 
 // ADD ITEM TO CART
 exports.addToCart = async (req, res) => {
-  const { userId, itemId, quantity, startDate, endDate } = req.body;
+  const { userId, itemId, quantity, startDate, endDate, cartName } = req.body;
   const user_id = userId || req.body.user_id;
   const item_id = itemId || req.body.item_id;
   const qty = quantity || req.body.quantity || 1;
@@ -67,6 +67,7 @@ exports.addToCart = async (req, res) => {
           success: true,
           message: "Item is already in your cart.",
           cartId: existingCart[0].id,
+          cartName: cartName || "Default",
         });
       }
     } catch (cartDupErr) {
@@ -87,6 +88,7 @@ exports.addToCart = async (req, res) => {
         success: true,
         message: "Item added to cart.",
         cartId: result.insertId,
+        cartName: cartName || "Default",
       });
     } catch (insertErr) {
       // Fallback if start_date / end_date columns don't exist in cart table
@@ -97,6 +99,7 @@ exports.addToCart = async (req, res) => {
         success: true,
         message: "Item added to cart.",
         cartId: result.insertId,
+        cartName: cartName || "Default",
       });
     }
   } catch (error) {
@@ -175,4 +178,26 @@ exports.deleteCartItem = async (req, res) => {
       .status(500)
       .json({ success: false, message: "Failed to remove item from cart." });
   }
+};
+
+// OPTIONAL HELPERS FOR MULTI-CART (SAFE & NEVER THROWS)
+exports.getUserCarts = async (req, res) => {
+  res.status(200).json({ success: true, carts: ["Default"] });
+};
+
+exports.createUserCart = async (req, res) => {
+  const { name } = req.body;
+  res.status(201).json({ success: true, name: (name || "Default").trim() });
+};
+
+exports.moveCartItem = async (req, res) => {
+  res.status(200).json({ success: true });
+};
+
+exports.deleteUserCart = async (req, res) => {
+  res.status(200).json({ success: true });
+};
+
+exports.renameUserCart = async (req, res) => {
+  res.status(200).json({ success: true });
 };

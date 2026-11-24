@@ -17,6 +17,8 @@
   top: 0;
   z-index: 1000;
   font-family: Arial, Helvetica, sans-serif;
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
 }
 
 /* Eliminate top gap during iOS Safari overscroll bounce */
@@ -26,7 +28,7 @@
   bottom: 100%;
   left: 0;
   right: 0;
-  height: 200px;
+  height: 350px;
   background: var(--navbar-bg);
   pointer-events: none;
 }
@@ -397,7 +399,8 @@
     display: none;
   }
 
-  .navbar-chat-btn {
+  .navbar-chat-btn,
+  .help-icon-button {
     width: 34px;
     height: 34px;
   }
@@ -516,7 +519,8 @@
     text-align-last: center !important;
   }
 
-  .navbar-chat-btn {
+  .navbar-chat-btn,
+  .help-icon-button {
     width: 30px;
     height: 30px;
   }
@@ -537,7 +541,8 @@
   align-items: center;
 }
 
-.navbar-chat-btn {
+.navbar-chat-btn,
+.help-icon-button {
   position: relative;
   width: 42px;
   height: 42px;
@@ -551,14 +556,18 @@
   transition: all 0.2s ease;
   padding: 0;
   color: #FFFFFF !important;
+  outline: none;
+  box-sizing: border-box;
 }
 
-.navbar-chat-btn svg {
+.navbar-chat-btn svg,
+.help-icon-button svg {
   color: #FFFFFF !important;
   stroke: #FFFFFF !important;
 }
 
-.navbar-chat-btn:hover {
+.navbar-chat-btn:hover,
+.help-icon-button:hover {
   background: rgba(255, 255, 255, 0.3);
   border-color: var(--border-light);
   transform: translateY(-1px);

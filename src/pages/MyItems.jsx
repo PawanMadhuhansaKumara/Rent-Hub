@@ -378,12 +378,56 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
   // -------------------------------------------------------------
   // RENT CART STATE
   // -------------------------------------------------------------
+  // RENT CART STATE & MULTI-CART MANAGEMENT
+  // -------------------------------------------------------------
   const [cartItems, setCartItems] = useState([]);
   const [loadingCart, setLoadingCart] = useState(false);
   const [errorCart, setErrorCart] = useState("");
   const [selectedCartIds, setSelectedCartIds] = useState([]);
   const [showSuccessModal, setShowSuccessModal] = useState(false);
   const [successModalTitle, setSuccessModalTitle] = useState("");
+
+  const [cartsList, setCartsList] = useState(() => {
+    try {
+      const stored = localStorage.getItem(`renthub_carts_${userId}`);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        if (Array.isArray(parsed) && parsed.length > 0) {
+          return Array.from(new Set(["Default", ...parsed]));
+        }
+      }
+    } catch (e) {}
+    return ["Default"];
+  });
+
+  const [activeCartName, setActiveCartName] = useState(() => {
+    try {
+      return localStorage.getItem(`renthub_active_cart_${userId}`) || "Default";
+    } catch (e) {}
+    return "Default";
+  });
+
+  // Sync carts list from backend API
+  const fetchUserCarts = async () => {
+    if (!userId) return;
+    try {
+      const res = await fetch(`${API_URL}/api/cart/${userId}/carts`);
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success && Array.isArray(data.carts)) {
+          setCartsList((prev) => {
+            const merged = Array.from(new Set(["Default", ...data.carts, ...prev]));
+            try {
+              localStorage.setItem(`renthub_carts_${userId}`, JSON.stringify(merged));
+            } catch (e) {}
+            return merged;
+          });
+        }
+      }
+    } catch (err) {
+      console.warn("Could not fetch user carts from backend:", err);
+    }
+  };
 
   const fetchCartItems = async () => {
     try {
@@ -392,13 +436,44 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
       const res = await fetch(`${API_URL}/api/cart/${userId}`);
       if (res.ok) {
         const data = await res.json();
-        const sorted = (Array.isArray(data) ? data : []).sort(
-          (a, b) =>
-            new Date(b.createdAt || b.created_at || 0).getTime() -
-              new Date(a.createdAt || a.created_at || 0).getTime() ||
-            Number(b.id || 0) - Number(a.id || 0),
-        );
+        let assignments = {};
+        try {
+          assignments = JSON.parse(
+            localStorage.getItem(`renthub_cart_assignments_${userId}`) || "{}"
+          );
+        } catch (e) {}
+
+        const sorted = (Array.isArray(data) ? data : [])
+          .map((item) => {
+            const assigned =
+              assignments[item.id] ||
+              assignments[`item_${item.itemId || item.item_id}`] ||
+              ((item.cartName || item.cart_name || "").trim()) ||
+              "Default";
+            return {
+              ...item,
+              cartName: assigned,
+            };
+          })
+          .sort(
+            (a, b) =>
+              new Date(b.createdAt || b.created_at || 0).getTime() -
+                new Date(a.createdAt || a.created_at || 0).getTime() ||
+              Number(b.id || 0) - Number(a.id || 0),
+          );
         setCartItems(sorted);
+
+        // Also merge any cart names found on cart items into cartsList
+        const itemCartNames = sorted.map((it) => it.cartName).filter(Boolean);
+        if (itemCartNames.length > 0) {
+          setCartsList((prev) => {
+            const updated = Array.from(new Set(["Default", ...prev, ...itemCartNames]));
+            try {
+              localStorage.setItem(`renthub_carts_${userId}`, JSON.stringify(updated));
+            } catch (e) {}
+            return updated;
+          });
+        }
       } else {
         const errData = await res.json().catch(() => ({}));
         throw new Error(errData.message || "Failed to load cart items.");
@@ -414,8 +489,147 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
   useEffect(() => {
     if (userId) {
       fetchCartItems();
+      fetchUserCarts();
     }
   }, [userId, activeTab]);
+
+  const handleSelectCart = (cartName) => {
+    setActiveCartName(cartName);
+    try {
+      localStorage.setItem(`renthub_active_cart_${userId}`, cartName);
+    } catch (e) {}
+    setSelectedCartIds([]);
+  };
+
+  const handleCreateCart = async (newCartName) => {
+    const trimmed = (newCartName || "").trim();
+    if (!trimmed) return;
+    const updatedCarts = Array.from(new Set([...cartsList, trimmed]));
+    setCartsList(updatedCarts);
+    setActiveCartName(trimmed);
+    setSelectedCartIds([]);
+    try {
+      localStorage.setItem(`renthub_carts_${userId}`, JSON.stringify(updatedCarts));
+      localStorage.setItem(`renthub_active_cart_${userId}`, trimmed);
+    } catch (e) {}
+
+    try {
+      await fetch(`${API_URL}/api/cart/${userId}/carts`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: trimmed }),
+      });
+    } catch (err) {
+      console.warn("Error creating cart on backend:", err);
+    }
+  };
+
+  const handleRenameCart = async (oldName, newName) => {
+    const trimmedNew = (newName || "").trim();
+    if (!trimmedNew || oldName === "Default" || oldName === trimmedNew) return;
+
+    const updatedCarts = cartsList.map((c) => (c === oldName ? trimmedNew : c));
+    setCartsList(updatedCarts);
+    if (activeCartName === oldName) {
+      setActiveCartName(trimmedNew);
+      try {
+        localStorage.setItem(`renthub_active_cart_${userId}`, trimmedNew);
+      } catch (e) {}
+    }
+    try {
+      localStorage.setItem(`renthub_carts_${userId}`, JSON.stringify(updatedCarts));
+      const stored = JSON.parse(
+        localStorage.getItem(`renthub_cart_assignments_${userId}`) || "{}"
+      );
+      Object.keys(stored).forEach((k) => {
+        if (stored[k] === oldName) stored[k] = trimmedNew;
+      });
+      localStorage.setItem(`renthub_cart_assignments_${userId}`, JSON.stringify(stored));
+    } catch (e) {}
+
+    setCartItems((prev) =>
+      prev.map((it) => (it.cartName === oldName ? { ...it, cartName: trimmedNew } : it))
+    );
+
+    try {
+      await fetch(
+        `${API_URL}/api/cart/${userId}/carts/${encodeURIComponent(oldName)}`,
+        {
+          method: "PUT",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ newName: trimmedNew }),
+        }
+      );
+    } catch (err) {
+      console.warn("Error renaming cart on backend:", err);
+    }
+  };
+
+  const handleDeleteCart = async (cartNameToDelete) => {
+    if (cartNameToDelete === "Default") return;
+
+    const updatedCarts = cartsList.filter((c) => c !== cartNameToDelete);
+    setCartsList(updatedCarts);
+    setActiveCartName("Default");
+    setSelectedCartIds([]);
+    try {
+      localStorage.setItem(`renthub_carts_${userId}`, JSON.stringify(updatedCarts));
+      localStorage.setItem(`renthub_active_cart_${userId}`, "Default");
+      const stored = JSON.parse(
+        localStorage.getItem(`renthub_cart_assignments_${userId}`) || "{}"
+      );
+      Object.keys(stored).forEach((k) => {
+        if (stored[k] === cartNameToDelete) stored[k] = "Default";
+      });
+      localStorage.setItem(`renthub_cart_assignments_${userId}`, JSON.stringify(stored));
+    } catch (e) {}
+
+    // Move any items in that cart to Default locally
+    setCartItems((prev) =>
+      prev.map((it) => (it.cartName === cartNameToDelete ? { ...it, cartName: "Default" } : it))
+    );
+
+    try {
+      await fetch(
+        `${API_URL}/api/cart/${userId}/carts/${encodeURIComponent(cartNameToDelete)}`,
+        {
+          method: "DELETE",
+        }
+      );
+    } catch (err) {
+      console.warn("Error deleting cart on backend:", err);
+    }
+  };
+
+  const handleMoveCartItem = async (cartItemId, targetCartName) => {
+    const trimmedTarget = (targetCartName || "Default").trim() || "Default";
+    setCartItems((prev) =>
+      prev.map((it) => (it.id === cartItemId ? { ...it, cartName: trimmedTarget } : it))
+    );
+
+    if (!cartsList.includes(trimmedTarget)) {
+      setCartsList((prev) => [...prev, trimmedTarget]);
+    }
+    setSelectedCartIds((prev) => prev.filter((id) => id !== cartItemId));
+
+    try {
+      const stored = JSON.parse(
+        localStorage.getItem(`renthub_cart_assignments_${userId}`) || "{}"
+      );
+      stored[cartItemId] = trimmedTarget;
+      localStorage.setItem(`renthub_cart_assignments_${userId}`, JSON.stringify(stored));
+    } catch (e) {}
+
+    try {
+      await fetch(`${API_URL}/api/cart/${cartItemId}/move`, {
+        method: "PUT",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ targetCart: trimmedTarget }),
+      });
+    } catch (err) {
+      console.warn("Error moving cart item on backend:", err);
+    }
+  };
 
   const isItemCurrentlyRented = (ci) => {
     if (!ci) return false;
@@ -433,8 +647,13 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
     );
   };
 
+  // Items in active cart
+  const activeCartItems = cartItems.filter(
+    (ci) => ((ci.cartName || "").trim() || "Default") === activeCartName
+  );
+
   const handleToggleSelect = (cartId) => {
-    const item = cartItems.find((ci) => ci.id === cartId);
+    const item = activeCartItems.find((ci) => ci.id === cartId);
     if (item && isItemCurrentlyRented(item)) {
       alert("This item is currently rented out and cannot be rented.");
       return;
@@ -447,7 +666,7 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
   };
 
   const handleSelectAll = () => {
-    const selectable = cartItems.filter((ci) => !isItemCurrentlyRented(ci));
+    const selectable = activeCartItems.filter((ci) => !isItemCurrentlyRented(ci));
     if (selectedCartIds.length === selectable.length) {
       setSelectedCartIds([]);
     } else {
@@ -455,7 +674,7 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
     }
   };
 
-  const totalSelectedPrice = cartItems
+  const totalSelectedPrice = activeCartItems
     .filter((ci) => selectedCartIds.includes(ci.id))
     .reduce(
       (acc, curr) =>
@@ -1532,6 +1751,13 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
             isSubmittingRent={isSubmittingRent}
             onRetry={fetchCartItems}
             searchTerm={searchTerm}
+            cartsList={cartsList}
+            activeCartName={activeCartName}
+            onSelectCart={handleSelectCart}
+            onCreateCart={handleCreateCart}
+            onRenameCart={handleRenameCart}
+            onDeleteCart={handleDeleteCart}
+            onMoveCartItem={handleMoveCartItem}
           />
         )}
       </div>

@@ -7,6 +7,7 @@ import "./Navbar.css";
 import "../responsive.css";
 import logo from "../assets/logoLight.png";
 import LanguageSelecter from "../components/LanguageSelecter";
+import HelpIcon from "../components/HelpIcon";
 import CartIcon from "../components/CartIcon";
 import SearchBar from "../components/SearchBar";
 
@@ -337,6 +338,9 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
             {t("appbar.home") || "Home"}
           </Link>
         )}
+
+        {/* Help Center Icon */}
+        <HelpIcon />
 
         {activeUser && <CartIcon />}
 

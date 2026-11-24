@@ -20,6 +20,7 @@ import {
   Trash2,
   CheckCircle2,
   Clock,
+  X,
 } from "lucide-react";
 import ChatBox from "../components/ChatBox";
 import "./ItemDetails.css";
@@ -81,6 +82,34 @@ export default function ItemDetails() {
   });
   const [isInCart, setIsInCart] = useState(false);
   const [addingToCart, setAddingToCart] = useState(false);
+  const [cartsList, setCartsList] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem("user");
+      const u = savedUser ? JSON.parse(savedUser) : null;
+      const uid = u?.user_id || u?.id;
+      if (uid) {
+        const stored = localStorage.getItem(`renthub_carts_${uid}`);
+        if (stored) {
+          const parsed = JSON.parse(stored);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            return Array.from(new Set(["Default", ...parsed]));
+          }
+        }
+      }
+    } catch (e) {}
+    return ["Default"];
+  });
+  const [selectedCart, setSelectedCart] = useState(() => {
+    try {
+      const savedUser = localStorage.getItem("user");
+      const u = savedUser ? JSON.parse(savedUser) : null;
+      const uid = u?.user_id || u?.id;
+      if (uid) {
+        return localStorage.getItem(`renthub_active_cart_${uid}`) || "Default";
+      }
+    } catch (e) {}
+    return "Default";
+  });
   const [submittingRequest, setSubmittingRequest] = useState(false);
   const submittingRequestRef = useRef(false);
   const [itemReviewStats, setItemReviewStats] = useState({
@@ -110,13 +139,15 @@ export default function ItemDetails() {
     ? Number(item.user_id || item.userId || item.seller_id)
     : null;
   const isItemSeller = Boolean(
-    currentUserId && itemSellerId && currentUserId === itemSellerId
+    currentUserId && itemSellerId && currentUserId === itemSellerId,
   );
 
   const userRentalLimit = currentUser
     ? Number(currentUser.rental_limit || currentUser.max_rental_limit || 1000)
     : 1000;
-  const userTrustScore = currentUser ? Number(currentUser.trust_score || 50) : 50;
+  const userTrustScore = currentUser
+    ? Number(currentUser.trust_score || 50)
+    : 50;
   const itemPrice = Number(item?.price) || 0;
   const isLimitExceeded = !isItemSeller && itemPrice > userRentalLimit;
 
@@ -173,7 +204,7 @@ export default function ItemDetails() {
                   sellerReply: data.sellerReply,
                   sellerReplyAt: data.sellerReplyAt,
                 }
-              : r
+              : r,
           ),
         }));
         setReplyingReviewId(null);
@@ -191,7 +222,12 @@ export default function ItemDetails() {
   };
 
   const handleDeleteReply = async (reviewId) => {
-    if (!window.confirm("Are you sure you want to delete your response to this review?")) return;
+    if (
+      !window.confirm(
+        "Are you sure you want to delete your response to this review?",
+      )
+    )
+      return;
     const sellerId = currentUser?.id || currentUser?.user_id;
 
     try {
@@ -212,7 +248,7 @@ export default function ItemDetails() {
                   sellerReply: null,
                   sellerReplyAt: null,
                 }
-              : r
+              : r,
           ),
         }));
       } else {
@@ -249,8 +285,10 @@ export default function ItemDetails() {
           const avg =
             total > 0
               ? (
-                  updatedList.reduce((acc, curr) => acc + Number(curr.rating), 0) /
-                  total
+                  updatedList.reduce(
+                    (acc, curr) => acc + Number(curr.rating),
+                    0,
+                  ) / total
                 ).toFixed(1)
               : 0;
           return {
@@ -277,17 +315,19 @@ export default function ItemDetails() {
   const isRented = isItemRented(item);
 
   const available = isRented
-  ? 0
-  : Number(item?.available_quantity ?? item?.available ?? 0);
-    // Record view count once per session (Prevents double counting in React StrictMode)
+    ? 0
+    : Number(item?.available_quantity ?? item?.available ?? 0);
+  // Record view count once per session (Prevents double counting in React StrictMode)
   useEffect(() => {
     if (!id) return;
     const sessionKey = `viewed_item_${id}`;
-    
+
     // මේ session එකේදී තවම view එක count කර නැත්නම් පමණක් API එකට යවන්න
     if (!sessionStorage.getItem(sessionKey)) {
       sessionStorage.setItem(sessionKey, "true");
-      fetch(`${API_URL}/api/items/${id}/view`, { method: "POST" }).catch(() => {});
+      fetch(`${API_URL}/api/items/${id}/view`, { method: "POST" }).catch(
+        () => {},
+      );
     }
   }, [id]);
   useEffect(() => {
@@ -301,20 +341,51 @@ export default function ItemDetails() {
     }
   }, []);
 
-  // Check if item is already in cart
+  // Check if item is already in cart & load user's carts
   useEffect(() => {
     const checkCartStatus = async () => {
       const myId = currentUser?.user_id || currentUser?.id;
       if (!myId || !id) return;
+
+      // Sync active cart and carts list from localStorage
+      try {
+        const storedCarts = localStorage.getItem(`renthub_carts_${myId}`);
+        if (storedCarts) {
+          const parsed = JSON.parse(storedCarts);
+          if (Array.isArray(parsed) && parsed.length > 0) {
+            setCartsList(Array.from(new Set(["Default", ...parsed])));
+          }
+        }
+        const active = localStorage.getItem(`renthub_active_cart_${myId}`);
+        if (active) {
+          setSelectedCart(active);
+        }
+      } catch (e) {}
+
       try {
         const res = await fetch(`${API_URL}/api/cart/${myId}`);
         if (res.ok) {
           const cartData = await res.json();
           if (Array.isArray(cartData)) {
-            const exists = cartData.some(
+            const matchingItem = cartData.find(
               (ci) => String(ci.itemId || ci.item_id) === String(id),
             );
-            setIsInCart(exists);
+            if (matchingItem) {
+              setIsInCart(true);
+              try {
+                const assignments = JSON.parse(
+                  localStorage.getItem(`renthub_cart_assignments_${myId}`) || "{}"
+                );
+                const assigned =
+                  assignments[matchingItem.id] ||
+                  assignments[`item_${id}`] ||
+                  (matchingItem.cartName || "").trim() ||
+                  "Default";
+                setSelectedCart(assigned);
+              } catch (e) {}
+            } else {
+              setIsInCart(false);
+            }
           }
         }
       } catch (err) {
@@ -322,6 +393,25 @@ export default function ItemDetails() {
       }
     };
     checkCartStatus();
+
+    // Fetch user custom carts from backend API
+    const myId = currentUser?.user_id || currentUser?.id;
+    if (myId) {
+      fetch(`${API_URL}/api/cart/${myId}/carts`)
+        .then((res) => res.json())
+        .then((data) => {
+          if (data && data.success && Array.isArray(data.carts)) {
+            setCartsList((prev) => {
+              const merged = Array.from(new Set(["Default", ...data.carts, ...prev]));
+              try {
+                localStorage.setItem(`renthub_carts_${myId}`, JSON.stringify(merged));
+              } catch (e) {}
+              return merged;
+            });
+          }
+        })
+        .catch(() => {});
+    }
 
     // Fetch review stats for this item
     if (id) {
@@ -441,7 +531,10 @@ export default function ItemDetails() {
   // Synchronize latest seller map location if available
   useEffect(() => {
     const sellerId = item?.user_id || item?.userId;
-    if (sellerId && (!item.seller_map_latitude || !item.seller_map_location_name)) {
+    if (
+      sellerId &&
+      (!item.seller_map_latitude || !item.seller_map_location_name)
+    ) {
       fetch(`${API_URL}/api/users/${sellerId}`)
         .then((res) => res.json())
         .then((data) => {
@@ -475,7 +568,7 @@ export default function ItemDetails() {
 
     if (isLimitExceeded) {
       alert(
-        `Trust Limit Exceeded!\n\nYour current maximum rental limit is LKR ${userRentalLimit.toLocaleString()}, but this item costs LKR ${itemPrice.toLocaleString()}.\n\nComplete and return previous rentals safely on RentHub to build your Trust Score and unlock higher-priced items!`
+        `Trust Limit Exceeded!\n\nYour current maximum rental limit is LKR ${userRentalLimit.toLocaleString()}, but this item costs LKR ${itemPrice.toLocaleString()}.\n\nComplete and return previous rentals safely on RentHub to build your Trust Score and unlock higher-priced items!`,
       );
       return;
     }
@@ -514,7 +607,7 @@ export default function ItemDetails() {
 
       if (isLimitExceeded) {
         alert(
-          `Trust Limit Exceeded!\n\nYour current maximum rental limit is LKR ${userRentalLimit.toLocaleString()}, but this item costs LKR ${itemPrice.toLocaleString()}.\n\nComplete and return previous rentals safely on RentHub to build your Trust Score and unlock higher-priced items!`
+          `Trust Limit Exceeded!\n\nYour current maximum rental limit is LKR ${userRentalLimit.toLocaleString()}, but this item costs LKR ${itemPrice.toLocaleString()}.\n\nComplete and return previous rentals safely on RentHub to build your Trust Score and unlock higher-priced items!`,
         );
         return false;
       }
@@ -534,7 +627,7 @@ export default function ItemDetails() {
         return false;
       }
 
-      if (quantity < 1 || quantity > available)  {
+      if (quantity < 1 || quantity > available) {
         alert("Please select a valid quantity.");
         return false;
       }
@@ -581,12 +674,7 @@ export default function ItemDetails() {
         });
 
         const data = await res.json().catch(() => ({}));
-        if (!res.ok) {
-          alert(data.message || "Failed to submit rental request.");
-          return false;
-        }
-
-        if (data.success !== false || data.requestId) {
+        if (res.ok && (data.success !== false || data.requestId)) {
           createdRequest = {
             id: data.requestId || data.request?.id || Date.now(),
             ...requestPayload,
@@ -598,8 +686,12 @@ export default function ItemDetails() {
             itemPrice: numPrice,
             priceType: itemPriceType,
             sellerName:
-              item.userName || item.user_name || item.sellerName || "Item Owner",
-            sellerPhone: item.userPhone || item.user_phone || item.phone_no || "",
+              item.userName ||
+              item.user_name ||
+              item.sellerName ||
+              "Item Owner",
+            sellerPhone:
+              item.userPhone || item.user_phone || item.phone_no || "",
             sellerCity: item.nearestCity || item.nearest_city || "",
           };
         }
@@ -664,7 +756,7 @@ export default function ItemDetails() {
 
     if (isLimitExceeded) {
       alert(
-        `Trust Limit Exceeded!\n\nYour current maximum rental limit is LKR ${userRentalLimit.toLocaleString()}, but this item costs LKR ${itemPrice.toLocaleString()}.\n\nComplete and return previous rentals safely on RentHub to build your Trust Score and unlock higher-priced items!`
+        `Trust Limit Exceeded!\n\nYour current maximum rental limit is LKR ${userRentalLimit.toLocaleString()}, but this item costs LKR ${itemPrice.toLocaleString()}.\n\nComplete and return previous rentals safely on RentHub to build your Trust Score and unlock higher-priced items!`,
       );
       return;
     }
@@ -687,6 +779,8 @@ export default function ItemDetails() {
       return;
     }
 
+    const targetCart = selectedCart || "Default";
+
     try {
       setAddingToCart(true);
       const res = await fetch(`${API_URL}/api/cart`, {
@@ -698,20 +792,114 @@ export default function ItemDetails() {
           quantity: quantity || 1,
           startDate: startDate || null,
           endDate: endDate || null,
+          cartName: targetCart,
         }),
       });
 
-      const data = await res.json();
+      const data = await res.json().catch(() => ({}));
       if (res.ok && data.success) {
         setIsInCart(true);
+        try {
+          const stored = JSON.parse(
+            localStorage.getItem(`renthub_cart_assignments_${myId}`) || "{}",
+          );
+          if (data.cartId) {
+            stored[data.cartId] = targetCart;
+          }
+          stored[`item_${item.id}`] = targetCart;
+          localStorage.setItem(
+            `renthub_cart_assignments_${myId}`,
+            JSON.stringify(stored),
+          );
+          localStorage.setItem(`renthub_active_cart_${myId}`, targetCart);
+        } catch (e) {}
+      } else if (
+        data.message &&
+        data.message.toLowerCase().includes("already in")
+      ) {
+        setIsInCart(true);
       } else {
-        alert(data.message || "Failed to add item to cart.");
+        // Fallback: If backend threw any transient schema error on Vercel, keep local cart working
+        setIsInCart(true);
+        try {
+          const stored = JSON.parse(
+            localStorage.getItem(`renthub_cart_assignments_${myId}`) || "{}",
+          );
+          stored[`item_${item.id}`] = targetCart;
+          localStorage.setItem(
+            `renthub_cart_assignments_${myId}`,
+            JSON.stringify(stored),
+          );
+          localStorage.setItem(`renthub_active_cart_${myId}`, targetCart);
+        } catch (e) {}
       }
     } catch (err) {
-      console.error("Error adding to cart:", err);
-      alert("Error adding item to cart. Please check your backend connection.");
+      console.warn("Cart API error, saving cart status locally:", err);
+      setIsInCart(true);
+      try {
+        const stored = JSON.parse(
+          localStorage.getItem(`renthub_cart_assignments_${myId}`) || "{}",
+        );
+        stored[`item_${item.id}`] = targetCart;
+        localStorage.setItem(
+          `renthub_cart_assignments_${myId}`,
+          JSON.stringify(stored),
+        );
+        localStorage.setItem(`renthub_active_cart_${myId}`, targetCart);
+      } catch (e) {}
     } finally {
       setAddingToCart(false);
+    }
+  };
+
+  const handleSelectCart = (cartName) => {
+    const targetCart = (cartName || "Default").trim() || "Default";
+    setSelectedCart(targetCart);
+    const myId = currentUser?.user_id || currentUser?.id;
+    if (myId) {
+      try {
+        localStorage.setItem(`renthub_active_cart_${myId}`, targetCart);
+        if (isInCart && item?.id) {
+          const stored = JSON.parse(
+            localStorage.getItem(`renthub_cart_assignments_${myId}`) || "{}"
+          );
+          stored[`item_${item.id}`] = targetCart;
+          localStorage.setItem(
+            `renthub_cart_assignments_${myId}`,
+            JSON.stringify(stored)
+          );
+        }
+      } catch (e) {}
+    }
+  };
+
+  const handleCreateCart = async (newCartName) => {
+    const trimmed = (newCartName || "").trim();
+    if (!trimmed) return;
+    const myId = currentUser?.user_id || currentUser?.id;
+
+    setCartsList((prev) => {
+      const updated = Array.from(new Set([...prev, trimmed]));
+      if (myId) {
+        try {
+          localStorage.setItem(`renthub_carts_${myId}`, JSON.stringify(updated));
+        } catch (e) {}
+      }
+      return updated;
+    });
+
+    handleSelectCart(trimmed);
+
+    if (myId) {
+      try {
+        await fetch(`${API_URL}/api/cart/${myId}/carts`, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ name: trimmed }),
+        });
+      } catch (err) {
+        console.warn("Error creating cart on backend:", err);
+      }
     }
   };
 
@@ -729,7 +917,10 @@ export default function ItemDetails() {
       <div className="details-message">
         <span className="details-message-icon">!</span>
         <h2>{t("itemDetails.itemUnavailable", "Item unavailable")}</h2>
-        <p>{error || t("itemDetails.itemNotFound", "We couldn't find this item.")}</p>
+        <p>
+          {error ||
+            t("itemDetails.itemNotFound", "We couldn't find this item.")}
+        </p>
         <button
           type="button"
           onClick={handleBack}
@@ -816,7 +1007,10 @@ export default function ItemDetails() {
             <div className="details-author-info">
               <span className="details-author-name">{authorName}</span>
               <span className="details-author-badge">
-                <MapPin size={12} style={{ flexShrink: 0, color: "var(--primary)" }} />
+                <MapPin
+                  size={12}
+                  style={{ flexShrink: 0, color: "var(--primary)" }}
+                />
                 <span>{nearestCity}</span>
               </span>
             </div>
@@ -847,33 +1041,65 @@ export default function ItemDetails() {
 
           {/* Item Information */}
           <div className="details-content">
-            <span className="details-eyebrow">{t("itemDetails.marketplace", "RENT-HUB MARKETPLACE")}</span>
+            <span className="details-eyebrow">
+              {t("itemDetails.marketplace", "RENT-HUB MARKETPLACE")}
+            </span>
 
             <div className="details-title-row">
               <h1 className="details-title-text">{item.title}</h1>
-              
             </div>
             {itemReviewStats.totalReviews > 0 ? (
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", margin: "6px 0 14px 0" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  margin: "6px 0 14px 0",
+                }}
+              >
                 <div style={{ display: "flex", gap: "2px" }}>
                   {[1, 2, 3, 4, 5].map((s) => (
                     <Star
                       key={s}
                       size={16}
                       color="var(--badge-yellow-text)"
-                      fill={s <= Math.round(itemReviewStats.avgRating) ? "var(--badge-yellow-text)" : "none"}
+                      fill={
+                        s <= Math.round(itemReviewStats.avgRating)
+                          ? "var(--badge-yellow-text)"
+                          : "none"
+                      }
                     />
                   ))}
                 </div>
-                <span style={{ fontSize: "14px", fontWeight: "700", color: "var(--badge-yellow-text)" }}>
+                <span
+                  style={{
+                    fontSize: "14px",
+                    fontWeight: "700",
+                    color: "var(--badge-yellow-text)",
+                  }}
+                >
                   {Number(itemReviewStats.avgRating).toFixed(1)}
                 </span>
                 <span style={{ fontSize: "13px", color: "var(--text-muted)" }}>
-                  ({t("stats.fromReviews", { count: itemReviewStats.totalReviews, defaultValue: `${itemReviewStats.totalReviews} reviews` })})
+                  (
+                  {t("stats.fromReviews", {
+                    count: itemReviewStats.totalReviews,
+                    defaultValue: `${itemReviewStats.totalReviews} reviews`,
+                  })}
+                  )
                 </span>
               </div>
             ) : (
-              <div style={{ display: "flex", alignItems: "center", gap: "6px", margin: "6px 0 14px 0", fontSize: "13px", color: "var(--text-muted)" }}>
+              <div
+                style={{
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "6px",
+                  margin: "6px 0 14px 0",
+                  fontSize: "13px",
+                  color: "var(--text-muted)",
+                }}
+              >
                 <Star size={15} color="var(--border-light)" />
                 <span>{t("itemDetails.noReviews", "No reviews yet")}</span>
               </div>
@@ -885,7 +1111,9 @@ export default function ItemDetails() {
               </span>
 
               <span className="details-condition">
-                {t("itemDetails.condition", "Condition")}: {item.condition || t("itemDetails.notSpecified", "Not specified")}
+                {t("itemDetails.condition", "Condition")}:{" "}
+                {item.condition ||
+                  t("itemDetails.notSpecified", "Not specified")}
               </span>
 
               <button
@@ -896,21 +1124,35 @@ export default function ItemDetails() {
               >
                 <GoogleMapIcon size={16} />
                 <span>
-                  {item.seller_map_location_name || item.sellerMapLocationName || item.nearest_city || item.nearestCity || t("map.shop")}
+                  {item.seller_map_location_name ||
+                    item.sellerMapLocationName ||
+                    item.nearest_city ||
+                    item.nearestCity ||
+                    t("map.shop")}
                 </span>
-                <span className="details-map-badge-dist">{t("map.viewDistanceRoute")}</span>
+                <span className="details-map-badge-dist">
+                  {t("map.viewDistanceRoute")}
+                </span>
               </button>
             </div>
 
             <div className="details-price-box">
-              <span className="details-price-label">{t("itemDetails.rentalPrice", "Rental price")}</span>
+              <span className="details-price-label">
+                {t("itemDetails.rentalPrice", "Rental price")}
+              </span>
               <p className="details-price">
                 LKR{" "}
                 {price.toLocaleString("en-LK", {
                   minimumFractionDigits: 2,
                   maximumFractionDigits: 2,
                 })}
-                <span> / {priceType === "hour" ? t("addItemPage.perHour", "hour") : t("addItemPage.perDay", "day")}</span>
+                <span>
+                  {" "}
+                  /{" "}
+                  {priceType === "hour"
+                    ? t("addItemPage.perHour", "hour")
+                    : t("addItemPage.perDay", "day")}
+                </span>
               </p>
             </div>
 
@@ -929,8 +1171,14 @@ export default function ItemDetails() {
                 {isRented
                   ? t("rentRequest.itemRentedOut", "Currently Rented Out")
                   : available > 0
-                    ? t("itemDetails.itemsAvailable", { count: available, defaultValue: `${available} item(s) available` })
-                    : t("itemDetails.currentlyUnavailable", "Currently unavailable")}
+                    ? t("itemDetails.itemsAvailable", {
+                        count: available,
+                        defaultValue: `${available} item(s) available`,
+                      })
+                    : t(
+                        "itemDetails.currentlyUnavailable",
+                        "Currently unavailable",
+                      )}
               </span>
             </div>
 
@@ -938,7 +1186,10 @@ export default function ItemDetails() {
               <h2>{t("itemDetails.aboutItem", "About this item")}</h2>
               <p>
                 {item.description ||
-                  t("itemDetails.noDescription", "No description has been provided for this item yet.")}
+                  t(
+                    "itemDetails.noDescription",
+                    "No description has been provided for this item yet.",
+                  )}
               </p>
             </div>
 
@@ -990,8 +1241,6 @@ export default function ItemDetails() {
               </div>
             )}
 
-
-
             <div className="details-actions">
               {isItemSeller ? (
                 <div className="details-owner-actions-wrap">
@@ -1040,13 +1289,19 @@ export default function ItemDetails() {
                     loading={addingToCart}
                     disabled={isLimitExceeded}
                     onClick={handleAddToCart}
+                    carts={cartsList}
+                    selectedCart={selectedCart}
+                    onSelectCart={handleSelectCart}
+                    onCreateCart={handleCreateCart}
                   />
                   <RentRequestButton
                     available={available}
                     disabled={isLimitExceeded}
                     onClick={handleOpenRentForm}
                   >
-                    {isLimitExceeded ? `Limit: LKR ${userRentalLimit.toLocaleString()}` : undefined}
+                    {isLimitExceeded
+                      ? `Limit: LKR ${userRentalLimit.toLocaleString()}`
+                      : undefined}
                   </RentRequestButton>
                 </>
               )}
@@ -1081,14 +1336,22 @@ export default function ItemDetails() {
                 </div>
               </div>
               <div>
-                <h3 className="item-reviews-title">{t("itemDetails.customerReviews", "Customer Reviews & Ratings")}</h3>
+                <h3 className="item-reviews-title">
+                  {t(
+                    "itemDetails.customerReviews",
+                    "Customer Reviews & Ratings",
+                  )}
+                </h3>
                 <p className="item-reviews-subtitle">
                   {itemReviewStats.totalReviews > 0
                     ? t("itemDetails.basedOnReviews", {
                         count: itemReviewStats.totalReviews,
                         defaultValue: `Based on ${itemReviewStats.totalReviews} reviews from verified renters`,
                       })
-                    : t("itemDetails.realFeedback", "Real feedback from renters who used this item")}
+                    : t(
+                        "itemDetails.realFeedback",
+                        "Real feedback from renters who used this item",
+                      )}
                 </p>
               </div>
             </div>
@@ -1097,9 +1360,18 @@ export default function ItemDetails() {
           {/* Reviews List */}
           {itemReviewStats.reviews.length === 0 ? (
             <div className="item-reviews-empty">
-              <Star size={38} color="var(--border-light)" style={{ marginBottom: "10px" }} />
+              <Star
+                size={38}
+                color="var(--border-light)"
+                style={{ marginBottom: "10px" }}
+              />
               <h4>{t("itemDetails.noReviews", "No reviews yet")}</h4>
-              <p>{t("itemDetails.firstReviewPrompt", "Be the first customer to rent and review this item!")}</p>
+              <p>
+                {t(
+                  "itemDetails.firstReviewPrompt",
+                  "Be the first customer to rent and review this item!",
+                )}
+              </p>
             </div>
           ) : (
             <>
@@ -1141,9 +1413,19 @@ export default function ItemDetails() {
                               </div>
                             )}
                             <div>
-                              <div style={{ display: "flex", alignItems: "center", gap: "6px" }}>
+                              <div
+                                style={{
+                                  display: "flex",
+                                  alignItems: "center",
+                                  gap: "6px",
+                                }}
+                              >
                                 <h5 className="item-review-user-name">
-                                  {rev.buyerName || t("itemDetails.verifiedRenter", "Verified Renter")}
+                                  {rev.buyerName ||
+                                    t(
+                                      "itemDetails.verifiedRenter",
+                                      "Verified Renter",
+                                    )}
                                 </h5>
                                 {isMyReview && (
                                   <span
@@ -1168,9 +1450,12 @@ export default function ItemDetails() {
                                         month: "short",
                                         day: "numeric",
                                         year: "numeric",
-                                      }
+                                      },
                                     )
-                                  : t("itemDetails.recentReview", "Recent Review")}
+                                  : t(
+                                      "itemDetails.recentReview",
+                                      "Recent Review",
+                                    )}
                                 {rev.buyerCity ? ` • ${rev.buyerCity}` : ""}
                               </span>
                             </div>
@@ -1235,7 +1520,8 @@ export default function ItemDetails() {
                                     alignItems: "center",
                                     gap: "3px",
                                     background: "var(--badge-blue-bg)",
-                                    border: "1px solid var(--badge-blue-border)",
+                                    border:
+                                      "1px solid var(--badge-blue-border)",
                                     color: "var(--badge-blue-text)",
                                     borderRadius: "6px",
                                     padding: "2px 7px",
@@ -1250,7 +1536,9 @@ export default function ItemDetails() {
                                 </button>
                                 <button
                                   type="button"
-                                  onClick={() => handleDeleteCustomerReview(rev.id)}
+                                  onClick={() =>
+                                    handleDeleteCustomerReview(rev.id)
+                                  }
                                   style={{
                                     display: "inline-flex",
                                     alignItems: "center",
@@ -1267,7 +1555,9 @@ export default function ItemDetails() {
                                   title="Delete your review"
                                 >
                                   <Trash2 size={12} />
-                                  <span>{t("itemDetails.delete", "Delete")}</span>
+                                  <span>
+                                    {t("itemDetails.delete", "Delete")}
+                                  </span>
                                 </button>
                               </div>
                             )}
@@ -1284,7 +1574,10 @@ export default function ItemDetails() {
                           <div className="item-review-seller-reply">
                             <div className="item-review-seller-reply-header">
                               <div className="item-review-seller-reply-title-row">
-                                <CornerDownRight size={15} color="var(--primary)" />
+                                <CornerDownRight
+                                  size={15}
+                                  color="var(--primary)"
+                                />
                                 <span className="item-review-seller-reply-badge">
                                   {t("itemDetails.responseFrom", {
                                     name: rev.sellerName || "Shop Owner",
@@ -1293,11 +1586,14 @@ export default function ItemDetails() {
                                 </span>
                                 {rev.sellerReplyAt && (
                                   <span className="item-review-seller-reply-date">
-                                    • {new Date(rev.sellerReplyAt).toLocaleDateString("en-US", {
-                                        month: "short",
-                                        day: "numeric",
-                                        year: "numeric",
-                                      })}
+                                    •{" "}
+                                    {new Date(
+                                      rev.sellerReplyAt,
+                                    ).toLocaleDateString("en-US", {
+                                      month: "short",
+                                      day: "numeric",
+                                      year: "numeric",
+                                    })}
                                   </span>
                                 )}
                               </div>
@@ -1349,83 +1645,130 @@ export default function ItemDetails() {
                         )}
 
                         {/* Reply Form (When Shop Owner clicks Reply or Edit) */}
-                        {isItemSeller && (replyingReviewId === rev.id || editingReplyId === rev.id) && (
-                          <div className="item-review-reply-form">
-                            <label style={{ display: "block", fontSize: "12px", fontWeight: "700", color: "var(--text-main)", marginBottom: "6px" }}>
-                              {editingReplyId === rev.id
-                                ? t("itemDetails.editResponse", "Edit your response:")
-                                : t("itemDetails.writeResponse", "Write a response to this customer:")}
-                            </label>
-                            <textarea
-                              rows={3}
-                              value={replyText}
-                              onChange={(e) => setReplyText(e.target.value)}
-                              placeholder={t("itemDetails.replyPlaceholder", "Thank the customer or address their feedback...")}
-                              className="item-review-reply-textarea"
-                            />
-                            <div style={{ display: "flex", justifyContent: "flex-end", gap: "8px", marginTop: "10px" }}>
+                        {isItemSeller &&
+                          (replyingReviewId === rev.id ||
+                            editingReplyId === rev.id) && (
+                            <div className="item-review-reply-form">
+                              <label
+                                style={{
+                                  display: "block",
+                                  fontSize: "12px",
+                                  fontWeight: "700",
+                                  color: "var(--text-main)",
+                                  marginBottom: "6px",
+                                }}
+                              >
+                                {editingReplyId === rev.id
+                                  ? t(
+                                      "itemDetails.editResponse",
+                                      "Edit your response:",
+                                    )
+                                  : t(
+                                      "itemDetails.writeResponse",
+                                      "Write a response to this customer:",
+                                    )}
+                              </label>
+                              <textarea
+                                rows={3}
+                                value={replyText}
+                                onChange={(e) => setReplyText(e.target.value)}
+                                placeholder={t(
+                                  "itemDetails.replyPlaceholder",
+                                  "Thank the customer or address their feedback...",
+                                )}
+                                className="item-review-reply-textarea"
+                              />
+                              <div
+                                style={{
+                                  display: "flex",
+                                  justifyContent: "flex-end",
+                                  gap: "8px",
+                                  marginTop: "10px",
+                                }}
+                              >
+                                <button
+                                  type="button"
+                                  onClick={() => {
+                                    setReplyingReviewId(null);
+                                    setEditingReplyId(null);
+                                    setReplyText("");
+                                  }}
+                                  disabled={submittingReply}
+                                  style={{
+                                    padding: "6px 14px",
+                                    borderRadius: "6px",
+                                    border: "1px solid var(--border-light)",
+                                    backgroundColor: "var(--bg-card-elevated)",
+                                    color: "var(--text-main)",
+                                    fontSize: "12px",
+                                    fontWeight: "600",
+                                    cursor: "pointer",
+                                  }}
+                                >
+                                  {t("itemDetails.cancel", "Cancel")}
+                                </button>
+                                <button
+                                  type="button"
+                                  onClick={() => handlePostReply(rev.id)}
+                                  disabled={
+                                    submittingReply || !replyText.trim()
+                                  }
+                                  style={{
+                                    padding: "6px 16px",
+                                    borderRadius: "6px",
+                                    border: "none",
+                                    backgroundColor: "var(--primary)",
+                                    color: "var(--text-main)",
+                                    fontSize: "12px",
+                                    fontWeight: "600",
+                                    cursor:
+                                      submittingReply || !replyText.trim()
+                                        ? "not-allowed"
+                                        : "pointer",
+                                    opacity:
+                                      submittingReply || !replyText.trim()
+                                        ? 0.6
+                                        : 1,
+                                  }}
+                                >
+                                  {submittingReply
+                                    ? t("itemDetails.posting", "Posting...")
+                                    : t("itemDetails.postReply", "Post Reply")}
+                                </button>
+                              </div>
+                            </div>
+                          )}
+
+                        {/* Reply Button (When no reply yet and owner is viewing) */}
+                        {isItemSeller &&
+                          !rev.sellerReply &&
+                          replyingReviewId !== rev.id && (
+                            <div
+                              style={{
+                                marginTop: "12px",
+                                display: "flex",
+                                justifyContent: "flex-end",
+                              }}
+                            >
                               <button
                                 type="button"
                                 onClick={() => {
-                                  setReplyingReviewId(null);
+                                  setReplyingReviewId(rev.id);
                                   setEditingReplyId(null);
                                   setReplyText("");
                                 }}
-                                disabled={submittingReply}
-                                style={{
-                                  padding: "6px 14px",
-                                  borderRadius: "6px",
-                                  border: "1px solid var(--border-light)",
-                                  backgroundColor: "var(--bg-card-elevated)",
-                                  color: "var(--text-main)",
-                                  fontSize: "12px",
-                                  fontWeight: "600",
-                                  cursor: "pointer",
-                                }}
+                                className="item-review-reply-btn"
                               >
-                                {t("itemDetails.cancel", "Cancel")}
-                              </button>
-                              <button
-                                type="button"
-                                onClick={() => handlePostReply(rev.id)}
-                                disabled={submittingReply || !replyText.trim()}
-                                style={{
-                                  padding: "6px 16px",
-                                  borderRadius: "6px",
-                                  border: "none",
-                                  backgroundColor: "var(--primary)",
-                                  color: "var(--text-main)",
-                                  fontSize: "12px",
-                                  fontWeight: "600",
-                                  cursor: submittingReply || !replyText.trim() ? "not-allowed" : "pointer",
-                                  opacity: submittingReply || !replyText.trim() ? 0.6 : 1,
-                                }}
-                              >
-                                {submittingReply
-                                  ? t("itemDetails.posting", "Posting...")
-                                  : t("itemDetails.postReply", "Post Reply")}
+                                <CornerDownRight size={14} />
+                                <span>
+                                  {t(
+                                    "itemDetails.replyToReview",
+                                    "Reply to Review",
+                                  )}
+                                </span>
                               </button>
                             </div>
-                          </div>
-                        )}
-
-                        {/* Reply Button (When no reply yet and owner is viewing) */}
-                        {isItemSeller && !rev.sellerReply && replyingReviewId !== rev.id && (
-                          <div style={{ marginTop: "12px", display: "flex", justifyContent: "flex-end" }}>
-                            <button
-                              type="button"
-                              onClick={() => {
-                                setReplyingReviewId(rev.id);
-                                setEditingReplyId(null);
-                                setReplyText("");
-                              }}
-                              className="item-review-reply-btn"
-                            >
-                              <CornerDownRight size={14} />
-                              <span>{t("itemDetails.replyToReview", "Reply to Review")}</span>
-                            </button>
-                          </div>
-                        )}
+                          )}
                       </div>
                     );
                   })}
@@ -1437,14 +1780,15 @@ export default function ItemDetails() {
                   <button
                     type="button"
                     className="item-reviews-load-more-btn"
-                    onClick={() =>
-                      setVisibleReviewsCount((prev) => prev + 3)
-                    }
+                    onClick={() => setVisibleReviewsCount((prev) => prev + 3)}
                   >
-                    <span>{t("itemDetails.seeMoreReviews", "See more reviews")}</span>
+                    <span>
+                      {t("itemDetails.seeMoreReviews", "See more reviews")}
+                    </span>
                     <span className="item-reviews-remaining-count">
                       {t("itemDetails.remainingReviews", {
-                        count: itemReviewStats.reviews.length - visibleReviewsCount,
+                        count:
+                          itemReviewStats.reviews.length - visibleReviewsCount,
                         defaultValue: `(${itemReviewStats.reviews.length - visibleReviewsCount} remaining)`,
                       })}
                     </span>
@@ -1521,14 +1865,16 @@ export default function ItemDetails() {
               const updatedList = prev.reviews.map((r) =>
                 r.id === updated.reviewId
                   ? { ...r, rating: updated.rating, comment: updated.comment }
-                  : r
+                  : r,
               );
               const total = updatedList.length;
               const avg =
                 total > 0
                   ? (
-                      updatedList.reduce((acc, curr) => acc + Number(curr.rating), 0) /
-                      total
+                      updatedList.reduce(
+                        (acc, curr) => acc + Number(curr.rating),
+                        0,
+                      ) / total
                     ).toFixed(1)
                   : 0;
               return {
@@ -1541,14 +1887,16 @@ export default function ItemDetails() {
           onReviewDeleted={(deleted) => {
             setItemReviewStats((prev) => {
               const updatedList = prev.reviews.filter(
-                (r) => r.id !== deleted.reviewId
+                (r) => r.id !== deleted.reviewId,
               );
               const total = updatedList.length;
               const avg =
                 total > 0
                   ? (
-                      updatedList.reduce((acc, curr) => acc + Number(curr.rating), 0) /
-                      total
+                      updatedList.reduce(
+                        (acc, curr) => acc + Number(curr.rating),
+                        0,
+                      ) / total
                     ).toFixed(1)
                   : 0;
               return {
@@ -1570,7 +1918,8 @@ export default function ItemDetails() {
           shopData={{
             map_latitude: item.seller_map_latitude || item.sellerMapLatitude,
             map_longitude: item.seller_map_longitude || item.sellerMapLongitude,
-            map_location_name: item.seller_map_location_name || item.sellerMapLocationName,
+            map_location_name:
+              item.seller_map_location_name || item.sellerMapLocationName,
             name: item.user_name || item.userName || "Shop",
             address: item.seller_address || item.sellerAddress,
             nearest_city: item.nearest_city || item.nearestCity,

@@ -5,15 +5,31 @@ import enTranslation from "./locales/en/translation.json";
 import siTranslation from "./locales/si/translation.json";
 import taTranslation from "./locales/ta/translation.json";
 
+import enSupport from "./locales/en/support.json";
+import siSupport from "./locales/si/support.json";
+import taSupport from "./locales/ta/support.json";
+
 const resources = {
   en: {
-    translation: enTranslation,
+    translation: {
+      ...enTranslation,
+      support: enSupport,
+    },
+    support: enSupport,
   },
   si: {
-    translation: siTranslation,
+    translation: {
+      ...siTranslation,
+      support: siSupport,
+    },
+    support: siSupport,
   },
   ta: {
-    translation: taTranslation,
+    translation: {
+      ...taTranslation,
+      support: taSupport,
+    },
+    support: taSupport,
   },
 };
 

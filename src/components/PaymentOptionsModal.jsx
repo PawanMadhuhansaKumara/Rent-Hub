@@ -26,7 +26,7 @@ export default function PaymentOptionsModal({
   isSubmitting = false,
 }) {
   const { t } = useTranslation();
-  const [selectedMethod, setSelectedMethod] = useState("cashpoints"); // 'cashpoints' | 'card' | 'cash'
+  const [selectedMethod, setSelectedMethod] = useState("cash"); // 'cash' | 'card' | 'cashpoints'
   const [cardNumber, setCardNumber] = useState("4111 2222 3333 4444");
   const [cardExpiry, setCardExpiry] = useState("12/28");
   const [cardCvv, setCardCvv] = useState("123");

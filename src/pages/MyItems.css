@@ -1869,3 +1869,543 @@
   font-size: 12px;
   border: 1px solid rgba(234, 179, 8, 0.3);
 }
+
+/* ============================================================= */
+/* MULTI-CART SWITCHER & MANAGEMENT STYLES                       */
+/* ============================================================= */
+.rent-cart-switcher-section {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 12px;
+  padding: 14px 18px;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.03);
+}
+
+.rent-cart-switcher-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+}
+
+.rent-cart-switcher-title-wrap {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.rent-cart-switcher-title {
+  font-size: 15px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.rent-cart-switcher-count {
+  font-size: 11px;
+  font-weight: 600;
+  color: var(--text-muted);
+  background: var(--bg-card-hover, rgba(0, 0, 0, 0.05));
+  padding: 2px 8px;
+  border-radius: 10px;
+}
+
+.rent-cart-add-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background: var(--primary-light, #f0fdf4);
+  border: 1px solid var(--primary-border, #bbf7d0);
+  color: var(--primary, #15803d);
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.rent-cart-add-btn:hover {
+  background: var(--primary-light, #dcfce7);
+  border-color: var(--primary);
+  transform: translateY(-1px);
+}
+
+/* Horizontal Scrollable Pills */
+.rent-cart-pills-row {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  overflow-x: auto;
+  padding-bottom: 4px;
+  scrollbar-width: thin;
+}
+
+.rent-cart-pill {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 8px 16px;
+  border-radius: 24px;
+  background: var(--bg-page, #f8fafc);
+  border: 1px solid var(--border-light);
+  color: var(--text-secondary);
+  font-size: 13px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all 0.2s ease;
+  user-select: none;
+}
+
+.rent-cart-pill:hover {
+  border-color: var(--primary-border);
+  background: var(--bg-card-hover, rgba(0, 0, 0, 0.03));
+}
+
+.rent-cart-pill.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #ffffff !important;
+  box-shadow: 0 2px 8px rgba(0, 170, 91, 0.25);
+}
+
+.rent-cart-pill.active .pill-name {
+  color: #ffffff !important;
+}
+
+.rent-cart-pill .pill-icon {
+  flex-shrink: 0;
+}
+
+.rent-cart-pill.active .pill-icon {
+  color: #ffffff;
+}
+
+.rent-cart-pill .pill-badge {
+  font-size: 11px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 10px;
+  background: var(--border-light);
+  color: var(--text-muted);
+}
+
+.rent-cart-pill.active .pill-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+.rent-cart-pill .pill-badge.has-items {
+  background: rgba(22, 163, 74, 0.15);
+  color: var(--primary);
+}
+
+.rent-cart-pill.active .pill-badge.has-items {
+  background: #ffffff;
+  color: var(--primary);
+}
+
+.pill-actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  margin-left: 2px;
+}
+
+.pill-action-btn {
+  background: rgba(255, 255, 255, 0.2);
+  border: none;
+  color: #ffffff;
+  width: 22px;
+  height: 22px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  transition: all 0.15s ease;
+}
+
+.pill-action-btn:hover {
+  background: rgba(255, 255, 255, 0.35);
+  transform: scale(1.08);
+}
+
+.pill-action-btn.pill-delete-btn:hover {
+  background: #ef4444;
+}
+
+/* Inline Rename Bar */
+.rent-cart-inline-rename-form {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  background: var(--bg-card);
+  border: 1.5px dashed var(--primary);
+  border-radius: 10px;
+  padding: 10px 14px;
+  flex-wrap: wrap;
+}
+
+.rename-label {
+  font-size: 13px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.rename-input {
+  flex: 1;
+  min-width: 140px;
+  padding: 6px 12px;
+  border-radius: 6px;
+  border: 1px solid var(--border-light);
+  font-size: 13px;
+  background: var(--bg-page);
+  color: var(--text-main);
+}
+
+.rename-input:focus {
+  outline: none;
+  border-color: var(--primary);
+}
+
+.rename-save-btn {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 14px;
+  border-radius: 6px;
+  background: var(--primary);
+  color: #ffffff;
+  border: none;
+  font-size: 12.5px;
+  font-weight: 600;
+  cursor: pointer;
+}
+
+.rename-cancel-btn {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 6px;
+}
+
+/* Modal Backdrop & Create Cart Modal */
+.rent-cart-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.45);
+  backdrop-filter: blur(3px);
+  z-index: 9999;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 16px;
+  animation: fadeIn 0.2s ease;
+}
+
+.rent-cart-create-modal {
+  background: var(--bg-card);
+  border: 1px solid var(--border-light);
+  border-radius: 16px;
+  width: 100%;
+  max-width: 440px;
+  padding: 22px 24px;
+  box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+  box-sizing: border-box;
+  animation: popIn 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.create-modal-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 8px;
+}
+
+.create-modal-title {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.create-modal-title h4 {
+  font-size: 17px;
+  font-weight: 700;
+  color: var(--text-main);
+  margin: 0;
+}
+
+.create-modal-close {
+  background: none;
+  border: none;
+  color: var(--text-muted);
+  cursor: pointer;
+  padding: 4px;
+  border-radius: 6px;
+}
+
+.create-modal-close:hover {
+  background: var(--bg-card-hover, rgba(0, 0, 0, 0.05));
+  color: var(--text-main);
+}
+
+.create-modal-desc {
+  font-size: 13px;
+  color: var(--text-muted);
+  margin: 0 0 16px 0;
+  line-height: 1.45;
+}
+
+.create-modal-input-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  margin-bottom: 18px;
+}
+
+.create-modal-input-wrap label {
+  font-size: 12.5px;
+  font-weight: 600;
+  color: var(--text-main);
+}
+
+.create-cart-input {
+  width: 100%;
+  box-sizing: border-box;
+  padding: 10px 14px;
+  border-radius: 8px;
+  border: 1.5px solid var(--border-light);
+  font-size: 14px;
+  background: var(--bg-page);
+  color: var(--text-main);
+  transition: border-color 0.2s ease;
+}
+
+.create-cart-input:focus {
+  outline: none;
+  border-color: var(--primary);
+  background: var(--bg-card);
+}
+
+.create-cart-error {
+  font-size: 12px;
+  color: #ef4444;
+  font-weight: 600;
+}
+
+.create-modal-actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 10px;
+}
+
+.create-modal-cancel {
+  padding: 9px 16px;
+  border-radius: 8px;
+  border: 1px solid var(--border-light);
+  background: transparent;
+  color: var(--text-secondary);
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.create-modal-cancel:hover {
+  background: var(--bg-card-hover, rgba(0, 0, 0, 0.04));
+}
+
+.create-modal-submit {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 9px 20px;
+  border-radius: 8px;
+  border: none;
+  background: var(--primary);
+  color: #ffffff;
+  font-weight: 600;
+  font-size: 13px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.create-modal-submit:hover {
+  background: var(--primary-hover);
+}
+
+/* Move Cart Item Select */
+.cart-item-move-wrapper {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  background: var(--primary-light, #f0fdf4);
+  border: 1px solid var(--primary-border, #bbf7d0);
+  border-radius: 14px;
+  padding: 3px 8px;
+}
+
+.cart-item-move-icon {
+  color: var(--primary);
+  flex-shrink: 0;
+}
+
+.cart-item-move-select {
+  background: transparent;
+  border: none;
+  font-size: 11.5px;
+  font-weight: 600;
+  color: var(--primary, #15803d);
+  cursor: pointer;
+  outline: none;
+  padding-right: 2px;
+}
+
+@media (max-width: 600px) {
+  .rent-cart-switcher-section {
+    padding: 12px 14px;
+    border-radius: 10px;
+  }
+
+  .rent-cart-pill {
+    padding: 7px 13px;
+    font-size: 12.5px;
+  }
+
+  .rent-cart-create-modal {
+    padding: 18px;
+    border-radius: 14px;
+  }
+}
+
+/* ============================================================= */
+/* DARK MODE VISIBILITY FIXES FOR RENT CART & BUTTONS            */
+/* ============================================================= */
+[data-theme="dark"] .rent-cart-add-btn {
+  background: rgba(34, 197, 94, 0.18);
+  border-color: rgba(74, 222, 128, 0.6);
+  color: #4ade80;
+}
+
+[data-theme="dark"] .rent-cart-add-btn:hover {
+  background: rgba(34, 197, 94, 0.32);
+  border-color: #4ade80;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .rent-cart-pill {
+  background: var(--dark-bg-card, #1e293b);
+  border-color: var(--dark-border-strong, #475569);
+  color: var(--dark-text-main, #f8fafc);
+}
+
+[data-theme="dark"] .rent-cart-pill:hover {
+  border-color: var(--primary-border, #22c55e);
+  background: var(--dark-bg-card-hover, #28384e);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .rent-cart-pill.active {
+  background: #16a34a;
+  border-color: #22c55e;
+  color: #ffffff !important;
+  box-shadow: 0 2px 10px rgba(34, 197, 94, 0.35);
+}
+
+[data-theme="dark"] .rent-cart-pill.active .pill-name,
+[data-theme="dark"] .rent-cart-pill.active .pill-icon {
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .rent-cart-pill .pill-badge {
+  background: rgba(255, 255, 255, 0.12);
+  color: var(--dark-text-secondary, #cbd5e1);
+}
+
+[data-theme="dark"] .rent-cart-pill.active .pill-badge {
+  background: rgba(255, 255, 255, 0.25);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .rent-cart-pill.active .pill-badge.has-items {
+  background: #ffffff;
+  color: #15803d;
+}
+
+[data-theme="dark"] .cart-item-move-wrapper {
+  background: rgba(56, 189, 248, 0.16);
+  border-color: rgba(56, 189, 248, 0.45);
+}
+
+[data-theme="dark"] .cart-item-move-icon {
+  color: #38bdf8;
+}
+
+[data-theme="dark"] .cart-item-move-select {
+  color: #7dd3fc;
+  background: transparent;
+}
+
+[data-theme="dark"] .cart-item-move-select option {
+  background: #1e293b;
+  color: #f8fafc;
+}
+
+[data-theme="dark"] .create-modal-cancel {
+  background: rgba(255, 255, 255, 0.08);
+  border-color: var(--dark-border-strong, #475569);
+  color: var(--dark-text-main, #f8fafc);
+}
+
+[data-theme="dark"] .create-modal-cancel:hover {
+  background: rgba(255, 255, 255, 0.16);
+  color: #ffffff;
+}
+
+[data-theme="dark"] .create-modal-submit {
+  background: #16a34a;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .create-modal-submit:hover {
+  background: #22c55e;
+}
+
+[data-theme="dark"] .my-items-empty-add-btn {
+  background: #16a34a;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .my-items-empty-add-btn:hover {
+  background: #22c55e;
+}
+
+[data-theme="dark"] .my-items-retry-btn {
+  background: rgba(255, 255, 255, 0.1);
+  border: 1px solid var(--dark-border-strong, #475569);
+  color: var(--dark-text-main, #f8fafc);
+}
+
+[data-theme="dark"] .my-items-retry-btn:hover {
+  background: #16a34a;
+  color: #ffffff;
+}
+
+[data-theme="dark"] .rent-cart-toolbar .rent-request-button,
+[data-theme="dark"] .rent-cart-bottom-bar .rent-request-button {
+  background: #16a34a;
+  color: #ffffff !important;
+}
+
+[data-theme="dark"] .rent-cart-toolbar .rent-request-button:disabled,
+[data-theme="dark"] .rent-cart-bottom-bar .rent-request-button:disabled {
+  background: rgba(255, 255, 255, 0.08) !important;
+  border: 1px solid rgba(255, 255, 255, 0.18) !important;
+  color: #94a3b8 !important;
+}
