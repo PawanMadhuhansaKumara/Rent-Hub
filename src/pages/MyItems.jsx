@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
-import { useSearchParams, useNavigate } from "react-router-dom";
+import { useSearchParams, useNavigate, useLocation } from "react-router-dom";
 import { useTranslation } from "react-i18next";
 import { Clock, Inbox, ShoppingCart, Package, ArrowLeft } from "lucide-react";
 
@@ -11,15 +11,55 @@ import RentedItemsTab from "../components/my-items/RentedItemsTab";
 import RentRequestsTab from "../components/my-items/RentRequestsTab";
 import RentCartTab from "../components/my-items/RentCartTab";
 import InventoryItemsTab from "../components/my-items/InventoryItemsTab";
+import SearchBar from "../components/SearchBar";
+import { matchesRentalSearch } from "../utils/rentalSearch";
 
 import "./MyItems.css";
 
 const API_URL = "https://rent-hub-ashen.vercel.app";
 
-export default function MyItems({ user }) {
+export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
   const { t } = useTranslation();
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
+  const location = useLocation();
+
+  const [showMobileSearch, setShowMobileSearch] = useState(false);
+  const mobileSearchInputRef = useRef(null);
+
+  // Hide mobile search when navigating away to another route
+  useEffect(() => {
+    setShowMobileSearch(false);
+  }, [location.pathname]);
+
+  // Toggle mobile search via bottom navigation bar search button on Rents page
+  useEffect(() => {
+    const handleToggleMobileSearch = () => {
+      setShowMobileSearch((prev) => {
+        const next = !prev;
+        if (next) {
+          setTimeout(() => {
+            if (mobileSearchInputRef.current) {
+              mobileSearchInputRef.current.focus();
+              mobileSearchInputRef.current.select?.();
+            } else {
+              const input = document.querySelector(".my-items-mobile-search input");
+              if (input) {
+                input.focus();
+                input.select?.();
+              }
+            }
+          }, 80);
+        } else {
+          if (setSearchTerm) setSearchTerm("");
+        }
+        return next;
+      });
+    };
+
+    window.addEventListener("toggle_rents_mobile_search", handleToggleMobileSearch);
+    return () => window.removeEventListener("toggle_rents_mobile_search", handleToggleMobileSearch);
+  }, [setSearchTerm]);
 
   const currentUser =
     user ||
@@ -1270,13 +1310,36 @@ export default function MyItems({ user }) {
         Number(b.requestId || b.id || 0) - Number(a.requestId || a.id || 0),
     );
 
-  const allRentedItems = [...sentedOutList, ...rentedInList];
-  const allRentedCount = allRentedItems.length;
+  // -------------------------------------------------------------
+  // REAL-TIME SEARCH FILTERING (Item Name, Username, Date)
+  // -------------------------------------------------------------
+  const query = (searchTerm || "").trim();
+  const searchedRequests = query
+    ? requests.filter((r) => matchesRentalSearch(r, query))
+    : requests;
+
+  const searchedSentedOutList = query
+    ? sentedOutList.filter((it) => matchesRentalSearch(it, query))
+    : sentedOutList;
+
+  const searchedRentedInList = query
+    ? rentedInList.filter((it) => matchesRentalSearch(it, query))
+    : rentedInList;
+
+  const searchedCartItems = query
+    ? cartItems.filter((it) => matchesRentalSearch(it, query))
+    : cartItems;
+
+  const searchedInventoryItems = query
+    ? items.filter((it) => matchesRentalSearch(it, query))
+    : items;
+
+  const allRentedCount = searchedSentedOutList.length + searchedRentedInList.length;
 
   const displayedRentedItems =
     isFromBusinessHub || rentedSubTab === "sented-out"
-      ? sentedOutList
-      : rentedInList;
+      ? searchedSentedOutList
+      : searchedRentedInList;
 
   // -------------------------------------------------------------
   // FIXED NAVIGATION TABS HEADER
@@ -1287,7 +1350,7 @@ export default function MyItems({ user }) {
       label: t("rentsPage.tabs.requests", "Rent Requests"),
       icon: <Inbox size={17} />,
       count: isFromBusinessHub
-        ? requests.filter(
+        ? searchedRequests.filter(
             (r) =>
               !(
                 Number(r.buyerId || r.buyer_id) === Number(userId) ||
@@ -1301,7 +1364,7 @@ export default function MyItems({ user }) {
               r.status?.toLowerCase() !== "completed" &&
               r.status?.toLowerCase() !== "returned",
           ).length
-        : requests.filter(
+        : searchedRequests.filter(
             (r) =>
               r.status?.toLowerCase() !== "declined" &&
               r.status?.toLowerCase() !== "cancelled" &&
@@ -1315,13 +1378,13 @@ export default function MyItems({ user }) {
       key: "rented-items",
       label: t("rentsPage.tabs.rented", "Rented Items"),
       icon: <Clock size={17} />,
-      count: isFromBusinessHub ? sentedOutList.length : allRentedCount,
+      count: isFromBusinessHub ? searchedSentedOutList.length : allRentedCount,
     },
     {
       key: "rent-cart",
       label: t("rentsPage.tabs.cart", "Rent Items Cart"),
       icon: <ShoppingCart size={17} />,
-      count: cartItems.length,
+      count: searchedCartItems.length,
     },
   ];
 
@@ -1362,6 +1425,20 @@ export default function MyItems({ user }) {
           </div>
         </div>
 
+        {/* Mobile Search Bar for Rents Page (Only shown when toggled via bottom navigation search icon) */}
+        {showMobileSearch && (
+          <div className="my-items-mobile-search open">
+            <SearchBar
+              searchInputRef={mobileSearchInputRef}
+              searchTerm={searchTerm}
+              setSearchTerm={setSearchTerm}
+              placeholder={
+                t("search.rentsPlaceholder") || "Search by item, username, or date..."
+              }
+            />
+          </div>
+        )}
+
         {/* Navigation Tabs (Fixed Order) */}
         <div className="my-items-tabs">
           {tabsConfig.map((tab) => (
@@ -1383,12 +1460,13 @@ export default function MyItems({ user }) {
         {/* TAB 1: MY ITEMS (INVENTORY) */}
         {activeTab === "my-items" && (
           <InventoryItemsTab
-            items={items}
+            items={searchedInventoryItems}
             loading={loading}
             error={error}
             onStatusChange={handleStatusChange}
             onRetry={fetchMyItems}
             API_URL={API_URL}
+            searchTerm={searchTerm}
           />
         )}
 
@@ -1399,8 +1477,8 @@ export default function MyItems({ user }) {
             rentedSubTab={rentedSubTab}
             setRentedSubTab={setRentedSubTab}
             allRentedCount={allRentedCount}
-            sentedOutCount={sentedOutList.length}
-            rentedInCount={rentedInList.length}
+            sentedOutCount={searchedSentedOutList.length}
+            rentedInCount={searchedRentedInList.length}
             loading={loading}
             onStatusChange={handleStatusChange}
             onReturnItem={handleReturnItem}
@@ -1411,13 +1489,14 @@ export default function MyItems({ user }) {
             onNavigateTab={(tab) => setActiveTab(tab)}
             API_URL={API_URL}
             hideRentedIn={isFromBusinessHub}
+            searchTerm={searchTerm}
           />
         )}
 
         {/* TAB 3: RENT REQUESTS */}
         {activeTab === "rent-requests" && (
           <RentRequestsTab
-            requests={requests}
+            requests={searchedRequests}
             requestFilter={requestFilter}
             setRequestFilter={setRequestFilter}
             userId={userId}
@@ -1430,13 +1509,14 @@ export default function MyItems({ user }) {
             onRateItem={(it) => setSelectedReviewItem(it)}
             API_URL={API_URL}
             hideSentByMe={isFromBusinessHub}
+            searchTerm={searchTerm}
           />
         )}
 
         {/* TAB 4: RENT CART */}
         {activeTab === "rent-cart" && (
           <RentCartTab
-            cartItems={cartItems}
+            cartItems={searchedCartItems}
             loadingCart={loadingCart}
             errorCart={errorCart}
             selectedCartIds={selectedCartIds}
@@ -1447,6 +1527,7 @@ export default function MyItems({ user }) {
             onRentNow={handleRentNow}
             isSubmittingRent={isSubmittingRent}
             onRetry={fetchCartItems}
+            searchTerm={searchTerm}
           />
         )}
       </div>

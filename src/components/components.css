@@ -21,6 +21,7 @@
   border-radius: 30px;
   background: var(--bg-card);
   box-shadow: 0 5px 20px rgba(15, 23, 42, 0.05);
+  box-sizing: border-box;
   transition:
     border-color 0.2s ease,
     box-shadow 0.2s ease;
@@ -47,6 +48,15 @@
   background: transparent;
   color: var(--text-main);
   font-size: 15px;
+}
+
+/* Hide native browser search cancel button to prevent duplicate X icons */
+.home-search input::-webkit-search-decoration,
+.home-search input::-webkit-search-cancel-button,
+.home-search input::-webkit-search-results-button,
+.home-search input::-webkit-search-results-decoration {
+  -webkit-appearance: none;
+  display: none;
 }
 
 .home-search input::placeholder {

@@ -29,6 +29,7 @@ export default function RentRequestsTab({
   onRateItem,
   API_URL = "https://rent-hub-ashen.vercel.app",
   hideSentByMe = false,
+  searchTerm = "",
 }) {
   const { t } = useTranslation();
   const [pickedUpNotices, setPickedUpNotices] = useState({});
@@ -179,7 +180,41 @@ export default function RentRequestsTab({
           <div className="my-items-spinner" />
           <p>Loading rental requests...</p>
         </div>
-      ) : filteredRequests.length === 0 ? null : (
+      ) : filteredRequests.length === 0 ? (
+        <div className="my-items-empty">
+          <div
+            className="my-items-empty-icon"
+            style={{
+              background: "var(--badge-gray-bg, rgba(100, 116, 139, 0.1))",
+            }}
+          >
+            <Inbox size={48} color="var(--text-secondary)" />
+          </div>
+          <h3>
+            {searchTerm
+              ? t("rentsPage.noRequestsFound", "No matching requests found")
+              : requestFilter === "sent"
+                ? t("rentsPage.noSentRequests", "No sent rental requests")
+                : t("rentsPage.noReceivedRequests", "No received rental requests")}
+          </h3>
+          <p>
+            {searchTerm
+              ? t(
+                  "rentsPage.noSearchRequestsDesc",
+                  `We couldn't find any rental requests matching "${searchTerm}". Try checking your spelling or search by item, username, or date.`
+                )
+              : requestFilter === "sent"
+                ? t(
+                    "rentsPage.noSentRequestsDesc",
+                    "Requests you send to rent items from others will appear here."
+                  )
+                : t(
+                    "rentsPage.noReceivedRequestsDesc",
+                    "Incoming requests from users wanting to rent your items will appear here."
+                  )}
+          </p>
+        </div>
+      ) : (
         <div className="rent-requests-list">
           {filteredRequests.map((req) => {
             if (pickedUpNotices[String(req.id)]) {

@@ -14,7 +14,39 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
   const navigate = useNavigate();
   const location = useLocation();
   const { t, i18n } = useTranslation();
-  const isHomePage = location.pathname === "/";
+  
+  const rawPath = (location.pathname || "").toLowerCase();
+  const normPath = rawPath.replace(/[-_]/g, "");
+  const isHomePage = rawPath === "/" || rawPath === "/home";
+  const isRentsPage =
+    normPath === "/myitems" ||
+    normPath.startsWith("/myitems") ||
+    rawPath === "/my-items" ||
+    rawPath.startsWith("/my-items") ||
+    rawPath.startsWith("/rents");
+
+  // Reset search term when navigating between distinct pages
+  const prevNormPathRef = useRef(normPath);
+  useEffect(() => {
+    if (prevNormPathRef.current !== normPath) {
+      prevNormPathRef.current = normPath;
+      if (setSearchTerm) {
+        setSearchTerm("");
+      }
+    }
+  }, [normPath, setSearchTerm]);
+
+  const searchInputRef = useRef(null);
+  useEffect(() => {
+    const handleFocusSearch = () => {
+      if (searchInputRef.current) {
+        searchInputRef.current.focus();
+        searchInputRef.current.select?.();
+      }
+    };
+    window.addEventListener("focus_rents_search", handleFocusSearch);
+    return () => window.removeEventListener("focus_rents_search", handleFocusSearch);
+  }, []);
 
   const handleLogout = () => {
     localStorage.removeItem("token");
@@ -278,12 +310,18 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
         />
       </Link>
 
-      {/* Middle: Search Bar (Desktop & Tablet on Home Page only, when logged in) */}
-      {isHomePage && activeUser && setSearchTerm && (
+      {/* Middle: Search Bar (Desktop & Tablet on Home Page & Rents Page) */}
+      {(isHomePage || isRentsPage) && setSearchTerm && (
         <div className="navbar-center-search">
           <SearchBar
+            searchInputRef={searchInputRef}
             searchTerm={searchTerm}
             setSearchTerm={setSearchTerm}
+            placeholder={
+              isRentsPage
+                ? (t("search.rentsPlaceholder") || "Search by item, username, or date...")
+                : (t("search.placeholder") || "Search items by name or category...")
+            }
           />
         </div>
       )}

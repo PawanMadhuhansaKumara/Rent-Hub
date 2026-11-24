@@ -5,7 +5,8 @@
     "seeLess": "See Less"
   },
   "search": {
-    "placeholder": "Search items by name or category..."
+    "placeholder": "Search items by name or category...",
+    "rentsPlaceholder": "Search by item, username, or date..."
   },
   "item": {
     "condition": "Condition",
@@ -322,6 +323,13 @@
     "noRentedInDesc": "Items you have rented from other shops or owners will appear here once approved or picked up.",
     "noSentedOut": "No items currently sented out",
     "noSentedOutDesc": "Items marked as \"Rented Out\" in your inventory or picked up by renters will appear here.",
+    "noRequestsFound": "No matching requests found",
+    "noRentedFound": "No matching rented items found",
+    "noCartFound": "No matching cart items found",
+    "noSentRequests": "No sent rental requests",
+    "noReceivedRequests": "No received rental requests",
+    "noSentRequestsDesc": "Requests you send to rent items from others will appear here.",
+    "noReceivedRequestsDesc": "Incoming requests from users wanting to rent your items will appear here.",
     "viewRentRequests": "View Rent Requests",
     "viewAllItems": "View All Items",
     "sentedOutRental": "Sented Out Rental",

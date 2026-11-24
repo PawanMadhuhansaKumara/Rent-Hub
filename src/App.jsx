@@ -209,11 +209,11 @@ export default function App() {
         />
         <Route
           path="/my-items"
-          element={user ? <MyItems user={user} /> : <Navigate to="/login" replace />}
+          element={user ? <MyItems user={user} searchTerm={searchTerm} setSearchTerm={setSearchTerm} /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/MyItems"
-          element={user ? <MyItems user={user} /> : <Navigate to="/login" replace />}
+          element={user ? <MyItems user={user} searchTerm={searchTerm} setSearchTerm={setSearchTerm} /> : <Navigate to="/login" replace />}
         />
         <Route
           path="/business-hub"

@@ -25,6 +25,60 @@
   flex-wrap: wrap;
 }
 
+/* Mobile Search Bar for Rents page (Toggled via bottom navigation search icon) */
+.my-items-mobile-search {
+  display: none;
+  width: 100%;
+  max-width: 100%;
+  box-sizing: border-box;
+  margin: 0 auto 16px auto;
+  animation: slideDownSearch 0.22s ease-out;
+}
+
+@keyframes slideDownSearch {
+  from {
+    opacity: 0;
+    transform: translateY(-8px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.my-items-mobile-search .home-search {
+  width: 100% !important;
+  max-width: 100% !important;
+  box-sizing: border-box !important;
+  margin: 0 auto !important;
+  min-height: 42px !important;
+  height: 42px !important;
+  padding: 0 16px !important;
+  border-radius: 9999px !important;
+  border: 1.5px solid var(--border-card) !important;
+  background: var(--bg-card) !important;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.06) !important;
+}
+
+.my-items-mobile-search .home-search input {
+  padding: 8px 0 !important;
+  font-size: 13.5px !important;
+  box-sizing: border-box !important;
+}
+
+.my-items-mobile-search .search-icon {
+  font-size: 20px !important;
+}
+
+@media (max-width: 600px) {
+  .my-items-mobile-search.open {
+    display: block;
+    width: 100%;
+    max-width: 100%;
+    box-sizing: border-box;
+  }
+}
+
 .my-items-header-left {
   display: flex;
   align-items: center;

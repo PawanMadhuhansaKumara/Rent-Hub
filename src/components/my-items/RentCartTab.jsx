@@ -21,6 +21,7 @@ export default function RentCartTab({
   onRentNow,
   isSubmittingRent = false,
   onRetry,
+  searchTerm = "",
 }) {
   const { t } = useTranslation();
 
@@ -50,8 +51,16 @@ export default function RentCartTab({
         <div className="my-items-empty-icon" style={{ background: "var(--badge-blue-bg)" }}>
           <ShoppingCart size={48} color="var(--badge-blue-text)" />
         </div>
-        <h3>{t("rentsPage.cartEmptyTitle", "Your Rent Cart is empty")}</h3>
-        <p>{t("rentsPage.cartEmptyDesc", "Browse items and add them to your rent cart to request rentals.")}</p>
+        <h3>
+          {searchTerm
+            ? t("rentsPage.noCartFound", "No matching cart items found")
+            : t("rentsPage.cartEmptyTitle", "Your Rent Cart is empty")}
+        </h3>
+        <p>
+          {searchTerm
+            ? t("rentsPage.noSearchCartDesc", `We couldn't find any items in your cart matching "${searchTerm}".`)
+            : t("rentsPage.cartEmptyDesc", "Browse items and add them to your rent cart to request rentals.")}
+        </p>
         <Link to="/" className="my-items-empty-add-btn">
           {t("rentsPage.browseItemsBtn", "Browse Items")}
         </Link>

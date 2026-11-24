@@ -5,6 +5,7 @@ export default function SearchBar({
   searchTerm,
   setSearchTerm,
   searchInputRef,
+  placeholder,
 }) {
   const { t } = useTranslation();
   return (
@@ -14,7 +15,7 @@ export default function SearchBar({
       <input
         ref={searchInputRef}
         type="search"
-        placeholder={t("search.placeholder")}
+        placeholder={placeholder || t("search.placeholder")}
         value={searchTerm}
         onChange={(e) => setSearchTerm(e.target.value)}
         aria-label="Search rental items"

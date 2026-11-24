@@ -24,6 +24,7 @@ export default function RentedItemsTab({
   onNavigateTab,
   API_URL = "https://rent-hub-ashen.vercel.app",
   hideRentedIn = false,
+  searchTerm = "",
 }) {
   const { t } = useTranslation();
 
@@ -102,20 +103,27 @@ export default function RentedItemsTab({
             />
           </div>
           <h3>
-            {!hideRentedIn && rentedSubTab === "rented-in"
-              ? t("rentsPage.noRentedIn", "No items currently rented in")
-              : t("rentsPage.noSentedOut", "No items currently sented out")}
+            {searchTerm
+              ? t("rentsPage.noRentedFound", "No matching rented items found")
+              : !hideRentedIn && rentedSubTab === "rented-in"
+                ? t("rentsPage.noRentedIn", "No items currently rented in")
+                : t("rentsPage.noSentedOut", "No items currently sented out")}
           </h3>
           <p>
-            {!hideRentedIn && rentedSubTab === "rented-in"
+            {searchTerm
               ? t(
-                  "rentsPage.noRentedInDesc",
-                  "Items you have rented from other shops or owners will appear here once approved or picked up."
+                  "rentsPage.noSearchRentedDesc",
+                  `We couldn't find any rented items matching "${searchTerm}". Try checking your spelling or search by item, username, or date.`
                 )
-              : t(
-                  "rentsPage.noSentedOutDesc",
-                  'Items marked as "Rented Out" in your inventory or picked up by renters will appear here.'
-                )}
+              : !hideRentedIn && rentedSubTab === "rented-in"
+                ? t(
+                    "rentsPage.noRentedInDesc",
+                    "Items you have rented from other shops or owners will appear here once approved or picked up."
+                  )
+                : t(
+                    "rentsPage.noSentedOutDesc",
+                    'Items marked as "Rented Out" in your inventory or picked up by renters will appear here.'
+                  )}
           </p>
           {!hideRentedIn && rentedSubTab === "rented-in" ? (
             <button

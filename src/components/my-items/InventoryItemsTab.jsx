@@ -14,6 +14,7 @@ export default function InventoryItemsTab({
   onStatusChange,
   onRetry,
   API_URL = "https://rent-hub-ashen.vercel.app",
+  searchTerm = "",
 }) {
   if (loading && (!items || items.length === 0)) {
     return (
@@ -41,8 +42,12 @@ export default function InventoryItemsTab({
         <div className="my-items-empty-icon">
           <Package size={48} color="var(--primary)" />
         </div>
-        <h3>No items listed yet</h3>
-        <p>Start earning by listing your items for rent in the marketplace.</p>
+        <h3>{searchTerm ? "No matching items found" : "No items listed yet"}</h3>
+        <p>
+          {searchTerm
+            ? `We couldn't find any items matching "${searchTerm}".`
+            : "Start earning by listing your items for rent in the marketplace."}
+        </p>
         <Link to="/add-item" className="my-items-empty-add-btn">
           <Plus size={18} /> Add Your First Item
         </Link>

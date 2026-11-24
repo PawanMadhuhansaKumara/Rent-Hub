@@ -66,7 +66,44 @@ export default function BottomNav({ user }) {
 
   const handleSearchClick = (e) => {
     e.preventDefault();
-    // Navigate to Home with focusSearch state
+
+    const rawPath = (location.pathname || "").toLowerCase();
+    const normPath = rawPath.replace(/[-_]/g, "");
+    const isRentsPage =
+      normPath === "/myitems" ||
+      normPath.startsWith("/myitems") ||
+      rawPath === "/my-items" ||
+      rawPath.startsWith("/my-items") ||
+      rawPath.startsWith("/rents");
+
+    // Rents page only: toggle mobile search on mobile, focus top search on desktop
+    if (isRentsPage) {
+      const isMobile = window.innerWidth <= 600;
+      if (isMobile) {
+        window.dispatchEvent(new CustomEvent("toggle_rents_mobile_search"));
+        return;
+      }
+
+      // Desktop: focus top AppBar search bar
+      window.scrollTo({ top: 0, behavior: "smooth" });
+      window.dispatchEvent(new CustomEvent("focus_rents_search"));
+
+      const focusInput = () => {
+        const input =
+          document.querySelector(".navbar-center-search input") ||
+          document.querySelector(".home-search input");
+        if (input) {
+          input.focus();
+          input.select?.();
+        }
+      };
+
+      focusInput();
+      setTimeout(focusInput, 50);
+      return;
+    }
+
+    // Default (Home & other pages): Exactly as it was originally!
     navigate("/", { state: { focusSearch: true, timestamp: Date.now() } });
 
     // Focus immediately if already on home or as soon as rendered
@@ -95,10 +132,16 @@ export default function BottomNav({ user }) {
       </NavLink>
       <NavLink
         to="/MyItems"
-        style={({ isActive }) => ({
-          ...styles.navItem,
-          ...(isActive ? styles.activeItem : {}),
-        })}
+        style={({ isActive }) => {
+          const isRents =
+            isActive ||
+            location.pathname.toLowerCase().replace(/[-_]/g, "").startsWith("/myitems") ||
+            location.pathname.toLowerCase().startsWith("/rents");
+          return {
+            ...styles.navItem,
+            ...(isRents ? styles.activeItem : {}),
+          };
+        }}
       >
         <span style={styles.icon}>
           <List />
