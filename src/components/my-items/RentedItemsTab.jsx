@@ -1,6 +1,6 @@
 import React from "react";
 import { useTranslation } from "react-i18next";
-import { ArrowUpRight, ArrowDownLeft, Clock, Inbox } from "lucide-react";
+import { ArrowUpRight, ArrowDownLeft, Clock, Inbox, Star } from "lucide-react";
 import RentedItemCard from "./RentedItemCard";
 
 /**
@@ -26,6 +26,25 @@ export default function RentedItemsTab({
   hideRentedIn = false,
 }) {
   const { t } = useTranslation();
+
+  const isRentedInTab = !hideRentedIn && rentedSubTab === "rented-in";
+
+  // Separate currently active rentals and items waiting for review
+  const activeRentedItems = isRentedInTab
+    ? displayedRentedItems.filter(
+        (it) =>
+          it.requestStatus?.toLowerCase() !== "completed" &&
+          it.requestStatus?.toLowerCase() !== "returned"
+      )
+    : displayedRentedItems;
+
+  const pendingReviewItems = isRentedInTab
+    ? displayedRentedItems.filter(
+        (it) =>
+          it.requestStatus?.toLowerCase() === "completed" ||
+          it.requestStatus?.toLowerCase() === "returned"
+      )
+    : [];
 
   return (
     <div className="rented-items-section">
@@ -116,7 +135,8 @@ export default function RentedItemsTab({
             </button>
           )}
         </div>
-      ) : (
+      ) : !isRentedInTab ? (
+        /* Sented Out List */
         <div className="rent-requests-list">
           {displayedRentedItems.map((item) => (
             <RentedItemCard
@@ -133,6 +153,100 @@ export default function RentedItemsTab({
               API_URL={API_URL}
             />
           ))}
+        </div>
+      ) : (
+        /* Rented In Tab with Active Rentals & Pending Reviews Section */
+        <div className="rented-in-sections-container">
+          {/* 1. Currently Active Rentals (දැනට කුලියට ගෙන ඇති භාණ්ඩ) */}
+          {activeRentedItems.length > 0 && (
+            <div className="rented-in-active-group">
+              {pendingReviewItems.length > 0 && (
+                <div className="rented-in-section-title">
+                  <div className="rented-in-title-left">
+                    <Clock size={17} color="var(--badge-blue-text)" />
+                    <h4>
+                      {t(
+                        "rentsPage.activeRentalsTitle",
+                        "Active Rentals (දැනට කුලියට ගෙන ඇති භාණ්ඩ)"
+                      )}
+                    </h4>
+                  </div>
+                  <span className="rented-in-section-count">
+                    {activeRentedItems.length}
+                  </span>
+                </div>
+              )}
+
+              <div className="rent-requests-list">
+                {activeRentedItems.map((item) => (
+                  <RentedItemCard
+                    key={item.uniqueKey || item.id}
+                    item={item}
+                    onReturnItem={onReturnItem}
+                    onCustomerReturn={onCustomerReturn}
+                    isReturning={
+                      String(returningItemId) ===
+                        String(item.itemId || item.id) ||
+                      String(returningItemId) === String(item.requestId)
+                    }
+                    onMarkPicked={onMarkPicked}
+                    onRateItem={onRateItem}
+                    API_URL={API_URL}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
+
+          {/* 2. Pending Reviews Section (Underneath active rentals with separate title) */}
+          {pendingReviewItems.length > 0 && (
+            <div className="pending-reviews-section">
+              <div className="pending-reviews-section-header">
+                <div className="pending-reviews-title-left">
+                  <div className="pending-reviews-icon-badge">
+                    <Star size={18} color="#eab308" fill="#eab308" />
+                  </div>
+                  <div>
+                    <h4 className="pending-reviews-main-title">
+                      {t(
+                        "rentsPage.pendingReviewsTitle",
+                        "Rate & Review (Review ලබාදීමට ඇති භාණ්ඩ)"
+                      )}
+                    </h4>
+                    <p className="pending-reviews-subtitle">
+                      {t(
+                        "rentsPage.pendingReviewsSubtitle",
+                        "Return accepted by shop! Please leave a review to complete your rental record."
+                      )}
+                    </p>
+                  </div>
+                </div>
+                <span className="pending-reviews-badge">
+                  {pendingReviewItems.length}{" "}
+                  {t("rentsPage.toReviewCount", "To Review")}
+                </span>
+              </div>
+
+              <div className="rent-requests-list">
+                {pendingReviewItems.map((item) => (
+                  <RentedItemCard
+                    key={item.uniqueKey || item.id}
+                    item={item}
+                    onReturnItem={onReturnItem}
+                    onCustomerReturn={onCustomerReturn}
+                    isReturning={
+                      String(returningItemId) ===
+                        String(item.itemId || item.id) ||
+                      String(returningItemId) === String(item.requestId)
+                    }
+                    onMarkPicked={onMarkPicked}
+                    onRateItem={onRateItem}
+                    API_URL={API_URL}
+                  />
+                ))}
+              </div>
+            </div>
+          )}
         </div>
       )}
     </div>

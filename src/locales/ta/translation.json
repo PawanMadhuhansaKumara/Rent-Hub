@@ -149,7 +149,8 @@
     "registerNow": "இப்போது பதிவு செய்க",
     "loginSuccess": "உள்நுழைவு வெற்றிகரமாக முடிந்தது!",
     "loginFailed": "உள்நுழைவு தோல்வியடைந்தது!",
-    "serverError": "Server-க்கு இணைக்க முடியவில்லை."
+    "serverError": "Server-க்கு இணைக்க முடியவில்லை.",
+    "forgotPassword": "கடவுச்சொல் மறந்துவிட்டதா?"
   },
   "register": {
     "title": "Rent Hub - பதிவு செய்க 📝",
@@ -323,6 +324,11 @@
     "viewAllItems": "அனைத்துப் பொருட்களையும் பார்க்கவும்",
     "sentedOutRental": "வாடகைக்கு விட்ட பொருள்",
     "rentedInItem": "வாடகைக்கு எடுத்த பொருள்",
+    "returnAcceptedNotice": "பொருள் திரும்பப் பெறப்பட்டது! தயவுசெய்து உங்கள் மதிப்பாய்வை (Review) வழங்கவும்.",
+    "activeRentalsTitle": "தற்போது வாடகையில் உள்ளவை (Active Rentals)",
+    "pendingReviewsTitle": "மதிப்பாய்வு செய்ய வேண்டியவை (Rate & Review)",
+    "pendingReviewsSubtitle": "பொருள் திரும்பப் பெறப்பட்டது! தயவுசெய்து உங்கள் மதிப்பாய்வை (Review) வழங்கவும்.",
+    "toReviewCount": "மதிப்பாய்வு செய்ய",
     "cartEmptyTitle": "உங்கள் வாடகைக் கூடை காலியாக உள்ளது",
     "cartEmptyDesc": "பொருட்களைப் பார்த்து வாடகைக்கு எடுக்க உங்கள் வாடகைக் கூடையில் சேர்க்கவும்.",
     "browseItemsBtn": "பொருட்களை உலாவுக",

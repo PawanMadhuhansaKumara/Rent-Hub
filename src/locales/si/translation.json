@@ -149,7 +149,8 @@
     "registerNow": "දැන් ලියාපදිංචි වන්න",
     "loginSuccess": "පිවිසීම සාර්ථකයි!",
     "loginFailed": "පිවිසීම අසාර්ථකයි!",
-    "serverError": "Server එකට සම්බන්ධ වීමට නොහැක."
+    "serverError": "Server එකට සම්බන්ධ වීමට නොහැක.",
+    "forgotPassword":"මුරපදය අමතක වුණාද?"
   },
   "register": {
     "title": "Rent Hub - ලියාපදිංචි වන්න 📝",
@@ -323,6 +324,11 @@
     "viewAllItems": "සියලුම භාණ්ඩ බලන්න",
     "sentedOutRental": "කුලියට දුන් භාණ්ඩය",
     "rentedInItem": "කුලියට ගත් භාණ්ඩය",
+    "returnAcceptedNotice": "කඩය විසින් භාණ්ඩය භාරගෙන ඇත! කරුණාකර ඔබගේ review එක ලබා දෙන්න.",
+    "activeRentalsTitle": "දැනට කුලියට ගෙන ඇති භාණ්ඩ (Active Rentals)",
+    "pendingReviewsTitle": "Review ලබාදීමට ඇති භාණ්ඩ (Rate & Review)",
+    "pendingReviewsSubtitle": "කඩය විසින් භාණ්ඩය භාරගෙන ඇත! ඔබගේ review එක ලබා දී අවසන් කරන්න.",
+    "toReviewCount": "Review ලබාදීමට ඇත",
     "cartEmptyTitle": "ඔබගේ කුලී කරත්තය හිස්ය",
     "cartEmptyDesc": "භාණ්ඩ පිරික්සා කුලියට ගැනීමට ඔබගේ කුලී කරත්තයට එකතු කරන්න.",
     "browseItemsBtn": "භාණ්ඩ සොයන්න",

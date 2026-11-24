@@ -145,10 +145,20 @@ export default function RentedItemCard({
 
           <span
             className={`rent-request-status-badge ${
-              isSentedOut ? "badge-rented" : "badge-approved"
+              isSentedOut
+                ? "badge-rented"
+                : item.requestStatus?.toLowerCase() === "completed" ||
+                  item.requestStatus?.toLowerCase() === "returned"
+                ? "badge-approved"
+                : item.requestStatus === "return_pending"
+                ? "badge-pending"
+                : "badge-approved"
             }`}
           >
-            {item.requestStatus === "return_pending"
+            {item.requestStatus?.toLowerCase() === "completed" ||
+            item.requestStatus?.toLowerCase() === "returned"
+              ? "Return Accepted"
+              : item.requestStatus === "return_pending"
               ? "Return Pending"
               : item.requestStatus === "rented"
               ? "Rented / Active"
@@ -396,6 +406,34 @@ export default function RentedItemCard({
 
         return (
           <div className="rent-request-actions" style={{ marginTop: "14px" }}>
+            {!hasReview && (
+              <div
+                style={{
+                  width: "100%",
+                  padding: "10px 14px",
+                  backgroundColor: "var(--badge-green-bg, rgba(22, 163, 74, 0.1))",
+                  border: "1px solid var(--primary-border, rgba(22, 163, 74, 0.3))",
+                  borderRadius: "8px",
+                  fontSize: "12px",
+                  fontWeight: "600",
+                  color: "var(--primary, #16a34a)",
+                  display: "flex",
+                  alignItems: "center",
+                  gap: "8px",
+                  marginBottom: "10px",
+                  boxSizing: "border-box",
+                }}
+              >
+                <CheckCircle2 size={16} color="var(--primary, #16a34a)" style={{ flexShrink: 0 }} />
+                <span>
+                  {t(
+                    "rentsPage.returnAcceptedNotice",
+                    "Return accepted by shop! Please leave a review to complete."
+                  )}
+                </span>
+              </div>
+            )}
+
             {hasReview ? (
               <div
                 style={{

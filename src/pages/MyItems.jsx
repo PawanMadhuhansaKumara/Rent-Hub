@@ -223,19 +223,35 @@ export default function MyItems({ user }) {
           if (map.has(String(item.id))) {
             const apiItem = map.get(String(item.id));
             const status =
-              item.status?.toLowerCase() === "rented"
-                ? "rented"
-                : apiItem.status || item.status;
+              apiItem.status?.toLowerCase() === "completed" ||
+              apiItem.status?.toLowerCase() === "returned" ||
+              apiItem.status?.toLowerCase() === "return_pending"
+                ? apiItem.status
+                : item.status?.toLowerCase() === "rented"
+                  ? "rented"
+                  : apiItem.status || item.status;
             const customerPicked =
               apiItem.customerPicked !== undefined && apiItem.customerPicked !== null
                 ? apiItem.customerPicked
                 : (item.customerPicked || item.customer_picked || 0);
+            const reviewId =
+              apiItem.reviewId ||
+              apiItem.review_id ||
+              item.reviewId ||
+              item.review_id ||
+              null;
+            const hasReviewed = Boolean(
+              reviewId || apiItem.hasReviewed || item.hasReviewed
+            );
             map.set(String(item.id), {
               ...item,
               ...apiItem,
               status,
               customerPicked,
               customer_picked: customerPicked,
+              reviewId,
+              review_id: reviewId,
+              hasReviewed,
             });
             return;
           }
@@ -1145,22 +1161,41 @@ export default function MyItems({ user }) {
         Number(r.buyerId || r.buyer_id) === Number(userId) ||
         (!r.sellerId && !r.seller_id) ||
         r.reqType === "sent";
+      if (!isBuyer) return false;
+
       const status = r.status?.toLowerCase();
-      // Items that are handed over, returned, completed, or cancelled must leave active rented items
+
+      // Declined, cancelled, or rejected requests must leave active rented items
       if (
-        status === "completed" ||
-        status === "returned" ||
-        status === "return_pending" ||
         status === "declined" ||
         status === "cancelled" ||
         status === "rejected"
       ) {
         return false;
       }
+
+      // Check if item rental has been confirmed/started
       const isConfirmed =
         status === "rented" ||
+        status === "return_pending" ||
+        status === "completed" ||
+        status === "returned" ||
         Number(r.customerPicked ?? r.customer_picked) === 1;
-      if (!isBuyer || !isConfirmed) return false;
+      if (!isConfirmed) return false;
+
+      // When the rent is completed (shop accepted return & restored stock),
+      // it must remain in the renter's "Rented In" list until they leave a review!
+      // Once reviewed, it leaves the active rented-in list.
+      const hasReview = Boolean(
+        r.reviewId ||
+        r.review_id ||
+        r.hasReviewed ||
+        (r.reviewRating && Number(r.reviewRating) > 0)
+      );
+
+      if ((status === "completed" || status === "returned") && hasReview) {
+        return false;
+      }
 
       const itemKey = String(r.id || r.requestId || `${r.itemId}-${r.id}`);
       if (seenRentedInItemIds.has(itemKey)) {
@@ -1192,11 +1227,18 @@ export default function MyItems({ user }) {
       quantity: r.quantity,
       totalPrice: r.totalPrice || r.total_price,
       requestStatus: r.status,
+      status: r.status,
       customerPicked: r.customerPicked || r.customer_picked,
       createdAt: r.createdAt || r.created_at,
       reviewId: r.reviewId || r.review_id,
       reviewRating: r.reviewRating || r.review_rating,
       reviewComment: r.reviewComment || r.review_comment,
+      hasReviewed: Boolean(
+        r.reviewId ||
+        r.review_id ||
+        r.hasReviewed ||
+        (r.reviewRating && Number(r.reviewRating) > 0)
+      ),
     }))
     .sort(
       (a, b) =>
@@ -1445,9 +1487,15 @@ export default function MyItems({ user }) {
           API_URL={API_URL}
           onReviewSubmitted={(reviewData) => {
             setRequests((prev) => {
-              const updated = prev.map((r) =>
-                String(r.id) === String(reviewData?.requestId) ||
-                String(r.requestId) === String(reviewData?.requestId)
+              const updated = prev.map((r) => {
+                const isMatch =
+                  String(r.id) === String(reviewData?.requestId) ||
+                  String(r.requestId) === String(reviewData?.requestId) ||
+                  (reviewData?.itemId &&
+                    String(r.itemId || r.item_id) === String(reviewData.itemId) &&
+                    (r.status?.toLowerCase() === "completed" ||
+                      r.status?.toLowerCase() === "returned"));
+                return isMatch
                   ? {
                       ...r,
                       reviewId: reviewData.reviewId,
@@ -1458,13 +1506,15 @@ export default function MyItems({ user }) {
                       review_comment: reviewData.comment,
                       hasReviewed: true,
                     }
-                  : r,
-              );
+                  : r;
+              });
               try {
                 localStorage.setItem("rent_hub_requests", JSON.stringify(updated));
               } catch {}
               return updated;
             });
+            window.dispatchEvent(new Event("rent_requests_updated"));
+            window.dispatchEvent(new Event("storage"));
             fetchBuyerRequests(false);
           }}
           onReviewDeleted={(delData) => {

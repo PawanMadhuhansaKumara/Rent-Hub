@@ -149,7 +149,8 @@
     "registerNow": "Register Now",
     "loginSuccess": "Login Successful!",
     "loginFailed": "Login failed!",
-    "serverError": "Failed to connect to the server."
+    "serverError": "Failed to connect to the server.",
+    "forgotPassword":"Forgot Password"
   },
   "register": {
     "title": "Rent Hub - Register 📝",
@@ -323,6 +324,11 @@
     "viewAllItems": "View All Items",
     "sentedOutRental": "Sented Out Rental",
     "rentedInItem": "Rented In Item",
+    "returnAcceptedNotice": "Return accepted by shop! Please leave a review to complete.",
+    "activeRentalsTitle": "Active Rentals",
+    "pendingReviewsTitle": "Rate & Review (Pending Reviews)",
+    "pendingReviewsSubtitle": "Return accepted by shop! Please leave a review to complete your rental record.",
+    "toReviewCount": "To Review",
     "cartEmptyTitle": "Your Rent Cart is empty",
     "cartEmptyDesc": "Browse items and add them to your rent cart to request rentals.",
     "browseItemsBtn": "Browse Items",
