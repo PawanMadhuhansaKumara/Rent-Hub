@@ -16,6 +16,8 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { formatRentalDate, isRentalLate, getDaysOverdue } from "../../utils/dateUtils";
+import GoogleMapIcon from "../GoogleMapIcon";
+import ShopDistanceModal from "../ShopDistanceModal";
 
 /**
  * RentedItemCard
@@ -31,11 +33,71 @@ export default function RentedItemCard({
 }) {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [fetchedShopData, setFetchedShopData] = useState(null);
+  const [loadingShopLocation, setLoadingShopLocation] = useState(false);
+
   const isSentedOut = item.rentType === "sented-out";
   const targetUserId = isSentedOut ? item.renterId : item.sellerId;
   const targetUserName = isSentedOut
     ? item.renterName || "Customer"
     : item.sellerName || "Item Owner";
+
+  const isCompletedOrReturned =
+    item.requestStatus?.toLowerCase() === "completed" ||
+    item.requestStatus?.toLowerCase() === "returned" ||
+    item.status?.toLowerCase() === "completed" ||
+    item.status?.toLowerCase() === "returned";
+
+  const sellerLat = item.seller_map_latitude ?? item.map_latitude ?? item.sellerMapLatitude;
+  const sellerLng = item.seller_map_longitude ?? item.map_longitude ?? item.sellerMapLongitude;
+  const sellerLocName = item.seller_map_location_name ?? item.map_location_name ?? item.sellerMapLocationName;
+  const sellerCity = item.sellerCity ?? item.seller_city ?? item.nearest_city ?? item.nearestCity;
+  const sellerAddress = item.sellerAddress ?? item.seller_address ?? item.address;
+
+  const handleOpenLocation = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if ((sellerLat && sellerLng) || fetchedShopData) {
+      setShowLocationModal(true);
+      return;
+    }
+
+    if (targetUserId) {
+      setLoadingShopLocation(true);
+      try {
+        const res = await fetch(`${API_URL}/api/users/${targetUserId}`);
+        const data = await res.json();
+        if (data.success && data.user) {
+          setFetchedShopData({
+            name: data.user.full_name || targetUserName,
+            map_latitude: data.user.map_latitude,
+            map_longitude: data.user.map_longitude,
+            map_location_name: data.user.map_location_name,
+            nearest_city: data.user.nearest_city,
+            address: data.user.address,
+          });
+        }
+      } catch (err) {
+        console.warn("Could not fetch shop location:", err);
+      } finally {
+        setLoadingShopLocation(false);
+        setShowLocationModal(true);
+      }
+    } else {
+      setShowLocationModal(true);
+    }
+  };
+
+  const shopDataToPass = fetchedShopData || {
+    name: targetUserName,
+    map_latitude: sellerLat,
+    map_longitude: sellerLng,
+    map_location_name: sellerLocName,
+    nearest_city: sellerCity,
+    address: sellerAddress,
+  };
 
   const isLate = isRentalLate(item);
   const daysOverdue = isLate ? getDaysOverdue(item) : 0;
@@ -386,6 +448,33 @@ export default function RentedItemCard({
         </button>
       </div>
 
+      {/* Shop Location Button for Rented In items (hidden when return is already completed / pending reviews) */}
+      {!isSentedOut && !isCompletedOrReturned && (
+        <div className="rent-card-location-row">
+          <button
+            type="button"
+            onClick={handleOpenLocation}
+            className="rent-card-location-btn"
+            title="Click to view shop location, route & distance on map"
+            disabled={loadingShopLocation}
+          >
+            <div className="rent-card-location-left">
+              <GoogleMapIcon size={16} />
+              <span className="rent-card-location-title">
+                {fetchedShopData?.map_location_name ||
+                  sellerLocName ||
+                  fetchedShopData?.nearest_city ||
+                  sellerCity ||
+                  (loadingShopLocation ? "Loading..." : "Shop Location")}
+              </span>
+            </div>
+            <span className="rent-card-location-badge">
+              {t("map.viewDistanceRoute", "Distance & Route →")}
+            </span>
+          </button>
+        </div>
+      )}
+
       {/* Late / Overdue Warning Alert Banner */}
       {isLate && (
         <div className="rent-late-alert-banner">
@@ -663,6 +752,14 @@ export default function RentedItemCard({
           </div>
         );
       })()}
+
+      {showLocationModal && (
+        <ShopDistanceModal
+          isOpen={showLocationModal}
+          onClose={() => setShowLocationModal(false)}
+          shopData={shopDataToPass}
+        />
+      )}
     </div>
   );
 }

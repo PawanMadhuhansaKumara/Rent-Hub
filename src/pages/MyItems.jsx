@@ -1286,6 +1286,10 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
       sellerEmail: r.sellerEmail || r.seller_email || r.userEmail || r.email,
       sellerCity:
         r.sellerCity || r.seller_city || r.sellerAddress || r.nearestCity,
+      sellerAddress: r.sellerAddress || r.seller_address || r.address,
+      seller_map_latitude: r.seller_map_latitude || r.map_latitude,
+      seller_map_longitude: r.seller_map_longitude || r.map_longitude,
+      seller_map_location_name: r.seller_map_location_name || r.map_location_name,
       startDate: r.startDate || r.start_date,
       endDate: r.endDate || r.end_date,
       quantity: r.quantity,

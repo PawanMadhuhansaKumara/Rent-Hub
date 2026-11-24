@@ -827,19 +827,6 @@
   box-shadow: 0 4px 20px rgba(239, 68, 68, 0.16), 0 1px 3px rgba(239, 68, 68, 0.08) !important;
 }
 
-.rent-request-card.late-rent::before {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  height: 3.5px;
-  background: linear-gradient(90deg, #ef4444 0%, #f87171 50%, #ef4444 100%);
-  border-top-left-radius: 13px;
-  border-top-right-radius: 13px;
-  z-index: 2;
-}
-
 .rent-request-card.late-rent:hover {
   border-color: #ef4444 !important;
   box-shadow: 0 6px 24px rgba(239, 68, 68, 0.24) !important;
@@ -1064,6 +1051,70 @@
 
 .rent-card-badge-desktop {
   display: inline-flex;
+}
+
+/* Shop Location Button (from Shop Profile) */
+.rent-card-location-row {
+  display: flex;
+  align-items: center;
+  margin-top: 8px;
+  margin-bottom: 4px;
+}
+
+.rent-card-location-btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 6px 14px;
+  border-radius: 20px;
+  background-color: var(--primary-light, #f0fdf4);
+  border: 1px solid var(--primary-border, #bbf7d0);
+  color: var(--primary-hover, #15803d);
+  font-size: 12px;
+  font-weight: 600;
+  cursor: pointer;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.04);
+  transition: all 0.2s ease;
+  max-width: 100%;
+  box-sizing: border-box;
+}
+
+.rent-card-location-btn:hover {
+  background-color: #dcfce7;
+  border-color: var(--primary, #16a34a);
+  transform: translateY(-1px);
+  box-shadow: 0 3px 8px rgba(0, 170, 91, 0.15);
+}
+
+.rent-card-location-btn:disabled {
+  opacity: 0.7;
+  cursor: wait;
+}
+
+.rent-card-location-left {
+  display: inline-flex;
+  align-items: center;
+  gap: 7px;
+  min-width: 0;
+}
+
+.rent-card-location-title {
+  font-size: 12px;
+  font-weight: 600;
+  color: var(--text-main);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  max-width: 200px;
+}
+
+.rent-card-location-badge {
+  font-size: 11px;
+  font-weight: 700;
+  color: var(--primary, #16a34a);
+  white-space: nowrap;
+  flex-shrink: 0;
 }
 
 .rent-request-actions {
@@ -1412,6 +1463,20 @@
   .rent-request-actions .req-btn,
   .rent-request-actions .req-btn-pickup {
     width: 100% !important;
+  }
+
+  .rent-card-location-row {
+    margin-top: 8px;
+    margin-bottom: 4px;
+  }
+
+  .rent-card-location-btn {
+    width: 100%;
+    padding: 7px 12px;
+  }
+
+  .rent-card-location-title {
+    max-width: 160px;
   }
 }
 

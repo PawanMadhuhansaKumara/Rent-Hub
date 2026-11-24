@@ -18,6 +18,8 @@ import {
   AlertTriangle,
 } from "lucide-react";
 import { formatRentalDate, formatRequestTime, isRentalLate, getDaysOverdue } from "../../utils/dateUtils";
+import GoogleMapIcon from "../GoogleMapIcon";
+import ShopDistanceModal from "../ShopDistanceModal";
 
 /**
  * RentRequestCard
@@ -37,11 +39,18 @@ export default function RentRequestCard({
 }) {
   const { t } = useTranslation();
   const [isExpanded, setIsExpanded] = useState(false);
+  const [showLocationModal, setShowLocationModal] = useState(false);
+  const [fetchedShopData, setFetchedShopData] = useState(null);
+  const [loadingShopLocation, setLoadingShopLocation] = useState(false);
 
   const isSender =
     Number(req.buyerId || req.buyer_id) === Number(userId) ||
     (!req.sellerId && !req.seller_id) ||
     req.reqType === "sent";
+
+  const isCompletedOrReturned =
+    String(req.status).toLowerCase() === "completed" ||
+    String(req.status).toLowerCase() === "returned";
 
   const targetUserId = isSender
     ? req.sellerId || req.seller_id || req.userId || req.user_id
@@ -50,6 +59,56 @@ export default function RentRequestCard({
   const targetUserName = isSender
     ? req.sellerName || req.seller_name || req.userName || "Item Owner"
     : req.requesterName || req.buyerName || req.buyer_name || "Buyer";
+
+  const sellerLat = req.seller_map_latitude ?? req.map_latitude ?? req.sellerMapLatitude;
+  const sellerLng = req.seller_map_longitude ?? req.map_longitude ?? req.sellerMapLongitude;
+  const sellerLocName = req.seller_map_location_name ?? req.map_location_name ?? req.sellerMapLocationName;
+  const sellerCity = req.sellerCity ?? req.seller_city ?? req.nearest_city ?? req.nearestCity;
+  const sellerAddress = req.sellerAddress ?? req.seller_address ?? req.address;
+
+  const handleOpenLocation = async (e) => {
+    e.preventDefault();
+    e.stopPropagation();
+
+    if ((sellerLat && sellerLng) || fetchedShopData) {
+      setShowLocationModal(true);
+      return;
+    }
+
+    if (targetUserId) {
+      setLoadingShopLocation(true);
+      try {
+        const res = await fetch(`${API_URL}/api/users/${targetUserId}`);
+        const data = await res.json();
+        if (data.success && data.user) {
+          setFetchedShopData({
+            name: data.user.full_name || targetUserName,
+            map_latitude: data.user.map_latitude,
+            map_longitude: data.user.map_longitude,
+            map_location_name: data.user.map_location_name,
+            nearest_city: data.user.nearest_city,
+            address: data.user.address,
+          });
+        }
+      } catch (err) {
+        console.warn("Could not fetch shop location:", err);
+      } finally {
+        setLoadingShopLocation(false);
+        setShowLocationModal(true);
+      }
+    } else {
+      setShowLocationModal(true);
+    }
+  };
+
+  const shopDataToPass = fetchedShopData || {
+    name: targetUserName,
+    map_latitude: sellerLat,
+    map_longitude: sellerLng,
+    map_location_name: sellerLocName,
+    nearest_city: sellerCity,
+    address: sellerAddress,
+  };
 
   const itemImg = req.itemImage || req.image_url || req.image;
   const imageUrl = itemImg
@@ -304,6 +363,33 @@ export default function RentRequestCard({
           {isExpanded ? <ChevronUp size={15} /> : <ChevronDown size={15} />}
         </button>
       </div>
+
+      {/* Shop Location Button (Identical to shop's profile location option, hidden on completed/returned items) */}
+      {isSender && !isCompletedOrReturned && (
+        <div className="rent-card-location-row">
+          <button
+            type="button"
+            onClick={handleOpenLocation}
+            className="rent-card-location-btn"
+            title="Click to view shop location, route & distance on map"
+            disabled={loadingShopLocation}
+          >
+            <div className="rent-card-location-left">
+              <GoogleMapIcon size={16} />
+              <span className="rent-card-location-title">
+                {fetchedShopData?.map_location_name ||
+                  sellerLocName ||
+                  fetchedShopData?.nearest_city ||
+                  sellerCity ||
+                  (loadingShopLocation ? "Loading..." : "Shop Location")}
+              </span>
+            </div>
+            <span className="rent-card-location-badge">
+              {t("map.viewDistanceRoute", "Distance & Route →")}
+            </span>
+          </button>
+        </div>
+      )}
 
       {isPending && (
         <div className="rent-request-actions">
@@ -652,6 +738,14 @@ export default function RentRequestCard({
           </div>
         );
       })()}
+
+      {showLocationModal && (
+        <ShopDistanceModal
+          isOpen={showLocationModal}
+          onClose={() => setShowLocationModal(false)}
+          shopData={shopDataToPass}
+        />
+      )}
     </div>
   );
 }

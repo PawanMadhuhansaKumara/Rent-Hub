@@ -661,6 +661,10 @@ exports.getBuyerRequests = async (req, res) => {
           u.phone_no AS sellerPhone,
           u.profile_pic_url AS sellerPic,
           u.nearest_city AS sellerCity,
+          u.address AS sellerAddress,
+          u.map_latitude AS seller_map_latitude,
+          u.map_longitude AS seller_map_longitude,
+          u.map_location_name AS seller_map_location_name,
           rev.id AS reviewId,
           rev.rating AS reviewRating,
           rev.comment AS reviewComment
@@ -699,6 +703,10 @@ exports.getBuyerRequests = async (req, res) => {
           u.phone_no AS sellerPhone,
           u.profile_pic_url AS sellerPic,
           u.nearest_city AS sellerCity,
+          u.address AS sellerAddress,
+          u.map_latitude AS seller_map_latitude,
+          u.map_longitude AS seller_map_longitude,
+          u.map_location_name AS seller_map_location_name,
           rev.id AS reviewId,
           rev.rating AS reviewRating,
           rev.comment AS reviewComment
@@ -757,7 +765,11 @@ exports.getSellerRequests = async (req, res) => {
           u.full_name AS requesterName,
           u.phone_no AS requesterPhone,
           u.profile_pic_url AS requesterPic,
-          u.nearest_city AS requesterCity
+          u.nearest_city AS requesterCity,
+          u.address AS requesterAddress,
+          u.map_latitude AS requester_map_latitude,
+          u.map_longitude AS requester_map_longitude,
+          u.map_location_name AS requester_map_location_name
         FROM rent_requests r
         LEFT JOIN rental_verifications v ON r.id = v.request_id
         LEFT JOIN items i ON r.item_id = i.id
@@ -791,7 +803,11 @@ exports.getSellerRequests = async (req, res) => {
           u.full_name AS requesterName,
           u.phone_no AS requesterPhone,
           u.profile_pic_url AS requesterPic,
-          u.nearest_city AS requesterCity
+          u.nearest_city AS requesterCity,
+          u.address AS requesterAddress,
+          u.map_latitude AS requester_map_latitude,
+          u.map_longitude AS requester_map_longitude,
+          u.map_location_name AS requester_map_location_name
         FROM rent_requests r
         LEFT JOIN items i ON r.item_id = i.id
         LEFT JOIN users_details u ON r.buyer_id = u.user_id
