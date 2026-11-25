@@ -483,7 +483,7 @@ export default function RentRequestCard({
               if (onInitiateHandover) {
                 onInitiateHandover(req);
               } else if (onAction) {
-                onAction(req.id, "rented", req.itemTitle);
+                onAction(req.id, "rented", null);
               }
             }}
             className="req-btn req-btn-pickup"
@@ -495,7 +495,7 @@ export default function RentRequestCard({
               justifyContent: "center",
               gap: "8px",
               backgroundColor: "var(--primary)",
-              color: "var(--text-inverse)",
+              color: "#ffffff",
               border: "none",
               borderRadius: "8px",
               fontWeight: "600",
@@ -511,8 +511,8 @@ export default function RentRequestCard({
             )}
             <span>
               {String(updatingReqId) === String(req.id)
-                ? "Marking Picked Up..."
-                : "Mark as Picked Up"}
+                ? t("rentsPage.actions.confirmingHandover", "Confirming Handover...")
+                : t("rentsPage.actions.confirmHandover", "Confirm Handover")}
             </span>
           </button>
         </div>

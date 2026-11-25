@@ -362,6 +362,9 @@
       "approve": "අනුමත කරන්න",
       "decline": "ප්‍රතික්ෂේප කරන්න",
       "confirmHandover": "භාරදීම තහවුරු කරන්න",
+      "confirmingHandover": "භාරදීම තහවුරු කරමින්...",
+      "iHaveCollected": "මම භාණ්ඩය ලබා ගත්තෙමි",
+      "confirmingReceipt": "තහවුරු කරමින්...",
       "markReturned": "ආපසු ලැබුණු බව සලකුණු කරන්න"
     }
   },

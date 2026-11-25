@@ -879,8 +879,19 @@ exports.updateRequestStatus = async (req, res) => {
       });
     }
 
-    const query = `UPDATE rent_requests SET status = ? WHERE id = ?`;
-    await db.execute(query, [status, requestId]);
+    if (status?.toLowerCase() === "rented") {
+      await db.execute(
+        `UPDATE rent_requests 
+         SET status = 'rented',
+             customer_picked = 1,
+             customer_picked_at = COALESCE(customer_picked_at, NOW())
+         WHERE id = ?`,
+        [requestId]
+      );
+    } else {
+      const query = `UPDATE rent_requests SET status = ? WHERE id = ?`;
+      await db.execute(query, [status, requestId]);
+    }
 
     // Send real notification to buyer when approved
     if (requestDetails && status?.toLowerCase() === "approved") {
@@ -983,14 +994,20 @@ exports.markCustomerPicked = async (req, res) => {
 
     await db.execute(
       `UPDATE rent_requests 
-       SET customer_picked = 1, 
-           customer_picked_at = NOW(),
+       SET status = 'rented',
+           customer_picked = 1, 
+           customer_picked_at = COALESCE(customer_picked_at, NOW()),
            payment_status = CASE WHEN payment_method = 'cash' THEN 'paid' ELSE payment_status END,
            commission_fee = ?,
            commission_deducted = 1
        WHERE id = ?`,
       [commission, requestId]
     );
+
+    // Deduct quantity from database and set to Rented Out only if stock reaches 0
+    if (rental.item_id) {
+      await deductItemQuantity(rental.item_id, rental.quantity || 1);
+    }
 
     // Send real notification to seller
     try {
@@ -1046,8 +1063,11 @@ exports.confirmHandover = async (req, res) => {
     });
   }
 
+  const isIdChecked = !!(idCardChecked === true || idCardChecked === "true" || idCardChecked === 1 || idCardChecked === "1");
+  const isCustVerified = !!(customerDetailsVerified === true || customerDetailsVerified === "true" || customerDetailsVerified === 1 || customerDetailsVerified === "1");
+
   // Validate required verification checkboxes
-  if (!idCardChecked || !customerDetailsVerified) {
+  if (!isIdChecked || !isCustVerified) {
     return res.status(400).json({
       success: false,
       message:
@@ -1078,27 +1098,8 @@ exports.confirmHandover = async (req, res) => {
     const sellerId = currentReq.seller_id;
     const reqQty = Number(currentReq.quantity || 1);
 
-    // 2. Prevent duplicate handover if already rented
-    if (String(currentReq.status).toLowerCase() === "rented") {
-      let existingVerif = null;
-      try {
-        const [vRows] = await db.execute(
-          `SELECT * FROM rental_verifications WHERE request_id = ?`,
-          [requestId]
-        );
-        if (vRows.length > 0) existingVerif = vRows[0];
-      } catch {}
-
-      return res.status(200).json({
-        success: true,
-        message: "Handover has already been confirmed.",
-        requestId,
-        status: "rented",
-        verification: existingVerif,
-      });
-    }
-
-    // 3. Save verification record permanently into rental_verifications
+    // 2. Save verification record permanently into rental_verifications
+    let savedVerification = null;
     try {
       const verifQuery = `
         INSERT INTO rental_verifications 
@@ -1119,14 +1120,29 @@ exports.confirmHandover = async (req, res) => {
         itemId,
         buyerId,
         sellerId,
-        idCardChecked ? 1 : 0,
-        customerDetailsVerified ? 1 : 0,
+        isIdChecked ? 1 : 0,
+        isCustVerified ? 1 : 0,
         rentalPaymentStatus,
         securityDeposit,
         itemCondition,
         accessoriesIncluded ? 1 : 0,
         additionalNotes || "",
       ]);
+
+      savedVerification = {
+        requestId,
+        itemId,
+        buyerId,
+        sellerId,
+        idCardChecked: isIdChecked,
+        customerDetailsVerified: isCustVerified,
+        rentalPaymentStatus,
+        securityDeposit,
+        itemCondition,
+        accessoriesIncluded: !!accessoriesIncluded,
+        additionalNotes: additionalNotes || "",
+        verifiedAt: new Date().toISOString(),
+      };
     } catch (vErr) {
       console.warn("Could not write to rental_verifications table:", vErr.message);
     }
