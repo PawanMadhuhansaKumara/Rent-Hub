@@ -43,7 +43,9 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
               mobileSearchInputRef.current.focus();
               mobileSearchInputRef.current.select?.();
             } else {
-              const input = document.querySelector(".my-items-mobile-search input");
+              const input = document.querySelector(
+                ".my-items-mobile-search input",
+              );
               if (input) {
                 input.focus();
                 input.select?.();
@@ -57,8 +59,15 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
       });
     };
 
-    window.addEventListener("toggle_rents_mobile_search", handleToggleMobileSearch);
-    return () => window.removeEventListener("toggle_rents_mobile_search", handleToggleMobileSearch);
+    window.addEventListener(
+      "toggle_rents_mobile_search",
+      handleToggleMobileSearch,
+    );
+    return () =>
+      window.removeEventListener(
+        "toggle_rents_mobile_search",
+        handleToggleMobileSearch,
+      );
   }, [setSearchTerm]);
 
   const currentUser =
@@ -271,9 +280,10 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
                   ? "rented"
                   : apiItem.status || item.status;
             const customerPicked =
-              apiItem.customerPicked !== undefined && apiItem.customerPicked !== null
+              apiItem.customerPicked !== undefined &&
+              apiItem.customerPicked !== null
                 ? apiItem.customerPicked
-                : (item.customerPicked || item.customer_picked || 0);
+                : item.customerPicked || item.customer_picked || 0;
             const reviewId =
               apiItem.reviewId ||
               apiItem.review_id ||
@@ -281,7 +291,7 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
               item.review_id ||
               null;
             const hasReviewed = Boolean(
-              reviewId || apiItem.hasReviewed || item.hasReviewed
+              reviewId || apiItem.hasReviewed || item.hasReviewed,
             );
             map.set(String(item.id), {
               ...item,
@@ -317,7 +327,7 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
         const merged = Array.from(map.values()).sort(
           (a, b) =>
             new Date(b.createdAt || b.created_at || 0).getTime() -
-            new Date(a.createdAt || a.created_at || 0).getTime() ||
+              new Date(a.createdAt || a.created_at || 0).getTime() ||
             Number(b.id || 0) - Number(a.id || 0),
         );
 
@@ -416,9 +426,14 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
         const data = await res.json();
         if (data.success && Array.isArray(data.carts)) {
           setCartsList((prev) => {
-            const merged = Array.from(new Set(["Default", ...data.carts, ...prev]));
+            const merged = Array.from(
+              new Set(["Default", ...data.carts, ...prev]),
+            );
             try {
-              localStorage.setItem(`renthub_carts_${userId}`, JSON.stringify(merged));
+              localStorage.setItem(
+                `renthub_carts_${userId}`,
+                JSON.stringify(merged),
+              );
             } catch (e) {}
             return merged;
           });
@@ -439,7 +454,7 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
         let assignments = {};
         try {
           assignments = JSON.parse(
-            localStorage.getItem(`renthub_cart_assignments_${userId}`) || "{}"
+            localStorage.getItem(`renthub_cart_assignments_${userId}`) || "{}",
           );
         } catch (e) {}
 
@@ -448,7 +463,7 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
             const assigned =
               assignments[item.id] ||
               assignments[`item_${item.itemId || item.item_id}`] ||
-              ((item.cartName || item.cart_name || "").trim()) ||
+              (item.cartName || item.cart_name || "").trim() ||
               "Default";
             return {
               ...item,
@@ -467,9 +482,14 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
         const itemCartNames = sorted.map((it) => it.cartName).filter(Boolean);
         if (itemCartNames.length > 0) {
           setCartsList((prev) => {
-            const updated = Array.from(new Set(["Default", ...prev, ...itemCartNames]));
+            const updated = Array.from(
+              new Set(["Default", ...prev, ...itemCartNames]),
+            );
             try {
-              localStorage.setItem(`renthub_carts_${userId}`, JSON.stringify(updated));
+              localStorage.setItem(
+                `renthub_carts_${userId}`,
+                JSON.stringify(updated),
+              );
             } catch (e) {}
             return updated;
           });
@@ -509,7 +529,10 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
     setActiveCartName(trimmed);
     setSelectedCartIds([]);
     try {
-      localStorage.setItem(`renthub_carts_${userId}`, JSON.stringify(updatedCarts));
+      localStorage.setItem(
+        `renthub_carts_${userId}`,
+        JSON.stringify(updatedCarts),
+      );
       localStorage.setItem(`renthub_active_cart_${userId}`, trimmed);
     } catch (e) {}
 
@@ -537,18 +560,26 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
       } catch (e) {}
     }
     try {
-      localStorage.setItem(`renthub_carts_${userId}`, JSON.stringify(updatedCarts));
+      localStorage.setItem(
+        `renthub_carts_${userId}`,
+        JSON.stringify(updatedCarts),
+      );
       const stored = JSON.parse(
-        localStorage.getItem(`renthub_cart_assignments_${userId}`) || "{}"
+        localStorage.getItem(`renthub_cart_assignments_${userId}`) || "{}",
       );
       Object.keys(stored).forEach((k) => {
         if (stored[k] === oldName) stored[k] = trimmedNew;
       });
-      localStorage.setItem(`renthub_cart_assignments_${userId}`, JSON.stringify(stored));
+      localStorage.setItem(
+        `renthub_cart_assignments_${userId}`,
+        JSON.stringify(stored),
+      );
     } catch (e) {}
 
     setCartItems((prev) =>
-      prev.map((it) => (it.cartName === oldName ? { ...it, cartName: trimmedNew } : it))
+      prev.map((it) =>
+        it.cartName === oldName ? { ...it, cartName: trimmedNew } : it,
+      ),
     );
 
     try {
@@ -558,7 +589,7 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ newName: trimmedNew }),
-        }
+        },
       );
     } catch (err) {
       console.warn("Error renaming cart on backend:", err);
@@ -573,20 +604,28 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
     setActiveCartName("Default");
     setSelectedCartIds([]);
     try {
-      localStorage.setItem(`renthub_carts_${userId}`, JSON.stringify(updatedCarts));
+      localStorage.setItem(
+        `renthub_carts_${userId}`,
+        JSON.stringify(updatedCarts),
+      );
       localStorage.setItem(`renthub_active_cart_${userId}`, "Default");
       const stored = JSON.parse(
-        localStorage.getItem(`renthub_cart_assignments_${userId}`) || "{}"
+        localStorage.getItem(`renthub_cart_assignments_${userId}`) || "{}",
       );
       Object.keys(stored).forEach((k) => {
         if (stored[k] === cartNameToDelete) stored[k] = "Default";
       });
-      localStorage.setItem(`renthub_cart_assignments_${userId}`, JSON.stringify(stored));
+      localStorage.setItem(
+        `renthub_cart_assignments_${userId}`,
+        JSON.stringify(stored),
+      );
     } catch (e) {}
 
     // Move any items in that cart to Default locally
     setCartItems((prev) =>
-      prev.map((it) => (it.cartName === cartNameToDelete ? { ...it, cartName: "Default" } : it))
+      prev.map((it) =>
+        it.cartName === cartNameToDelete ? { ...it, cartName: "Default" } : it,
+      ),
     );
 
     try {
@@ -594,7 +633,7 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
         `${API_URL}/api/cart/${userId}/carts/${encodeURIComponent(cartNameToDelete)}`,
         {
           method: "DELETE",
-        }
+        },
       );
     } catch (err) {
       console.warn("Error deleting cart on backend:", err);
@@ -604,7 +643,9 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
   const handleMoveCartItem = async (cartItemId, targetCartName) => {
     const trimmedTarget = (targetCartName || "Default").trim() || "Default";
     setCartItems((prev) =>
-      prev.map((it) => (it.id === cartItemId ? { ...it, cartName: trimmedTarget } : it))
+      prev.map((it) =>
+        it.id === cartItemId ? { ...it, cartName: trimmedTarget } : it,
+      ),
     );
 
     if (!cartsList.includes(trimmedTarget)) {
@@ -614,10 +655,13 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
 
     try {
       const stored = JSON.parse(
-        localStorage.getItem(`renthub_cart_assignments_${userId}`) || "{}"
+        localStorage.getItem(`renthub_cart_assignments_${userId}`) || "{}",
       );
       stored[cartItemId] = trimmedTarget;
-      localStorage.setItem(`renthub_cart_assignments_${userId}`, JSON.stringify(stored));
+      localStorage.setItem(
+        `renthub_cart_assignments_${userId}`,
+        JSON.stringify(stored),
+      );
     } catch (e) {}
 
     try {
@@ -649,7 +693,7 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
 
   // Items in active cart
   const activeCartItems = cartItems.filter(
-    (ci) => ((ci.cartName || "").trim() || "Default") === activeCartName
+    (ci) => ((ci.cartName || "").trim() || "Default") === activeCartName,
   );
 
   const handleToggleSelect = (cartId) => {
@@ -666,7 +710,9 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
   };
 
   const handleSelectAll = () => {
-    const selectable = activeCartItems.filter((ci) => !isItemCurrentlyRented(ci));
+    const selectable = activeCartItems.filter(
+      (ci) => !isItemCurrentlyRented(ci),
+    );
     if (selectedCartIds.length === selectable.length) {
       setSelectedCartIds([]);
     } else {
@@ -745,7 +791,10 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
         const e = item.endDate
           ? new Date(item.endDate)
           : new Date(Date.now() + 86400000);
-        const diffDays = Math.max(1, Math.ceil((e - s) / (1000 * 60 * 60 * 24)));
+        const diffDays = Math.max(
+          1,
+          Math.ceil((e - s) / (1000 * 60 * 60 * 24)),
+        );
         const numPrice = Number(item.price) || 0;
         const numQty = Number(item.quantity) || 1;
         const itemPriceType = item.priceType || item.price_type || "day";
@@ -847,7 +896,8 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
           : numPrice * numQty;
 
       const requestPayload = {
-        itemId: rentModalItem.itemId || rentModalItem.item_id || rentModalItem.id,
+        itemId:
+          rentModalItem.itemId || rentModalItem.item_id || rentModalItem.id,
         buyerId: userId,
         sellerId: rentModalItem.sellerId || rentModalItem.user_id,
         startDate: rentStartDate,
@@ -883,7 +933,9 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
             itemPrice: numPrice,
             priceType: itemPriceType,
             sellerName:
-              rentModalItem.sellerName || rentModalItem.userName || "Item Owner",
+              rentModalItem.sellerName ||
+              rentModalItem.userName ||
+              "Item Owner",
             sellerPhone:
               rentModalItem.sellerPhone || rentModalItem.phone_no || "",
           };
@@ -905,7 +957,8 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
           priceType: itemPriceType,
           sellerName:
             rentModalItem.sellerName || rentModalItem.userName || "Item Owner",
-          sellerPhone: rentModalItem.sellerPhone || rentModalItem.phone_no || "",
+          sellerPhone:
+            rentModalItem.sellerPhone || rentModalItem.phone_no || "",
         };
       }
 
@@ -913,7 +966,9 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
         const saved = JSON.parse(
           localStorage.getItem("rent_hub_requests") || "[]",
         );
-        const filtered = saved.filter((r) => String(r.id) !== String(created.id));
+        const filtered = saved.filter(
+          (r) => String(r.id) !== String(created.id),
+        );
         localStorage.setItem(
           "rent_hub_requests",
           JSON.stringify([created, ...filtered]),
@@ -1005,7 +1060,7 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
       const match = requests.find(
         (r) =>
           String(r.id) === String(reviewReqId) ||
-          String(r.requestId) === String(reviewReqId)
+          String(r.requestId) === String(reviewReqId),
       );
       if (match) {
         setSelectedReviewItem({
@@ -1018,7 +1073,9 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
           reviewId: match.reviewId || match.review_id || null,
           reviewRating: match.reviewRating || match.review_rating || 5,
           reviewComment: match.reviewComment || match.review_comment || "",
-          hasReviewed: Boolean(match.reviewId || match.review_id || match.hasReviewed),
+          hasReviewed: Boolean(
+            match.reviewId || match.review_id || match.hasReviewed,
+          ),
         });
       }
     }
@@ -1037,7 +1094,7 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
         const updated = prev.map((r) =>
           String(r.id) === String(reqId)
             ? { ...r, status: "return_pending" }
-            : r
+            : r,
         );
         try {
           localStorage.setItem("rent_hub_requests", JSON.stringify(updated));
@@ -1084,8 +1141,8 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
               available: "Available",
               available_quantity: (Number(it.available_quantity) || 0) + 1,
             }
-          : it
-      )
+          : it,
+      ),
     );
 
     // Update requests to Completed & trust_rating
@@ -1114,7 +1171,7 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ trust_rating: rating }),
-          }).catch(() => null)
+          }).catch(() => null),
         );
       }
       if (itemId) {
@@ -1123,7 +1180,7 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
             method: "PUT",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ available: "Available" }),
-          }).catch(() => null)
+          }).catch(() => null),
         );
       }
 
@@ -1210,28 +1267,43 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: newStatus }),
         }).catch(() => null);
-      } else if (newStatus?.toLowerCase() === "rented" && verificationData) {
-        await fetch(`${API_URL}/api/rent-requests/${reqId}/handover`, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(verificationData),
-        });
+      } else if (newStatus?.toLowerCase() === "rented" && verificationData && typeof verificationData === "object") {
+        try {
+          const hRes = await fetch(`${API_URL}/api/rent-requests/${reqId}/handover`, {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify(verificationData),
+          });
+          if (!hRes.ok) {
+            await fetch(`${API_URL}/api/rent-requests/${reqId}/status`, {
+              method: "PUT",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ status: "rented" }),
+            }).catch(() => null);
+          }
+        } catch (hErr) {
+          await fetch(`${API_URL}/api/rent-requests/${reqId}/status`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ status: "rented" }),
+          }).catch(() => null);
+        }
       } else {
         await fetch(`${API_URL}/api/rent-requests/${reqId}/status`, {
           method: "PUT",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({ status: newStatus }),
         });
+      }
 
-        if (newStatus?.toLowerCase() === "rented" && targetItemId) {
-          try {
-            await fetch(`${API_URL}/api/items/status/${targetItemId}`, {
-              method: "PUT",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ available: "Rented Out" }),
-            });
-          } catch (e) {}
-        }
+      if (newStatus?.toLowerCase() === "rented" && targetItemId) {
+        try {
+          await fetch(`${API_URL}/api/items/status/${targetItemId}`, {
+            method: "PUT",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ available: "Rented Out" }),
+          }).catch(() => null);
+        } catch (e) {}
       }
 
       window.dispatchEvent(new Event("rent_requests_updated"));
@@ -1253,6 +1325,7 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
         String(r.id) === String(reqId)
           ? {
               ...r,
+              status: "rented",
               customerPicked: 1,
               customer_picked: 1,
               customerPickedAt: new Date().toISOString(),
@@ -1370,9 +1443,7 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
       };
     });
 
-  const seenSentedOutItemIds = new Set(
-    ownedRentedOut.map((it) => String(it.id)),
-  );
+  const seenSentedOutReqIds = new Set();
   const receivedReqRentedOut = requests
     .filter((r) => {
       const isOwner = !(
@@ -1385,11 +1456,11 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
         r.status?.toLowerCase() === "return_pending";
       if (!isOwner || !isConfirmed) return false;
 
-      const itemKey = String(r.itemId || r.item_id || r.id);
-      if (seenSentedOutItemIds.has(itemKey)) {
+      const reqKey = String(r.id);
+      if (seenSentedOutReqIds.has(reqKey)) {
         return false;
       }
-      seenSentedOutItemIds.add(itemKey);
+      seenSentedOutReqIds.add(reqKey);
       return true;
     })
     .map((r) => ({
@@ -1473,7 +1544,7 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
         r.reviewId ||
         r.review_id ||
         r.hasReviewed ||
-        (r.reviewRating && Number(r.reviewRating) > 0)
+        (r.reviewRating && Number(r.reviewRating) > 0),
       );
 
       if ((status === "completed" || status === "returned") && hasReview) {
@@ -1508,7 +1579,8 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
       sellerAddress: r.sellerAddress || r.seller_address || r.address,
       seller_map_latitude: r.seller_map_latitude || r.map_latitude,
       seller_map_longitude: r.seller_map_longitude || r.map_longitude,
-      seller_map_location_name: r.seller_map_location_name || r.map_location_name,
+      seller_map_location_name:
+        r.seller_map_location_name || r.map_location_name,
       startDate: r.startDate || r.start_date,
       endDate: r.endDate || r.end_date,
       quantity: r.quantity,
@@ -1524,7 +1596,7 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
         r.reviewId ||
         r.review_id ||
         r.hasReviewed ||
-        (r.reviewRating && Number(r.reviewRating) > 0)
+        (r.reviewRating && Number(r.reviewRating) > 0),
       ),
     }))
     .sort(
@@ -1557,7 +1629,8 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
     ? items.filter((it) => matchesRentalSearch(it, query))
     : items;
 
-  const allRentedCount = searchedSentedOutList.length + searchedRentedInList.length;
+  const allRentedCount =
+    searchedSentedOutList.length + searchedRentedInList.length;
 
   const displayedRentedItems =
     isFromBusinessHub || rentedSubTab === "sented-out"
@@ -1656,7 +1729,8 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
               searchTerm={searchTerm}
               setSearchTerm={setSearchTerm}
               placeholder={
-                t("search.rentsPlaceholder") || "Search by item, username, or date..."
+                t("search.rentsPlaceholder") ||
+                "Search by item, username, or date..."
               }
             />
           </div>
@@ -1828,7 +1902,8 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
                   String(r.id) === String(reviewData?.requestId) ||
                   String(r.requestId) === String(reviewData?.requestId) ||
                   (reviewData?.itemId &&
-                    String(r.itemId || r.item_id) === String(reviewData.itemId) &&
+                    String(r.itemId || r.item_id) ===
+                      String(reviewData.itemId) &&
                     (r.status?.toLowerCase() === "completed" ||
                       r.status?.toLowerCase() === "returned"));
                 return isMatch
@@ -1845,7 +1920,10 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
                   : r;
               });
               try {
-                localStorage.setItem("rent_hub_requests", JSON.stringify(updated));
+                localStorage.setItem(
+                  "rent_hub_requests",
+                  JSON.stringify(updated),
+                );
               } catch {}
               return updated;
             });
@@ -1872,13 +1950,15 @@ export default function MyItems({ user, searchTerm = "", setSearchTerm }) {
                   : r,
               );
               try {
-                localStorage.setItem("rent_hub_requests", JSON.stringify(updated));
+                localStorage.setItem(
+                  "rent_hub_requests",
+                  JSON.stringify(updated),
+                );
               } catch {}
               return updated;
             });
             fetchBuyerRequests(false);
           }}
-          API_URL={API_URL}
         />
       )}
     </div>

@@ -362,6 +362,9 @@
       "approve": "Approve",
       "decline": "Decline",
       "confirmHandover": "Confirm Handover",
+      "confirmingHandover": "Confirming Handover...",
+      "iHaveCollected": "I Have Collected the Item",
+      "confirmingReceipt": "Confirming Receipt...",
       "markReturned": "Mark as Returned"
     }
   },
