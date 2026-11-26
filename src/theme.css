@@ -64,10 +64,10 @@
   --light-bg-card-hover:    #f8fafc; /* Clean Subtle Neutral Hover */
   --light-border:           var(--border-color); /* #e2e8f0 */
   --light-border-subtle:    #f1f5f9; /* Slate 100 */
-  --light-text-main:        var(--text-primary); /* #1f2937 */
-  --light-text-secondary:   var(--text-secondary); /* #64748b */
-  --light-text-muted:       var(--text-muted); /* #94a3b8 */
-  --light-text-subtle:      var(--text-secondary); /* #64748b */
+  --light-text-main:        #1f2937; /* Dark Slate 800 - Primary Headings & Text */
+  --light-text-secondary:   #64748b; /* Slate 500 - Secondary & Body Text */
+  --light-text-muted:       #94a3b8; /* Slate 400 - Subtitles & Captions */
+  --light-text-subtle:      #64748b; /* Slate 500 Subtle Details */
 
   /* ==========================================================================
      🏷️ 4. STATUS & BADGE TOKENS (Shared across themes)

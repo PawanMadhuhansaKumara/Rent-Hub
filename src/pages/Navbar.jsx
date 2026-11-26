@@ -301,7 +301,8 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
   };
 
   return (
-    <nav className="navbar">
+    <>
+      <nav className="navbar">
       {/* Logo */}
       <Link to="/" className="navbar-brand">
         <img
@@ -580,34 +581,35 @@ export default function Navbar({ user, setUser, searchTerm = "", setSearchTerm }
           </Link>
         )}
       </div>
-
-      {/* Active Chat Box Modal */}
-      {activeChatConversation && (
-        <ChatBox
-          conversationId={activeChatConversation.conversation_id}
-          itemId={activeChatConversation.item_id}
-          itemTitle={activeChatConversation.item_title}
-          itemImage={activeChatConversation.item_image}
-          itemPrice={activeChatConversation.item_price}
-          itemPriceType={activeChatConversation.item_price_type}
-          sellerId={activeChatConversation.seller_id}
-          sellerName={
-            Number(userId) === Number(activeChatConversation.seller_id)
-              ? activeChatConversation.buyer_name
-              : activeChatConversation.seller_name
-          }
-          currentUser={user}
-          onClose={() => {
-            setActiveChatConversation(null);
-            fetchUnreadCount();
-          }}
-          onConversationDeleted={() => {
-            setActiveChatConversation(null);
-            fetchUnreadCount();
-            fetchConversations();
-          }}
-        />
-      )}
     </nav>
+
+    {/* Active Chat Box Modal */}
+    {activeChatConversation && (
+      <ChatBox
+        conversationId={activeChatConversation.conversation_id}
+        itemId={activeChatConversation.item_id}
+        itemTitle={activeChatConversation.item_title}
+        itemImage={activeChatConversation.item_image}
+        itemPrice={activeChatConversation.item_price}
+        itemPriceType={activeChatConversation.item_price_type}
+        sellerId={activeChatConversation.seller_id}
+        sellerName={
+          Number(userId) === Number(activeChatConversation.seller_id)
+            ? activeChatConversation.buyer_name
+            : activeChatConversation.seller_name
+        }
+        currentUser={user}
+        onClose={() => {
+          setActiveChatConversation(null);
+          fetchUnreadCount();
+        }}
+        onConversationDeleted={() => {
+          setActiveChatConversation(null);
+          fetchUnreadCount();
+          fetchConversations();
+        }}
+      />
+    )}
+  </>
   );
 }

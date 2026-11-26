@@ -1,4 +1,5 @@
 import React, { useState, useEffect, useRef } from "react";
+import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { Send, X, MessageCircle, User, RefreshCw, Check, CheckCheck, Trash2 } from "lucide-react";
 
@@ -348,8 +349,14 @@ export default function ChatBox({
     ? conversation?.seller_pic || sellerPic
     : conversation?.buyer_pic;
 
-  return (
-    <div style={styles.overlay} className="chatbox-overlay">
+  if (typeof document === "undefined") return null;
+
+  return createPortal(
+    <div
+      style={styles.overlay}
+      className="chatbox-overlay"
+      onClick={onClose}
+    >
       <style>{`
         @keyframes fadeIn {
           from { opacity: 0; }
@@ -369,6 +376,24 @@ export default function ChatBox({
         .chat-header-del-btn:hover {
           background-color: var(--badge-red-bg) !important;
           transform: scale(1.05);
+        }
+        .chat-header-close-btn {
+          background-color: var(--bg-app-alt, #f1f5f9) !important;
+          border: 1px solid var(--border-light, #e2e8f0) !important;
+          color: var(--text-main, #0f172a) !important;
+        }
+        .chat-header-close-btn svg {
+          stroke: var(--text-main, #0f172a) !important;
+          color: var(--text-main, #0f172a) !important;
+        }
+        .chat-header-close-btn:hover {
+          background-color: var(--badge-red-bg, rgba(239, 68, 68, 0.15)) !important;
+          border-color: var(--badge-red-text, #ef4444) !important;
+          transform: scale(1.05);
+        }
+        .chat-header-close-btn:hover svg {
+          stroke: var(--badge-red-text, #ef4444) !important;
+          color: var(--badge-red-text, #ef4444) !important;
         }
         .chat-confirm-cancel-btn:hover {
           background-color: var(--border-light) !important;
@@ -392,7 +417,11 @@ export default function ChatBox({
           }
         }
       `}</style>
-      <div style={styles.chatContainer} className="chatbox-container">
+      <div
+        style={styles.chatContainer}
+        className="chatbox-container"
+        onClick={(e) => e.stopPropagation()}
+      >
         {/* IN-CHATBOX CONFIRMATION MODAL */}
         {confirmModal && (
           <div
@@ -470,8 +499,15 @@ export default function ChatBox({
                 <Trash2 size={16} color="var(--badge-red-text)" />
               </button>
             )}
-            <button onClick={onClose} style={styles.closeBtn} title="Close Chat">
-              <X size={20} color="var(--text-secondary)" />
+            <button
+              type="button"
+              onClick={onClose}
+              className="chat-header-close-btn"
+              style={styles.closeBtn}
+              title="Close Chat"
+              aria-label="Close Chat"
+            >
+              <X size={18} color="currentColor" />
             </button>
           </div>
         </div>
@@ -612,7 +648,8 @@ export default function ChatBox({
           </button>
         </form>
       </div>
-    </div>
+    </div>,
+    document.body
   );
 }
 
@@ -620,12 +657,12 @@ const styles = {
   overlay: {
     position: "fixed",
     inset: 0,
-    backgroundColor: "rgba(0, 0, 0, 0.4)",
+    backgroundColor: "rgba(0, 0, 0, 0.45)",
     backdropFilter: "blur(3px)",
     display: "flex",
     alignItems: "flex-end",
     justifyContent: "flex-end",
-    zIndex: 2000,
+    zIndex: 9999,
     padding: "20px 20px 85px 20px", // Space above bottom navigation bar
   },
   chatContainer: {
@@ -759,8 +796,8 @@ const styles = {
     color: "var(--text-muted)",
   },
   closeBtn: {
-    background: "var(--bg-card-hover)",
-    border: "none",
+    background: "var(--bg-app-alt)",
+    border: "1px solid var(--border-light)",
     borderRadius: "50%",
     width: "32px",
     height: "32px",
@@ -768,6 +805,8 @@ const styles = {
     alignItems: "center",
     justifyContent: "center",
     cursor: "pointer",
+    color: "var(--text-main)",
+    transition: "all 0.2s ease",
   },
   headerDeleteBtn: {
     background: "var(--badge-red-bg)",
